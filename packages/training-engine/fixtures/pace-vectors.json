@@ -1,0 +1,37 @@
+{
+  "description": "Vectores de prueba compartidos entre training-engine (Vitest) y la app Flutter (flutter test). Si cambia una regla de cálculo, actualizar aquí y ambas suites deben pasar.",
+  "pace": [
+    { "distanceM": 10000, "durationS": 3000, "paceSPerKm": 300, "speedKmh": 12, "formattedPace": "5:00 /km" },
+    { "distanceM": 5000, "durationS": 1650, "paceSPerKm": 330, "speedKmh": 10.90909090909091, "formattedPace": "5:30 /km" },
+    { "distanceM": 42195, "durationS": 14400, "paceSPerKm": 341.2726626377533, "speedKmh": 10.54875, "formattedPace": "5:41 /km" },
+    { "distanceM": 21097, "durationS": 7200, "paceSPerKm": 341.2807508176518, "speedKmh": 10.5485, "formattedPace": "5:41 /km" },
+    { "distanceM": 0, "durationS": 1800, "paceSPerKm": null, "speedKmh": null, "formattedPace": "—" },
+    { "distanceM": 5000, "durationS": 0, "paceSPerKm": null, "speedKmh": null, "formattedPace": "—" }
+  ],
+  "duration": [
+    { "seconds": 0, "formatted": "0:00" },
+    { "seconds": 59, "formatted": "0:59" },
+    { "seconds": 3000, "formatted": "50:00" },
+    { "seconds": 3723, "formatted": "1:02:03" },
+    { "seconds": 14400, "formatted": "4:00:00" }
+  ],
+  "parseKm": [
+    { "input": "10", "meters": 10000 },
+    { "input": "10,5", "meters": 10500 },
+    { "input": "21.097", "meters": 21097 },
+    { "input": "0,1", "meters": 100 },
+    { "input": "abc", "meters": null },
+    { "input": "1,2345", "meters": null }
+  ],
+  "parseDuration": [
+    { "input": "45", "seconds": 2700 },
+    { "input": "45:30", "seconds": 2730 },
+    { "input": "1:02:03", "seconds": 3723 },
+    { "input": "1:60", "seconds": null },
+    { "input": "", "seconds": null }
+  ],
+  "splits": [
+    { "distanceM": 10000, "targetTimeS": 3000, "splitDistanceM": 1000, "count": 10, "lastCumulativeS": 3000, "firstSplitS": 300 },
+    { "distanceM": 21097, "targetTimeS": 7200, "splitDistanceM": 5000, "count": 5, "lastCumulativeS": 7200, "firstSplitS": 1706 }
+  ]
+}

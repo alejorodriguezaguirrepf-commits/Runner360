@@ -1,0 +1,16 @@
+{
+  "name": "runner360",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=20.9" },
+  "scripts": {
+    "dev": "pnpm --filter @runner360/web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "e2e": "pnpm --filter @runner360/web e2e",
+    "seed:generate": "pnpm --filter @runner360/training-engine generate:seed",
+    "db:verify": "bash scripts/verify-db.sh"
+  }
+}
