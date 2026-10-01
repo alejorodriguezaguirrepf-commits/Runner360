@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { parseDuration, parseKmToMeters, workoutLogSchema } from "@runner360/shared";
 import { getViewer } from "@/lib/auth";
 import { localInputToIso } from "@/lib/datetime";
-import { dbErrorState, intOrNull, str, strOrNull, zodToState, type ActionState } from "@/lib/form";
+import { dbErrorState, intOrNull, str, strOrNull, withValues, zodToState, type ActionState } from "@/lib/form";
 import { createClient } from "@/lib/supabase/server";
 
 function parseSplits(fd: FormData) {
@@ -18,6 +18,10 @@ function parseSplits(fd: FormData) {
 }
 
 export async function saveWorkoutAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  return withValues(await saveWorkout(fd), fd);
+}
+
+async function saveWorkout(fd: FormData): Promise<ActionState> {
   const viewer = await getViewer();
   if (!viewer) return { ok: false, message: "Tu sesión expiró. Volvé a ingresar." };
 

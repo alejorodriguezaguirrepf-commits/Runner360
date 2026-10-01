@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import type { AppRole, Feature } from "@runner360/shared";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
@@ -41,6 +42,8 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
 });
 
 export async function requireViewer(next = "/app"): Promise<Viewer> {
+  // Las páginas privadas siempre se renderizan por request (nunca se prerenderizan).
+  await connection();
   if (!isSupabaseConfigured()) redirect("/ingresar?motivo=configuracion");
   const viewer = await getViewer();
   if (!viewer) redirect(`/ingresar?next=${encodeURIComponent(next)}`);

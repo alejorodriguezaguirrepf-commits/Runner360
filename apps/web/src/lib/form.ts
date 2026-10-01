@@ -1,9 +1,13 @@
 import type { ZodError } from "zod";
 
+export type FormValues = Record<string, string | string[]>;
+
 export type ActionState = {
   ok: boolean;
   message: string | null;
   fieldErrors?: Record<string, string>;
+  /** Valores enviados, para repoblar el formulario si hay errores (React 19 resetea los formularios tras una acción). */
+  values?: FormValues;
 };
 
 export const initialActionState: ActionState = { ok: false, message: null };
@@ -48,4 +52,30 @@ export function dbErrorState(context: string, error: { code?: string; message?: 
   if (error) console.error(`[${context}] db_error`, error.code ?? "unknown");
   if (error?.code === "42501") return { ok: false, message: "No tenés permisos para realizar esta acción." };
   return { ok: false, message: "No pudimos guardar los cambios. Intentá nuevamente." };
+}
+
+/** Copia los valores del formulario (excluye contraseñas y campos internos de Next). */
+export function formValues(fd: FormData): FormValues {
+  const out: FormValues = {};
+  for (const [k, v] of fd.entries()) {
+    if (typeof v !== "string" || k.startsWith("$ACTION") || /password|confirm/i.test(k)) continue;
+    const prev = out[k];
+    out[k] = prev === undefined ? v : Array.isArray(prev) ? [...prev, v] : [prev, v];
+  }
+  return out;
+}
+
+export function withValues(state: ActionState, fd: FormData): ActionState {
+  return state.ok ? state : { ...state, values: formValues(fd) };
+}
+
+/** Lee un valor repoblado como cadena. */
+export function v(values: FormValues | undefined, key: string, fallback = ""): string {
+  const x = values?.[key];
+  return typeof x === "string" ? x : Array.isArray(x) ? (x[0] ?? fallback) : fallback;
+}
+export function vList(values: FormValues | undefined, key: string): string[] | null {
+  if (!values) return null;
+  const x = values[key];
+  return x === undefined ? [] : Array.isArray(x) ? x : [x];
 }

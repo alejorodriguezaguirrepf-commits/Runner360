@@ -102,9 +102,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             <Stat
               label="Planificado esta semana"
               value={plannedDistance > 0 ? formatKm(plannedDistance) : formatDuration(plannedDuration)}
-              hint={plannedDistance > 0 ? undefined : "Plan por tiempo"}
+              hint={weekItems.length === 0 && today < plan.startDate ? `Tu plan comienza el ${formatDate(plan.startDate, { weekday: "long", year: undefined })}` : plannedDistance > 0 ? undefined : "Plan por tiempo"}
             />
-            <Stat label="Realizado esta semana" value={formatKm(weekDone.distanceM)} hint={`${formatDuration(weekDone.durationS)} en ${weekDone.workouts} sesiones`} />
+            <Stat label="Realizado esta semana" value={formatKm(weekDone.distanceM)} hint={`${formatDuration(weekDone.durationS)} en ${weekDone.workouts} ${weekDone.workouts === 1 ? "sesión" : "sesiones"}`} />
             <Stat label="Sesiones de la semana" value={`${weekCompleted} / ${weekPlanned}`} />
           </div>
 

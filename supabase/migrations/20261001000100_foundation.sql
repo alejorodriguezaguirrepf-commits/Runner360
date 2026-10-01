@@ -45,7 +45,8 @@ create trigger profiles_updated_at before update on public.profiles
 
 -- Roles en tabla separada: el usuario no puede modificarlos actualizando su perfil.
 create table public.user_roles (
-  user_id uuid not null references auth.users (id) on delete cascade,
+  -- FK a profiles (que a su vez referencia auth.users): habilita el embed profiles → user_roles en la API.
+  user_id uuid not null references public.profiles (id) on delete cascade,
   role public.app_role not null,
   granted_by uuid references auth.users (id) on delete set null,
   created_at timestamptz not null default now(),

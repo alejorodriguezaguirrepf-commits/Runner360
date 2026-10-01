@@ -1,15 +1,24 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { LEGAL_VERSIONS, trainingProfileSchema } from "@runner360/shared";
-import { getViewer } from "@/lib/auth";
-import { bool, dbErrorState, intList, intOrNull, str, strOrNull, zodToState, type ActionState } from "@/lib/form";
+import { bool, dbErrorState, intList, intOrNull, str, strOrNull, withValues, zodToState, type ActionState } from "@/lib/form";
 import { createClient } from "@/lib/supabase/server";
 import { parseDuration, parseKmToMeters } from "@runner360/shared";
 
 /** Guarda el perfil deportivo. La validación se repite aquí (servidor) aunque el cliente valide. */
 export async function saveTrainingProfileAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const viewer = await getViewer();
-  if (!viewer) return { ok: false, message: "Tu sesión expiró. Volvé a ingresar." };
+  return withValues(await save(fd), fd);
+}
+
+async function save(fd: FormData): Promise<ActionState> {
+  // No se usa getViewer() (cacheado por request): tras el redirect se renderiza /app/plan en el mismo
+  // request y necesita ver el onboarding ya completado.
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return { ok: false, message: "Tu sesión expiró. Volvé a ingresar." };
+  const { data: current } = await supabase.from("profiles").select("onboarding_completed_at").eq("id", auth.user.id).maybeSingle();
+  const viewer = { id: auth.user.id, onboardingCompleted: Boolean(current?.onboarding_completed_at) };
 
   const weeklyKm = str(fd, "weeklyKm");
   const recentKm = str(fd, "recentRaceKm");
@@ -35,7 +44,6 @@ export async function saveTrainingProfileAction(_prev: ActionState, fd: FormData
   const parsed = trainingProfileSchema.safeParse(input);
   if (!parsed.success) return zodToState(parsed.error);
   const v = parsed.data;
-  const supabase = await createClient();
 
   const { error: pErr } = await supabase
     .from("profiles")
@@ -83,5 +91,7 @@ export async function saveTrainingProfileAction(_prev: ActionState, fd: FormData
   if (!viewer.onboardingCompleted) {
     await supabase.from("profiles").update({ onboarding_completed_at: new Date().toISOString() }).eq("id", viewer.id);
   }
+  // Invalida la caché del router: rutas privadas prefetcheadas antes del onboarding redirigían aquí.
+  revalidatePath("/", "layout");
   redirect("/app/plan?desde=perfil");
 }

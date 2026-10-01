@@ -8,7 +8,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const viewer = await requireOnboardedViewer();
   const staff = isStaff(viewer);
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[260px_1fr]">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[260px_1fr] lg:bg-[linear-gradient(to_right,var(--color-navy)_260px,var(--color-surface)_260px)]">
       <aside className="on-dark sticky top-0 hidden h-dvh flex-col justify-between bg-navy p-5 lg:flex">
         <div className="space-y-8">
           <Logo dark href="/app" />

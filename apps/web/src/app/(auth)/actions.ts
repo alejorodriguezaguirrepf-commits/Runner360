@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { LEGAL_VERSIONS } from "@runner360/shared";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
-import { bool, str, zodToState, type ActionState } from "@/lib/form";
+import { bool, str, withValues, zodToState, type ActionState } from "@/lib/form";
 import { rateLimit } from "@/lib/rate-limit";
 import { safeNext } from "@/lib/safe-redirect";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +29,10 @@ const password = z
   .regex(/\d/, "Incluí al menos un número");
 
 export async function signInAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  return withValues(await signInActionImpl(fd), fd);
+}
+
+async function signInActionImpl(fd: FormData): Promise<ActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
   const parsed = z.object({ email, password: z.string().min(1, "Ingresá tu contraseña") }).safeParse({
     email: str(fd, "email").toLowerCase(),
@@ -49,6 +53,10 @@ export async function signInAction(_prev: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function signUpAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  return withValues(await signUpActionImpl(fd), fd);
+}
+
+async function signUpActionImpl(fd: FormData): Promise<ActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
   const schema = z
     .object({
@@ -95,6 +103,10 @@ export async function signUpAction(_prev: ActionState, fd: FormData): Promise<Ac
 }
 
 export async function requestPasswordResetAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  return withValues(await requestPasswordResetActionImpl(fd), fd);
+}
+
+async function requestPasswordResetActionImpl(fd: FormData): Promise<ActionState> {
   if (!isSupabaseConfigured()) return NOT_CONFIGURED;
   const parsed = z.object({ email }).safeParse({ email: str(fd, "email").toLowerCase() });
   if (!parsed.success) return zodToState(parsed.error);

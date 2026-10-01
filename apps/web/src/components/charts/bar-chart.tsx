@@ -69,14 +69,14 @@ export function BarChart({ title, data, unitLabel, height = 180 }: { title: stri
             <button
               key={d.key}
               type="button"
-              className="truncate rounded px-0.5 py-1 hover:text-navy focus-visible:text-navy"
+              className="whitespace-nowrap rounded px-0.5 py-1 hover:text-navy focus-visible:text-navy"
               onFocus={() => setActive(i)}
               onBlur={() => setActive(null)}
               onMouseEnter={() => setActive(i)}
               onMouseLeave={() => setActive(null)}
               aria-label={`${d.label}: ${d.display}`}
             >
-              {i % Math.ceil(n / 8) === 0 || n <= 8 ? d.label : " "}
+              {(n - 1 - i) % Math.ceil(n / 5) === 0 ? d.label : "\u00a0"}
             </button>
           ))}
         </div>

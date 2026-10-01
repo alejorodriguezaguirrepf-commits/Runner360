@@ -1,0 +1,28 @@
+# Configuración para Supabase CLI (`supabase start` / `supabase db reset`).
+project_id = "runner360"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/*.sql"]
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+# En producción: true (verificación de correo). Localmente los correos se ven en Inbucket/Mailpit.
+enable_confirmations = true

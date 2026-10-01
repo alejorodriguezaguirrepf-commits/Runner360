@@ -8,7 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { initialActionState } from "@/lib/form";
+import { initialActionState, v } from "@/lib/form";
 
 export function WorkoutForm({
   calendarEntryId,
@@ -35,6 +35,7 @@ export function WorkoutForm({
     return { pace: formatPace(paceSecondsPerKm(m, s)), speed: formatSpeedKmh(speedKmh(m, s)) };
   }, [km, duration]);
   const skipped = status === "skipped";
+  const d = (key: string, fallback = "") => (state.values ? v(state.values, key) : fallback);
 
   return (
     <form action={action} className="space-y-6" noValidate>
@@ -50,7 +51,7 @@ export function WorkoutForm({
           </Select>
         </Field>
         <Field label="Fecha y hora de inicio" htmlFor="startedAt" error={fe.startedAt}>
-          <Input id="startedAt" name="startedAt" type="datetime-local" defaultValue={defaultStartedAt} required invalid={!!fe.startedAt} />
+          <Input id="startedAt" name="startedAt" type="datetime-local" defaultValue={d("startedAt", defaultStartedAt)} required invalid={!!fe.startedAt} />
         </Field>
       </div>
 
@@ -71,16 +72,16 @@ export function WorkoutForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-4">
             <Field label="RPE (1-10)" htmlFor="rpe" error={fe.rpe} hint="Esfuerzo percibido">
-              <Input id="rpe" name="rpe" type="number" min={1} max={10} inputMode="numeric" invalid={!!fe.rpe} />
+              <Input id="rpe" name="rpe" defaultValue={d("rpe")} type="number" min={1} max={10} inputMode="numeric" invalid={!!fe.rpe} />
             </Field>
             <Field label="FC media (lpm)" htmlFor="avgHr" error={fe.avgHr}>
-              <Input id="avgHr" name="avgHr" type="number" min={30} max={250} inputMode="numeric" invalid={!!fe.avgHr} />
+              <Input id="avgHr" name="avgHr" defaultValue={d("avgHr")} type="number" min={30} max={250} inputMode="numeric" invalid={!!fe.avgHr} />
             </Field>
             <Field label="FC máxima (lpm)" htmlFor="maxHr" error={fe.maxHr}>
-              <Input id="maxHr" name="maxHr" type="number" min={30} max={250} inputMode="numeric" invalid={!!fe.maxHr} />
+              <Input id="maxHr" name="maxHr" defaultValue={d("maxHr")} type="number" min={30} max={250} inputMode="numeric" invalid={!!fe.maxHr} />
             </Field>
             <Field label="Desnivel + (m)" htmlFor="elevationGainM" error={fe.elevationGainM}>
-              <Input id="elevationGainM" name="elevationGainM" type="number" min={0} max={10000} inputMode="numeric" invalid={!!fe.elevationGainM} />
+              <Input id="elevationGainM" name="elevationGainM" defaultValue={d("elevationGainM")} type="number" min={0} max={10000} inputMode="numeric" invalid={!!fe.elevationGainM} />
             </Field>
           </div>
 
@@ -105,7 +106,7 @@ export function WorkoutForm({
       ) : null}
 
       <Field label="Comentarios" htmlFor="notes" error={fe.notes}>
-        <Textarea id="notes" name="notes" maxLength={1000} placeholder={skipped ? "¿Por qué no se realizó? (opcional)" : "Sensaciones, clima, molestias…"} />
+        <Textarea id="notes" name="notes" defaultValue={d("notes")} maxLength={1000} placeholder={skipped ? "¿Por qué no se realizó? (opcional)" : "Sensaciones, clima, molestias…"} />
       </Field>
       <SubmitButton size="lg">Guardar entrenamiento</SubmitButton>
     </form>

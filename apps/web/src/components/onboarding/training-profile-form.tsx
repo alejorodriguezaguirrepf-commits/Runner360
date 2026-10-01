@@ -14,7 +14,7 @@ import { saveTrainingProfileAction } from "@/app/onboarding/actions";
 import { Alert } from "@/components/ui/alert";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { initialActionState } from "@/lib/form";
+import { initialActionState, v, vList } from "@/lib/form";
 
 export interface ProfileDefaults {
   displayName: string;
@@ -49,6 +49,11 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
   const [goal, setGoal] = useState(defaults.goal || "complete");
   const [health, setHealth] = useState(defaults.hasRecentInjury || defaults.hasMedicalCondition || !!defaults.healthNotes);
   const fe = state.fieldErrors ?? {};
+  // Si el servidor devolvió errores, se repuebla con lo enviado (React 19 resetea el formulario).
+  const sv = state.values;
+  const d = (key: keyof ProfileDefaults) => (sv ? v(sv, key) : String(defaults[key] ?? ""));
+  const checked = (key: keyof ProfileDefaults) => (sv ? v(sv, key) === "on" : Boolean(defaults[key]));
+  const days = vList(sv, "availableDays")?.map(Number) ?? defaults.availableDays;
 
   return (
     <form action={action} className="space-y-6" noValidate>
@@ -57,10 +62,10 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
       <Section title="Sobre vos">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Nombre visible" htmlFor="displayName" error={fe.displayName}>
-            <Input id="displayName" name="displayName" defaultValue={defaults.displayName} required invalid={!!fe.displayName} />
+            <Input id="displayName" name="displayName" defaultValue={d("displayName")} required invalid={!!fe.displayName} />
           </Field>
           <Field label="Fecha de nacimiento" htmlFor="birthDate" error={fe.birthDate} hint="Para adecuar recomendaciones generales. Edad mínima: 16 años.">
-            <Input id="birthDate" name="birthDate" type="date" defaultValue={defaults.birthDate} required invalid={!!fe.birthDate} />
+            <Input id="birthDate" name="birthDate" type="date" defaultValue={d("birthDate")} required invalid={!!fe.birthDate} />
           </Field>
         </div>
       </Section>
@@ -68,7 +73,7 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
       <Section title="Tu objetivo">
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Distancia objetivo" htmlFor="targetDistance" error={fe.targetDistance}>
-            <Select id="targetDistance" name="targetDistance" defaultValue={defaults.targetDistance || "5k"}>
+            <Select id="targetDistance" name="targetDistance" defaultValue={d("targetDistance") || "5k"}>
               {RACE_DISTANCES.map((d) => (
                 <option key={d} value={d}>{RACE_DISTANCE_LABELS[d]}</option>
               ))}
@@ -86,7 +91,7 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
             htmlFor="raceDate"
             error={fe.raceDate}
           >
-            <Input id="raceDate" name="raceDate" type="date" defaultValue={defaults.raceDate} invalid={!!fe.raceDate} />
+            <Input id="raceDate" name="raceDate" type="date" defaultValue={d("raceDate")} invalid={!!fe.raceDate} />
           </Field>
         </div>
       </Section>
@@ -94,41 +99,41 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
       <Section title="Tu experiencia" description="Respondé con tu situación actual, no con la que te gustaría tener.">
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Nivel" htmlFor="level" error={fe.level}>
-            <Select id="level" name="level" defaultValue={defaults.level || "beginner"}>
+            <Select id="level" name="level" defaultValue={d("level") || "beginner"}>
               {RUNNER_LEVELS.map((l) => (
                 <option key={l} value={l}>{RUNNER_LEVEL_LABELS[l]}</option>
               ))}
             </Select>
           </Field>
           <Field label="Meses corriendo" htmlFor="experienceMonths" error={fe.experienceMonths}>
-            <Input id="experienceMonths" name="experienceMonths" type="number" min={0} max={720} inputMode="numeric" defaultValue={defaults.experienceMonths} required invalid={!!fe.experienceMonths} />
+            <Input id="experienceMonths" name="experienceMonths" type="number" min={0} max={720} inputMode="numeric" defaultValue={d("experienceMonths")} required invalid={!!fe.experienceMonths} />
           </Field>
           <Field label="Km por semana (actual)" htmlFor="weeklyKm" error={fe.weeklyDistanceM} hint="Promedio de las últimas semanas. 0 si no corrés.">
-            <Input id="weeklyKm" name="weeklyKm" inputMode="decimal" defaultValue={defaults.weeklyKm} invalid={!!fe.weeklyDistanceM} />
+            <Input id="weeklyKm" name="weeklyKm" inputMode="decimal" defaultValue={d("weeklyKm")} invalid={!!fe.weeklyDistanceM} />
           </Field>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Marca reciente: distancia en km (opcional)" htmlFor="recentRaceKm" error={fe.recentRaceDistanceM}>
-            <Input id="recentRaceKm" name="recentRaceKm" inputMode="decimal" placeholder="Ej.: 10" defaultValue={defaults.recentRaceKm} invalid={!!fe.recentRaceDistanceM} />
+            <Input id="recentRaceKm" name="recentRaceKm" inputMode="decimal" placeholder="Ej.: 10" defaultValue={d("recentRaceKm")} invalid={!!fe.recentRaceDistanceM} />
           </Field>
           <Field label="Marca reciente: tiempo (opcional)" htmlFor="recentRaceTime" error={fe.recentRaceTimeS} hint="mm:ss o h:mm:ss">
-            <Input id="recentRaceTime" name="recentRaceTime" inputMode="numeric" placeholder="Ej.: 55:30" defaultValue={defaults.recentRaceTime} invalid={!!fe.recentRaceTimeS} />
+            <Input id="recentRaceTime" name="recentRaceTime" inputMode="numeric" placeholder="Ej.: 55:30" defaultValue={d("recentRaceTime")} invalid={!!fe.recentRaceTimeS} />
           </Field>
         </div>
       </Section>
 
       <Section title="Disponibilidad" description="Marcá todos los días en los que podrías entrenar.">
         <div role="group" aria-label="Días disponibles" className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-          {WEEKDAYS.map((d) => (
-            <label key={d} className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm has-[:checked]:border-navy has-[:checked]:bg-navy has-[:checked]:text-white">
-              <input type="checkbox" name="availableDays" value={d} defaultChecked={defaults.availableDays.includes(d)} className="size-4 accent-lime" />
-              {WEEKDAY_LABELS[d]}
+          {WEEKDAYS.map((day) => (
+            <label key={day} className="flex cursor-pointer items-center gap-2 rounded-xl border border-line px-3 py-2.5 text-sm has-[:checked]:border-navy has-[:checked]:bg-navy has-[:checked]:text-white">
+              <input type="checkbox" name="availableDays" value={day} defaultChecked={days.includes(day)} className="size-4 accent-lime" />
+              {WEEKDAY_LABELS[day]}
             </label>
           ))}
         </div>
         {fe.availableDays ? <p className="text-xs font-medium text-danger">{fe.availableDays}</p> : null}
         <Field label="Preferencias de entrenamiento (opcional)" htmlFor="preferences" error={fe.preferences}>
-          <Textarea id="preferences" name="preferences" maxLength={500} defaultValue={defaults.preferences} placeholder="Ej.: prefiero entrenar temprano, corro en cinta los días de lluvia…" />
+          <Textarea id="preferences" name="preferences" maxLength={500} defaultValue={d("preferences")} placeholder="Ej.: prefiero entrenar temprano, corro en cinta los días de lluvia…" />
         </Field>
       </Section>
 
@@ -139,10 +144,10 @@ export function TrainingProfileForm({ defaults, submitLabel }: { defaults: Profi
         <Checkbox id="health" label="Quiero informar antecedentes de salud relevantes" checked={health} onChange={(e) => setHealth(e.target.checked)} />
         {health ? (
           <div className="space-y-4 rounded-xl bg-surface p-4">
-            <Checkbox id="hasRecentInjury" name="hasRecentInjury" defaultChecked={defaults.hasRecentInjury} label="Tuve una lesión en los últimos 6 meses" />
-            <Checkbox id="hasMedicalCondition" name="hasMedicalCondition" defaultChecked={defaults.hasMedicalCondition} label="Tengo una condición médica que podría verse afectada por el ejercicio" />
+            <Checkbox id="hasRecentInjury" name="hasRecentInjury" defaultChecked={checked("hasRecentInjury")} label="Tuve una lesión en los últimos 6 meses" />
+            <Checkbox id="hasMedicalCondition" name="hasMedicalCondition" defaultChecked={checked("hasMedicalCondition")} label="Tengo una condición médica que podría verse afectada por el ejercicio" />
             <Field label="Comentarios (opcional)" htmlFor="healthNotes" error={fe.healthNotes}>
-              <Textarea id="healthNotes" name="healthNotes" maxLength={500} defaultValue={defaults.healthNotes} />
+              <Textarea id="healthNotes" name="healthNotes" maxLength={500} defaultValue={d("healthNotes")} />
             </Field>
             <Checkbox
               id="healthDataConsent"

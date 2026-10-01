@@ -10,7 +10,7 @@ import {
 import { Alert } from "@/components/ui/alert";
 import { Checkbox, Field, Input } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { initialActionState, type ActionState } from "@/lib/form";
+import { initialActionState, v, type ActionState } from "@/lib/form";
 
 function FormMessage({ state }: { state: ActionState }) {
   if (!state.message) return null;
@@ -25,7 +25,7 @@ export function SignInForm({ next, disabled }: { next: string; disabled: boolean
       <input type="hidden" name="next" value={next} />
       <FormMessage state={state} />
       <Field label="Correo electrónico" htmlFor="email" error={fe.email}>
-        <Input id="email" name="email" type="email" autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
+        <Input id="email" name="email" type="email" defaultValue={v(state.values, "email")} autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
       </Field>
       <Field label="Contraseña" htmlFor="password" error={fe.password}>
         <Input id="password" name="password" type="password" autoComplete="current-password" required invalid={!!fe.password} disabled={disabled} />
@@ -50,10 +50,10 @@ export function SignUpForm({ disabled }: { disabled: boolean }) {
     <form action={action} className="space-y-4" noValidate>
       <FormMessage state={state} />
       <Field label="Nombre visible" htmlFor="displayName" error={fe.displayName}>
-        <Input id="displayName" name="displayName" autoComplete="nickname" required invalid={!!fe.displayName} disabled={disabled} />
+        <Input id="displayName" name="displayName" defaultValue={v(state.values, "displayName")} autoComplete="nickname" required invalid={!!fe.displayName} disabled={disabled} />
       </Field>
       <Field label="Correo electrónico" htmlFor="email" error={fe.email}>
-        <Input id="email" name="email" type="email" autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
+        <Input id="email" name="email" type="email" defaultValue={v(state.values, "email")} autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
       </Field>
       <Field label="Contraseña" htmlFor="password" hint="Mínimo 8 caracteres, con letras y números." error={fe.password}>
         <Input id="password" name="password" type="password" autoComplete="new-password" required invalid={!!fe.password} disabled={disabled} />
@@ -89,7 +89,7 @@ export function ResetRequestForm({ disabled }: { disabled: boolean }) {
     <form action={action} className="space-y-4" noValidate>
       <FormMessage state={state} />
       <Field label="Correo electrónico" htmlFor="email" error={fe.email}>
-        <Input id="email" name="email" type="email" autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
+        <Input id="email" name="email" type="email" defaultValue={v(state.values, "email")} autoComplete="email" required invalid={!!fe.email} disabled={disabled} />
       </Field>
       <SubmitButton className="w-full" size="lg" pendingText="Enviando…" disabled={disabled}>
         Enviar enlace
