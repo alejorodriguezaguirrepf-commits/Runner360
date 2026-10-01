@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Identidad visual RUNNER 360 — tokens reutilizables (ver docs/ARCHITECTURE.md › Diseño). */
+@theme {
+  --color-navy: #122438;
+  --color-navy-700: #1b3350;
+  --color-navy-600: #26476d;
+  --color-surface: #f6f8fa;
+  --color-lime: #d5f36a;
+  --color-lime-600: #b7d84a;
+  --color-ink: #122438;
+  --color-muted: #55657a;
+  --color-line: #e2e8ef;
+  --color-danger: #b42318;
+  --color-danger-bg: #fef3f2;
+  --color-success: #157f3c;
+  --color-success-bg: #ecfdf3;
+  --color-warning: #93370d;
+  --color-warning-bg: #fffaeb;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-card: 1rem;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-navy-600);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--color-lime);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

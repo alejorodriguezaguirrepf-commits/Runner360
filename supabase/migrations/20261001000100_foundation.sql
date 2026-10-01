@@ -173,6 +173,25 @@ returns boolean language sql stable security definer set search_path = '' as $$
   ), false);
 $$;
 
+-- Registrar la aceptación de términos y privacidad declarada en el alta (metadata del registro).
+create or replace function public.handle_signup_consents()
+returns trigger language plpgsql security definer set search_path = '' as $$
+declare
+  v_terms text := left(new.raw_user_meta_data ->> 'accepted_terms_version', 40);
+  v_privacy text := left(new.raw_user_meta_data ->> 'accepted_privacy_version', 40);
+begin
+  if v_terms is not null and v_terms <> '' then
+    insert into public.user_consents (user_id, consent_type, document_version, granted) values (new.id, 'terms', v_terms, true);
+  end if;
+  if v_privacy is not null and v_privacy <> '' then
+    insert into public.user_consents (user_id, consent_type, document_version, granted) values (new.id, 'privacy', v_privacy, true);
+  end if;
+  return new;
+end $$;
+
+create trigger on_auth_user_created_consents after insert on auth.users
+  for each row execute function public.handle_signup_consents();
+
 -- ===================== RLS =====================
 alter table public.profiles enable row level security;
 alter table public.user_roles enable row level security;
