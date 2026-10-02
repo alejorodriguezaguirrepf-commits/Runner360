@@ -1,0 +1,25 @@
+{
+  "name": "@runner360/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Esquemas de entrada, etiquetas es-AR, formato y tipos de filas compartidos por web y servidor.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@runner360/training-engine": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}
