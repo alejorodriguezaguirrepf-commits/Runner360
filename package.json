@@ -1,0 +1,20 @@
+{
+  "name": "runner360",
+  "private": true,
+  "description": "RUNNER 360 — Entrená. Medí. Progresá.",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "db:test": "bash scripts/db-test.sh",
+    "seed:generate": "pnpm --filter @runner360/training-engine seed:generate"
+  }
+}

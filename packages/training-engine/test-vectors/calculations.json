@@ -1,0 +1,43 @@
+{
+  "$comment": "Vectores de prueba compartidos entre el motor TypeScript (vitest) y la app Flutter (flutter test). Si cambia un cálculo, debe cambiar en ambos lados.",
+  "pace": [
+    { "distanceM": 5000, "durationS": 1500, "paceSPerKm": 300, "speedKmh": 12, "paceLabel": "5:00" },
+    { "distanceM": 10000, "durationS": 3330, "paceSPerKm": 333, "speedKmh": 10.81081081, "paceLabel": "5:33" },
+    { "distanceM": 21097.5, "durationS": 7200, "paceSPerKm": 341.2726626, "speedKmh": 10.54875, "paceLabel": "5:41" },
+    { "distanceM": 42195, "durationS": 14400, "paceSPerKm": 341.2726626, "speedKmh": 10.54875, "paceLabel": "5:41" },
+    { "distanceM": 3000, "durationS": 1079, "paceSPerKm": 359.6666667, "speedKmh": 10.00926784, "paceLabel": "6:00" },
+    { "distanceM": 0, "durationS": 1200, "paceSPerKm": null, "speedKmh": null, "paceLabel": "—" },
+    { "distanceM": 5000, "durationS": 0, "paceSPerKm": null, "speedKmh": null, "paceLabel": "—" }
+  ],
+  "parseDuration": [
+    { "input": "25:00", "seconds": 1500 },
+    { "input": "1:02:03", "seconds": 3723 },
+    { "input": " 4:05 ", "seconds": 245 },
+    { "input": "0:59", "seconds": 59 },
+    { "input": "5:60", "seconds": null },
+    { "input": "1:60:00", "seconds": null },
+    { "input": "abc", "seconds": null },
+    { "input": "12", "seconds": null }
+  ],
+  "formatDuration": [
+    { "seconds": 0, "label": "0:00" },
+    { "seconds": 59, "label": "0:59" },
+    { "seconds": 3723, "label": "1:02:03" },
+    { "seconds": 3600, "label": "1:00:00" },
+    { "seconds": 299.6, "label": "5:00" }
+  ],
+  "kmInput": [
+    { "input": "10", "meters": 10000 },
+    { "input": "10,5", "meters": 10500 },
+    { "input": "21.097", "meters": 21097 },
+    { "input": "0.4", "meters": 400 },
+    { "input": "-1", "meters": null },
+    { "input": "1.2345", "meters": null },
+    { "input": "", "meters": null }
+  ],
+  "splits": [
+    { "distanceM": 5000, "targetTimeS": 1500, "splitM": 1000, "cumulative": [300, 600, 900, 1200, 1500] },
+    { "distanceM": 21097.5, "targetTimeS": 7200, "splitM": 5000, "cumulative": [1706, 3413, 5119, 6825, 7200] },
+    { "distanceM": 2500, "targetTimeS": 601, "splitM": 1000, "cumulative": [240, 481, 601] }
+  ]
+}
