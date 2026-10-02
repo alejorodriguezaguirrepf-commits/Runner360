@@ -46,13 +46,17 @@ export default async function DashboardPage() {
         </Card>
       ) : (
         <>
-          <Card className="dark-zone mb-6 border-navy-900 bg-navy-900 text-white">
+          <Card tone="dark" className="mb-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-lime-400">Entrenamiento de hoy</h2>
               {active.version.isDemo ? <DemoBadge /> : null}
             </div>
             {d.todaySessions.length === 0 ? (
-              <p className="text-white/80">Hoy no hay sesión planificada. Descansá o hacé actividad suave si te sentís bien.</p>
+              <p className="text-white/80">
+                {active.userPlan.start_date > today
+                  ? `Tu plan comienza el ${formatDate(active.userPlan.start_date, "weekday")}. Hasta entonces podés registrar entrenamientos libres.`
+                  : "Hoy no hay sesión planificada. Descansá o hacé actividad suave si te sentís bien."}
+              </p>
             ) : (
               d.todaySessions.map((s) => (
                 <div key={s.id} className="space-y-3">
@@ -64,7 +68,7 @@ export default async function DashboardPage() {
                   <div className="rounded-xl bg-white p-4 text-ink"><SessionFacts session={s.session} /></div>
                   <div className="flex flex-wrap gap-2">
                     {s.status === "pending" ? <ButtonLink href={`/registrar?sesion=${s.id}`}>Registrar sesión</ButtonLink> : null}
-                    <ButtonLink href={`/plan/sesion/${s.id}`} variant="ghost" className="border-white/30 text-white hover:bg-white/10">Ver detalle</ButtonLink>
+                    <ButtonLink href={`/plan/sesion/${s.id}`} variant="inverse">Ver detalle</ButtonLink>
                   </div>
                 </div>
               ))
@@ -75,7 +79,7 @@ export default async function DashboardPage() {
 
           <div className="mb-6 grid gap-4 md:grid-cols-2">
             <Card>
-              <CardTitle>Semana {d.planWeek ?? "—"} {d.planWeek ? `de ${active.version.durationWeeks}` : ""}</CardTitle>
+              <CardTitle>{d.planWeek ? `Semana ${d.planWeek} de ${active.version.durationWeeks}` : active.userPlan.start_date > today ? `Comienza el ${formatDate(active.userPlan.start_date)}` : "Esta semana"}</CardTitle>
               <div className="grid grid-cols-2 gap-3">
                 <Stat label="Sesiones" value={`${d.week.doneSessions} / ${d.week.plannedSessions}`} />
                 <Stat label="Tiempo planificado" value={formatMinutesLong(d.week.plannedDurationS)} />

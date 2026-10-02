@@ -21,9 +21,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
             <Link href="/ingresar" className="rounded-lg px-3 py-2 text-sm font-semibold text-white hover:bg-white/10">
               Ingresar
             </Link>
-            <ButtonLink href="/registro" className="hidden sm:inline-flex">
-              Comenzar gratis
-            </ButtonLink>
+            <span className="hidden sm:block">
+              <ButtonLink href="/registro">Comenzar gratis</ButtonLink>
+            </span>
           </div>
         </nav>
       </header>

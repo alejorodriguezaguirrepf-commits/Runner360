@@ -84,7 +84,7 @@ export const IconStar = (p: IconProps) => (
 
 export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-2 font-extrabold tracking-tight ${className}`}>
+    <span className={`inline-flex items-center gap-2 whitespace-nowrap font-extrabold tracking-tight ${className}`}>
       <svg viewBox="0 0 32 32" width={28} height={28} aria-hidden="true">
         <circle cx="16" cy="16" r="14" fill={inverted ? "#D5F36A" : "#122438"} />
         <path d="M9 19.5c3-1 4.5-4 6-7.5 1 2.5 2.5 5.5 8 6.5" fill="none" stroke={inverted ? "#122438" : "#D5F36A"} strokeWidth="2.6" strokeLinecap="round" />

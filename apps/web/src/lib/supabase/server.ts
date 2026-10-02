@@ -12,8 +12,8 @@ export class SupabaseNotConfiguredError extends Error {
 
 /** Cliente con la sesión del usuario (cookies). Todas las consultas pasan por RLS. */
 export async function createClient(): Promise<SupabaseClient> {
-  if (!isSupabaseConfigured()) throw new SupabaseNotConfiguredError();
   const cookieStore = await cookies();
+  if (!isSupabaseConfigured()) throw new SupabaseNotConfiguredError();
   return createServerClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
     cookies: {
       getAll() {

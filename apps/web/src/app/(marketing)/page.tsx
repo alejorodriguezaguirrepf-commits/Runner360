@@ -75,7 +75,7 @@ export default async function LandingPage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/registro" className="px-6 text-base">Comenzar gratis</ButtonLink>
-              <ButtonLink href="#precios" variant="ghost" className="border-white/30 px-6 text-base text-white hover:bg-white/10">
+              <ButtonLink href="#precios" variant="inverse" className="px-6 text-base">
                 Conocer los planes
               </ButtonLink>
             </div>
@@ -250,7 +250,7 @@ export default async function LandingPage() {
           <p className="text-white/75">Creá tu cuenta gratis y completá el cuestionario en pocos minutos.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/registro" className="px-6 text-base">Comenzar gratis</ButtonLink>
-            <ButtonLink href="/ingresar" variant="ghost" className="border-white/30 px-6 text-base text-white hover:bg-white/10">Ya tengo cuenta</ButtonLink>
+            <ButtonLink href="/ingresar" variant="inverse" className="px-6 text-base">Ya tengo cuenta</ButtonLink>
           </div>
         </div>
       </section>

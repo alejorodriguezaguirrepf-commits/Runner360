@@ -6,12 +6,14 @@ export function cx(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "secondary" | "ghost" | "danger" | "inverse";
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-lime-400 text-navy-900 hover:bg-lime-500 shadow-sm",
   secondary: "bg-navy-900 text-white hover:bg-navy-800",
   ghost: "bg-transparent text-navy-900 hover:bg-navy-100 border border-line",
   danger: "bg-danger text-white hover:opacity-90",
+  /** Contorno claro para fondos oscuros. */
+  inverse: "border border-white/30 bg-transparent text-white hover:bg-white/10",
 };
 const BTN = "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 min-h-11";
 
@@ -23,8 +25,22 @@ export function ButtonLink({ variant = "primary", className, ...props }: Compone
   return <Link className={cx(BTN, VARIANTS[variant], className)} {...props} />;
 }
 
-export function Card({ className, ...props }: ComponentProps<"section">) {
-  return <section className={cx("rounded-[var(--radius-card)] border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(18,36,56,0.04)]", className)} {...props} />;
+/**
+ * Tarjeta base. `tone="dark"` para la tarjeta destacada en azul marino; `flush` quita el padding
+ * (p. ej. tablas a todo el ancho). Se usan props en lugar de clases para evitar conflictos de Tailwind.
+ */
+export function Card({ className, tone = "light", flush = false, ...props }: ComponentProps<"section"> & { tone?: "light" | "dark"; flush?: boolean }) {
+  return (
+    <section
+      className={cx(
+        "rounded-[var(--radius-card)] border shadow-[0_1px_2px_rgba(18,36,56,0.04)]",
+        tone === "dark" ? "dark-zone border-navy-900 bg-navy-900 text-white" : "border-line bg-surface",
+        flush ? "p-0" : "p-5",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function CardTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {

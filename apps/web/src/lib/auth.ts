@@ -1,8 +1,10 @@
 import "server-only";
 import type { ProfileRow } from "@runner360/shared";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export interface Session {
@@ -13,6 +15,9 @@ export interface Session {
 
 /** Usuario autenticado validado contra Supabase Auth, o null. Cacheado por request. */
 export const getSession = cache(async (): Promise<Session | null> => {
+  // Marca la ruta como dinámica (depende de cookies) incluso sin Supabase configurado.
+  await cookies();
+  if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const {
     data: { user },
