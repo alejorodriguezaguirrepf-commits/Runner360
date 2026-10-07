@@ -131,7 +131,8 @@ if (isRemote) {
   warn(
     "No hay base de datos configurada.\n" +
       "  Opción 1: instalá Docker Desktop y volvé a abrir RUNNER 360 (se configura solo).\n" +
-      "  Opción 2: creá un proyecto en supabase.com y completá apps/web/.env.local (ver README).\n" +
+      "  Opción 2: usá Supabase en la nube y conectalo con el asistente:\n" +
+      (IS_WIN ? "           doble clic en scripts\\launcher\\configurar-supabase-nube.bat\n" : "           node scripts/launcher/configurar-nube.mjs\n") +
       "  La app se abrirá igual, pero el registro y el ingreso estarán deshabilitados.",
   );
 }

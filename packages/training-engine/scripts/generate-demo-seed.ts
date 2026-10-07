@@ -40,6 +40,38 @@ const lines: string[] = [
   "begin;",
 ];
 
+// Los textos fijos (entrada en calor, criterios, notas) se definen una vez en una función temporal
+// para que el archivo sea liviano y se pueda pegar en el editor SQL de Supabase.
+const allSessions = buildAllDemoPlans().flatMap((p) => p.sessions);
+function constant<T>(values: T[], label: string): T {
+  const unique = [...new Set(values)];
+  if (unique.length !== 1) throw new Error(`Se esperaba un único valor para ${label}`);
+  return unique[0] as T;
+}
+const run = allSessions.filter((x) => x.type !== "strength");
+const str = allSessions.filter((x) => x.type === "strength");
+constant(allSessions.map((x) => x.distanceM), "distanceM");
+const T = {
+  objective: constant(allSessions.map((x) => x.objective), "objective"),
+  notes: constant(allSessions.map((x) => x.notes), "notes"),
+  progression: constant(allSessions.map((x) => x.progressionCriteria), "progressionCriteria"),
+  stop: constant(allSessions.map((x) => x.stopCriteria), "stopCriteria"),
+  warmup: constant(run.map((x) => x.warmup), "warmup"),
+  cooldown: constant(run.map((x) => x.cooldown), "cooldown"),
+  strengthWarmup: constant(str.map((x) => x.warmup), "warmup fuerza"),
+  strengthCooldown: constant(str.map((x) => x.cooldown), "cooldown fuerza"),
+};
+lines.push(
+  `create or replace function pg_temp.demo_session(p_id uuid, p_version uuid, p_week_id uuid, p_week int, p_n int, p_type text, p_title text, p_dur int, p_int text, p_rmin int, p_rmax int, p_main text, p_strength boolean)
+returns void language sql as $f$
+  insert into public.training_sessions (id, version_id, week_id, week_number, session_number, session_type, title, objective, distance_m, duration_s, intensity, rpe_min, rpe_max, warmup, main_set, cooldown, notes, progression_criteria, stop_criteria)
+  values (p_id, p_version, p_week_id, p_week, p_n, p_type::public.session_type, p_title, ${lit(T.objective)}, null, p_dur, p_int::public.intensity_level, p_rmin, p_rmax,
+    case when p_strength then ${lit(T.strengthWarmup)} else ${lit(T.warmup)} end, p_main,
+    case when p_strength then ${lit(T.strengthCooldown)} else ${lit(T.cooldown)} end,
+    ${lit(T.notes)}, ${lit(T.progression)}, ${lit(T.stop)});
+$f$;`,
+);
+
 for (const plan of buildAllDemoPlans()) {
   const check = validatePlanVersion(plan);
   if (!check.ok) throw new Error(`${plan.name} no pasa la validación: ${JSON.stringify(check.issues)}`);
@@ -73,10 +105,9 @@ for (const plan of buildAllDemoPlans()) {
   for (const s of plan.sessions) {
     const sid = uuid(`session:${key}:${s.weekNumber}:${s.sessionNumber}`);
     lines.push(
-      `  insert into public.training_sessions (id, version_id, week_id, week_number, session_number, session_type, title, objective, distance_m, duration_s, intensity, rpe_min, rpe_max, warmup, main_set, cooldown, notes, progression_criteria, stop_criteria) values (${[
+      `  perform pg_temp.demo_session(${[
         lit(sid), lit(versionId), lit(uuid(`week:${key}:${s.weekNumber}`)), s.weekNumber, s.sessionNumber, lit(s.type), lit(s.title),
-        lit(s.objective), lit(s.distanceM), lit(s.durationS), lit(s.intensity), lit(s.rpeMin), lit(s.rpeMax), lit(s.warmup),
-        lit(s.mainSet), lit(s.cooldown), lit(s.notes), lit(s.progressionCriteria), lit(s.stopCriteria),
+        lit(s.durationS), lit(s.intensity), lit(s.rpeMin), lit(s.rpeMax), lit(s.mainSet), lit(s.type === "strength"),
       ].join(", ")});`,
     );
     for (const e of s.exercises) {

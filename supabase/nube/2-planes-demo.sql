@@ -1,3 +1,7 @@
+-- RUNNER 360 — Paso 2 de 2: planes DEMO / NO VALIDADOS (ejecutar después del paso 1)
+-- GENERADO por scripts/build-cloud-setup.mjs. No editar a mano.
+-- Pegar completo en Supabase → SQL Editor → New query → Run, en un proyecto NUEVO (vacío).
+
 -- GENERADO AUTOMÁTICAMENTE por packages/training-engine/scripts/generate-demo-seed.ts. No editar a mano.
 -- Planes DEMO / NO VALIDADOS: estructuras de ejemplo para probar la plataforma.
 -- No constituyen prescripción profesional. Reemplazar por planes validados por el fundador.

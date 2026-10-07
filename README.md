@@ -31,6 +31,8 @@ Instalá [Node.js LTS](https://nodejs.org) y, para la base de datos local, [Dock
 | macOS | `bash scripts/launcher/crear-acceso-directo-mac.sh` |
 | Linux | `bash scripts/launcher/crear-acceso-directo-linux.sh` |
 
+**Sin Docker (Supabase en la nube):** creá un proyecto en supabase.com, pegá en su SQL Editor `supabase/nube/1-estructura.sql` y luego `supabase/nube/2-planes-demo.sql`, y conectalo con el asistente: `scripts\\launcher\\configurar-supabase-nube.bat` en Windows o `node scripts/launcher/configurar-nube.mjs` en Mac/Linux. Los archivos de `supabase/nube/` se regeneran con `pnpm cloud:sql`.
+
 Al hacer doble clic en el ícono, el lanzador (`scripts/launcher/runner360.mjs`) instala dependencias si faltan, levanta la base de datos (Supabase en la nube si `apps/web/.env.local` apunta a ella; si no, Supabase local con Docker; en Linux sin Docker, `scripts/local-backend`), compila solo cuando hay cambios, inicia la app y abre http://localhost:3000. Dejá la ventana abierta mientras la usás; para cerrar, Ctrl+C o cerrá la ventana.
 
 ## Instalación
