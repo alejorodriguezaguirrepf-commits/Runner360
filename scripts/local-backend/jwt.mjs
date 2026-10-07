@@ -8,6 +8,7 @@ const sign = (payload) => {
   const sig = createHmac("sha256", secret).update(`${head}.${body}`).digest("base64url");
   return `${head}.${body}.${sig}`;
 };
-const exp = Math.floor(Date.now() / 1000) + 10 * 365 * 86400;
+// Expiración fija (2100-01-01) para que las claves locales sean estables entre reinicios.
+const exp = 4102444800;
 console.log(`ANON_KEY=${sign({ iss: "supabase-local", role: "anon", exp })}`);
 console.log(`SERVICE_ROLE_KEY=${sign({ iss: "supabase-local", role: "service_role", exp })}`);

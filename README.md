@@ -21,6 +21,18 @@ Interfaz en español de Argentina (es-AR). Estado: **beta en desarrollo — no l
 - PostgreSQL 15+ con binarios `initdb`/`pg_ctl`/`psql` para las pruebas SQL.
 - Flutter estable para la app móvil (Android SDK / Xcode para compilar en dispositivos).
 
+## Inicio rápido con ícono en el escritorio
+
+Instalá [Node.js LTS](https://nodejs.org) y, para la base de datos local, [Docker Desktop](https://www.docker.com/products/docker-desktop/) (en Linux alcanza con PostgreSQL). Después, una sola vez:
+
+| Sistema | Crear el ícono "RUNNER 360" en el escritorio |
+|---|---|
+| Windows | doble clic en `scripts\launcher\crear-acceso-directo-windows.bat` |
+| macOS | `bash scripts/launcher/crear-acceso-directo-mac.sh` |
+| Linux | `bash scripts/launcher/crear-acceso-directo-linux.sh` |
+
+Al hacer doble clic en el ícono, el lanzador (`scripts/launcher/runner360.mjs`) instala dependencias si faltan, levanta la base de datos (Supabase en la nube si `apps/web/.env.local` apunta a ella; si no, Supabase local con Docker; en Linux sin Docker, `scripts/local-backend`), compila solo cuando hay cambios, inicia la app y abre http://localhost:3000. Dejá la ventana abierta mientras la usás; para cerrar, Ctrl+C o cerrá la ventana.
+
 ## Instalación
 
 ```bash

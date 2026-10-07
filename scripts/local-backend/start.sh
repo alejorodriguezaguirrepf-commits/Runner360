@@ -22,13 +22,20 @@ if [ ! -x "$DIR/bin/postgrest" ]; then
   curl -sSL "https://github.com/PostgREST/postgrest/releases/download/$POSTGREST_VERSION/postgrest-$POSTGREST_VERSION-linux-static-x64.tar.xz" | tar -xJ -C "$DIR/bin"
 fi
 
+# Idempotente: si quedaron procesos de una ejecución anterior, se reinician.
+for p in auth postgrest gateway; do
+  if [ -f "$DIR/$p.pid" ]; then kill "$(cat "$DIR/$p.pid")" 2>/dev/null || true; rm -f "$DIR/$p.pid"; fi
+done
+
 FRESH=0
 if [ ! -d "$DIR/pg" ]; then
   FRESH=1
   mkdir -p "$DIR/pg"; [ "$(id -u)" = "0" ] && chown -R postgres "$DIR/pg" "$DIR/logs"
   "${RUN_AS[@]}" initdb -D "$DIR/pg" -U postgres --auth=trust -E UTF8 --locale=C.UTF-8 >/dev/null
 fi
-"${RUN_AS[@]}" pg_ctl -D "$DIR/pg" -o "-p $PGPORT -k /tmp -c listen_addresses=127.0.0.1" -l "$DIR/logs/pg.log" -w start >/dev/null
+if ! "${RUN_AS[@]}" pg_ctl -D "$DIR/pg" status >/dev/null 2>&1; then
+  "${RUN_AS[@]}" pg_ctl -D "$DIR/pg" -o "-p $PGPORT -k /tmp -c listen_addresses=127.0.0.1" -l "$DIR/logs/pg.log" -w start >/dev/null
+fi
 PSQL=(psql -h 127.0.0.1 -p "$PGPORT" -U postgres -d postgres -v ON_ERROR_STOP=1 -q -X)
 
 if [ "$FRESH" = "1" ]; then
@@ -46,7 +53,8 @@ export GOTRUE_EXTERNAL_EMAIL_ENABLED=true GOTRUE_MAILER_AUTOCONFIRM=true GOTRUE_
 export GOTRUE_DB_MIGRATIONS_PATH="$DIR/bin/migrations"
 export GOTRUE_PASSWORD_MIN_LENGTH=10 GOTRUE_LOG_LEVEL=warn GOTRUE_RATE_LIMIT_EMAIL_SENT=1000
 "$DIR/bin/auth" migrate > "$DIR/logs/auth-migrate.log" 2>&1
-(cd "$DIR" && nohup "$DIR/bin/auth" serve > "$DIR/logs/auth.log" 2>&1 & echo $! > "$DIR/auth.pid")
+nohup "$DIR/bin/auth" serve > "$DIR/logs/auth.log" 2>&1 &
+echo $! > "$DIR/auth.pid"
 until curl -sf http://127.0.0.1:9999/health >/dev/null; do sleep 1; done
 
 if [ "$FRESH" = "1" ]; then
