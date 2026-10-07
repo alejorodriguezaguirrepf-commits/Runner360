@@ -5,7 +5,9 @@
 # NO es un entorno de producción. Con Docker disponible, preferí `supabase start`.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-DIR="$ROOT/.local-backend"
+DIR="${LOCAL_BACKEND_DIR:-$ROOT/.local-backend}"
+# LOCAL_BACKEND_SKIP_SCHEMA=1 deja la base vacía (como un proyecto Supabase nuevo), para probar instaladores.
+SKIP_SCHEMA="${LOCAL_BACKEND_SKIP_SCHEMA:-0}"
 PGBIN="${PGBIN:-$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)}"
 export PATH="$PGBIN:$PATH"
 PGPORT="${PGPORT:-54322}"
@@ -57,7 +59,7 @@ nohup "$DIR/bin/auth" serve > "$DIR/logs/auth.log" 2>&1 &
 echo $! > "$DIR/auth.pid"
 until curl -sf http://127.0.0.1:9999/health >/dev/null; do sleep 1; done
 
-if [ "$FRESH" = "1" ]; then
+if [ "$FRESH" = "1" ] && [ "$SKIP_SCHEMA" != "1" ]; then
   for f in "$ROOT"/supabase/migrations/*.sql; do "${PSQL[@]}" -f "$f"; done
   for f in "$ROOT"/supabase/seed/*.sql; do "${PSQL[@]}" -f "$f"; done
 fi
