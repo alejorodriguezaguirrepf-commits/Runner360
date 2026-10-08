@@ -170,7 +170,8 @@ console.log("Copiá los datos desde supabase.com → tu proyecto → Project Set
 
 let url = "";
 for (;;) {
-  url = (await ask("1) Project URL (ej. https://abcd1234.supabase.co): ")).replace(/\/+$/, "");
+  // Acepta también la URL copiada con rutas extra (p. ej. https://xxxx.supabase.co/rest/v1/).
+  url = (await ask("1) Project URL (ej. https://abcd1234.supabase.co): ")).replace(/^(https?:\/\/[^/\s]+).*$/i, "$1");
   if (/^https:\/\/[a-z0-9-]+\.supabase\.(co|in)$/i.test(url) || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(url)) break;
   bad("La URL debe tener la forma https://xxxxx.supabase.co (sin nada después).");
 }
