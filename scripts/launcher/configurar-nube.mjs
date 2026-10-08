@@ -250,5 +250,9 @@ writeFileSync(
   ].join("\n"),
 );
 console.log("\n\x1b[1m\x1b[32mListo. RUNNER 360 quedó conectado a tu proyecto de Supabase.\x1b[0m");
-console.log("Ahora abrí RUNNER 360 con el ícono del escritorio. La primera vez compila (1–2 minutos).\n");
+console.log(
+  process.platform === "win32"
+    ? "A continuación se crea el ícono en el escritorio y se abre RUNNER 360. La primera vez compila (unos minutos).\n"
+    : "Ahora abrí RUNNER 360 con el ícono del escritorio. La primera vez compila (1–2 minutos).\n",
+);
 process.exit(0);
