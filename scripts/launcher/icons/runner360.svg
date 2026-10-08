@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>RUNNER 360</title>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="#122438"/>
+  <!-- Anillo 360 -->
+  <circle cx="256" cy="256" r="164" fill="none" stroke="#26446A" stroke-width="30"/>
+  <path d="M256 92 A164 164 0 1 1 101 202" fill="none" stroke="#D5F36A" stroke-width="30" stroke-linecap="round"/>
+  <!-- Trazo de carrera (mismo gesto que el logo) -->
+  <path d="M150 304 C205 288 228 238 256 176 C276 228 300 286 368 300" fill="none" stroke="#D5F36A" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

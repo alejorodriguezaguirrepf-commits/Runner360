@@ -1,0 +1,5 @@
+# Scripts de Windows con fin de línea CRLF; scripts de shell con LF.
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
+*.command text eol=lf
