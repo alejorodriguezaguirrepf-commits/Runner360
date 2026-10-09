@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { startTransition, useActionState, useId, type ComponentProps, type FormEvent, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/lib/action-state";
 import { Alert, Button, cx } from "./primitives";
@@ -135,8 +135,38 @@ export function ChoiceGroup({
   );
 }
 
-export function SubmitButton({ children, pendingText = "Guardando…", variant = "primary", className }: { children: ReactNode; pendingText?: string; variant?: "primary" | "secondary" | "ghost" | "danger"; className?: string }) {
-  const { pending } = useFormStatus();
+/**
+ * Envía un formulario a una Server Action SIN que React lo vacíe al terminar.
+ * Con `<form action={…}>` React reinicia los campos después de cada envío, y ante un error de
+ * validación el usuario perdía lo que había escrito (p. ej. el correo al equivocarse de clave).
+ */
+export function useFormAction(action: (prev: ActionState, formData: FormData) => Promise<ActionState>, initial: ActionState) {
+  const [state, dispatch, pending] = useActionState(action, initial);
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (pending) return;
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => dispatch(formData));
+  };
+  return { state, pending, onSubmit };
+}
+
+export function SubmitButton({
+  children,
+  pendingText = "Guardando…",
+  variant = "primary",
+  className,
+  pending: pendingProp,
+}: {
+  children: ReactNode;
+  pendingText?: string;
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  className?: string;
+  /** Estado de envío cuando el formulario usa `useFormAction`. */
+  pending?: boolean;
+}) {
+  const status = useFormStatus();
+  const pending = pendingProp ?? status.pending;
   return (
     <Button type="submit" variant={variant} disabled={pending} aria-disabled={pending} className={className}>
       {pending ? pendingText : children}

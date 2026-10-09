@@ -1,4 +1,5 @@
 import "server-only";
+import { publicEnv } from "@/lib/env";
 
 /**
  * Limitador de solicitudes en memoria (ventana fija). Suficiente para un único proceso.
@@ -9,7 +10,7 @@ const buckets = new Map<string, { count: number; resetAt: number }>();
 
 /** Solo para pruebas E2E contra un backend local (nunca se respeta con un Supabase remoto). */
 const disabledForLocalTests =
-  process.env.DISABLE_RATE_LIMIT === "1" && /^http:\/\/(127\.0\.0\.1|localhost)[:/]/.test(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "");
+  process.env.DISABLE_RATE_LIMIT === "1" && /^http:\/\/(127\.0\.0\.1|localhost)(:|$)/.test(publicEnv.supabaseUrl);
 
 export function rateLimit(key: string, limit: number, windowMs: number): { ok: boolean; retryAfterS: number } {
   if (disabledForLocalTests) return { ok: true, retryAfterS: 0 };

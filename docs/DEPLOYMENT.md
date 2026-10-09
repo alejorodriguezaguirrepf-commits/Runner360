@@ -17,6 +17,23 @@
 
 Cualquier hosting compatible con Next.js 16 (Node.js ≥ 20.9). Variables en el panel del hosting (ver `.env.example`); las secretas nunca con prefijo `NEXT_PUBLIC_`.
 
+### Vercel
+
+- **Root Directory:** `apps/web` (framework Next.js, detectado automáticamente).
+- **Environment Variables** (Settings → Environment Variables), marcadas en **Production** y **Preview**:
+
+  | Variable | Valor (panel de Supabase) |
+  |---|---|
+  | `NEXT_PUBLIC_SUPABASE_URL` | Project Settings → Data API → Project URL (`https://xxxx.supabase.co`, sin `/rest/v1`) |
+  | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API Keys → Publishable key (`sb_publishable_…`) |
+  | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API Keys → Secret key (`sb_secret_…`). Secreta: solo servidor |
+  | `NEXT_PUBLIC_SITE_URL` | El dominio de producción, p. ej. `https://runner360.vercel.app` |
+
+- Después de crear o cambiar variables: **Deployments → ⋯ → Redeploy** (Vercel solo aplica variables a despliegues nuevos).
+- Verificación: abrir `https://DOMINIO/api/health` → `"ok": true` y `"faltan": []`.
+- En Supabase → Authentication → URL Configuration: **Site URL** = dominio de producción; **Redirect URLs** = `https://DOMINIO/auth/confirm` (y, para previews, `https://*-TU-EQUIPO.vercel.app/auth/confirm`).
+- El correo de confirmación por defecto de Supabase solo se envía a miembros del proyecto y con límite por hora: para usuarios externos configurá un SMTP propio (Authentication → Emails → SMTP Settings) o desactivá “Confirm email” durante las pruebas.
+
 ```bash
 pnpm install --frozen-lockfile
 pnpm build

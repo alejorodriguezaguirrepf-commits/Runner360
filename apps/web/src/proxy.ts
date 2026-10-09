@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { isSupabaseConfigured, publicEnv } from "@/lib/env";
 
 /**
  * Proxy (ex middleware): refresca la sesión de Supabase y hace una primera barrera de rutas.
@@ -10,16 +11,17 @@ const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfi
 const AUTH_PAGES = ["/ingresar", "/registro"];
 
 export async function proxy(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   const path = request.nextUrl.pathname;
   const isPrivate = PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 
-  if (!url || !key) {
-    // Sin Supabase configurado, las rutas privadas muestran la pantalla de configuración pendiente.
-    if (isPrivate) return NextResponse.redirect(new URL("/ingresar?config=pendiente", request.url));
+  if (!isSupabaseConfigured()) {
+    // Sin servicio de cuentas configurado, las rutas privadas llevan a la pantalla de ingreso,
+    // que muestra un aviso claro para el usuario.
+    if (isPrivate) return NextResponse.redirect(new URL("/ingresar", request.url));
     return NextResponse.next();
   }
+  const url = publicEnv.supabaseUrl;
+  const key = publicEnv.supabaseAnonKey;
 
   let response = NextResponse.next({ request });
   const supabase = createServerClient(url, key, {
@@ -36,9 +38,16 @@ export async function proxy(request: NextRequest) {
   });
 
   // getUser() valida el token contra Supabase Auth (no confía solo en la cookie).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    ({
+      data: { user },
+    } = await supabase.auth.getUser());
+  } catch {
+    // Si el servicio de cuentas no responde, no se bloquea la navegación: cada página vuelve a
+    // verificar la sesión y muestra un mensaje claro.
+    return response;
+  }
 
   if (!user && isPrivate) {
     const login = new URL("/ingresar", request.url);
