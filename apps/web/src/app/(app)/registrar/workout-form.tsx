@@ -2,14 +2,14 @@
 
 import { kmInputToMeters, paceSecondsPerKm, parseDuration, speedKmh } from "@runner360/training-engine";
 import { formatPaceLabel, formatSpeed, WORKOUT_STATUS_LABELS } from "@runner360/shared";
-import { useActionState, useState } from "react";
-import { CheckboxField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
+import { useState } from "react";
+import { CheckboxField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
 import { Stat } from "@/components/ui/primitives";
 import { initialActionState } from "@/lib/action-state";
 import { saveWorkoutAction } from "@/lib/actions/workouts";
 
 export function WorkoutForm({ today, defaultDate, defaultEntryId, sessions }: { today: string; defaultDate: string; defaultEntryId: string; sessions: { id: string; label: string }[] }) {
-  const [state, action] = useActionState(saveWorkoutAction, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(saveWorkoutAction, initialActionState);
   const [status, setStatus] = useState("completed");
   const [km, setKm] = useState("");
   const [duration, setDuration] = useState("");
@@ -23,7 +23,7 @@ export function WorkoutForm({ today, defaultDate, defaultEntryId, sessions }: { 
   const skipped = status === "skipped";
 
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <form onSubmit={onSubmit} className="space-y-5" noValidate>
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectField
           label="Sesión planificada asociada"
@@ -75,7 +75,7 @@ export function WorkoutForm({ today, defaultDate, defaultEntryId, sessions }: { 
       <TextAreaField label="Comentarios (opcional)" name="comments" maxLength={2000} rows={3} error={e.comments} />
       <CheckboxField name="painReported" label="Tuve dolor o una molestia fuera de lo habitual" hint="Lo usamos para sugerirte una revisión antes de seguir progresando." />
       <FormMessage state={state} />
-      <SubmitButton pendingText="Guardando…" className="w-full sm:w-auto">Guardar entrenamiento</SubmitButton>
+      <SubmitButton pending={pending} pendingText="Guardando…" className="w-full sm:w-auto">Guardar entrenamiento</SubmitButton>
     </form>
   );
 }

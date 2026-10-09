@@ -50,10 +50,12 @@ Ver [`.env.example`](.env.example). Resumen:
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | pública | sí | URL del proyecto Supabase |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | pública | sí | clave publicable (anon) |
-| `NEXT_PUBLIC_SITE_URL` | pública | sí | URL base para enlaces de correo |
+| `NEXT_PUBLIC_SITE_URL` | pública | recomendada | dominio público (p. ej. `https://runner360.vercel.app`); los enlaces de correo usan el dominio de la solicitud y nunca `localhost` en producción |
 | `SUPABASE_SERVICE_ROLE_KEY` | **secreta** | para borrar cuentas y webhooks | omite RLS, solo servidor |
 | `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` | **secretas** | no | suscripciones con Mercado Pago |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **secretas** | no | suscripciones internacionales |
+
+Las variables se leen en tiempo de ejecución (no quedan fijadas en el build), pero en Vercel cualquier cambio requiere un **Redeploy** para aplicarse. También se aceptan `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_URL` y `SUPABASE_ANON_KEY` (nombres de la integración de Vercel). Para verificar una instalación: `GET /api/health` informa qué variables están presentes (sin mostrar valores) y si el servicio de cuentas responde.
 
 Sin credenciales, la app lo indica explícitamente (“pendiente de configuración”) y no simula conexiones ni pagos.
 

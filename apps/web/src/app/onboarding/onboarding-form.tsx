@@ -8,8 +8,8 @@ import {
   LEVEL_LABELS,
   WEEKDAY_LABELS,
 } from "@runner360/shared";
-import { useActionState, useState } from "react";
-import { CheckboxField, ChoiceGroup, FormMessage, SelectField, SubmitButton, TextField } from "@/components/ui/form";
+import { useState } from "react";
+import { CheckboxField, ChoiceGroup, FormMessage, SelectField, SubmitButton, TextField, useFormAction } from "@/components/ui/form";
 import { Card } from "@/components/ui/primitives";
 import { initialActionState } from "@/lib/action-state";
 import { saveOnboardingAction } from "@/lib/actions/onboarding";
@@ -34,13 +34,13 @@ export interface OnboardingDefaults {
 const toOptions = (rec: Record<string, string>) => Object.entries(rec).map(([value, label]) => ({ value, label }));
 
 export function OnboardingForm({ defaults }: { defaults: OnboardingDefaults }) {
-  const [state, action] = useActionState(saveOnboardingAction, initialActionState);
+  const { state, pending, onSubmit } = useFormAction(saveOnboardingAction, initialActionState);
   const [goal, setGoal] = useState(defaults.goal);
   const [healthConsent, setHealthConsent] = useState(defaults.healthFlags.length > 0);
   const e = state.errors ?? {};
 
   return (
-    <form action={action} className="mt-6 space-y-6" noValidate>
+    <form onSubmit={onSubmit} className="mt-6 space-y-6" noValidate>
       <Card>
         <h2 className="mb-4 font-bold">1. Datos básicos</h2>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -156,7 +156,7 @@ export function OnboardingForm({ defaults }: { defaults: OnboardingDefaults }) {
 
       <FormMessage state={state} />
       <div className="flex justify-end">
-        <SubmitButton pendingText="Guardando perfil…" className="w-full sm:w-auto">Guardar y ver mi plan</SubmitButton>
+        <SubmitButton pending={pending} pendingText="Guardando perfil…" className="w-full sm:w-auto">Guardar y ver mi plan</SubmitButton>
       </div>
     </form>
   );
