@@ -64,3 +64,7 @@ PostgreSQL (Supabase). Migraciones en `supabase/migrations`, en orden:
 ## Tipos TypeScript
 
 `packages/shared/src/db.ts` contiene tipos de filas escritos a mano. Con un proyecto vinculado, reemplazarlos por `supabase gen types typescript --linked`.
+
+## Biblioteca de planes de running
+
+Tablas `library_*` (catálogo inmutable por `content_version`), `plan_enrollments`, `weekly_checkins` y columnas opcionales de salud en `workout_logs`. Modelo, reglas y cómo actualizar el contenido: [`training-plans.md`](training-plans.md).

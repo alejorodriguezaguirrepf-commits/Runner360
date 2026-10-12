@@ -1,0 +1,31 @@
+{
+  "name": "@runner360/plan-library",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Biblioteca de planes de running: esquema estricto del contenido, invariantes, importador y lógica pura (fechas, días exigentes, Riegel, reglas de carga).",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./import": "./src/import-sql.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "import": "tsx scripts/import.ts",
+    "seed:generate": "tsx scripts/generate-seed.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/pg": "^8.15.6",
+    "pg": "^8.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  }
+}

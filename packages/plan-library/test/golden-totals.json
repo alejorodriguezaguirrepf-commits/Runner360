@@ -1,0 +1,146 @@
+[
+  {
+    "id": "plan-01",
+    "weeks": 4,
+    "sessions": 12,
+    "distanceKm": 52.43,
+    "durationMin": 495.5,
+    "raceWeek": 4
+  },
+  {
+    "id": "plan-02",
+    "weeks": 4,
+    "sessions": 16,
+    "distanceKm": 63.23,
+    "durationMin": 615.5,
+    "raceWeek": 4
+  },
+  {
+    "id": "plan-03",
+    "weeks": 4,
+    "sessions": 20,
+    "distanceKm": 73.03,
+    "durationMin": 725.5,
+    "raceWeek": 4
+  },
+  {
+    "id": "plan-04",
+    "weeks": 12,
+    "sessions": 36,
+    "distanceKm": 150.5,
+    "durationMin": 1469.5,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-05",
+    "weeks": 12,
+    "sessions": 48,
+    "distanceKm": 186.9,
+    "durationMin": 1869.5,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-06",
+    "weeks": 12,
+    "sessions": 60,
+    "distanceKm": 216.51,
+    "durationMin": 2184.5,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-07",
+    "weeks": 12,
+    "sessions": 36,
+    "distanceKm": 324.77,
+    "durationMin": 2239.9,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-08",
+    "weeks": 12,
+    "sessions": 48,
+    "distanceKm": 407.34,
+    "durationMin": 2836.9,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-09",
+    "weeks": 12,
+    "sessions": 60,
+    "distanceKm": 474.68,
+    "durationMin": 3338.9,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-10",
+    "weeks": 24,
+    "sessions": 72,
+    "distanceKm": 645.34,
+    "durationMin": 4468,
+    "raceWeek": 24
+  },
+  {
+    "id": "plan-11",
+    "weeks": 24,
+    "sessions": 96,
+    "distanceKm": 802.04,
+    "durationMin": 5616.1,
+    "raceWeek": 24
+  },
+  {
+    "id": "plan-12",
+    "weeks": 24,
+    "sessions": 120,
+    "distanceKm": 932.9,
+    "durationMin": 6595.1,
+    "raceWeek": 24
+  },
+  {
+    "id": "plan-13",
+    "weeks": 12,
+    "sessions": 72,
+    "distanceKm": 885.57,
+    "durationMin": 5010.2,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-14",
+    "weeks": 24,
+    "sessions": 144,
+    "distanceKm": 1743.13,
+    "durationMin": 9949,
+    "raceWeek": 24
+  },
+  {
+    "id": "plan-15",
+    "weeks": 48,
+    "sessions": 288,
+    "distanceKm": 3458.86,
+    "durationMin": 19861.9,
+    "raceWeek": 48
+  },
+  {
+    "id": "plan-16",
+    "weeks": 12,
+    "sessions": 72,
+    "distanceKm": 1070.97,
+    "durationMin": 6002.2,
+    "raceWeek": 12
+  },
+  {
+    "id": "plan-17",
+    "weeks": 24,
+    "sessions": 144,
+    "distanceKm": 2030.85,
+    "durationMin": 11548.3,
+    "raceWeek": 24
+  },
+  {
+    "id": "plan-18",
+    "weeks": 48,
+    "sessions": 288,
+    "distanceKm": 4022.81,
+    "durationMin": 23008,
+    "raceWeek": 45
+  }
+]

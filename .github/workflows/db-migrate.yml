@@ -1,0 +1,45 @@
+name: Actualizar base de datos
+
+# Aplica las migraciones y seeds pendientes en la base de producción después de que la CI
+# termina bien en main. Solo avanza (nunca revierte ni borra).
+# Requiere el secreto SUPABASE_DB_URL (Settings → Secrets and variables → Actions):
+# la cadena "Session pooler" de Supabase con la contraseña incluida. Sin el secreto, no hace nada.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: db-migrate
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Migrar
+        env:
+          DATABASE_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::warning::Falta el secreto SUPABASE_DB_URL: la base de producción no se actualizó."
+            exit 0
+          fi
+          pnpm db:migrate

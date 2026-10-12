@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Lint, tipos, tests y build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Biblioteca de planes (esquema e invariantes)
+        run: pnpm plans:check
+      - name: Archivos generados al día
+        run: |
+          pnpm seed:generate
+          git diff --exit-code -- supabase/seed supabase/nube || (echo "::error::Corré 'pnpm seed:generate' y subí los archivos generados." && exit 1)
+      - run: pnpm build
+
+  database:
+    name: Base de datos (migraciones, seeds, RLS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: PostgreSQL del runner
+        run: echo "PGBIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)" >> "$GITHUB_ENV"
+      - run: bash scripts/db-test.sh

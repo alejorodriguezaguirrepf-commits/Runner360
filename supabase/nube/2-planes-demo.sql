@@ -1,11 +1,12 @@
--- RUNNER 360 — Paso 2 de 2: planes DEMO / NO VALIDADOS (ejecutar después del paso 1)
+-- RUNNER 360 — Paso 2 de 3: planes DEMO / NO VALIDADOS (ejecutar después del paso 1)
 -- GENERADO por scripts/build-cloud-setup.mjs. No editar a mano.
 -- Pegar completo en Supabase → SQL Editor → New query → Run, en un proyecto NUEVO (vacío).
 
+-- ===== supabase/seed/20_demo_plans.sql =====
 -- GENERADO AUTOMÁTICAMENTE por packages/training-engine/scripts/generate-demo-seed.ts. No editar a mano.
 -- Planes DEMO / NO VALIDADOS: estructuras de ejemplo para probar la plataforma.
 -- No constituyen prescripción profesional. Reemplazar por planes validados por el fundador.
-begin;
+
 create or replace function pg_temp.demo_session(p_id uuid, p_version uuid, p_week_id uuid, p_week int, p_n int, p_type text, p_title text, p_dur int, p_int text, p_rmin int, p_rmax int, p_main text, p_strength boolean)
 returns void language sql as $f$
   insert into public.training_sessions (id, version_id, week_id, week_number, session_number, session_type, title, objective, distance_m, duration_s, intensity, rpe_min, rpe_max, warmup, main_set, cooldown, notes, progression_criteria, stop_criteria)
@@ -1481,4 +1482,10 @@ do $seed$ begin if (select status from public.training_plan_versions where id = 
   update public.training_plan_versions set status = 'in_review' where id = 'e24e0d8e-03a3-5c67-b540-f4b667b17bb8';
   update public.training_plan_versions set status = 'published' where id = 'e24e0d8e-03a3-5c67-b540-f4b667b17bb8';
 end if; end $seed$;
-commit;
+
+-- Registro de lo instalado (lo usa scripts/db/migrate.mjs para aplicar solo lo nuevo).
+create schema if not exists runner360_meta;
+create table if not exists runner360_meta.schema_migrations (version text primary key, applied_at timestamptz not null default now());
+insert into runner360_meta.schema_migrations (version) values
+  ('seed:20_demo_plans.sql')
+on conflict do nothing;

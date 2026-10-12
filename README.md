@@ -63,7 +63,9 @@ Sin credenciales, la app lo indica explícitamente (“pendiente de configuraci�
 
 - Migraciones versionadas: `supabase/migrations/*.sql`.
 - Seeds separados de datos reales: `supabase/seed/` (catálogo de productos, **15 planes DEMO / NO VALIDADOS**, contenido educativo pendiente de revisión).
-- El seed de planes DEMO se genera desde el motor: `pnpm seed:generate`.
+- **Biblioteca de planes** (18 planes): `content/training-plans/running_plans_library.json` es la fuente de verdad; el seed `supabase/seed/40_plan_library.sql` se genera desde ahí. Ver [`docs/training-plans.md`](docs/training-plans.md).
+- Seeds generados (planes DEMO, biblioteca y archivos de `supabase/nube/`): `pnpm seed:generate`.
+- Actualizar una base existente (local o en la nube): `DATABASE_URL=postgresql://… pnpm db:migrate`. En producción lo hace solo el workflow **Actualizar base de datos** al llegar a `main` (requiere el secreto `SUPABASE_DB_URL` en GitHub).
 
 ```bash
 # Supabase CLI (Docker)
@@ -98,6 +100,7 @@ pnpm test                 # Vitest: motor (96), shared (15), web (9)
 pnpm typecheck
 pnpm lint
 pnpm db:test              # PostgreSQL efímero: migraciones + seeds + pruebas de RLS/integridad
+pnpm plans:check          # valida el JSON de la biblioteca de planes (esquema + invariantes)
 cd apps/mobile && flutter analyze && flutter test   # 37 pruebas Dart
 
 # E2E (Playwright) contra una app corriendo con backend:
@@ -122,6 +125,7 @@ Ver [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) para despliegue, webhooks y check
 - [Base de datos](docs/DATABASE.md)
 - [Seguridad y privacidad](docs/SECURITY.md)
 - [Motor de entrenamiento](docs/TRAINING_ENGINE.md)
+- [Biblioteca de planes](docs/training-plans.md)
 - [Hoja de ruta](docs/DEVELOPMENT_ROADMAP.md)
 - [Despliegue](docs/DEPLOYMENT.md)
 

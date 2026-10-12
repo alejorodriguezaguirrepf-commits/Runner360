@@ -30,6 +30,15 @@ for f in "$ROOT"/supabase/seed/*.sql; do
   echo "→ seed $(basename "$f")"
   "${PSQL[@]}" -f "$f"
 done
+echo "→ reimportación idempotente de la biblioteca"
+"${PSQL[@]}" -f "$ROOT/supabase/seed/40_plan_library.sql"
+echo "→ la misma content_version con otro contenido se rechaza"
+OUT="$(sed -E "0,/checksum <> '[0-9a-f]{64}'/s//checksum <> '$(printf '0%.0s' {1..64})'/" "$ROOT/supabase/seed/40_plan_library.sql" \
+  | "${PSQL[@]}" -f - 2>&1 || true)"
+if ! grep -q "ya fue importada con otro contenido" <<<"$OUT"; then
+  echo "✗ se esperaba que la importación abortara por contenido distinto" >&2
+  exit 1
+fi
 for f in "$ROOT"/supabase/tests/[1-9]*.sql; do
   echo "→ prueba $(basename "$f")"
   "${PSQL[@]}" -o /dev/null -f "$f"
