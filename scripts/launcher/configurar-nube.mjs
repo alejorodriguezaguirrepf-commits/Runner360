@@ -3,7 +3,8 @@
  * Asistente para conectar RUNNER 360 con un proyecto de Supabase en la nube.
  *  1. Pide la URL y las claves y las verifica contra Supabase.
  *  2. Si la base está vacía, la instala conectándose directo a PostgreSQL con la contraseña
- *     del proyecto (sin pasar por el SQL Editor del panel, que puede modificar el SQL).
+ *     del proyecto (sin pasar por el SQL Editor del panel, que puede modificar el SQL), y aplica
+ *     las actualizaciones pendientes (scripts/db/migrate.mjs).
  *  3. Escribe apps/web/.env.local.
  * Las claves y la contraseña solo se usan en tu computadora: la contraseña no se guarda.
  */
@@ -144,6 +145,11 @@ async function installDatabase(pg) {
         console.log("  Cargando los 15 planes DEMO…");
         await client.query(readFileSync(SQL_DEMO, "utf8"));
       }
+      // Aplica lo que falte (migraciones nuevas y la biblioteca de planes) con el mismo migrador
+      // que usa el despliegue automático.
+      const { migrate } = await import(pathToFileURL(join(ROOT, "scripts", "db", "migrate.mjs")).href);
+      const applied = await migrate(client, { log: (m) => console.log(`  ${m}`) });
+      if (applied.length > 0) ok(`Actualizaciones aplicadas: ${applied.length}.`);
       const check = (
         await client.query(
           `select (select count(*) from public.training_plan_versions where status = 'published') as plans,
