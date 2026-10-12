@@ -28,6 +28,22 @@
   --color-success-bg: #ecfdf3;
   --color-info-bg: #eef4fb;
 
+  /* Categorías de sesión de la biblioteca de planes (texto/fondo ≥ 4,5:1; siempre con texto). */
+  --color-cat-rest: #55657a;
+  --color-cat-rest-bg: #eef1f5;
+  --color-cat-rec: #075985;
+  --color-cat-rec-bg: #e0f2fe;
+  --color-cat-easy: #166534;
+  --color-cat-easy-bg: #dcfce7;
+  --color-cat-mod: #854d0e;
+  --color-cat-mod-bg: #fef9c3;
+  --color-cat-thr: #9a3412;
+  --color-cat-thr-bg: #ffedd5;
+  --color-cat-hard: #991b1b;
+  --color-cat-hard-bg: #fee2e2;
+  --color-cat-race: #5b21b6;
+  --color-cat-race-bg: #ede9fe;
+
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --radius-card: 1rem;
 }

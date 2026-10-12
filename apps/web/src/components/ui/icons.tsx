@@ -82,6 +82,16 @@ export const IconStar = (p: IconProps) => (
   <Svg {...p}><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" /></Svg>
 );
 
+export const IconLock = (p: IconProps) => (
+  <Svg {...p}><rect x="5" y="10.5" width="14" height="10" rx="2" /><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" /></Svg>
+);
+export const IconList = (p: IconProps) => (
+  <Svg {...p}><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1" /><circle cx="4.5" cy="12" r="1" /><circle cx="4.5" cy="18" r="1" /></Svg>
+);
+export const IconChevronLeft = (p: IconProps) => (
+  <Svg {...p}><path d="m15 6-6 6 6 6" /></Svg>
+);
+
 export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
   return (
     <span className={`inline-flex items-center gap-2 whitespace-nowrap font-extrabold tracking-tight ${className}`}>
