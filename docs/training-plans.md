@@ -52,7 +52,7 @@ El **catálogo** (contenido) está separado del **estado del usuario**. Todo el 
 
 | Tabla | Contenido |
 |---|---|
-| `plan_enrollments` | Plan + `content_version` congelada, inicio (lunes), fecha de competencia (domingo de la semana RACE), `day_map` (mover días) y estado (`active`, `paused`, `completed`, `cancelled`). Una abierta por persona. |
+| `plan_enrollments` | Plan + `content_version` congelada, inicio (lunes), fecha de competencia (domingo de la semana RACE), `day_map` (mover días), estado (`active`, `paused`, `completed`, `cancelled`) y marca reciente opcional (`mark_*`, migración `20261013000100`). Una abierta por persona. |
 | `weekly_checkins` | Semana evaluada, si cumplió el criterio, qué recomendó el motor (y qué reglas), qué decidió la persona y desde cuándo y con qué semana sigue el plan. |
 | `workout_logs` (columnas nuevas, opcionales) | `enrollment_id`, `plan_week`, `plan_day_index`, `pain_score` (0–10), `red_flags` (cojera, dolor óseo, hinchazón, dolor nocturno) y `sleep_quality`. Duración y distancia reales, RPE y notas usan las columnas existentes. |
 
@@ -78,6 +78,10 @@ Los datos de salud (`pain_score`, `red_flags`, `sleep_quality`, notas) son sensi
 | `/planes/[id]` | Ficha (perfil, requisitos, objetivos, semana tipo, semana de competencia), fases, vista rápida de todas las semanas (grilla de 7 columnas por categoría, siempre con texto), totales semanales, una semana día por día con todas las columnas (`?semana=N`, una por vez), escala de intensidad, rutina de fuerza, notas y validación técnica (colapsables). |
 | `/planes/elegir` | Asistente "¿Cuál es mi plan?" (evaluación inicial). Con `?plan=plan-NN` evalúa además ese plan. Precarga lo que ya está en el perfil de corredor. |
 
+| `/planes/elegir` → "Empezar este plan" | Inscripción. El servidor vuelve a evaluar los requisitos con las respuestas; si no se cumplen, no hay inscripción. Con fecha de carrera calcula el inicio; sin fecha, se elige el lunes de inicio y se calcula la competencia. |
+| `/plan` | Calendario de la inscripción: estado, inicio, competencia (y la proyectada si se repitieron semanas), ritmos de referencia (Riegel), la semana elegida con fechas reales y los 7 días, y la lista de todas las semanas. |
+| `/plan/dias` | Mover días: qué día de la semana se hace cada día del plan. |
+
 En todas: aclaración de valores estimados (`model_runner_assumptions.note`) y avisos de `safety`.
 Después del onboarding se llega al asistente; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
 
@@ -99,6 +103,19 @@ Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ni
 
 - Día de la semana 0 = lunes … 6 = domingo (como `day_index`). Los planes empiezan un lunes (hoy si es lunes, si no el lunes siguiente).
 - Competencia = domingo de la semana `RACE`: `inicio + (race_week − 1) × 7 + 6`. Con fecha de carrera se calcula el inicio; si ese lunes ya pasó, no hay tiempo suficiente.
+
+## Inscripción y calendario
+
+- Una inscripción guarda: plan, `content_version` congelada, inicio (lunes), competencia (domingo de la semana `RACE`), `day_map` y, opcional, la marca reciente (distancia, tiempo, fecha). Las respuestas de salud del asistente no se guardan.
+- Un solo plan en curso por persona (activa o en pausa). Al inscribirse, un plan DEMO activo del sistema anterior se cierra.
+- **Calendario calculado** (`schedule.ts`): tramos a partir del inicio y de las decisiones de los check-ins (`repeat`/`reduce` vuelven a la misma semana, `regress` a una anterior, `pause` detiene, `resume` retoma). Repetir una semana desplaza el resto y la fecha proyectada de la competencia; la fecha de la carrera elegida no cambia y la pantalla avisa la diferencia.
+- **Mover días**: `day_map` se aplica a todas las semanas. Regla: entre dos sesiones exigentes (`is_quality` o `thr`/`hard`/`race`) al menos un día fácil o de descanso, también de domingo a lunes; la competencia no se mueve. Se valida en el cliente (vista previa sobre las semanas visibles), en el servidor (todas las semanas, con `library_day_map_violations`) y en la base (trigger).
+- **Fuerza** (`strength_after`, `strength_only`): se muestra como complementaria y nunca suma al tiempo de carrera.
+
+## Ritmos de referencia (Riegel)
+
+- `T2 = T1 × (D2/D1)^1,06` (`riegel.ts`, función pura con tests), solo con una marca de las últimas 8 semanas.
+- Se muestran tiempo y ritmo (`mm:ss/km`) estimados para 5, 10, 21,1 y 42,195 km, siempre como estimación. En maratón, como **límite rápido, no objetivo**. El RPE y la prueba del habla siguen siendo la referencia principal; el contenido no define ritmos por intensidad y no se inventan.
 
 ## Invariantes (si alguno falla, la importación se aborta)
 

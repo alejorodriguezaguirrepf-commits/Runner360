@@ -93,4 +93,64 @@ test.describe("biblioteca de planes", () => {
     await expect(page.getByText("Hoy no cumplís los requisitos de ingreso", { exact: false })).toBeVisible();
     await expect(page.getByText("Elegir un plan más largo o hacer 3–6 semanas previas en Suave", { exact: false })).toBeVisible();
   });
+
+  test("inscripción: calendario con fechas reales, mover días y ritmos de referencia", async ({ page }) => {
+    await newRunner(page, "inscripcion");
+    // Marca reciente (hace una semana) para los ritmos de referencia.
+    const markDate = new Date(Date.now() - 7 * 86_400_000).toISOString().slice(0, 10);
+    await page.getByLabel("Distancia", { exact: true }).selectOption("5");
+    await page.getByLabel("Tiempo (mm:ss o h:mm:ss)").fill("30:00");
+    await page.getByLabel("Fecha", { exact: true }).fill(markDate);
+    await page.getByRole("button", { name: "Ver mi plan" }).click();
+    await expect(page.getByText("Te recomendamos este plan")).toBeVisible();
+    await page.getByRole("button", { name: "Empezar este plan" }).click();
+
+    await expect(page).toHaveURL(/\/plan\?inscripto=1/);
+    await expect(page.getByText("¡Listo! Tu calendario está armado.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "5 km desde cero en 3 meses, 3 días" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Semana del / })).toBeVisible();
+    await expect(page.locator("#semana").getByRole("heading", { level: 3 })).toHaveCount(7);
+    // Riegel: estimación, con el maratón como límite rápido.
+    await expect(page.getByRole("heading", { name: "Ritmos de referencia (estimados)" })).toBeVisible();
+    await expect(page.getByText("6:00/km").first()).toBeVisible();
+    await expect(page.getByText(/Límite rápido, no un objetivo/)).toBeVisible();
+
+    // Mover días: válido.
+    await page.getByRole("link", { name: "Mover días" }).click();
+    await page.getByLabel("Lo hago el (Mar)").selectOption("0");
+    await page.getByLabel("Lo hago el (Lun)").selectOption("1");
+    await page.getByRole("button", { name: "Guardar días" }).click();
+    await expect(page.getByText("Días actualizados.")).toBeVisible();
+
+    // La competencia (domingo de la semana 12, fuera de la muestra gratis) no se mueve: lo controla el servidor
+    // sobre TODAS las semanas, aunque la persona no vea su detalle.
+    await page.reload();
+    await page.getByLabel("Lo hago el (Dom)").selectOption("5");
+    await page.getByLabel("Lo hago el (Sáb)").selectOption("6");
+    await page.getByRole("button", { name: "Guardar días" }).click();
+    await expect(page.getByText("La competencia no se puede mover de su día.")).toBeVisible();
+    await expect(page.getByText("Días actualizados.")).toHaveCount(0);
+
+    // Un solo plan en curso: no puede empezar otro sin abandonar el actual.
+    await page.goto("/planes/elegir");
+    await page.getByRole("button", { name: "Ver mi plan" }).click();
+    await page.getByRole("button", { name: "Empezar este plan" }).click();
+    await expect(page.getByText("Ya tenés un plan en curso", { exact: false })).toBeVisible();
+  });
+
+  test("inscripción con fecha de carrera: la competencia cae en esa fecha", async ({ page }) => {
+    await newRunner(page, "carrera");
+    // Un domingo dentro de ~4 meses.
+    const d = new Date(Date.now() + 120 * 86_400_000);
+    d.setUTCDate(d.getUTCDate() + ((7 - d.getUTCDay()) % 7));
+    const race = d.toISOString().slice(0, 10);
+    await page.getByLabel("Fecha de la carrera (domingo)").fill(race);
+    await page.getByRole("button", { name: "Ver mi plan" }).click();
+    await expect(page.getByText(/Tu competencia es el .*: empezás el lunes/)).toBeVisible();
+    await page.getByRole("button", { name: "Empezar este plan" }).click();
+    await expect(page).toHaveURL(/\/plan\?inscripto=1/);
+    const [y, mo, da] = race.split("-").map(Number);
+    const label = new Intl.DateTimeFormat("es-AR", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(Date.UTC(y!, mo! - 1, da!, 12)));
+    await expect(page.locator("dl").getByText(label)).toBeVisible();
+  });
 });

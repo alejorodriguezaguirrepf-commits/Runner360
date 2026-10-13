@@ -7,6 +7,8 @@ import { IconChart, IconDrop, IconPlus, IconUser } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, PageHeader, ProgressBar, Stat } from "@/components/ui/primitives";
 import { requireOnboardedSession } from "@/lib/auth";
 import { buildDashboard } from "@/lib/data/dashboard";
+import { t } from "@/i18n";
+import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
 
 export const metadata: Metadata = { title: "Inicio" };
@@ -27,6 +29,7 @@ export default async function DashboardPage() {
   const { supabase, user, profile } = await requireOnboardedSession();
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
+  const openEnrollment = await getOpenEnrollment(supabase, user.id);
   const d = buildDashboard(active, workouts, today);
   const rec = d.recommendation ? RECOMMENDATION_TEXT[d.recommendation.action] : null;
 
@@ -38,7 +41,13 @@ export default async function DashboardPage() {
         actions={<ButtonLink href="/registrar"><IconPlus /> Registrar</ButtonLink>}
       />
 
-      {!active ? (
+      {openEnrollment ? (
+        <Card tone="dark" className="mb-6">
+          <p className="text-sm font-semibold uppercase tracking-wide text-lime-400">{t.library.calendar.currentWeek}</p>
+          <p className="mt-1 text-xl font-bold">{openEnrollment.plan.title}</p>
+          <div className="mt-4"><ButtonLink href="/plan">{t.library.nav.myPlan}</ButtonLink></div>
+        </Card>
+      ) : !active ? (
         <Card className="mb-6">
           <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes/elegir">¿Cuál es mi plan?</ButtonLink>}>
             Te recomendamos el plan de la biblioteca que corresponde a tu evaluación. Mientras tanto, podés registrar entrenamientos libres.

@@ -7,16 +7,23 @@ import { IconChevronRight } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, EmptyState, PageHeader } from "@/components/ui/primitives";
 import { t } from "@/i18n";
 import { requireOnboardedSession } from "@/lib/auth";
+import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan } from "@/lib/data/training";
+import { EnrollmentView } from "./enrollment-view";
 import { CancelPlanButton } from "./plan-actions";
 
 export const metadata: Metadata = { title: "Mi plan" };
 
-export default async function PlanPage({ searchParams }: { searchParams: Promise<{ inscripto?: string }> }) {
+export default async function PlanPage({ searchParams }: { searchParams: Promise<{ inscripto?: string; semana?: string }> }) {
   const session = await requireOnboardedSession();
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const { inscripto } = await searchParams;
+  const openEnrollment = await getOpenEnrollment(supabase, user.id);
+  if (openEnrollment) {
+    const { semana } = await searchParams;
+    return <EnrollmentView open={openEnrollment} supabase={supabase} today={today} requestedWeek={semana} enrolled={Boolean(inscripto)} />;
+  }
   const active = await loadActivePlan(supabase, user.id);
 
   if (active) {
