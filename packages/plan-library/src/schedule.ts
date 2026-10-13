@@ -57,7 +57,8 @@ export function segmentsOf(enrollment: EnrollmentLike, checkins: CheckinLike[]):
     .filter((c) => c.next_week_start !== null || c.decision === "pause")
     .sort((a, b) => (a.week_start === b.week_start ? (a.created_at ?? "").localeCompare(b.created_at ?? "") : a.week_start.localeCompare(b.week_start)));
   for (const c of sorted) {
-    const start = c.decision === "pause" ? addDays(c.week_start, 7) : c.next_week_start!;
+    // La pausa rige desde la semana en que se registró (p. ej. por dolor > 5): esa semana queda en pausa.
+    const start = c.decision === "pause" ? c.week_start : c.next_week_start!;
     // Un tramo nuevo reemplaza a los que empezaban en la misma fecha o después.
     while (segs.length > 1 && segs[segs.length - 1]!.start >= start) segs.pop();
     segs.push({ start, planWeek: c.decision === "pause" ? null : c.next_plan_week });

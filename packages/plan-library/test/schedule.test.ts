@@ -74,7 +74,7 @@ describe("calendario de una inscripción", () => {
     expect(planDayAt(enrollment, segs, 12, "2026-11-04")).toBeNull();
     expect(scheduledWeeks(segs, 4).map((w) => [w.weekStart, w.planWeek])).toEqual([
       ["2026-10-19", 1],
-      ["2026-10-26", 2],
+      ["2026-10-26", null],
       ["2026-11-02", null],
       ["2026-11-09", null],
       ["2026-11-16", 1],

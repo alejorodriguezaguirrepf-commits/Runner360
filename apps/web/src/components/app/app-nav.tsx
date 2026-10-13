@@ -28,6 +28,7 @@ const PRIMARY = [
 ];
 
 const SECONDARY = [
+  { href: "/hoy", label: t.library.today.title, icon: IconTimer },
   { href: "/planes", label: t.library.nav.catalog, icon: IconList },
   { href: "/entrenamientos", label: "Historial", icon: IconTimer },
   { href: "/hidratacion", label: "Hidratación", icon: IconDrop },
