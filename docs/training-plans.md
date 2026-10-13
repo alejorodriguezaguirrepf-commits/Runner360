@@ -188,6 +188,9 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 
 ## Cómo llega a producción
 
+- **Contenido (automático en cada publicación):** antes de `next build`, Vercel corre `pnpm --filter @runner360/plan-library run sync` (`scripts/sync-rest.ts`). Con `NEXT_PUBLIC_SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` (ya configuradas en Vercel) carga la `content_version` por la API de Supabase: solo inserta (`ON CONFLICT DO NOTHING`), no hace nada si ya está completa, no toca nada si la versión existe con otra huella y nunca hace fallar el build. Sin esas variables (CI, builds locales) se saltea.
+- **Estructura (migraciones):** las aplica `pnpm db:migrate` (o el workflow, con el secreto `SUPABASE_DB_URL`). Las tres migraciones de la biblioteca ya se aplicaron en producción el 13/10/2026.
+
 - `pnpm db:migrate` (`scripts/db/migrate.mjs`) aplica las migraciones y seeds pendientes y los registra en `runner360_meta.schema_migrations`. Solo avanza, cada archivo en su transacción, con un bloqueo para que no corran dos a la vez.
 - El workflow **Actualizar base de datos** (`.github/workflows/db-migrate.yml`) lo corre después de que la CI termina bien en `main`. Necesita el secreto `SUPABASE_DB_URL` en GitHub; sin el secreto avisa y no hace nada.
 - Para bases instaladas antes de este registro, el migrador toma como línea de base lo que ya existe.

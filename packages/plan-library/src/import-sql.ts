@@ -31,7 +31,7 @@ export function parseLibrary(raw: unknown): { library: Library; checksum: string
 }
 
 // ---------------------------------------------------------------- SQL
-type SqlValue = string | number | boolean | null | { json: unknown };
+export type SqlValue = string | number | boolean | null | { json: unknown };
 
 function lit(v: SqlValue): string {
   if (v === null) return "null";
@@ -56,6 +56,104 @@ function inserts(table: string, columns: string[], rows: SqlValue[][], conflict:
   return out;
 }
 
+export type TableSpec = { table: string; columns: string[]; rows: SqlValue[][]; conflict: string };
+
+/** Filas a importar por tabla, en orden de dependencias. Lo usan el SQL y la sincronización por API. */
+export function libraryTables(library: Library, checksum: string): TableSpec[] {
+  const v = library.content_version;
+  return [
+    {
+      table: "library_versions",
+      columns: [
+        "content_version", "schema_version", "language", "checksum", "source", "model_runner_assumptions", "category_legend",
+        "zone_map", "load_monitoring", "practical_rules", "safety", "individual_adaptation", "glossary", "bibliography",
+      ],
+      rows: [[
+        v, library.schema_version, library.language, checksum, { json: library.source }, { json: library.model_runner_assumptions },
+        { json: library.category_legend }, { json: library.zone_map }, { json: library.load_monitoring }, { json: library.practical_rules },
+        { json: library.safety }, { json: library.individual_adaptation }, { json: library.glossary }, { json: library.references },
+      ]],
+      conflict: "content_version",
+    },
+    {
+      table: "library_intensities",
+      columns: ["content_version", "position", "name", "zone", "rpe", "talk_test", "feel", "use_for"],
+      rows: library.intensity_scale.map((i, n) => [v, n + 1, i.name, i.zone, i.rpe, i.talk_test, i.feel, i.use]),
+      conflict: "content_version, name",
+    },
+    {
+      table: "library_session_types",
+      columns: ["content_version", "position", "code", "name", "description", "purpose"],
+      rows: library.session_catalog.map((t, n) => [v, n + 1, t.code, t.name, t.description, t.purpose]),
+      conflict: "content_version, code",
+    },
+    {
+      table: "library_strength_exercises",
+      columns: ["content_version", "routine", "position", "exercise", "target", "sets_reps"],
+      rows: (["A", "B", "C"] as const).flatMap((r) => library.strength_routines[r].map((e, n): SqlValue[] => [v, r, n + 1, e.exercise, e.target, e.sets_reps])),
+      conflict: "content_version, routine, position",
+    },
+    {
+      table: "library_plans",
+      columns: [
+        "content_version", "id", "number", "chapter", "distance_label", "distance_km", "level", "duration_label", "duration_weeks",
+        "days_per_week", "race_week", "title", "runner_profile", "entry_requirements", "min_weekly_km", "main_goal", "secondary_goals",
+        "strength_routine", "weekly_template", "phases", "notes", "validation",
+      ],
+      rows: library.plans.map((p) => [
+        v, p.id, p.number, p.chapter, p.distance, p.distance_km, p.level, p.duration_label, p.duration_weeks, p.days_per_week,
+        raceWeekOf(p), p.title, p.runner_profile, { json: p.entry_requirements }, p.min_weekly_km, p.main_goal, { json: p.secondary_goals },
+        p.strength_routine, p.weekly_template, { json: p.phases }, { json: p.notes }, { json: p.validation },
+      ]),
+      conflict: "content_version, id",
+    },
+    {
+      table: "library_weeks",
+      columns: [
+        "content_version", "plan_id", "week", "phase", "week_type", "week_type_label", "weekly_goal", "progression_criterion",
+        "distance_km_est", "duration_min_est", "running_sessions", "strength_sessions", "zone_pct", "includes_race",
+      ],
+      rows: library.plans.flatMap((p) =>
+        p.weeks.map((w): SqlValue[] => [
+          v, p.id, w.week, w.phase, w.week_type, w.week_type_label, w.weekly_goal, w.progression_criterion, w.totals.distance_km_est,
+          w.totals.duration_min_est, w.totals.running_sessions, w.totals.strength_sessions, { json: w.totals.zone_pct }, w.totals.includes_race,
+        ]),
+      ),
+      conflict: "content_version, plan_id, week",
+    },
+    {
+      table: "library_days",
+      columns: [
+        "content_version", "plan_id", "week", "day_index", "day_label", "is_rest", "strength_only", "code", "session_type", "category",
+        "short_label", "physiological_goal", "warmup", "main_set", "cooldown", "duration_min_est", "distance_km_est", "intensity",
+        "technical_notes", "strength_after", "is_quality", "minutes_by_intensity",
+      ],
+      rows: library.plans.flatMap((p) =>
+        p.weeks.flatMap((w) =>
+          w.days.map((d): SqlValue[] =>
+            isSession(d)
+              ? [
+                  v, p.id, w.week, d.day_index, d.day, false, false, d.code, d.type, d.category, d.short_label, d.physiological_goal,
+                  d.warmup, d.main_set, d.cooldown, d.duration_min_est, d.distance_km_est, d.intensity, d.technical_notes,
+                  d.strength_after, d.is_quality, { json: d.minutes_by_intensity },
+                ]
+              : [v, p.id, w.week, d.day_index, d.day, true, d.strength_only, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
+          ),
+        ),
+      ),
+      conflict: "content_version, plan_id, week, day_index",
+    },
+  ];
+}
+
+/** Fila como objeto para la API (los jsonb van como objetos). */
+export function rowObject(spec: TableSpec, row: SqlValue[]): Record<string, unknown> {
+  return Object.fromEntries(spec.columns.map((c, i) => {
+    const v = row[i]!;
+    return [c, v !== null && typeof v === "object" ? v.json : v];
+  }));
+}
+
 /**
  * SQL de importación SIN begin/commit (quien lo ejecuta abre la transacción).
  * Idempotente: si la content_version ya existe con la misma huella no cambia nada; si existe con
@@ -72,106 +170,7 @@ export function buildImportSql(library: Library, checksum: string): string {
       `    raise exception 'La content_version % ya fue importada con otro contenido: subí content_version en el JSON', ${lit(v)};\n` +
       `  end if;\nend\n$guard$;`,
   );
-
-  s.push(
-    ...inserts(
-      "library_versions",
-      [
-        "content_version", "schema_version", "language", "checksum", "source", "model_runner_assumptions", "category_legend",
-        "zone_map", "load_monitoring", "practical_rules", "safety", "individual_adaptation", "glossary", "bibliography",
-      ],
-      [[
-        v, library.schema_version, library.language, checksum, { json: library.source }, { json: library.model_runner_assumptions },
-        { json: library.category_legend }, { json: library.zone_map }, { json: library.load_monitoring }, { json: library.practical_rules },
-        { json: library.safety }, { json: library.individual_adaptation }, { json: library.glossary }, { json: library.references },
-      ]],
-      "content_version",
-    ),
-  );
-
-  s.push(
-    ...inserts(
-      "library_intensities",
-      ["content_version", "position", "name", "zone", "rpe", "talk_test", "feel", "use_for"],
-      library.intensity_scale.map((i, n) => [v, n + 1, i.name, i.zone, i.rpe, i.talk_test, i.feel, i.use]),
-      "content_version, name",
-    ),
-  );
-  s.push(
-    ...inserts(
-      "library_session_types",
-      ["content_version", "position", "code", "name", "description", "purpose"],
-      library.session_catalog.map((t, n) => [v, n + 1, t.code, t.name, t.description, t.purpose]),
-      "content_version, code",
-    ),
-  );
-  s.push(
-    ...inserts(
-      "library_strength_exercises",
-      ["content_version", "routine", "position", "exercise", "target", "sets_reps"],
-      (["A", "B", "C"] as const).flatMap((r) => library.strength_routines[r].map((e, n): SqlValue[] => [v, r, n + 1, e.exercise, e.target, e.sets_reps])),
-      "content_version, routine, position",
-    ),
-  );
-
-  s.push(
-    ...inserts(
-      "library_plans",
-      [
-        "content_version", "id", "number", "chapter", "distance_label", "distance_km", "level", "duration_label", "duration_weeks",
-        "days_per_week", "race_week", "title", "runner_profile", "entry_requirements", "min_weekly_km", "main_goal", "secondary_goals",
-        "strength_routine", "weekly_template", "phases", "notes", "validation",
-      ],
-      library.plans.map((p) => [
-        v, p.id, p.number, p.chapter, p.distance, p.distance_km, p.level, p.duration_label, p.duration_weeks, p.days_per_week,
-        raceWeekOf(p), p.title, p.runner_profile, { json: p.entry_requirements }, p.min_weekly_km, p.main_goal, { json: p.secondary_goals },
-        p.strength_routine, p.weekly_template, { json: p.phases }, { json: p.notes }, { json: p.validation },
-      ]),
-      "content_version, id",
-    ),
-  );
-
-  s.push(
-    ...inserts(
-      "library_weeks",
-      [
-        "content_version", "plan_id", "week", "phase", "week_type", "week_type_label", "weekly_goal", "progression_criterion",
-        "distance_km_est", "duration_min_est", "running_sessions", "strength_sessions", "zone_pct", "includes_race",
-      ],
-      library.plans.flatMap((p) =>
-        p.weeks.map((w): SqlValue[] => [
-          v, p.id, w.week, w.phase, w.week_type, w.week_type_label, w.weekly_goal, w.progression_criterion, w.totals.distance_km_est,
-          w.totals.duration_min_est, w.totals.running_sessions, w.totals.strength_sessions, { json: w.totals.zone_pct }, w.totals.includes_race,
-        ]),
-      ),
-      "content_version, plan_id, week",
-    ),
-  );
-
-  s.push(
-    ...inserts(
-      "library_days",
-      [
-        "content_version", "plan_id", "week", "day_index", "day_label", "is_rest", "strength_only", "code", "session_type", "category",
-        "short_label", "physiological_goal", "warmup", "main_set", "cooldown", "duration_min_est", "distance_km_est", "intensity",
-        "technical_notes", "strength_after", "is_quality", "minutes_by_intensity",
-      ],
-      library.plans.flatMap((p) =>
-        p.weeks.flatMap((w) =>
-          w.days.map((d): SqlValue[] =>
-            isSession(d)
-              ? [
-                  v, p.id, w.week, d.day_index, d.day, false, false, d.code, d.type, d.category, d.short_label, d.physiological_goal,
-                  d.warmup, d.main_set, d.cooldown, d.duration_min_est, d.distance_km_est, d.intensity, d.technical_notes,
-                  d.strength_after, d.is_quality, { json: d.minutes_by_intensity },
-                ]
-              : [v, p.id, w.week, d.day_index, d.day, true, d.strength_only, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null],
-          ),
-        ),
-      ),
-      "content_version, plan_id, week, day_index",
-    ),
-  );
+  for (const t of libraryTables(library, checksum)) s.push(...inserts(t.table, t.columns, t.rows, t.conflict));
 
   // La versión importada pasa a ser la vigente (en dos pasos: el índice único no admite dos vigentes).
   s.push(`update public.library_versions set is_current = false where is_current and content_version <> ${lit(v)};`);
