@@ -9,6 +9,7 @@ import { requireOnboardedSession } from "@/lib/auth";
 import { buildDashboard } from "@/lib/data/dashboard";
 import { t } from "@/i18n";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { todaySummary } from "@/lib/library/week";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
 
 export const metadata: Metadata = { title: "Inicio" };
@@ -30,6 +31,7 @@ export default async function DashboardPage() {
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
   const openEnrollment = await getOpenEnrollment(supabase, user.id);
+  const todayLabel = openEnrollment ? await todaySummary(supabase, openEnrollment, today) : "";
   const d = buildDashboard(active, workouts, today);
   const rec = d.recommendation ? RECOMMENDATION_TEXT[d.recommendation.action] : null;
 
@@ -43,9 +45,13 @@ export default async function DashboardPage() {
 
       {openEnrollment ? (
         <Card tone="dark" className="mb-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-lime-400">{t.library.calendar.currentWeek}</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-lime-400">{t.library.today.title}</p>
           <p className="mt-1 text-xl font-bold">{openEnrollment.plan.title}</p>
-          <div className="mt-4"><ButtonLink href="/plan">{t.library.nav.myPlan}</ButtonLink></div>
+          <p className="mt-1 text-white/80">{todayLabel}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <ButtonLink href="/hoy">{t.library.today.title}</ButtonLink>
+            <ButtonLink href="/plan" variant="inverse">{t.library.nav.myPlan}</ButtonLink>
+          </div>
         </Card>
       ) : !active ? (
         <Card className="mb-6">

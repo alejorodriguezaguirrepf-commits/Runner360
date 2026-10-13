@@ -81,6 +81,7 @@ Los datos de salud (`pain_score`, `red_flags`, `sleep_quality`, notas) son sensi
 | `/planes/elegir` → "Empezar este plan" | Inscripción. El servidor vuelve a evaluar los requisitos con las respuestas; si no se cumplen, no hay inscripción. Con fecha de carrera calcula el inicio; sin fecha, se elige el lunes de inicio y se calcula la competencia. |
 | `/plan` | Calendario de la inscripción: estado, inicio, competencia (y la proyectada si se repitieron semanas), ritmos de referencia (Riegel), la semana elegida con fechas reales y los 7 días, y la lista de todas las semanas. |
 | `/plan/dias` | Mover días: qué día de la semana se hace cada día del plan. |
+| `/hoy` | La sesión del día (calentamiento, parte principal, vuelta a la calma, intensidad con la escala RPE a un toque, observaciones), el registro post-sesión, el check-in semanal pendiente, el aviso de sesión perdida y la semana en curso. En pausa: avisos de seguridad y "Retomar". |
 
 En todas: aclaración de valores estimados (`model_runner_assumptions.note`) y avisos de `safety`.
 Después del onboarding se llega al asistente; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
@@ -111,6 +112,27 @@ Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ni
 - **Calendario calculado** (`schedule.ts`): tramos a partir del inicio y de las decisiones de los check-ins (`repeat`/`reduce` vuelven a la misma semana, `regress` a una anterior, `pause` detiene, `resume` retoma). Repetir una semana desplaza el resto y la fecha proyectada de la competencia; la fecha de la carrera elegida no cambia y la pantalla avisa la diferencia.
 - **Mover días**: `day_map` se aplica a todas las semanas. Regla: entre dos sesiones exigentes (`is_quality` o `thr`/`hard`/`race`) al menos un día fácil o de descanso, también de domingo a lunes; la competencia no se mueve. Se valida en el cliente (vista previa sobre las semanas visibles), en el servidor (todas las semanas, con `library_day_map_violations`) y en la base (trigger).
 - **Fuerza** (`strength_after`, `strength_only`): se muestra como complementaria y nunca suma al tiempo de carrera.
+
+## Registro, motor de reglas y check-in
+
+- **Registro post-sesión** (`workout_logs`): cómo fue (hecha, con cambios, omitida), duración y distancia reales, RPE 1–10, dolor 0–10, señales de alarma (cojera, dolor óseo, hinchazón, dolor nocturno), sueño y notas. Una por día del plan; se puede editar. Dolor, señales y sueño requieren el consentimiento `health_data` (se pide en el mismo formulario) y nunca se escriben en los logs del servidor.
+- **Motor de reglas** (`packages/plan-library/src/rules.ts`), declarativo: cada regla tiene id, la fuente del contenido (`load_monitoring` o `practical_rules`), una condición y una acción. El mensaje es siempre el texto del contenido; un test exige que todas las fuentes existan.
+
+| Regla | Fuente | Condición | Recomendación |
+|---|---|---|---|
+| `pain_stop` | Dolor → suspender y consultar | dolor > 5 o cualquier señal de alarma | **pausa** (al registrar, se pausa en el acto) |
+| `pain_reduce` | Dolor → reducir o repetir | dolor 3–5 | repetir con menos carga |
+| `easy_rpe_high` | RPE de los rodajes Suaves | ≥ 2 rodajes Suaves/recuperación con RPE ≥ 5 en la semana ("de forma habitual") | repetir |
+| `poor_sleep` | Sueño | dos noches malas seguidas | aviso (cambiar la calidad por un rodaje Suave) |
+| `missed_one` | Sesión perdida | una sesión sin hacer | aviso: no se recupera al día siguiente |
+| `missed_two` | Dos o más sesiones perdidas | ≥ 2 sin hacer | repetir |
+| `missed_week` | Una semana perdida | 7–13 días sin entrenar | volver a la semana anterior |
+| `two_weeks_off` | Dos semanas o más sin entrenar | ≥ 14 días | retroceder 2 semanas o a la última descarga (la más conservadora) |
+| `criterion_twice` | Criterio no cumplido dos semanas seguidas | dos "no" seguidos | volver a la última descarga |
+
+- Sin reglas disparadas: criterio cumplido → avanzar; no cumplido → repetir. Si se disparan varias, gana la más conservadora (pausa > retroceder > reducir > repetir > avanzar).
+- **Check-in semanal**: aparece para la semana anterior sin check-in o, desde el sábado, para la actual. Muestra el `progression_criterion`; según la respuesta, la recomendación y los textos que la respaldan. La persona confirma una decisión permitida (con una recomendación conservadora no se ofrece avanzar; con pausa, solo pausar). El servidor recalcula la recomendación antes de guardar y registra recomendación, reglas y decisión en `weekly_checkins`.
+- **Retomar** después de una pausa: desde la semana que indican las reglas prácticas según el tiempo sin entrenar. Se puede pausar y retomar en la misma semana (migración `20261013000200`: una sola revisión semanal por semana; pausas y reanudaciones libres).
 
 ## Ritmos de referencia (Riegel)
 

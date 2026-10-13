@@ -22,6 +22,8 @@ import { Alert, Badge, ButtonLink, Card, CardTitle, PageHeader } from "@/compone
 import { fmt, t } from "@/i18n";
 import type { OpenEnrollment } from "@/lib/data/enrollment";
 import { getPlanWeeks, getWeekDays } from "@/lib/data/library";
+import { checkinProps, pendingCheckinWeek } from "@/lib/library/week";
+import { CheckinCard } from "@/components/library/checkin-card";
 import { CancelEnrollmentButton } from "./plan-actions";
 
 const m = t.library;
@@ -33,7 +35,9 @@ export async function EnrollmentView({
   today,
   requestedWeek,
   enrolled,
+  checkinDone,
 }: {
+  checkinDone?: string;
   open: OpenEnrollment;
   supabase: SupabaseClient;
   today: string;
@@ -61,6 +65,8 @@ export async function EnrollmentView({
     .map((d) => ({ d, date: addDays(selected, enrollment.day_map[d.day_index]!) }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  const pending = enrollment.status === "active" ? pendingCheckinWeek(open, today, weekdayOf(today)) : null;
+  const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
   const projected = projectedRaceDate(segments, plan.duration_weeks, plan.race_week);
   const mark =
     enrollment.mark_distance_m && enrollment.mark_time_s && enrollment.mark_date
@@ -94,6 +100,26 @@ export async function EnrollmentView({
         }
       />
       {enrolled ? <div className="mb-4"><Alert tone="success" title={c.enrolled} /></div> : null}
+      {checkinDone ? <div className="mb-4"><Alert tone="success">{checkinDone === "fin" ? m.checkin.completed : m.checkin.saved}</Alert></div> : null}
+      {enrollment.status === "paused" ? (
+        <div className="mb-4">
+          <Alert tone="danger" title={m.today.paused}>
+            {m.today.pausedText} <Link href="/hoy" className="font-semibold underline">{m.today.resume}</Link>
+          </Alert>
+        </div>
+      ) : null}
+      {checkin ? (
+        <div className="mb-6">
+          <CheckinCard
+            weekStart={checkin.weekStart}
+            title={fmt(m.checkin.weekOf, { n: checkin.planWeek, from: formatDate(checkin.weekStart), to: formatDate(addDays(checkin.weekStart, 6)) })}
+            criterion={checkin.criterion}
+            ifYes={checkin.ifYes}
+            ifNo={checkin.ifNo}
+            returnTo="/plan"
+          />
+        </div>
+      ) : null}
       <div className="mb-6 space-y-3">
         <EstimateNotice note={v.model_runner_assumptions.note} />
         <SafetyNotices items={v.safety} />

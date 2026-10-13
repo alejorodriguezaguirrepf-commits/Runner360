@@ -1854,6 +1854,15 @@ alter table public.plan_enrollments
 comment on column public.plan_enrollments.mark_date is 'Fecha de la marca: solo se usa si tiene 8 semanas o menos.';
 
 
+-- ===== supabase/migrations/20261013000200_checkin_events.sql =====
+-- RUNNER 360 — Check-ins: una sola REVISIÓN semanal por semana, pero pausas y reanudaciones libres
+-- (p. ej. pausar por dolor y retomar en la misma semana).
+-- Reversión: supabase/rollback/20261013000200_checkin_events.down.sql
+alter table public.weekly_checkins drop constraint weekly_checkins_enrollment_id_week_start_key;
+create unique index weekly_checkins_one_review_per_week on public.weekly_checkins (enrollment_id, week_start)
+  where decision not in ('pause', 'resume');
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -1938,6 +1947,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261002000500'),
   ('20261012000100'),
   ('20261013000100'),
+  ('20261013000200'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;
