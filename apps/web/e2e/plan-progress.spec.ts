@@ -98,6 +98,19 @@ test.describe("Hoy, registro, reglas y check-in", () => {
     // Retomar (en la misma semana).
     await page.getByRole("button", { name: "Retomar el plan" }).click();
     await expect(page.getByText("Sesión de hoy · semana 1 del plan")).toBeVisible();
+
+    // Progreso: planificado contra real, adherencia y zonas.
+    await page.goto("/progreso");
+    const progress = page.locator("section", { has: page.getByRole("heading", { name: "Tu plan: planificado y real" }) });
+    await expect(progress).toBeVisible();
+    await expect(progress.getByText("Adherencia")).toBeVisible();
+    await expect(progress.getByRole("columnheader", { name: "Zonas de lo completado" })).toBeVisible();
+
+    // Borrar los datos de salud.
+    await page.goto("/perfil");
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: "Borrar mis datos de salud" }).click();
+    await expect(page.getByText("Borramos tus datos de salud de los registros y retiramos tu consentimiento.")).toBeVisible();
   });
 
   test("criterio cumplido sin señales: se ofrece avanzar", async ({ page }) => {

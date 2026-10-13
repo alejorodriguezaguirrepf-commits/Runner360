@@ -5,7 +5,9 @@ import { BarChart } from "@/components/charts/bar-chart";
 import { Alert, ButtonLink, Card, CardTitle, EmptyState, PageHeader, Stat } from "@/components/ui/primitives";
 import { canUseFeature, requireOnboardedSession } from "@/lib/auth";
 import { toLogItems } from "@/lib/data/dashboard";
+import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
+import { PlanProgress } from "@/components/library/plan-progress";
 
 export const metadata: Metadata = { title: "Progreso" };
 
@@ -17,7 +19,11 @@ export default async function ProgressPage() {
   const today = todayIn(profile.timezone);
   const advanced = await canUseFeature(session, "advanced_stats");
   const weeksBack = advanced ? 12 : 4;
-  const [workouts, active] = await Promise.all([loadWorkouts(supabase, user.id, advanced ? undefined : addDays(today, -35)), loadActivePlan(supabase, user.id)]);
+  const [workouts, active, openEnrollment] = await Promise.all([
+    loadWorkouts(supabase, user.id, advanced ? undefined : addDays(today, -35)),
+    loadActivePlan(supabase, user.id),
+    getOpenEnrollment(supabase, user.id),
+  ]);
   const logs = toLogItems(workouts);
   const weekly = weeklyTotals(logs, addDays(today, -(weeksBack - 1) * 7), today);
   const cons = consistency(logs, today, weeksBack);
@@ -28,6 +34,7 @@ export default async function ProgressPage() {
     return (
       <>
         <PageHeader title="Progreso" />
+        {openEnrollment ? <PlanProgress supabase={supabase} open={openEnrollment} today={today} /> : null}
         <Card><EmptyState title="Todavía no hay registros" action={<ButtonLink href="/registrar">Registrar mi primer entrenamiento</ButtonLink>}>Tus gráficos se construyen solo con los entrenamientos que registres.</EmptyState></Card>
       </>
     );
@@ -46,8 +53,11 @@ export default async function ProgressPage() {
       {!advanced ? (
         <div className="mb-4"><Alert tone="info" title="Estadísticas básicas">Ves las últimas 4 semanas. El historial completo, las marcas y la evolución por distancia están incluidos en Premium. <a className="font-semibold underline" href="/suscripcion">Ver Premium</a></Alert></div>
       ) : null}
+      {openEnrollment ? <PlanProgress supabase={supabase} open={openEnrollment} today={today} /> : null}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat label="Cumplimiento del plan" value={formatPercent(compliance?.rate ?? null)} hint={compliance ? `${compliance.completed + compliance.modified}/${compliance.due} sesiones vencidas` : "Sin plan activo"} />
+        {openEnrollment ? null : (
+          <Stat label="Cumplimiento del plan" value={formatPercent(compliance?.rate ?? null)} hint={compliance ? `${compliance.completed + compliance.modified}/${compliance.due} sesiones vencidas` : "Sin plan activo"} />
+        )}
         <Stat label="Consistencia" value={`${cons.activeWeeks}/${cons.weeks}`} hint="semanas con al menos un entrenamiento" />
         <Stat label={`Distancia (${weeksBack} sem.)`} value={formatKm(weekly.reduce((a, w) => a + w.distanceM, 0))} />
         <Stat label={`Tiempo (${weeksBack} sem.)`} value={formatMinutesLong(weekly.reduce((a, w) => a + w.durationS, 0))} />

@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import { FormMessage, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
 import { initialActionState } from "@/lib/action-state";
-import { deleteAccountAction, reportIncidentAction, revokeHealthConsentAction } from "@/lib/actions/account";
+import { t } from "@/i18n";
+import { deleteAccountAction, deleteHealthDataAction, reportIncidentAction, revokeHealthConsentAction } from "@/lib/actions/account";
 
 export function RevokeHealthButton() {
   return (
@@ -46,6 +47,23 @@ export function DeleteAccountForm() {
       <TextField label="Escribí ELIMINAR para confirmar" name="confirm" autoComplete="off" error={state.errors?.confirm} />
       <FormMessage state={state} />
       <SubmitButton variant="danger" pendingText="Eliminando…">Eliminar mi cuenta</SubmitButton>
+    </form>
+  );
+}
+
+export function DeleteHealthDataForm() {
+  const [state, action] = useActionState(deleteHealthDataAction, initialActionState);
+  const h = t.library.health;
+  return (
+    <form
+      action={action}
+      className="space-y-2"
+      onSubmit={(e) => {
+        if (!window.confirm(h.confirm)) e.preventDefault();
+      }}
+    >
+      <SubmitButton variant="danger" pendingText="…">{h.delete}</SubmitButton>
+      <FormMessage state={state} />
     </form>
   );
 }

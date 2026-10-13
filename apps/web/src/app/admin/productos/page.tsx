@@ -2,17 +2,19 @@ import { formatMoney, type PriceRow, type ProductRow } from "@runner360/shared";
 import type { Metadata } from "next";
 import { Badge, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { requireAdmin } from "@/lib/auth";
-import { deactivatePriceAction, toggleFeatureAction, toggleProductAction } from "@/lib/actions/admin";
+import { t } from "@/i18n";
+import { deactivatePriceAction, setFreePreviewWeeksAction, toggleFeatureAction, toggleProductAction } from "@/lib/actions/admin";
 import { PriceForm } from "./price-form";
 
 export const metadata: Metadata = { title: "Productos y precios" };
 
 export default async function ProductsPage() {
   const { supabase } = await requireAdmin();
-  const [{ data: products }, { data: prices }, { data: features }] = await Promise.all([
+  const [{ data: products }, { data: prices }, { data: features }, { data: librarySettings }] = await Promise.all([
     supabase.from("subscription_products").select("*").order("sort_order"),
     supabase.from("product_prices").select("*").order("created_at", { ascending: false }),
     supabase.from("app_features").select("*").order("key"),
+    supabase.from("library_settings").select("free_preview_weeks").maybeSingle<{ free_preview_weeks: number }>(),
   ]);
   return (
     <>
@@ -71,6 +73,17 @@ export default async function ProductsPage() {
               </li>
             ))}
           </ul>
+        </Card>
+        <Card>
+          <CardTitle>{t.library.admin.title}</CardTitle>
+          <form action={setFreePreviewWeeksAction} className="flex flex-wrap items-end gap-3">
+            <label className="space-y-1 text-sm">
+              <span className="block font-semibold">{t.library.admin.freeWeeks}</span>
+              <input type="number" name="weeks" min={0} max={60} defaultValue={librarySettings?.free_preview_weeks ?? 1} className="min-h-11 w-28 rounded-xl border border-line px-3" />
+            </label>
+            <button className="min-h-11 rounded-xl border border-line px-4 text-sm font-semibold">{t.library.admin.save}</button>
+          </form>
+          <p className="mt-2 text-xs text-muted">{t.library.admin.freeWeeksHint}</p>
         </Card>
       </div>
     </>
