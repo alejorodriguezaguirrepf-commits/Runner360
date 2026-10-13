@@ -1840,6 +1840,20 @@ create policy workouts_update_own on public.workout_logs for update to authentic
     select 1 from public.plan_enrollments e where e.id = workout_logs.enrollment_id and e.user_id = (select auth.uid()))));
 
 
+-- ===== supabase/migrations/20261013000100_enrollment_mark.sql =====
+-- RUNNER 360 — Marca reciente en la inscripción (opcional), para estimar ritmos de referencia con Riegel.
+-- Solo agrega columnas opcionales. Reversión: supabase/rollback/20261013000100_enrollment_mark.down.sql
+alter table public.plan_enrollments
+  add column mark_distance_m integer check (mark_distance_m between 400 and 100000),
+  add column mark_time_s integer check (mark_time_s between 60 and 86400),
+  add column mark_date date,
+  add constraint plan_enrollments_mark_complete check (
+    (mark_distance_m is null and mark_time_s is null and mark_date is null)
+    or (mark_distance_m is not null and mark_time_s is not null and mark_date is not null)
+  );
+comment on column public.plan_enrollments.mark_date is 'Fecha de la marca: solo se usa si tiene 8 semanas o menos.';
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -1923,6 +1937,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261002000400'),
   ('20261002000500'),
   ('20261012000100'),
+  ('20261013000100'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;

@@ -3,11 +3,12 @@
 import type { CheckStatus, RequirementCheck } from "@runner360/plan-library";
 import { formatDate } from "@runner360/shared";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { CheckboxField, ChoiceGroup, FormMessage, SelectField, SubmitButton, TextField, useFormAction } from "@/components/ui/form";
 import { IconAlert, IconCheck, IconInfo } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
+import { enrollLibraryPlanAction } from "@/lib/actions/enrollment";
 import { assessAction, type AssistantState } from "@/lib/actions/library";
 
 const m = t.library.assistant;
@@ -54,8 +55,34 @@ function Checks({ checks }: { checks: RequirementCheck[] }) {
   );
 }
 
-function Result({ result }: { result: NonNullable<AssistantState["result"]> }) {
+type EnrollCtx = { answers: [string, string][]; hasDemoPlan: boolean };
+
+/** Inscripción: reenvía las respuestas para que el servidor vuelva a verificar los requisitos. */
+function EnrollForm({ planId, startDate, raceDate, raceWeek, fixedRace, ctx }: { planId: string; startDate: string; raceDate: string; raceWeek: number; fixedRace: boolean; ctx: EnrollCtx }) {
+  const { state, pending, onSubmit } = useFormAction(enrollLibraryPlanAction, { ok: false });
+  const em = t.library.enroll;
+  return (
+    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-line bg-surface p-4 text-ink" noValidate>
+      <h3 className="font-semibold">{em.title}</h3>
+      {ctx.answers.filter(([k]) => k !== "plan" && k !== "startDate").map(([k, v], i) => (
+        <input key={`${k}-${i}`} type="hidden" name={k} value={v} />
+      ))}
+      <input type="hidden" name="plan" value={planId} />
+      {fixedRace ? (
+        <p className="text-sm">{fmt(em.withRace, { race: formatDate(raceDate, "long"), start: formatDate(startDate, "long") })}</p>
+      ) : (
+        <TextField label={em.startLabel} name="startDate" type="date" defaultValue={startDate} min={startDate} step={7} hint={fmt(em.startHint, { n: raceWeek })} error={state.errors?.startDate} />
+      )}
+      {ctx.hasDemoPlan ? <p className="text-xs text-warning">{em.demoWarning}</p> : null}
+      {state.ok ? null : <FormMessage state={state} />}
+      <SubmitButton pending={pending} pendingText={em.pending}>{em.submit}</SubmitButton>
+    </form>
+  );
+}
+
+function Result({ result, ctx }: { result: NonNullable<AssistantState["result"]>; ctx: EnrollCtx }) {
   const { recommendation: r, focus } = result;
+  const earliest = result.earliestStart;
   return (
     <section aria-live="polite" aria-labelledby="resultado" className="space-y-4">
       <h2 id="resultado" className="text-lg font-bold">{m.resultTitle}</h2>
@@ -65,6 +92,18 @@ function Result({ result }: { result: NonNullable<AssistantState["result"]> }) {
             {focus.plan.title}
           </CardTitle>
           <Checks checks={focus.checks} />
+          {focus.eligible && (!focus.timing || focus.timing.ok) && (r.kind !== "recommended" || r.plan.id !== focus.plan.id) ? (
+            <div className="mt-4">
+              <EnrollForm
+                planId={focus.plan.id}
+                startDate={focus.timing?.ok ? focus.timing.startDate : earliest}
+                raceDate={focus.timing?.ok ? focus.timing.raceDate : ""}
+                raceWeek={focus.plan.race_week}
+                fixedRace={Boolean(focus.timing?.ok)}
+                ctx={ctx}
+              />
+            </div>
+          ) : null}
           {focus.timing && !focus.timing.ok ? (
             <p className="mt-3 text-sm text-warning">{m.blocked.race_too_soon} {fmt(m.alternativeRace, { date: formatDate(focus.timing.earliestRaceDate, "long") })}</p>
           ) : null}
@@ -81,8 +120,9 @@ function Result({ result }: { result: NonNullable<AssistantState["result"]> }) {
             <Checks checks={r.checks} />
             {r.checks.some((c) => c.status === "pending") ? <p className="mt-3 text-xs text-muted">{m.pendingMark}</p> : null}
           </div>
-          <div className="mt-4">
-            <ButtonLink href={`/planes/${r.plan.id}`}>{m.viewPlan}</ButtonLink>
+          <div className="mt-4 space-y-3">
+            <EnrollForm planId={r.plan.id} startDate={r.startDate} raceDate={r.raceDate} raceWeek={r.plan.race_week} fixedRace={Boolean(ctx.answers.find(([k, v]) => k === "raceDate" && v))} ctx={ctx} />
+            <ButtonLink href={`/planes/${r.plan.id}`} variant="inverse">{m.viewPlan}</ButtonLink>
           </div>
         </Card>
       ) : (
@@ -128,20 +168,27 @@ export function AssistantForm({
   distances,
   focusPlanId,
   prefilled,
+  hasDemoPlan,
 }: {
   defaults: AssistantDefaults;
   distances: { value: string; label: string }[];
   focusPlanId: string | null;
   prefilled: boolean;
+  hasDemoPlan: boolean;
 }) {
   const { state, pending, onSubmit } = useFormAction<AssistantState>(assessAction, { ok: false });
+  const [answers, setAnswers] = useState<[string, string][]>([]);
+  const submit = (ev: FormEvent<HTMLFormElement>) => {
+    setAnswers([...new FormData(ev.currentTarget).entries()].filter((x): x is [string, string] => typeof x[1] === "string"));
+    onSubmit(ev);
+  };
   const [healthFlag, setHealthFlag] = useState(false);
   const e = state.errors ?? {};
   const opts = (rec: Record<string, string>) => Object.entries(rec).map(([value, label]) => ({ value, label }));
 
   return (
     <div className="space-y-6">
-      <form onSubmit={onSubmit} className="space-y-6" noValidate>
+      <form onSubmit={submit} className="space-y-6" noValidate>
         {focusPlanId ? <input type="hidden" name="plan" value={focusPlanId} /> : null}
         {prefilled ? <Alert tone="info">{m.prefilled}</Alert> : null}
 
@@ -200,7 +247,7 @@ export function AssistantForm({
         {state.ok ? null : <FormMessage state={state} />}
         <SubmitButton pending={pending} pendingText="…">{m.submit}</SubmitButton>
       </form>
-      {state.ok && state.result ? <Result result={state.result} /> : null}
+      {state.ok && state.result ? <Result result={state.result} ctx={{ answers, hasDemoPlan }} /> : null}
     </div>
   );
 }

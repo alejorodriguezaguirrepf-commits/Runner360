@@ -46,6 +46,8 @@ export default async function AssistantPage({ searchParams }: { searchParams: Pr
     .eq("user_id", user.id)
     .maybeSingle<TrainingProfile>();
 
+  const { count: demoActive } = await supabase.from("user_training_plans").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "active");
+
   const distances = [...new Map(library.plans.map((p) => [p.distance_km, p.distance_label])).entries()]
     .sort(([a], [b]) => a - b)
     .map(([value, label]) => ({ value: String(value), label }));
@@ -70,7 +72,7 @@ export default async function AssistantPage({ searchParams }: { searchParams: Pr
         <EstimateNotice note={library.version.model_runner_assumptions.note} />
         <SafetyNotices items={library.version.safety} />
       </div>
-      <AssistantForm defaults={defaults} distances={distances} focusPlanId={focus?.id ?? null} prefilled={Boolean(tp)} />
+      <AssistantForm defaults={defaults} distances={distances} focusPlanId={focus?.id ?? null} prefilled={Boolean(tp)} hasDemoPlan={(demoActive ?? 0) > 0} />
     </>
   );
 }
