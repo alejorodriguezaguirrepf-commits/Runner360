@@ -31,4 +31,6 @@ Si el cambio toca la base (`supabase/`), además `pnpm db:test`. Si toca la app 
 - Variables de entorno: ver `.env.example` y `docs/DEPLOYMENT.md`. Se leen en tiempo de ejecución (`apps/web/src/lib/env.ts`).
 - Textos de la interfaz en español rioplatense (es-AR). Los mensajes al usuario no mencionan proveedores técnicos.
 - Migraciones: nunca editar una ya aplicada; crear una nueva en `supabase/migrations/`. Cambios destructivos (borrar tablas/columnas/datos) requieren consultar antes.
+- Base de producción (proyecto Supabase `uvticrzmegqurffipxny`): si el conector de Supabase está disponible, aplicar las migraciones nuevas con `apply_migration` en partes chicas (las que tardan más de 60 s se cortan), preferir `alter policy` a `drop policy`, registrar la versión en `runner360_meta.schema_migrations` y al final correr `notify pgrst, 'reload schema'`. Revisar después con `get_advisors`.
+- Contenido de la biblioteca de planes: se sincroniza solo en cada publicación de Vercel (`packages/plan-library/scripts/sync-rest.ts`).
 - Planes de entrenamiento DEMO: siempre marcados “DEMO / NO VALIDADO”. No inventar datos, testimonios ni resultados.
