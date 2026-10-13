@@ -98,4 +98,29 @@ test.describe("panel administrativo", () => {
     await expect(userPage.getByText(/Objetivo \(estimado\)/)).toBeVisible();
     await expect(userPage.getByText("5:30 /km").first()).toBeVisible();
   });
+
+  test("biblioteca: las semanas gratis se configuran sin tocar el código", async ({ page, browser }) => {
+    await adminSession(page);
+    await page.goto("/admin/productos");
+    await page.getByLabel("Semanas gratis por plan").fill("2");
+    await page.getByRole("button", { name: "Guardar", exact: true }).click();
+    await expect(page.getByLabel("Semanas gratis por plan")).toHaveValue("2");
+    // Un usuario gratuito (el administrador ve todo) ahora ve la semana 2.
+    const ctx = await browser.newContext();
+    const runner = await ctx.newPage();
+    try {
+      await signUp(runner, uniqueEmail("semanas"));
+      await completeOnboarding(runner);
+      await runner.goto("/planes/plan-04?semana=2");
+      await expect(runner.locator("#semana").getByRole("heading", { level: 3 })).toHaveCount(7);
+      await runner.goto("/planes/plan-04?semana=3");
+      await expect(runner.locator("#semana").getByText("La ficha y las primeras semanas son gratis", { exact: false })).toBeVisible();
+    } finally {
+      await ctx.close();
+      await page.goto("/admin/productos");
+      await page.getByLabel("Semanas gratis por plan").fill("1");
+      await page.getByRole("button", { name: "Guardar", exact: true }).click();
+      await expect(page.getByLabel("Semanas gratis por plan")).toHaveValue("1");
+    }
+  });
 });

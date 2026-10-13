@@ -3,6 +3,7 @@
 import { fieldErrors, formDataToObject, incidentSchema } from "@runner360/shared";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { t } from "@/i18n";
 import type { ActionState } from "@/lib/action-state";
 import { requireSession } from "@/lib/auth";
 import { LEGAL_VERSIONS } from "@/lib/legal";
@@ -11,9 +12,34 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function revokeHealthConsentAction(): Promise<void> {
   const { supabase, user } = await requireSession();
+  // Sin consentimiento no se conserva ningún dato de salud: tampoco el de los registros.
+  await supabase
+    .from("workout_logs")
+    .update({ pain_score: null, red_flags: [], sleep_quality: null, pain_reported: false })
+    .eq("user_id", user.id);
   await supabase.from("health_screenings").delete().eq("user_id", user.id);
   await supabase.from("user_consents").insert({ user_id: user.id, consent_type: "health_data", document_version: LEGAL_VERSIONS.health_data, granted: false });
   revalidatePath("/perfil");
+}
+
+/**
+ * Borra los datos de salud de los registros (dolor, señales de alarma, sueño y notas) y retira el
+ * consentimiento. Se conservan fecha, duración, distancia y RPE.
+ */
+export async function deleteHealthDataAction(_prev: ActionState): Promise<ActionState> {
+  const { supabase, user } = await requireSession();
+  const { error } = await supabase
+    .from("workout_logs")
+    .update({ pain_score: null, red_flags: [], sleep_quality: null, comments: null, pain_reported: false })
+    .eq("user_id", user.id);
+  if (error) {
+    logError("deleteHealthData", { code: error.code });
+    return { ok: false, message: t.library.health.generic };
+  }
+  await supabase.from("health_screenings").delete().eq("user_id", user.id);
+  await supabase.from("user_consents").insert({ user_id: user.id, consent_type: "health_data", document_version: LEGAL_VERSIONS.health_data, granted: false });
+  revalidatePath("/perfil");
+  return { ok: true, message: t.library.health.deleted };
 }
 
 export async function reportIncidentAction(_prev: ActionState, formData: FormData): Promise<ActionState> {

@@ -134,10 +134,36 @@ Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ni
 - **Check-in semanal**: aparece para la semana anterior sin check-in o, desde el sábado, para la actual. Muestra el `progression_criterion`; según la respuesta, la recomendación y los textos que la respaldan. La persona confirma una decisión permitida (con una recomendación conservadora no se ofrece avanzar; con pausa, solo pausar). El servidor recalcula la recomendación antes de guardar y registra recomendación, reglas y decisión en `weekly_checkins`.
 - **Retomar** después de una pausa: desde la semana que indican las reglas prácticas según el tiempo sin entrenar. Se puede pausar y retomar en la misma semana (migración `20261013000200`: una sola revisión semanal por semana; pausas y reanudaciones libres).
 
+## Progreso
+
+En `/progreso`, con un plan en curso: por cada semana transcurrida, km y tiempo **planificados** (totales del contenido) contra **reales** (registros), sesiones hechas sobre vencidas, distribución Z1/Z2/Z3 planificada (`zone_pct`) y la de lo completado (minutos por intensidad que el contenido asigna a las sesiones hechas, vía `zone_map`; no se miden). Adherencia total = sesiones hechas / vencidas (`progress.ts`, función pura con tests).
+
 ## Ritmos de referencia (Riegel)
 
 - `T2 = T1 × (D2/D1)^1,06` (`riegel.ts`, función pura con tests), solo con una marca de las últimas 8 semanas.
 - Se muestran tiempo y ritmo (`mm:ss/km`) estimados para 5, 10, 21,1 y 42,195 km, siempre como estimación. En maratón, como **límite rápido, no objetivo**. El RPE y la prueba del habla siguen siendo la referencia principal; el contenido no define ritmos por intensidad y no se inventan.
+
+## Monetización
+
+- La ficha de cada plan y sus totales semanales son públicos. El detalle día por día de las semanas posteriores a `library_settings.free_preview_weeks` (1 por defecto) requiere la función `plan_library` (`app_features`). Se aplica en RLS (`library_week_is_open`), no solo en la interfaz.
+- Ambos valores se cambian desde **Administración → Productos** (semanas gratis y "Biblioteca de planes" Premium/Gratis), sin tocar el código; el cambio queda en la auditoría.
+- Una persona sin Premium puede inscribirse y hacer las semanas gratis; las siguientes muestran "Disponible con Premium".
+
+## Seguridad y privacidad
+
+- RLS en todas las tablas: el catálogo es de solo lectura; inscripciones, check-ins y registros son del titular (el staff puede leer, como el resto del dominio). Los registros y check-ins solo pueden apuntar a inscripciones propias.
+- Validación de entrada en el servidor (Zod) en todas las acciones; la base repite las reglas críticas (fechas, mapeo de días, rangos).
+- Datos de salud (dolor, señales, sueño, notas): requieren el consentimiento `health_data`; nunca se escriben en los logs (los errores solo registran el código); la persona los borra desde **Perfil → Datos de salud** (se conservan fecha, duración, distancia y RPE). Revocar el consentimiento también los borra. Las respuestas de salud del asistente no se guardan.
+
+## Accesibilidad y rendimiento
+
+- WCAG AA: las categorías siempre llevan texto (abreviatura y leyenda) además del color, con contraste ≥ 5,2:1; tablas con `caption` y encabezados `scope`; filtros y opciones como grupos con `legend`; áreas táctiles de 44 px; navegación completa por teclado; sin desborde horizontal en 412 px.
+- Catálogo, fichas, semanas y textos globales cacheados por `content_version` (contenido inmutable). El detalle día por día se pagina por semana: nunca se cargan 48 semanas de detalle juntas.
+- LCP medido en local con emulación móvil (Pixel 7, red 1,6 Mbps / 150 ms, CPU ×4): `/planes` 0,80 s, `/planes/plan-18` 0,84 s, `/planes/elegir` 0,62 s, `/plan` 0,59 s (presupuesto: 2,5 s). En producción depende además de la región de Vercel y Supabase.
+
+## Analítica
+
+El repositorio no tiene una capa de analítica, así que **no se envían** `plan_viewed`, `plan_recommended`, `enrollment_started`, `session_logged`, `week_repeated` ni `plan_completed`. Cuando se agregue una, los puntos de envío son: ficha (`/planes/[id]`), `assessAction`, `enrollLibraryPlanAction`, `logPlanSessionAction`, `checkinAction` (decisión `repeat`/`reduce`) y el cierre del plan; nunca con datos de salud.
 
 ## Invariantes (si alguno falla, la importación se aborta)
 
@@ -177,7 +203,7 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 | Contenido numérico como `numeric` | Fidelidad al JSON; la convención de enteros se mantiene para datos del usuario. |
 | Semanas gratis configurables | `library_settings.free_preview_weeks` (1 por defecto) y la función `plan_library` en `app_features`; nada fijo en el código. La ficha y los totales semanales son públicos; el detalle día por día después de las semanas gratis requiere Premium. |
 | Calendario calculado, no guardado | Las fechas salen de la inscripción y los check-ins. Repetir una semana desplaza el calendario sin reescribir filas. |
-| Analítica | El repo no tiene capa de analítica; no se envían eventos. |
+| Analítica | El repo no tiene capa de analítica; no se envían eventos (ver sección Analítica). |
 | Catálogo dentro del área privada | Requiere sesión (como el resto de la app). La ficha es pública en la base (RLS), así que se puede abrir sin sesión más adelante sin cambiar datos. |
 | Semanas bloqueadas en la vista rápida | Se resumen en una fila; sus totales (públicos) quedan en una lista colapsable. |
 | App móvil | Sigue con el flujo anterior (planes DEMO) hasta que se migre; la biblioteca es solo web en esta etapa. |
