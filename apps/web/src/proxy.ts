@@ -7,7 +7,7 @@ import { isSupabaseConfigured, publicEnv } from "@/lib/env";
  * La protección real se repite en cada layout/acción del servidor y en RLS.
  */
 
-const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin"];
+const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin", "/planes"];
 const AUTH_PAGES = ["/ingresar", "/registro"];
 
 export async function proxy(request: NextRequest) {

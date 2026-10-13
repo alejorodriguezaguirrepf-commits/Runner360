@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@runner360/plan-library": "workspace:*",
     "@runner360/shared": "workspace:*",
     "@runner360/training-engine": "workspace:*",
     "@supabase/ssr": "^0.12.7",

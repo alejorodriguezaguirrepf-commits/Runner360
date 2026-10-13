@@ -59,9 +59,9 @@ nohup "$DIR/bin/auth" serve > "$DIR/logs/auth.log" 2>&1 &
 echo $! > "$DIR/auth.pid"
 until curl -sf http://127.0.0.1:9999/health >/dev/null; do sleep 1; done
 
-if [ "$FRESH" = "1" ] && [ "$SKIP_SCHEMA" != "1" ]; then
-  for f in "$ROOT"/supabase/migrations/*.sql; do "${PSQL[@]}" -f "$f"; done
-  for f in "$ROOT"/supabase/seed/*.sql; do "${PSQL[@]}" -f "$f"; done
+# Migraciones y seeds pendientes (también en una base local ya existente).
+if [ "$SKIP_SCHEMA" != "1" ]; then
+  DATABASE_URL="postgresql://postgres@127.0.0.1:$PGPORT/postgres" node "$ROOT/scripts/db/migrate.mjs"
 fi
 
 cat > "$DIR/postgrest.conf" <<CONF

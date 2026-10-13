@@ -100,5 +100,5 @@ export async function saveOnboardingAction(_prev: ActionState, formData: FormDat
   }
 
   revalidatePath("/", "layout");
-  redirect("/plan");
+  redirect("/planes/elegir");
 }

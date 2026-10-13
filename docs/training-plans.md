@@ -70,6 +70,36 @@ Los datos de salud (`pain_score`, `red_flags`, `sleep_quality`, notas) son sensi
 - `day_map` tiene que ser una permutación de los 7 días, no puede dejar dos sesiones exigentes en días consecutivos (tampoco de domingo a lunes) y no puede mover la competencia de su día.
 - Una inscripción no cambia de plan, versión ni fechas; los registros y check-ins solo pueden apuntar a inscripciones propias.
 
+## Pantallas
+
+| Ruta | Qué muestra |
+|---|---|
+| `/planes` | Catálogo con filtros en orden distancia → nivel → duración → días. Un paso con una sola opción se elige solo (el nivel de cada distancia; los 6 días de 21,1 y 42,195 km): se llega al plan en 3–4 toques. Los filtros viajan en la URL (`?d=10&s=24&dias=4`). |
+| `/planes/[id]` | Ficha (perfil, requisitos, objetivos, semana tipo, semana de competencia), fases, vista rápida de todas las semanas (grilla de 7 columnas por categoría, siempre con texto), totales semanales, una semana día por día con todas las columnas (`?semana=N`, una por vez), escala de intensidad, rutina de fuerza, notas y validación técnica (colapsables). |
+| `/planes/elegir` | Asistente "¿Cuál es mi plan?" (evaluación inicial). Con `?plan=plan-NN` evalúa además ese plan. Precarga lo que ya está en el perfil de corredor. |
+
+En todas: aclaración de valores estimados (`model_runner_assumptions.note`) y avisos de `safety`.
+Después del onboarding se llega al asistente; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
+
+Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ningún texto de interfaz de la biblioteca está fijo en los componentes). El contenido de los planes no pasa por el diccionario.
+
+## Recomendación y requisitos de ingreso
+
+- `planRequirements` clasifica cada texto de `entry_requirements` y toma los umbrales que el propio texto declara (minutos continuos, km de tirada larga, volumen semanal, días, experiencia, marca reciente, media maratón/maratón previa, lesión activa, consulta médica). El texto se muestra siempre tal cual. Un test exige que los 18 planes queden totalmente clasificados y que el volumen del texto coincida con `min_weekly_km`.
+- `recommendPlan` (puro, con tests):
+  - lesión activa o consulta médica pendiente → no recomienda ningún plan;
+  - frecuencia: la mayor que entra en los días disponibles; con lesiones por sobrecarga, la más baja (`individual_adaptation`);
+  - entre los planes cuyos requisitos se cumplen y cuya fecha alcanza, el **más largo** (progresión más gradual);
+  - si los requisitos se cumplen pero no hay tiempo hasta la carrera → sugiere el plan posible y su primera fecha de competencia;
+  - si no se cumplen → muestra lo que indica el contenido: la nota del plan ("Si la persona no cumple…", p. ej. hacer antes las semanas 1–4 del plan de 3 meses) y, por volumen bajo, la adaptación "Volumen actual menor que el requisito".
+- Marca reciente: si falta y el plan admite el test de 30', queda como paso "antes de empezar" (no bloquea).
+- Las respuestas del asistente (incluidas las de salud) **no se guardan**: solo se usan para calcular la recomendación.
+
+## Fechas
+
+- Día de la semana 0 = lunes … 6 = domingo (como `day_index`). Los planes empiezan un lunes (hoy si es lunes, si no el lunes siguiente).
+- Competencia = domingo de la semana `RACE`: `inicio + (race_week − 1) × 7 + 6`. Con fecha de carrera se calcula el inicio; si ese lunes ya pasó, no hay tiempo suficiente.
+
 ## Invariantes (si alguno falla, la importación se aborta)
 
 - `plans.length` = 18 y los ids son `plan-NN` según su número.
@@ -109,4 +139,7 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 | Semanas gratis configurables | `library_settings.free_preview_weeks` (1 por defecto) y la función `plan_library` en `app_features`; nada fijo en el código. La ficha y los totales semanales son públicos; el detalle día por día después de las semanas gratis requiere Premium. |
 | Calendario calculado, no guardado | Las fechas salen de la inscripción y los check-ins. Repetir una semana desplaza el calendario sin reescribir filas. |
 | Analítica | El repo no tiene capa de analítica; no se envían eventos. |
+| Catálogo dentro del área privada | Requiere sesión (como el resto de la app). La ficha es pública en la base (RLS), así que se puede abrir sin sesión más adelante sin cambiar datos. |
+| Semanas bloqueadas en la vista rápida | Se resumen en una fila; sus totales (públicos) quedan en una lista colapsable. |
+| App móvil | Sigue con el flujo anterior (planes DEMO) hasta que se migre; la biblioteca es solo web en esta etapa. |
 | Trabajo en PR | El pedido de integración pide PR pequeños y CLAUDE.md dice "push directo a main": se trabaja en PR que se mergean a `main` cuando están en verde (aprobado). |

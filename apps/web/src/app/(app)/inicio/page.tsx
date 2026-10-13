@@ -40,8 +40,8 @@ export default async function DashboardPage() {
 
       {!active ? (
         <Card className="mb-6">
-          <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/plan">Ver mi plan recomendado</ButtonLink>}>
-            Elegimos el plan publicado que corresponde a tu perfil. Mientras tanto, podés registrar entrenamientos libres.
+          <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes/elegir">¿Cuál es mi plan?</ButtonLink>}>
+            Te recomendamos el plan de la biblioteca que corresponde a tu evaluación. Mientras tanto, podés registrar entrenamientos libres.
           </EmptyState>
         </Card>
       ) : (

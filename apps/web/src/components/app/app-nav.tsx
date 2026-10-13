@@ -9,6 +9,7 @@ import {
   IconDrop,
   IconFlag,
   IconHome,
+  IconList,
   IconPlus,
   IconSettings,
   IconStar,
@@ -16,6 +17,7 @@ import {
   IconUser,
 } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
+import { t } from "@/i18n";
 
 const PRIMARY = [
   { href: "/inicio", label: "Inicio", icon: IconHome },
@@ -26,6 +28,7 @@ const PRIMARY = [
 ];
 
 const SECONDARY = [
+  { href: "/planes", label: t.library.nav.catalog, icon: IconList },
   { href: "/entrenamientos", label: "Historial", icon: IconTimer },
   { href: "/hidratacion", label: "Hidratación", icon: IconDrop },
   { href: "/competencias", label: "Competencias", icon: IconFlag },
