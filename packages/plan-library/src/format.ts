@@ -5,10 +5,10 @@
 const kmFormat = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 const km1Format = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-/** Minutos (pueden tener medio minuto) → 36' · 37' 30" · 1 h 05'. */
-export function formatMinutes(minutes: number | null | undefined): string {
+/** Minutos (pueden tener medio minuto) → 36' · 37' 30" · 1 h 05'. Con `round`, al minuto (totales). */
+export function formatMinutes(minutes: number | null | undefined, opts: { round?: boolean } = {}): string {
   if (minutes === null || minutes === undefined || !Number.isFinite(minutes) || minutes < 0) return "—";
-  const totalS = Math.round(minutes * 60);
+  const totalS = opts.round ? Math.round(minutes) * 60 : Math.round(minutes * 60);
   const h = Math.floor(totalS / 3600);
   const m = Math.floor((totalS % 3600) / 60);
   const s = totalS % 60;

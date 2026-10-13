@@ -11,7 +11,7 @@ export function EstimateNotice({ note }: { note: string }) {
       <IconInfo className="mt-0.5 shrink-0" />
       <p>
         <span className="font-semibold">{m.estimate.title}. </span>
-        {note} {m.estimate.text}
+        {note}
       </p>
     </div>
   );

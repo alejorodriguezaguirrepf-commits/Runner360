@@ -140,8 +140,8 @@ export function ChoiceGroup({
  * Con `<form action={…}>` React reinicia los campos después de cada envío, y ante un error de
  * validación el usuario perdía lo que había escrito (p. ej. el correo al equivocarse de clave).
  */
-export function useFormAction(action: (prev: ActionState, formData: FormData) => Promise<ActionState>, initial: ActionState) {
-  const [state, dispatch, pending] = useActionState(action, initial);
+export function useFormAction<S extends ActionState>(action: (prev: Awaited<S>, formData: FormData) => Promise<S>, initial: Awaited<S>) {
+  const [state, dispatch, pending] = useActionState<S, FormData>(action, initial);
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (pending) return;

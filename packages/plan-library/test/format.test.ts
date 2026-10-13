@@ -8,6 +8,7 @@ describe("formatos es-AR", () => {
     expect(formatMinutes(65)).toBe("1 h 05'");
     expect(formatMinutes(120)).toBe("2 h 00'");
     expect(formatMinutes(null)).toBe("—");
+    expect(formatMinutes(182.9, { round: true })).toBe("3 h 03'");
   });
 
   it("km con coma decimal", () => {
