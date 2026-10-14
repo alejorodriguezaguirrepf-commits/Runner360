@@ -59,7 +59,7 @@ export default async function CompetitionsPage() {
                     <div className="flex flex-wrap items-start gap-2">
                       {c.event_date <= today ? (
                         <details className="w-full rounded-xl border border-line p-3">
-                          <summary className="cursor-pointer text-sm font-semibold text-navy-700">{res ? "Editar resultado" : "Cargar resultado"}</summary>
+                          <summary className="cursor-pointer text-sm font-semibold text-lime-400">{res ? "Editar resultado" : "Cargar resultado"}</summary>
                           <ResultForm competitionId={c.id} />
                         </details>
                       ) : null}

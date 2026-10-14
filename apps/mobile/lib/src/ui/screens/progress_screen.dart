@@ -32,7 +32,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         final distance = done.fold<int>(0, (a, w) => a + ((w['distance_m'] as int?) ?? 0));
         final duration = done.fold<int>(0, (a, w) => a + ((w['duration_s'] as int?) ?? 0));
         return ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('Progreso', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.navy)),
+          const Text('Progreso', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.ink)),
           const Text('Últimas 4 semanas, a partir de tus registros.', style: TextStyle(color: Brand.muted)),
           const SizedBox(height: 16),
           Row(children: [

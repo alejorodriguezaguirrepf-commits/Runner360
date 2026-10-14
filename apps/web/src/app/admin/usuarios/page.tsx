@@ -37,7 +37,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           <option value="coach">Entrenadores</option>
           <option value="admin">Administradores</option>
         </select>
-        <button className="min-h-11 rounded-xl bg-navy-900 px-4 text-sm font-semibold text-white">Filtrar</button>
+        <button className="min-h-11 rounded-xl bg-navy-950 px-4 text-sm font-semibold text-ink">Filtrar</button>
       </form>
       <Card flush className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
@@ -75,8 +75,8 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         </table>
       </Card>
       <div className="mt-4 flex gap-2 text-sm">
-        {page > 1 ? <a className="font-semibold text-navy-700" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page - 1}`}>← Anterior</a> : null}
-        {(count ?? 0) > page * size ? <a className="font-semibold text-navy-700" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page + 1}`}>Siguiente →</a> : null}
+        {page > 1 ? <a className="font-semibold text-lime-400" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page - 1}`}>← Anterior</a> : null}
+        {(count ?? 0) > page * size ? <a className="font-semibold text-lime-400" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page + 1}`}>Siguiente →</a> : null}
       </div>
     </>
   );

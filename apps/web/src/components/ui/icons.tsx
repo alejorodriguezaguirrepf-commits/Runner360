@@ -92,15 +92,29 @@ export const IconChevronLeft = (p: IconProps) => (
   <Svg {...p}><path d="m15 6-6 6 6 6" /></Svg>
 );
 
-export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
+/** Figura de un corredor (trazos sobre un cuadro de 32×32). La misma que el ícono de la app. */
+export function RunnerMark({ size = 28, className = "" }: { size?: number; className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true" className={className}>
+      <rect width="32" height="32" rx="8" fill="#4ADE80" />
+      <g fill="none" stroke="#0B1D36" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17.5 10.5 14 17.5" />
+        <path d="m16.8 12 3.7 2.6 3.3-1.4" />
+        <path d="m16.8 12-3.9-.4-2.6 2.6" />
+        <path d="m14 17.5 4.4 3.2-1.3 5.3" />
+        <path d="m14 17.5-2.4 4.3-4.6.6" />
+      </g>
+      <circle cx="19.6" cy="6.6" r="2.6" fill="#0B1D36" />
+    </svg>
+  );
+}
+
+export function Logo({ className = "" }: { className?: string; inverted?: boolean }) {
   return (
     <span className={`inline-flex items-center gap-2 whitespace-nowrap font-extrabold tracking-tight ${className}`}>
-      <svg viewBox="0 0 32 32" width={28} height={28} aria-hidden="true">
-        <circle cx="16" cy="16" r="14" fill={inverted ? "#D5F36A" : "#122438"} />
-        <path d="M9 19.5c3-1 4.5-4 6-7.5 1 2.5 2.5 5.5 8 6.5" fill="none" stroke={inverted ? "#122438" : "#D5F36A"} strokeWidth="2.6" strokeLinecap="round" />
-      </svg>
-      <span className={inverted ? "text-white" : "text-navy-900"}>
-        RUNNER <span className={inverted ? "text-lime-400" : "text-navy-700"}>360</span>
+      <RunnerMark />
+      <span className="text-ink">
+        RUNNER <span className="text-lime-400">360</span>
       </span>
     </span>
   );

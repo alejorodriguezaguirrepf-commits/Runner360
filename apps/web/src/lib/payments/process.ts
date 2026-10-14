@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logError } from "@/lib/log";
-import type { NormalizedSubscriptionEvent, PaymentProvider, WebhookInput } from "./types";
+import type { NormalizedPayment, NormalizedSubscriptionEvent, PaymentProvider, WebhookInput } from "./types";
 
 export type WebhookOutcome =
   | { status: 200; body: { received: true; duplicate?: boolean; ignored?: boolean } }
@@ -13,6 +13,8 @@ export type WebhookOutcome =
  *  2. Registra el evento en payment_events con clave única (provider, provider_event_id).
  *     Si ya existía, responde 200 sin reprocesar.
  *  3. Aplica el cambio de estado sobre subscriptions con service_role.
+ *  4. Si el evento trae un débito automático, lo registra en subscription_payments (cada débito
+ *     aprobado libera un mes del plan en curso; ver enrollment_open_weeks en la base).
  */
 export async function processWebhook(provider: PaymentProvider, input: WebhookInput, admin: SupabaseClient | null): Promise<WebhookOutcome> {
   if (!provider.isConfigured() || !admin) return { status: 503, body: { error: "Integración de pagos pendiente de configuración" } };
@@ -53,7 +55,8 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
   }
 
   try {
-    await applySubscriptionEvent(admin, provider.id, event);
+    const subscription = await applySubscriptionEvent(admin, provider.id, event);
+    if (event.payment) await recordPayment(admin, provider.id, subscription, event.payment);
     await admin.from("payment_events").update({ processed_at: new Date().toISOString() }).eq("id", eventRowId);
   } catch (e) {
     logError(`webhook:${provider.id}:apply`, e);
@@ -63,13 +66,15 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
   return { status: 200, body: { received: true } };
 }
 
-async function applySubscriptionEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<void> {
+type SubscriptionRef = { id: string; user_id: string };
+
+async function applySubscriptionEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<SubscriptionRef> {
   const { data: existing } = await admin
     .from("subscriptions")
-    .select("id")
+    .select("id, user_id")
     .eq("provider", provider)
     .eq("provider_subscription_id", event.providerSubscriptionId)
-    .maybeSingle<{ id: string }>();
+    .maybeSingle<SubscriptionRef>();
 
   const changes: Record<string, unknown> = { status: event.status };
   if (event.currentPeriodStart) changes.current_period_start = event.currentPeriodStart;
@@ -81,17 +86,40 @@ async function applySubscriptionEvent(admin: SupabaseClient, provider: string, e
   if (existing) {
     const { error } = await admin.from("subscriptions").update(changes).eq("id", existing.id);
     if (error) throw new Error(error.message);
-    return;
+    return existing;
   }
   if (!event.userId || !event.productCode) throw new Error("Evento sin referencia de usuario o producto");
   const { data: product } = await admin.from("subscription_products").select("id").eq("code", event.productCode).maybeSingle<{ id: string }>();
   if (!product) throw new Error("Producto desconocido");
-  const { error } = await admin.from("subscriptions").insert({
-    user_id: event.userId,
-    product_id: product.id,
-    provider,
-    provider_subscription_id: event.providerSubscriptionId,
-    ...changes,
-  });
+  const { data: created, error } = await admin
+    .from("subscriptions")
+    .insert({
+      user_id: event.userId,
+      product_id: product.id,
+      provider,
+      provider_subscription_id: event.providerSubscriptionId,
+      ...changes,
+    })
+    .select("id, user_id")
+    .single<SubscriptionRef>();
+  if (error || !created) throw new Error(error?.message ?? "No se pudo crear la suscripción");
+  return created;
+}
+
+/** Idempotente por (provider, provider_payment_id): un débito que cambia de estado se actualiza. */
+async function recordPayment(admin: SupabaseClient, provider: string, subscription: SubscriptionRef, payment: NormalizedPayment): Promise<void> {
+  const { error } = await admin.from("subscription_payments").upsert(
+    {
+      user_id: subscription.user_id,
+      subscription_id: subscription.id,
+      provider,
+      provider_payment_id: payment.providerPaymentId,
+      status: payment.status,
+      amount_minor: payment.amountMinor,
+      currency: payment.currency,
+      paid_at: payment.paidAt,
+    },
+    { onConflict: "provider,provider_payment_id" },
+  );
   if (error) throw new Error(error.message);
 }

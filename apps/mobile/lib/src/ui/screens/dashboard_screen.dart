@@ -61,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final weekDistance = d.workouts.where((w) => w['status'] != 'skipped').fold<int>(0, (a, w) => a + ((w['distance_m'] as int?) ?? 0));
           final version = d.plan?['version'] as Map<String, dynamic>?;
           return ListView(padding: const EdgeInsets.all(16), children: [
-            Text('Hola, ${d.profile?['display_name'] ?? 'corredor'}', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Brand.navy)),
+            Text('Hola, ${d.profile?['display_name'] ?? 'corredor'}', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Brand.ink)),
             Text(formatDateLong(DateTime.now()), style: const TextStyle(color: Brand.muted)),
             const SizedBox(height: 16),
             if (d.profile?['onboarding_completed_at'] == null)

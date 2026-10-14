@@ -54,7 +54,7 @@ export function CheckinCard({
           <legend className="text-sm font-semibold">{C.question}</legend>
           <div className="flex gap-2">
             {(["yes", "no"] as const).map((v) => (
-              <label key={v} className="cursor-pointer rounded-xl border border-line px-4 py-2 text-sm font-semibold has-[:checked]:border-navy-900 has-[:checked]:bg-navy-900 has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-navy-700">
+              <label key={v} className="cursor-pointer rounded-xl border border-line px-4 py-2 text-sm font-semibold has-[:checked]:border-lime-400 has-[:checked]:bg-lime-400 has-[:checked]:text-navy-950 has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-lime-400">
                 <input type="radio" name="criterion" value={v} checked={answer === v} onChange={() => setAnswer(v)} className="sr-only" />
                 {v === "yes" ? C.yes : C.no}
               </label>
@@ -76,7 +76,7 @@ export function CheckinCard({
               <legend className="text-sm font-semibold">{C.decide}</legend>
               <div className="flex flex-wrap gap-2">
                 {decisions.map((d, i) => (
-                  <label key={d} className="cursor-pointer rounded-xl border border-line px-4 py-2 text-sm font-semibold has-[:checked]:border-navy-900 has-[:checked]:bg-navy-900 has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-navy-700">
+                  <label key={d} className="cursor-pointer rounded-xl border border-line px-4 py-2 text-sm font-semibold has-[:checked]:border-lime-400 has-[:checked]:bg-lime-400 has-[:checked]:text-navy-950 has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-lime-400">
                     <input type="radio" name="decision" value={d} defaultChecked={i === 0} className="sr-only" />
                     {label(d)}
                   </label>

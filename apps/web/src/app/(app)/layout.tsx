@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = profile.role === "admin";
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="dark-zone sticky top-0 hidden h-dvh flex-col justify-between bg-navy-900 p-4 lg:flex">
+      <aside className="dark-zone sticky top-0 hidden h-dvh flex-col justify-between bg-navy-950 p-4 lg:flex">
         <div className="space-y-8">
           <Link href="/inicio" className="block px-2 pt-2" aria-label="RUNNER 360, inicio">
             <Logo inverted />
@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <SideNav isAdmin={isAdmin} />
         </div>
         <form action={signOutAction}>
-          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white">
+          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink/70 hover:bg-surface/10 hover:text-ink">
             <IconLogout />
             Cerrar sesión
           </button>

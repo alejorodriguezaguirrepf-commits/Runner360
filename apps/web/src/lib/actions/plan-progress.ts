@@ -42,7 +42,7 @@ const logSchema = z.object({
       .transform((s, ctx) => {
         const n = parseDuration(s.trim());
         if (n === null || n <= 0 || n > 172800) {
-          ctx.addIssue({ code: "custom", message: t.library.assistant.validation.time });
+          ctx.addIssue({ code: "custom", message: t.library.form.time });
           return z.NEVER;
         }
         return n;

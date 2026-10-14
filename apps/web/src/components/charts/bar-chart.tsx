@@ -37,9 +37,9 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`${title}. Ver tabla de datos debajo.`}>
           {gridValues.map((g) => {
             const y = pad.top + plotH - (g / max) * plotH;
-            return <line key={g} x1={pad.left} x2={W - pad.right} y1={y} y2={y} stroke="#dfe5ec" strokeWidth={1} />;
+            return <line key={g} x1={pad.left} x2={W - pad.right} y1={y} y2={y} stroke="#24456f" strokeWidth={1} />;
           })}
-          <line x1={pad.left} x2={W - pad.right} y1={pad.top + plotH} y2={pad.top + plotH} stroke="#b9c4d0" strokeWidth={1} />
+          <line x1={pad.left} x2={W - pad.right} y1={pad.top + plotH} y2={pad.top + plotH} stroke="#3d6596" strokeWidth={1} />
           {data.map((d, i) => {
             const h = d.value > 0 ? Math.max(2, (d.value / max) * plotH) : 0;
             const x = pad.left + i * slot + (slot - barW) / 2;
@@ -58,10 +58,10 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
                 onBlur={() => setActive(null)}
                 className="cursor-default outline-none"
               >
-                <rect x={pad.left + i * slot} y={pad.top} width={slot} height={plotH} fill={active === i ? "#eef4fb" : "transparent"} />
-                {path ? <path d={path} fill={d.highlight ? "#122438" : "#26446a"} opacity={active === null || active === i ? 1 : 0.55} /> : null}
+                <rect x={pad.left + i * slot} y={pad.top} width={slot} height={plotH} fill={active === i ? "#12305a" : "transparent"} />
+                {path ? <path d={path} fill={d.highlight ? "#86efac" : "#22c55e"} opacity={active === null || active === i ? 1 : 0.55} /> : null}
                 {i % Math.ceil(data.length / 8) === 0 || i === data.length - 1 ? (
-                  <text x={pad.left + i * slot + slot / 2} y={H - 8} textAnchor="middle" fontSize={11} fill="#55657a">
+                  <text x={pad.left + i * slot + slot / 2} y={H - 8} textAnchor="middle" fontSize={11} fill="#9cc9ad">
                     {d.label}
                   </text>
                 ) : null}
@@ -71,7 +71,7 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
         </svg>
         {activeDatum && active !== null ? (
           <div
-            className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg bg-navy-900 px-2.5 py-1.5 text-xs font-semibold text-white shadow"
+            className="pointer-events-none absolute top-0 -translate-x-1/2 rounded-lg bg-navy-950 px-2.5 py-1.5 text-xs font-semibold text-ink shadow"
             style={{ left: `${((pad.left + active * slot + slot / 2) / W) * 100}%` }}
           >
             {activeDatum.label}: {activeDatum.display}
@@ -81,7 +81,7 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
       <figcaption className="text-xs text-muted">
         {title} ({unitLabel}).{" "}
         <details className="inline">
-          <summary className="inline cursor-pointer font-semibold text-navy-700">Ver datos</summary>
+          <summary className="inline cursor-pointer font-semibold text-lime-400">Ver datos</summary>
           <table className="mt-2 w-full text-left text-xs">
             <thead><tr><th className="py-1 pr-4">Período</th><th className="py-1">Valor</th></tr></thead>
             <tbody>

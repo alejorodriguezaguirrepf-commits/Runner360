@@ -4,6 +4,7 @@ import '../../data/repository.dart';
 import '../../domain/format.dart';
 import '../../domain/pace.dart';
 import '../../domain/workout_input.dart';
+import '../../theme.dart';
 import '../widgets.dart';
 
 class RegisterWorkoutScreen extends StatefulWidget {
@@ -92,7 +93,7 @@ class _RegisterWorkoutScreenState extends State<RegisterWorkoutScreen> {
           if (picked != null) setState(() => _date = picked);
         },
       ),
-      if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: const TextStyle(color: Colors.red)),
+      if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: const TextStyle(color: Brand.danger)),
       if (_status != WorkoutStatus.skipped) ...[
         TextField(controller: _km, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: 'Distancia (km)', errorText: _errors['distanceKm'])),
         const SizedBox(height: 12),

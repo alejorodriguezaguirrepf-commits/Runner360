@@ -4,10 +4,10 @@ import { backendConfigured, completeOnboarding, signUp, uniqueEmail } from "./he
 test.describe("flujo vertical con backend", () => {
   test.skip(!backendConfigured, "Requiere backend Supabase (E2E_WITH_BACKEND=1)");
 
-  test("registro → onboarding → asistente de planes → registro de entrenamiento → progreso", async ({ page }) => {
+  test("registro → onboarding → selector de planes → registro de entrenamiento → progreso", async ({ page }) => {
     await signUp(page, uniqueEmail("flujo"));
     await completeOnboarding(page);
-    await expect(page.getByRole("heading", { name: "¿Cuál es mi plan?" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Planes de entrenamiento" })).toBeVisible();
 
     // Registro manual con cálculo de ritmo.
     await page.goto("/registrar");

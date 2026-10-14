@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import { mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -68,5 +68,24 @@ describe("normalización de eventos", () => {
 describe("registro sin datos personales", () => {
   it("oculta correos, JWT y UUID", () => {
     expect(redact("usuario ana@mail.com id 0a1b2c3d-0000-4000-8000-000000000001 token eyJa.eyJb.c_d")).toBe("usuario [email] id [uuid] token [jwt]");
+  });
+});
+
+describe("débitos automáticos de Mercado Pago", () => {
+  const ap = { id: 7001, preapproval_id: "pre-1", status: "processed", transaction_amount: 4999.5, currency_id: "ARS", debit_date: "2026-11-01T10:00:00.000-03:00", payment: { id: 99, status: "approved" } };
+
+  it("un débito aprobado se normaliza con importe en centavos", () => {
+    expect(mapMercadoPagoPayment(ap)).toEqual({ providerPaymentId: "7001", status: "approved", amountMinor: 499950, currency: "ARS", paidAt: "2026-11-01T10:00:00.000-03:00" });
+  });
+
+  it("solo 'approved' libera: rechazado, reintento y devolución", () => {
+    expect(mapMercadoPagoPayment({ ...ap, payment: { id: 1, status: "rejected" } })?.status).toBe("rejected");
+    expect(mapMercadoPagoPayment({ ...ap, status: "recycling", payment: { id: 1, status: "in_process" } })?.status).toBe("pending");
+    expect(mapMercadoPagoPayment({ ...ap, payment: undefined, status: "scheduled" })?.status).toBe("pending");
+    expect(mapMercadoPagoPayment({ ...ap, payment: { id: 1, status: "refunded" } })?.status).toBe("refunded");
+  });
+
+  it("sin id no hay débito", () => {
+    expect(mapMercadoPagoPayment({ status: "processed" })).toBeNull();
   });
 });

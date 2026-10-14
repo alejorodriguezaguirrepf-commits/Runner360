@@ -54,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 24),
-            const Text('RUNNER 360', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Brand.navy)),
+            const Text('RUNNER 360', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Brand.ink)),
             const Text('Entrená. Medí. Progresá.', style: TextStyle(color: Brand.muted)),
             const SizedBox(height: 32),
             Text(_register ? 'Creá tu cuenta gratis' : 'Ingresá a tu cuenta', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),

@@ -11,9 +11,9 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = dark ? Colors.white : Brand.navy;
+    const color = Brand.ink;
     return Card(
-      color: dark ? Brand.navy : Colors.white,
+      color: dark ? Brand.navyDeep : Brand.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -55,7 +55,7 @@ class StatTile extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: const TextStyle(fontSize: 12, color: Brand.muted)),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Brand.navy)),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Brand.ink)),
         ]),
       );
 }

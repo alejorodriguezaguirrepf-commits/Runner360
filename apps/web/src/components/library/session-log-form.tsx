@@ -32,7 +32,7 @@ export function SessionLogForm({ date, defaults, hasHealthConsent }: { date: str
         <legend className="text-sm font-semibold text-ink">{L.status}</legend>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(L.statusOptions) as (keyof typeof L.statusOptions)[]).map((k) => (
-            <label key={k} className="cursor-pointer rounded-xl border border-line bg-surface px-3.5 py-2 text-sm font-medium has-[:checked]:border-navy-900 has-[:checked]:bg-navy-900 has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-navy-700">
+            <label key={k} className="cursor-pointer rounded-xl border border-line bg-surface px-3.5 py-2 text-sm font-medium has-[:checked]:border-lime-400 has-[:checked]:bg-lime-400 has-[:checked]:text-navy-950 has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-lime-400">
               <input type="radio" name="status" value={k} checked={status === k} onChange={() => setStatus(k)} className="sr-only" />
               {L.statusOptions[k]}
             </label>

@@ -15,7 +15,7 @@ export function HydrationForm({ today }: { today: string }) {
       <input type="hidden" name="logDate" value={today} />
       <div className="flex flex-wrap gap-2" role="group" aria-label="Cantidades rápidas">
         {[150, 250, 500, 750].map((ml) => (
-          <button key={ml} type="button" onClick={() => setVolume(String(ml))} aria-pressed={volume === String(ml)} className="min-h-11 rounded-xl border border-line px-3 text-sm font-semibold aria-pressed:border-navy-900 aria-pressed:bg-navy-900 aria-pressed:text-white">
+          <button key={ml} type="button" onClick={() => setVolume(String(ml))} aria-pressed={volume === String(ml)} className="min-h-11 rounded-xl border border-line px-3 text-sm font-semibold aria-pressed:border-lime-400 aria-pressed:bg-navy-950 aria-pressed:text-ink">
             {ml} ml
           </button>
         ))}

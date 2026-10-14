@@ -248,7 +248,7 @@ export async function EnrollmentView({
 
       <div className="space-y-3">
         <IntensityScale items={library.intensities} />
-        <Link href={`/planes/${plan.id}`} className="inline-block text-sm font-semibold underline">{m.assistant.viewPlan}</Link>
+        <Link href={`/planes/${plan.id}`} className="inline-block text-sm font-semibold underline">{m.catalog.viewPlan}</Link>
       </div>
     </>
   );

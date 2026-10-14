@@ -28,6 +28,6 @@ export async function completeOnboarding(page: Page, opts: { distance?: string; 
     await page.locator("label", { hasText: new RegExp(`^${d}$`) }).click();
   }
   await page.getByRole("button", { name: "Guardar y ver mi plan" }).click();
-  // Después del perfil, el asistente de la biblioteca recomienda el plan.
-  await expect(page).toHaveURL(/\/planes\/elegir/);
+  // Después del perfil se elige el plan directamente (sin evaluación previa).
+  await expect(page).toHaveURL(/\/planes$/);
 }

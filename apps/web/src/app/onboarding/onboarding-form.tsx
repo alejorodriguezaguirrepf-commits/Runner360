@@ -147,7 +147,7 @@ export function OnboardingForm({ defaults }: { defaults: OnboardingDefaults }) {
           <p id="health-hint" className="text-xs text-muted">{healthConsent ? "Marcá lo que corresponda." : "Activá el consentimiento para completar esta sección."}</p>
           {Object.entries(HEALTH_FLAG_LABELS).map(([value, label]) => (
             <label key={value} className="flex items-start gap-3 text-sm">
-              <input type="checkbox" name="healthFlags" value={value} defaultChecked={defaults.healthFlags.includes(value)} className="mt-0.5 size-5 accent-navy-900" />
+              <input type="checkbox" name="healthFlags" value={value} defaultChecked={defaults.healthFlags.includes(value)} className="mt-0.5 size-5 accent-lime-400" />
               <span>{label}</span>
             </label>
           ))}

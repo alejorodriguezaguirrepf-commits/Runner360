@@ -27,7 +27,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <>
         <PageHeader title={T.title} subtitle={formatDate(today, "weekday")} />
         <Card>
-          <EmptyState title={T.noPlan} action={<ButtonLink href="/planes/elegir">{t.library.catalog.assistantCta}</ButtonLink>} />
+          <EmptyState title={T.noPlan} action={<ButtonLink href="/planes">{t.library.catalog.choose}</ButtonLink>} />
         </Card>
       </>
     );
@@ -58,7 +58,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <SafetyNotices items={v.safety} defaultOpen />
           <p className="text-sm text-muted">{fmt(T.resumeText, { n: target })}</p>
           <form action={resumePlanAction}>
-            <button type="submit" className="min-h-11 rounded-xl bg-lime-400 px-4 text-sm font-semibold text-navy-900">{T.resume}</button>
+            <button type="submit" className="min-h-11 rounded-xl bg-lime-400 px-4 text-sm font-semibold text-navy-950">{T.resume}</button>
           </form>
         </Card>
       </>

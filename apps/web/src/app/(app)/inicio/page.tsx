@@ -47,7 +47,7 @@ export default async function DashboardPage() {
         <Card tone="dark" className="mb-6">
           <p className="text-sm font-semibold uppercase tracking-wide text-lime-400">{t.library.today.title}</p>
           <p className="mt-1 text-xl font-bold">{openEnrollment.plan.title}</p>
-          <p className="mt-1 text-white/80">{todayLabel}</p>
+          <p className="mt-1 text-ink/80">{todayLabel}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <ButtonLink href="/hoy">{t.library.today.title}</ButtonLink>
             <ButtonLink href="/plan" variant="inverse">{t.library.nav.myPlan}</ButtonLink>
@@ -55,7 +55,7 @@ export default async function DashboardPage() {
         </Card>
       ) : !active ? (
         <Card className="mb-6">
-          <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes/elegir">¿Cuál es mi plan?</ButtonLink>}>
+          <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes">Elegir un plan</ButtonLink>}>
             Te recomendamos el plan de la biblioteca que corresponde a tu evaluación. Mientras tanto, podés registrar entrenamientos libres.
           </EmptyState>
         </Card>
@@ -67,7 +67,7 @@ export default async function DashboardPage() {
               {active.version.isDemo ? <DemoBadge /> : null}
             </div>
             {d.todaySessions.length === 0 ? (
-              <p className="text-white/80">
+              <p className="text-ink/80">
                 {active.userPlan.start_date > today
                   ? `Tu plan comienza el ${formatDate(active.userPlan.start_date, "weekday")}. Hasta entonces podés registrar entrenamientos libres.`
                   : "Hoy no hay sesión planificada. Descansá o hacé actividad suave si te sentís bien."}
@@ -79,8 +79,8 @@ export default async function DashboardPage() {
                     <p className="text-2xl font-extrabold">{s.session.title}</p>
                     <StatusBadge status={s.status} />
                   </div>
-                  {s.session.objective ? <p className="text-sm text-white/75">{s.session.objective}</p> : null}
-                  <div className="rounded-xl bg-white p-4 text-ink"><SessionFacts session={s.session} /></div>
+                  {s.session.objective ? <p className="text-sm text-ink/75">{s.session.objective}</p> : null}
+                  <div className="rounded-xl bg-surface p-4 text-ink"><SessionFacts session={s.session} /></div>
                   <div className="flex flex-wrap gap-2">
                     {s.status === "pending" ? <ButtonLink href={`/registrar?sesion=${s.id}`}>Registrar sesión</ButtonLink> : null}
                     <ButtonLink href={`/plan/sesion/${s.id}`} variant="inverse">Ver detalle</ButtonLink>
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
 
           {d.nextSession ? (
             <Card className="mb-6">
-              <CardTitle action={<Link href={`/plan/sesion/${d.nextSession.id}`} className="text-sm font-semibold text-navy-700 hover:underline">Ver</Link>}>Próxima sesión</CardTitle>
+              <CardTitle action={<Link href={`/plan/sesion/${d.nextSession.id}`} className="text-sm font-semibold text-lime-400 hover:underline">Ver</Link>}>Próxima sesión</CardTitle>
               <p className="text-sm text-muted">{formatDate(d.nextSession.scheduled_date, "weekday")}</p>
               <p className="mb-3 font-semibold">{d.nextSession.session.title}</p>
               <SessionFacts session={d.nextSession.session} compact />
@@ -141,7 +141,7 @@ export default async function DashboardPage() {
           { href: "/perfil", label: "Perfil", icon: IconUser },
         ].map(({ href, label, icon: Icon }) => (
           <Link key={href} href={href} className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-4 text-sm font-semibold hover:border-navy-700">
-            <span className="inline-flex size-10 items-center justify-center rounded-xl bg-lime-300 text-navy-900"><Icon /></span>
+            <span className="inline-flex size-10 items-center justify-center rounded-xl bg-lime-400 text-navy-950"><Icon /></span>
             {label}
           </Link>
         ))}

@@ -55,7 +55,7 @@ export function SideNav({ isAdmin }: { isAdmin: boolean }) {
             aria-current={active ? "page" : undefined}
             className={cx(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-              active ? "bg-lime-400 text-navy-900" : "text-white/80 hover:bg-white/10 hover:text-white",
+              active ? "bg-lime-400 text-navy-950" : "text-ink/80 hover:bg-surface/10 hover:text-ink",
             )}
           >
             <Icon />
@@ -80,9 +80,9 @@ export function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={cx("flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold", active ? "text-navy-900" : "text-muted")}
+                className={cx("flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold", active ? "text-lime-400" : "text-muted")}
               >
-                <span className={cx("inline-flex items-center justify-center rounded-full", isCta ? "size-9 bg-lime-400 text-navy-900" : active ? "text-navy-900" : "")}>
+                <span className={cx("inline-flex items-center justify-center rounded-full", isCta ? "size-9 bg-lime-400 text-navy-950" : active ? "text-lime-400" : "")}>
                   <Icon />
                 </span>
                 {label}

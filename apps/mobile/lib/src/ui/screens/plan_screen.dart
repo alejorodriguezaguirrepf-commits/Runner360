@@ -39,7 +39,7 @@ class _PlanScreenState extends State<PlanScreen> {
           byWeek.putIfAbsent(c['week_number'] as int, () => []).add(c);
         }
         return ListView(padding: const EdgeInsets.all(16), children: [
-          Text(version['name'] as String, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.navy)),
+          Text(version['name'] as String, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.ink)),
           if (version['is_demo'] == true) ...[
             const SizedBox(height: 8),
             const DemoBadge(),

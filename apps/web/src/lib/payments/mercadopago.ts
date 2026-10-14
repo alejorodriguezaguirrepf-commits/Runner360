@@ -1,12 +1,22 @@
 import { serverEnv } from "@/lib/env.server";
 import { verifyMercadoPagoSignature } from "./signatures";
-import { ProviderNotConfiguredError, type NormalizedSubscriptionEvent, type PaymentProvider, type SubscriptionStatus, type WebhookInput } from "./types";
+import {
+  ProviderNotConfiguredError,
+  type NormalizedPayment,
+  type NormalizedSubscriptionEvent,
+  type PaymentProvider,
+  type PaymentStatus,
+  type SubscriptionStatus,
+  type WebhookInput,
+} from "./types";
 
 /**
  * Adaptador Mercado Pago Suscripciones (preapproval), vía API REST sin SDK.
  * NO PROBADO contra la cuenta real: requiere MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_WEBHOOK_SECRET
  * y un precio activo en ARS con provider = 'mercadopago'.
  * El webhook solo trae el id: el estado real se consulta a la API (nunca se confía en el cuerpo).
+ * Eventos: "subscription_preapproval" (alta, pausa, baja) y "subscription_authorized_payment"
+ * (cada débito automático mensual: si se aprueba, libera el mes siguiente del plan).
  */
 
 const API = "https://api.mercadopago.com";
@@ -24,6 +34,24 @@ export function mapMercadoPagoStatus(s: string): SubscriptionStatus {
   }
 }
 
+/** Estado de un débito de la suscripción (authorized_payment). Solo "approved" libera un mes. */
+export function mapMercadoPagoPayment(ap: Record<string, unknown>, now = new Date().toISOString()): NormalizedPayment | null {
+  if (ap.id === undefined || ap.id === null) return null;
+  const payment = (ap.payment ?? {}) as { id?: unknown; status?: unknown };
+  const ps = String(payment.status ?? "");
+  const status: PaymentStatus =
+    ps === "approved" ? "approved" : ps === "refunded" || ps === "charged_back" ? "refunded" : ps === "rejected" || ps === "cancelled" || ap.status === "cancelled" ? "rejected" : "pending";
+  const amount = typeof ap.transaction_amount === "number" ? Math.round(ap.transaction_amount * 100) : null;
+  const when = [ap.debit_date, ap.last_modified, ap.date_created].find((d): d is string => typeof d === "string" && !Number.isNaN(Date.parse(d)));
+  return {
+    providerPaymentId: String(ap.id),
+    status,
+    amountMinor: amount,
+    currency: typeof ap.currency_id === "string" ? ap.currency_id : null,
+    paidAt: when ?? now,
+  };
+}
+
 /** external_reference = "<userId>:<productCode>" (pura, testeable). */
 export function parseExternalReference(ref: unknown): { userId: string | null; productCode: string | null } {
   if (typeof ref !== "string") return { userId: null, productCode: null };
@@ -39,6 +67,21 @@ async function mpFetch(path: string, init?: RequestInit): Promise<Record<string,
   const json = (await res.json()) as Record<string, unknown>;
   if (!res.ok) throw new Error(`Mercado Pago ${res.status}`);
   return json;
+}
+
+async function preapprovalEvent(base: NormalizedSubscriptionEvent, id: string): Promise<NormalizedSubscriptionEvent> {
+  const pre = await mpFetch(`/preapproval/${encodeURIComponent(id)}`);
+  const ref = parseExternalReference(pre.external_reference);
+  return {
+    ...base,
+    providerSubscriptionId: id,
+    userId: ref.userId,
+    productCode: ref.productCode,
+    status: mapMercadoPagoStatus(String(pre.status ?? "")),
+    currentPeriodStart: typeof pre.date_created === "string" ? pre.date_created : null,
+    currentPeriodEnd: typeof pre.next_payment_date === "string" ? pre.next_payment_date : null,
+    cancelAtPeriodEnd: null,
+  };
 }
 
 export const mercadoPagoProvider: PaymentProvider = {
@@ -90,19 +133,15 @@ export const mercadoPagoProvider: PaymentProvider = {
     const dataId = body.data?.id ? String(body.data.id) : null;
     const eventId = body.id ? String(body.id) : `${body.type}:${dataId}:${headers.get("x-request-id") ?? ""}`;
     const base: NormalizedSubscriptionEvent = { providerEventId: eventId, eventType: body.type ?? body.action ?? "unknown", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
-    if (body.type !== "subscription_preapproval" || !dataId) return base;
-    const pre = await mpFetch(`/preapproval/${encodeURIComponent(dataId)}`);
-    const ref = parseExternalReference(pre.external_reference);
-    return {
-      ...base,
-      providerSubscriptionId: dataId,
-      userId: ref.userId,
-      productCode: ref.productCode,
-      status: mapMercadoPagoStatus(String(pre.status ?? "")),
-      currentPeriodStart: typeof pre.date_created === "string" ? pre.date_created : null,
-      currentPeriodEnd: typeof pre.next_payment_date === "string" ? pre.next_payment_date : null,
-      cancelAtPeriodEnd: null,
-    };
+    if (!dataId) return base;
+    if (body.type === "subscription_preapproval") return preapprovalEvent(base, dataId);
+    if (body.type === "subscription_authorized_payment") {
+      const ap = await mpFetch(`/authorized_payments/${encodeURIComponent(dataId)}`);
+      const preId = typeof ap.preapproval_id === "string" ? ap.preapproval_id : null;
+      if (!preId) return base;
+      return { ...(await preapprovalEvent(base, preId)), payment: mapMercadoPagoPayment(ap) };
+    }
+    return base;
   },
 
   async cancelAtPeriodEnd(id) {

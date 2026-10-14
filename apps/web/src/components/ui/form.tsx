@@ -6,7 +6,7 @@ import type { ActionState } from "@/lib/action-state";
 import { Alert, Button, cx } from "./primitives";
 
 const INPUT =
-  "block w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-700/20 aria-[invalid=true]:border-danger min-h-11";
+  "block w-full rounded-xl border border-line bg-surface px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 focus:border-navy-700 focus:outline-none focus:ring-2 focus:ring-lime-400/20 aria-[invalid=true]:border-danger min-h-11";
 
 interface FieldBase {
   label: string;
@@ -86,7 +86,7 @@ export function CheckboxField({ label, name, error, hint, ...props }: Omit<Field
   return (
     <div className="space-y-1">
       <div className="flex items-start gap-3">
-        <input id={id} type="checkbox" name={name} className="mt-0.5 size-5 shrink-0 accent-navy-900" aria-invalid={error ? true : undefined} {...props} />
+        <input id={id} type="checkbox" name={name} className="mt-0.5 size-5 shrink-0 accent-lime-400" aria-invalid={error ? true : undefined} {...props} />
         <label htmlFor={id} className="text-sm text-ink">
           {label}
           {hint ? <span className="mt-0.5 block text-xs text-muted">{hint}</span> : null}
@@ -123,7 +123,7 @@ export function ChoiceGroup({
         {options.map((o) => (
           <label
             key={o.value}
-            className="cursor-pointer rounded-xl border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink has-[:checked]:border-navy-900 has-[:checked]:bg-navy-900 has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-navy-700"
+            className="cursor-pointer rounded-xl border border-line bg-surface px-3.5 py-2 text-sm font-medium text-ink has-[:checked]:border-lime-400 has-[:checked]:bg-lime-400 has-[:checked]:text-navy-950 has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-lime-400"
           >
             <input type={type} name={name} value={o.value} defaultChecked={defaultValues.includes(o.value)} className="sr-only" />
             {o.label}

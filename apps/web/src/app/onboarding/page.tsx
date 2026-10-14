@@ -34,7 +34,7 @@ export default async function OnboardingPage() {
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <Logo />
-          {editing ? <Link href="/perfil" className="text-sm font-semibold text-navy-700 hover:underline">Volver al perfil</Link> : null}
+          {editing ? <Link href="/perfil" className="text-sm font-semibold text-lime-400 hover:underline">Volver al perfil</Link> : null}
         </div>
       </header>
       <main id="contenido" className="mx-auto max-w-3xl px-4 py-8">

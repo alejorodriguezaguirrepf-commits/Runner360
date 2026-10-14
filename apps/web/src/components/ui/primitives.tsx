@@ -8,12 +8,12 @@ export function cx(...classes: (string | false | null | undefined)[]): string {
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "inverse";
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-lime-400 text-navy-900 hover:bg-lime-500 shadow-sm",
-  secondary: "bg-navy-900 text-white hover:bg-navy-800",
-  ghost: "bg-transparent text-navy-900 hover:bg-navy-100 border border-line",
-  danger: "bg-danger text-white hover:opacity-90",
+  primary: "bg-lime-400 text-navy-950 hover:bg-lime-300 shadow-sm",
+  secondary: "border border-line bg-navy-700 text-ink hover:bg-navy-800",
+  ghost: "bg-transparent text-ink hover:bg-navy-100 border border-line",
+  danger: "bg-danger text-navy-950 hover:opacity-90",
   /** Contorno claro para fondos oscuros. */
-  inverse: "border border-white/30 bg-transparent text-white hover:bg-white/10",
+  inverse: "border border-lime-400/50 bg-transparent text-ink hover:bg-surface/10",
 };
 const BTN = "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 min-h-11";
 
@@ -34,7 +34,7 @@ export function Card({ className, tone = "light", flush = false, ...props }: Com
     <section
       className={cx(
         "rounded-[var(--radius-card)] border shadow-[0_1px_2px_rgba(18,36,56,0.04)]",
-        tone === "dark" ? "dark-zone border-navy-900 bg-navy-900 text-white" : "border-line bg-surface",
+        tone === "dark" ? "dark-zone border-line bg-navy-950 text-ink" : "border-line bg-surface",
         flush ? "p-0" : "p-5",
         className,
       )}
@@ -66,9 +66,9 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 
 type Tone = "neutral" | "lime" | "navy" | "warning" | "danger" | "success";
 const TONES: Record<Tone, string> = {
-  neutral: "bg-navy-100 text-navy-900",
-  lime: "bg-lime-300 text-navy-900",
-  navy: "bg-navy-900 text-white",
+  neutral: "bg-navy-100 text-ink",
+  lime: "bg-lime-400 text-navy-950",
+  navy: "bg-navy-950 text-ink",
   warning: "bg-warning-bg text-warning border border-warning/30",
   danger: "bg-danger-bg text-danger",
   success: "bg-success-bg text-success",
@@ -86,7 +86,7 @@ export function DemoBadge({ label = "DEMO / NO VALIDADO" }: { label?: string }) 
 type AlertTone = "info" | "warning" | "danger" | "success";
 export function Alert({ tone = "info", title, children }: { tone?: AlertTone; title?: string; children?: ReactNode }) {
   const styles: Record<AlertTone, string> = {
-    info: "bg-info-bg text-navy-900 border-navy-100",
+    info: "bg-info-bg text-ink border-line",
     warning: "bg-warning-bg text-warning border-warning/30",
     danger: "bg-danger-bg text-danger border-danger/30",
     success: "bg-success-bg text-success border-success/30",

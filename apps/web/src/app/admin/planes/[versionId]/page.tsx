@@ -27,7 +27,7 @@ export default async function VersionEditorPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      <p className="mb-2 text-sm"><Link href="/admin/planes" className="font-semibold text-navy-700 hover:underline">← Planes</Link></p>
+      <p className="mb-2 text-sm"><Link href="/admin/planes" className="font-semibold text-lime-400 hover:underline">← Planes</Link></p>
       <PageHeader
         title={`${version.name} · v${version.versionNumber}`}
         subtitle={row.change_notes || undefined}

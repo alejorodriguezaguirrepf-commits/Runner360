@@ -96,8 +96,8 @@ select pg_temp.expect_error($$insert into public.workout_logs (user_id, enrollme
   values ('b2b2b2b2-0000-4000-8000-0000000000b2', 'e1e1e1e1-0000-4000-8000-0000000000e1', 1, 3, '2026-10-22', 'completed', 1800)$$, 'registrar en inscripción ajena');
 select pg_temp.expect_error($$insert into public.weekly_checkins (enrollment_id, user_id, week_start, plan_week, recommendation, decision, next_week_start, next_plan_week)
   values ('e1e1e1e1-0000-4000-8000-0000000000e1', 'b2b2b2b2-0000-4000-8000-0000000000b2', '2026-11-02', 1, 'advance', 'advance', '2026-11-09', 2)$$, 'check-in en inscripción ajena');
--- Premium ve todas las semanas.
-select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-18') = 48 * 7, 'premium ve todo el plan');
+-- Premium sin inscripción: solo la muestra (el plan se libera mes a mes al inscribirse; ver 50_monthly_release).
+select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-18') = 7, 'premium sin inscripción ve la muestra');
 reset role;
 
 -- El administrador puede ampliar las semanas gratis sin tocar el código.

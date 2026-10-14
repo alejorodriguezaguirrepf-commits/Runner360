@@ -100,7 +100,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
           title="Todavía no tenés un plan activo"
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <ButtonLink href="/planes/elegir">{t.library.catalog.assistantCta}</ButtonLink>
+              <ButtonLink href="/planes">{t.library.catalog.choose}</ButtonLink>
               <ButtonLink href="/planes" variant="ghost">{t.library.catalog.title}</ButtonLink>
             </div>
           }

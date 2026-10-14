@@ -7,7 +7,7 @@ const m = t.library;
 /** Aclaración obligatoria: los valores son estimados para un corredor modelo (texto del contenido). */
 export function EstimateNotice({ note }: { note: string }) {
   return (
-    <div role="note" className="flex gap-3 rounded-xl border border-navy-100 bg-info-bg p-3 text-sm text-navy-900">
+    <div role="note" className="flex gap-3 rounded-xl border border-line bg-info-bg p-3 text-sm text-ink">
       <IconInfo className="mt-0.5 shrink-0" />
       <p>
         <span className="font-semibold">{m.estimate.title}. </span>

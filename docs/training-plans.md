@@ -74,31 +74,26 @@ Los datos de salud (`pain_score`, `red_flags`, `sleep_quality`, notas) son sensi
 
 | Ruta | Qué muestra |
 |---|---|
-| `/planes` | Catálogo con filtros en orden distancia → nivel → duración → días. Un paso con una sola opción se elige solo (el nivel de cada distancia; los 6 días de 21,1 y 42,195 km): se llega al plan en 3–4 toques. Los filtros viajan en la URL (`?d=10&s=24&dias=4`). |
-| `/planes/[id]` | Ficha (perfil, requisitos, objetivos, semana tipo, semana de competencia), fases, vista rápida de todas las semanas (grilla de 7 columnas por categoría, siempre con texto), totales semanales, una semana día por día con todas las columnas (`?semana=N`, una por vez), escala de intensidad, rutina de fuerza, notas y validación técnica (colapsables). |
-| `/planes/elegir` | Asistente "¿Cuál es mi plan?" (evaluación inicial). Con `?plan=plan-NN` evalúa además ese plan. Precarga lo que ya está en el perfil de corredor. |
-
-| `/planes/elegir` → "Empezar este plan" | Inscripción. El servidor vuelve a evaluar los requisitos con las respuestas; si no se cumplen, no hay inscripción. Con fecha de carrera calcula el inicio; sin fecha, se elige el lunes de inicio y se calcula la competencia. |
+| `/planes` | Acceso directo, sin evaluación previa. Arriba, las dos opciones: **plan gratis** (la muestra de `free_preview_weeks`) o **suscripción mensual**. Pestañas **5 / 10 / 21 / 42 km** (la inicial es la distancia del perfil) → días por semana → duración del plan → nivel; un paso con una sola opción se elige solo. Con el plan definido: resumen, "Pensado para quien" (los `entry_requirements`, informativos) e inscripción (lunes de inicio entre los próximos 12 + confirmación de los avisos de seguridad). Los pasos viajan en la URL (`?d=10&dias=4&s=24&n=Intermedio`, o `?plan=plan-NN`). |
+| `/planes/[id]` | Ficha (perfil, recomendaciones antes de empezar, objetivos, semana tipo, semana de competencia), fases, vista rápida de todas las semanas, totales semanales, una semana día por día (`?semana=N`), escala de intensidad, rutina de fuerza, notas y validación técnica. "Empezar este plan" lleva a `/planes?plan=plan-NN`. |
+| `/planes/elegir` | Redirige a `/planes` (el asistente de evaluación se quitó). |
 | `/plan` | Calendario de la inscripción: estado, inicio, competencia (y la proyectada si se repitieron semanas), ritmos de referencia (Riegel), la semana elegida con fechas reales y los 7 días, y la lista de todas las semanas. |
 | `/plan/dias` | Mover días: qué día de la semana se hace cada día del plan. |
 | `/hoy` | La sesión del día (calentamiento, parte principal, vuelta a la calma, intensidad con la escala RPE a un toque, observaciones), el registro post-sesión, el check-in semanal pendiente, el aviso de sesión perdida y la semana en curso. En pausa: avisos de seguridad y "Retomar". |
 
 En todas: aclaración de valores estimados (`model_runner_assumptions.note`) y avisos de `safety`.
-Después del onboarding se llega al asistente; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
+Después del onboarding se llega a `/planes`; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
 
 Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ningún texto de interfaz de la biblioteca está fijo en los componentes). El contenido de los planes no pasa por el diccionario.
 
-## Recomendación y requisitos de ingreso
+## Suscripción y liberación mensual
 
-- `planRequirements` clasifica cada texto de `entry_requirements` y toma los umbrales que el propio texto declara (minutos continuos, km de tirada larga, volumen semanal, días, experiencia, marca reciente, media maratón/maratón previa, lesión activa, consulta médica). El texto se muestra siempre tal cual. Un test exige que los 18 planes queden totalmente clasificados y que el volumen del texto coincida con `min_weekly_km`.
-- `recommendPlan` (puro, con tests):
-  - lesión activa o consulta médica pendiente → no recomienda ningún plan;
-  - frecuencia: la mayor que entra en los días disponibles; con lesiones por sobrecarga, la más baja (`individual_adaptation`);
-  - entre los planes cuyos requisitos se cumplen y cuya fecha alcanza, el **más largo** (progresión más gradual);
-  - si los requisitos se cumplen pero no hay tiempo hasta la carrera → sugiere el plan posible y su primera fecha de competencia;
-  - si no se cumplen → muestra lo que indica el contenido: la nota del plan ("Si la persona no cumple…", p. ej. hacer antes las semanas 1–4 del plan de 3 meses) y, por volumen bajo, la adaptación "Volumen actual menor que el requisito".
-- Marca reciente: si falta y el plan admite el test de 30', queda como paso "antes de empezar" (no bloquea).
-- Las respuestas del asistente (incluidas las de salud) **no se guardan**: solo se usan para calcular la recomendación.
+- Cualquiera puede empezar un plan: sin suscripción ve la muestra gratuita (`library_settings.free_preview_weeks`, 1 por defecto).
+- La suscripción es mensual con **débito automático** (Mercado Pago, suscripción `preapproval` con `frequency: 1 months`). Cada débito aprobado libera **un mes (4 semanas)** del plan en curso: los planes de 3, 6 o 12 meses se habilitan mes a mes.
+- El webhook (`/api/webhooks/mercadopago`) procesa `subscription_preapproval` (alta, pausa, baja) y `subscription_authorized_payment` (cada débito): consulta el estado real a la API y registra el débito en `subscription_payments` (idempotente por `provider_payment_id`; un débito que cambia de estado se actualiza).
+- `enrollment_open_weeks(inscripción)` = máx(muestra gratuita, 4 × meses pagos). Meses pagos = el mayor entre los débitos aprobados desde el mes anterior a la inscripción y, con la suscripción al día, el mes del plan en curso (cubre el primer débito aún no informado y los accesos anuales o manuales, que también se liberan mes a mes). Lo pagado queda liberado aunque después se cancele.
+- Se aplica en RLS: `library_days_read` usa `library_day_is_open(versión, plan, semana)` (muestra gratuita, staff, función `plan_library` marcada como gratuita, o semanas liberadas de una inscripción propia a ese plan).
+- `/suscripcion` explica el funcionamiento y lista los débitos ("Aprobado · mes liberado").
 
 ## Fechas
 
@@ -107,7 +102,7 @@ Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ni
 
 ## Inscripción y calendario
 
-- Una inscripción guarda: plan, `content_version` congelada, inicio (lunes), competencia (domingo de la semana `RACE`), `day_map` y, opcional, la marca reciente (distancia, tiempo, fecha). Las respuestas de salud del asistente no se guardan.
+- Una inscripción guarda: plan, `content_version` congelada, inicio (lunes), competencia (domingo de la semana `RACE`), `day_map` y, opcional, la marca reciente (distancia, tiempo, fecha; la inscripción desde `/planes` no la pide).
 - Un solo plan en curso por persona (activa o en pausa). Al inscribirse, un plan DEMO activo del sistema anterior se cierra.
 - **Calendario calculado** (`schedule.ts`): tramos a partir del inicio y de las decisiones de los check-ins (`repeat`/`reduce` vuelven a la misma semana, `regress` a una anterior, `pause` detiene, `resume` retoma). Repetir una semana desplaza el resto y la fecha proyectada de la competencia; la fecha de la carrera elegida no cambia y la pantalla avisa la diferencia.
 - **Mover días**: `day_map` se aplica a todas las semanas. Regla: entre dos sesiones exigentes (`is_quality` o `thr`/`hard`/`race`) al menos un día fácil o de descanso, también de domingo a lunes; la competencia no se mueve. Se valida en el cliente (vista previa sobre las semanas visibles), en el servidor (todas las semanas, con `library_day_map_violations`) y en la base (trigger).
@@ -145,21 +140,21 @@ En `/progreso`, con un plan en curso: por cada semana transcurrida, km y tiempo 
 
 ## Monetización
 
-- La ficha de cada plan y sus totales semanales son públicos. El detalle día por día de las semanas posteriores a `library_settings.free_preview_weeks` (1 por defecto) requiere la función `plan_library` (`app_features`). Se aplica en RLS (`library_week_is_open`), no solo en la interfaz.
+- La ficha de cada plan y sus totales semanales son públicos. El detalle día por día de las semanas posteriores a `library_settings.free_preview_weeks` (1 por defecto) se libera mes a mes con la suscripción (ver "Suscripción y liberación mensual"). Se aplica en RLS (`library_day_is_open`), no solo en la interfaz.
 - Ambos valores se cambian desde **Administración → Productos** (semanas gratis y "Biblioteca de planes" Premium/Gratis), sin tocar el código; el cambio queda en la auditoría.
-- Una persona sin Premium puede inscribirse y hacer las semanas gratis; las siguientes muestran "Disponible con Premium".
+- Una persona sin Premium puede inscribirse y hacer las semanas gratis; las siguientes muestran "Se libera con la suscripción".
 
 ## Seguridad y privacidad
 
 - RLS en todas las tablas: el catálogo es de solo lectura; inscripciones, check-ins y registros son del titular (el staff puede leer, como el resto del dominio). Los registros y check-ins solo pueden apuntar a inscripciones propias.
 - Validación de entrada en el servidor (Zod) en todas las acciones; la base repite las reglas críticas (fechas, mapeo de días, rangos).
-- Datos de salud (dolor, señales, sueño, notas): requieren el consentimiento `health_data`; nunca se escriben en los logs (los errores solo registran el código); la persona los borra desde **Perfil → Datos de salud** (se conservan fecha, duración, distancia y RPE). Revocar el consentimiento también los borra. Las respuestas de salud del asistente no se guardan.
+- Datos de salud (dolor, señales, sueño, notas): requieren el consentimiento `health_data`; nunca se escriben en los logs (los errores solo registran el código); la persona los borra desde **Perfil → Datos de salud** (se conservan fecha, duración, distancia y RPE). Revocar el consentimiento también los borra.
 
 ## Accesibilidad y rendimiento
 
 - WCAG AA: las categorías siempre llevan texto (abreviatura y leyenda) además del color, con contraste ≥ 5,2:1; tablas con `caption` y encabezados `scope`; filtros y opciones como grupos con `legend`; áreas táctiles de 44 px; navegación completa por teclado; sin desborde horizontal en 412 px.
 - Catálogo, fichas, semanas y textos globales cacheados por `content_version` (contenido inmutable). El detalle día por día se pagina por semana: nunca se cargan 48 semanas de detalle juntas.
-- LCP medido en local con emulación móvil (Pixel 7, red 1,6 Mbps / 150 ms, CPU ×4): `/planes` 0,80 s, `/planes/plan-18` 0,84 s, `/planes/elegir` 0,62 s, `/plan` 0,59 s (presupuesto: 2,5 s). En producción depende además de la región de Vercel y Supabase.
+- LCP medido en local con emulación móvil (Pixel 7, red 1,6 Mbps / 150 ms, CPU ×4): `/planes` 0,80 s, `/planes/plan-18` 0,84 s, `/plan` 0,59 s (presupuesto: 2,5 s). En producción depende además de la región de Vercel y Supabase.
 
 ## Analítica
 
@@ -204,7 +199,7 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 | Registros en `workout_logs` (columnas opcionales) | Progreso, exportación de datos y eliminación de cuenta siguen funcionando sin duplicar registros (aprobado). |
 | Planes DEMO | Se reemplazan por la biblioteca en el catálogo (aprobado). Los datos DEMO no se borran. |
 | Contenido numérico como `numeric` | Fidelidad al JSON; la convención de enteros se mantiene para datos del usuario. |
-| Semanas gratis configurables | `library_settings.free_preview_weeks` (1 por defecto) y la función `plan_library` en `app_features`; nada fijo en el código. La ficha y los totales semanales son públicos; el detalle día por día después de las semanas gratis requiere Premium. |
+| Semanas gratis configurables | `library_settings.free_preview_weeks` (1 por defecto) y la función `plan_library` en `app_features`; nada fijo en el código. La ficha y los totales semanales son públicos; el detalle día por día después de las semanas gratis se libera de a 4 semanas por débito mensual. |
 | Calendario calculado, no guardado | Las fechas salen de la inscripción y los check-ins. Repetir una semana desplaza el calendario sin reescribir filas. |
 | Analítica | El repo no tiene capa de analítica; no se envían eventos (ver sección Analítica). |
 | Catálogo dentro del área privada | Requiere sesión (como el resto de la app). La ficha es pública en la base (RLS), así que se puede abrir sin sesión más adelante sin cambiar datos. |

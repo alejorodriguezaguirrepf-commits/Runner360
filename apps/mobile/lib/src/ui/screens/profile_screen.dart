@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
         final profile = snap.data?.$1;
         final premium = snap.data?.$2 ?? false;
         return ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('Perfil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.navy)),
+          const Text('Perfil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.ink)),
           const SizedBox(height: 16),
           SectionCard(
             title: profile?['display_name'] as String? ?? '—',

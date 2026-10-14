@@ -23,6 +23,18 @@ export interface NormalizedSubscriptionEvent {
   currentPeriodStart: string | null;
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean | null;
+  /** Débito automático informado en este evento (libera un mes del plan si está aprobado). */
+  payment?: NormalizedPayment | null;
+}
+
+export type PaymentStatus = "approved" | "pending" | "rejected" | "refunded";
+
+export interface NormalizedPayment {
+  providerPaymentId: string;
+  status: PaymentStatus;
+  amountMinor: number | null;
+  currency: string | null;
+  paidAt: string;
 }
 
 export interface WebhookInput {

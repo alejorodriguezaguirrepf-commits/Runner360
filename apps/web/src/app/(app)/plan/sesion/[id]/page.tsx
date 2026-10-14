@@ -20,7 +20,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <p className="mb-2 text-sm"><Link href="/plan" className="font-semibold text-navy-700 hover:underline">← Volver al plan</Link></p>
+      <p className="mb-2 text-sm"><Link href="/plan" className="font-semibold text-lime-400 hover:underline">← Volver al plan</Link></p>
       <PageHeader
         title={s.title}
         subtitle={`${formatDate(item.scheduled_date, "weekday")} · semana ${item.week_number}, sesión ${item.session_number}`}

@@ -114,7 +114,7 @@ test.describe("panel administrativo", () => {
       await runner.goto("/planes/plan-04?semana=2");
       await expect(runner.locator("#semana").getByRole("heading", { level: 3 })).toHaveCount(7);
       await runner.goto("/planes/plan-04?semana=3");
-      await expect(runner.locator("#semana").getByText("La ficha y las primeras semanas son gratis", { exact: false })).toBeVisible();
+      await expect(runner.locator("#semana").getByText("Con la suscripción mensual, cada débito automático libera", { exact: false })).toBeVisible();
     } finally {
       await ctx.close();
       await page.goto("/admin/productos");

@@ -18,14 +18,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   await requireAdmin();
   return (
     <div className="min-h-dvh bg-canvas">
-      <header className="dark-zone bg-navy-900 text-white">
+      <header className="dark-zone bg-navy-950 text-ink">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3"><Logo inverted /><Badge tone="lime">Administración</Badge></div>
-          <Link href="/inicio" className="text-sm font-semibold text-white/80 hover:text-white">Volver a la app</Link>
+          <Link href="/inicio" className="text-sm font-semibold text-ink/80 hover:text-ink">Volver a la app</Link>
         </div>
         <nav aria-label="Administración" className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-4 pb-2">
           {TABS.map((t) => (
-            <Link key={t.href} href={t.href} className="shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-white/80 hover:bg-white/10 hover:text-white">{t.label}</Link>
+            <Link key={t.href} href={t.href} className="shrink-0 rounded-lg px-3 py-2 text-sm font-semibold text-ink/80 hover:bg-surface/10 hover:text-ink">{t.label}</Link>
           ))}
         </nav>
       </header>

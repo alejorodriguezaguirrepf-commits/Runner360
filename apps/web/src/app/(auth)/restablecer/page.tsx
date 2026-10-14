@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
       {state.ok ? (
         <div className="mt-6 space-y-4">
           <FormMessage state={state} />
-          <Link href="/inicio" className="font-semibold text-navy-700 hover:underline">Ir al inicio</Link>
+          <Link href="/inicio" className="font-semibold text-lime-400 hover:underline">Ir al inicio</Link>
         </div>
       ) : (
         <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>

@@ -34,7 +34,7 @@ export function SignUpForm() {
       <FormMessage state={state} />
       <SubmitButton pending={pending} className="w-full" pendingText="Creando cuenta…">Comenzar gratis</SubmitButton>
       <p className="text-center text-sm text-muted">
-        ¿Ya tenés cuenta? <Link href="/ingresar" className="font-semibold text-navy-700 hover:underline">Ingresá</Link>
+        ¿Ya tenés cuenta? <Link href="/ingresar" className="font-semibold text-lime-400 hover:underline">Ingresá</Link>
       </p>
     </form>
   );

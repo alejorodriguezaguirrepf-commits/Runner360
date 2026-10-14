@@ -57,7 +57,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
       <PageHeader
         title={plan.title}
         subtitle={`${fmt(m.catalog.planNumber, { n: plan.number })} · ${plan.distance_label} · ${plan.level} · ${plan.duration_label} · ${fmt(m.catalog.days, { n: plan.days_per_week })}`}
-        actions={<ButtonLink href={`/planes/elegir?plan=${plan.id}`}>{m.detail.start}</ButtonLink>}
+        actions={<ButtonLink href={`/planes?plan=${plan.id}#empezar`}>{m.detail.start}</ButtonLink>}
       />
       <div className="mb-6 space-y-3">
         <EstimateNotice note={v.model_runner_assumptions.note} />

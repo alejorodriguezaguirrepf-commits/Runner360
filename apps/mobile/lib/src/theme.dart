@@ -1,32 +1,41 @@
 import 'package:flutter/material.dart';
 
-/// Identidad visual RUNNER 360 (mismos tokens que la web).
+/// Identidad visual RUNNER 360 (mismos tokens que la web): fondo azul marino y letras verdes.
 class Brand {
-  static const navy = Color(0xFF122438);
-  static const navy700 = Color(0xFF26446A);
-  static const lime = Color(0xFFD5F36A);
-  static const canvas = Color(0xFFF6F8FA);
-  static const muted = Color(0xFF55657A);
-  static const line = Color(0xFFDFE5EC);
-  static const warning = Color(0xFF8A5300);
-  static const warningBg = Color(0xFFFFF7E6);
-  static const danger = Color(0xFFB42318);
+  static const navy = Color(0xFF0B1D36);
+  static const navyDeep = Color(0xFF061224);
+  static const navy700 = Color(0xFF1D3A63);
+  static const surface = Color(0xFF0F2443);
+  static const ink = Color(0xFF86EFAC);
+  static const lime = Color(0xFF4ADE80);
+  static const canvas = Color(0xFF0B1D36);
+  static const muted = Color(0xFF9CC9AD);
+  static const line = Color(0xFF24456F);
+  static const warning = Color(0xFFFCD34D);
+  static const warningBg = Color(0xFF332A10);
+  static const danger = Color(0xFFFCA5A5);
 }
 
 ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(
-    seedColor: Brand.navy,
-    primary: Brand.navy,
+    seedColor: Brand.lime,
+    brightness: Brightness.dark,
+    primary: Brand.lime,
+    onPrimary: Brand.navy,
     secondary: Brand.lime,
-    surface: Colors.white,
+    surface: Brand.surface,
+    onSurface: Brand.ink,
+    error: Brand.danger,
   );
   return ThemeData(
     useMaterial3: true,
+    brightness: Brightness.dark,
     colorScheme: scheme,
     scaffoldBackgroundColor: Brand.canvas,
-    appBarTheme: const AppBarTheme(backgroundColor: Brand.canvas, foregroundColor: Brand.navy, elevation: 0, centerTitle: false),
+    textTheme: ThemeData(brightness: Brightness.dark).textTheme.apply(bodyColor: Brand.ink, displayColor: Brand.ink),
+    appBarTheme: const AppBarTheme(backgroundColor: Brand.canvas, foregroundColor: Brand.ink, elevation: 0, centerTitle: false),
     cardTheme: CardThemeData(
-      color: Colors.white,
+      color: Brand.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Brand.line)),
@@ -42,9 +51,9 @@ ThemeData buildTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Brand.navyDeep,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Brand.line)),
     ),
-    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Colors.white, indicatorColor: Brand.lime),
+    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Brand.navyDeep, indicatorColor: Brand.lime),
   );
 }
