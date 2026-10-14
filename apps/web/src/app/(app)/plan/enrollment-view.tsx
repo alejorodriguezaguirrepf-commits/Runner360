@@ -5,7 +5,6 @@ import {
   formatPace,
   mondayOf,
   planWeekAt,
-  projectedRaceDate,
   referencePaces,
   scheduledWeeks,
   weekdayOf,
@@ -51,7 +50,6 @@ export async function EnrollmentView({
   const v = library.version;
   const weeks = scheduledWeeks(segments, plan.duration_weeks);
   const thisMonday = mondayOf(today);
-  const currentPlanWeek = planWeekAt(segments, thisMonday, plan.duration_weeks);
 
   // Semana elegida: la pedida (si es un lunes del calendario), la actual, o la primera/última.
   const valid = (w?: string) => (w && /^\d{4}-\d{2}-\d{2}$/.test(w) && weekdayOf(w) === 0 ? w : undefined);
@@ -69,7 +67,6 @@ export async function EnrollmentView({
 
   const pending = enrollment.status === "active" ? pendingCheckinWeek(open, today, weekdayOf(today)) : null;
   const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
-  const projected = projectedRaceDate(segments, plan.duration_weeks, plan.race_week);
   const mark =
     enrollment.mark_distance_m && enrollment.mark_time_s && enrollment.mark_date
       ? { distanceKm: enrollment.mark_distance_m / 1000, timeS: enrollment.mark_time_s, date: enrollment.mark_date }
@@ -77,15 +74,6 @@ export async function EnrollmentView({
   const paces = mark ? referencePaces(mark, today) : null;
   const weekHref = (ws: string) => `/plan?semana=${ws}`;
   const firstOpen = ordered.find((o) => o.date === today && !o.day.is_rest) ?? ordered.find((o) => !o.day.is_rest && o.date >= today) ?? ordered.find((o) => !o.day.is_rest);
-
-  const status =
-    enrollment.status === "paused" || currentPlanWeek === null
-      ? c.paused
-      : typeof currentPlanWeek === "number"
-        ? fmt(c.weekOf, { n: currentPlanWeek, total: plan.duration_weeks })
-        : today < enrollment.start_date
-          ? fmt(c.notStarted, { date: shortDate(enrollment.start_date) })
-          : c.finished;
 
   return (
     <>
@@ -120,14 +108,6 @@ export async function EnrollmentView({
           />
         </div>
       ) : null}
-      <Card className="mb-6">
-        <dl className="grid grid-cols-2 gap-4 text-sm">
-          <div><dt className="text-muted">{c.currentWeek}</dt><dd className="text-lg font-bold">{status}</dd></div>
-          <div><dt className="text-muted">{c.race}</dt><dd className="text-lg font-bold">{shortDate(enrollment.race_date)}</dd></div>
-        </dl>
-        {projected && projected !== enrollment.race_date ? <p className="mt-3 text-sm text-warning">{fmt(c.projectedRace, { date: formatDate(projected, "long") })}</p> : null}
-      </Card>
-
       {mark ? (
         <Card className="mb-6">
           <CardTitle>{m.paces.title}</CardTitle>

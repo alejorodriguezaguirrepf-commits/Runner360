@@ -1,4 +1,4 @@
-import { catalogSteps, LEVELS, raceDateFromStart, type CatalogFilter, type Level } from "@runner360/plan-library";
+import { catalogSteps, LEVELS, type CatalogFilter, type Level } from "@runner360/plan-library";
 import { todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -196,8 +196,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
           {open ? null : (
             <EnrollForm
               planId={plan.id}
-              starts={mondays.map((start) => ({ start, race: raceDateFromStart(start, plan.race_week) }))}
-              raceWeek={plan.race_week}
+              starts={mondays}
               premium={premium}
               hasDemoPlan={(demoActive ?? 0) > 0}
             />

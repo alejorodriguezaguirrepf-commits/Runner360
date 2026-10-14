@@ -4,7 +4,7 @@ import { formatDate } from "@runner360/shared";
 import { useState } from "react";
 import { CheckboxField, FormMessage, SelectField, SubmitButton, useFormAction } from "@/components/ui/form";
 import { Card, CardTitle } from "@/components/ui/primitives";
-import { fmt, t } from "@/i18n";
+import { t } from "@/i18n";
 import { enrollLibraryPlanAction } from "@/lib/actions/enrollment";
 
 const em = t.library.enroll;
@@ -13,19 +13,16 @@ const em = t.library.enroll;
 export function EnrollForm({
   planId,
   starts,
-  raceWeek,
   premium,
   hasDemoPlan,
 }: {
   planId: string;
-  starts: { start: string; race: string }[];
-  raceWeek: number;
+  starts: string[];
   premium: boolean;
   hasDemoPlan: boolean;
 }) {
   const { state, pending, onSubmit } = useFormAction(enrollLibraryPlanAction, { ok: false });
-  const [start, setStart] = useState(starts[0]?.start ?? "");
-  const race = starts.find((s) => s.start === start)?.race;
+  const [start, setStart] = useState(starts[0] ?? "");
   return (
     <Card>
       <CardTitle>{em.title}</CardTitle>
@@ -36,11 +33,9 @@ export function EnrollForm({
           name="startDate"
           value={start}
           onChange={(e) => setStart(e.target.value)}
-          options={starts.map((s) => ({ value: s.start, label: formatDate(s.start, "long") }))}
-          hint={fmt(em.startHint, { n: raceWeek })}
+          options={starts.map((s) => ({ value: s, label: formatDate(s, "long") }))}
           error={state.errors?.startDate}
         />
-        {race ? <p className="text-sm font-semibold">{fmt(em.raceOn, { date: formatDate(race, "long") })}</p> : null}
         <CheckboxField name="safety" label={em.safety} error={state.errors?.safety} />
         <p className="text-xs text-muted">{premium ? em.paidNote : em.freeNote}</p>
         {hasDemoPlan ? <p className="text-xs text-warning">{em.demoWarning}</p> : null}

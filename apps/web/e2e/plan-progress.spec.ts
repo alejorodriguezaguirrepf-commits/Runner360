@@ -67,11 +67,12 @@ test.describe("Hoy, registro, reglas y check-in", () => {
     await checkin.getByRole("button", { name: "Confirmar" }).click();
     await expect(page.getByText("Check-in guardado. El calendario quedó actualizado.")).toBeVisible();
 
-    // Repetir desplaza el calendario: hoy se hace de nuevo la semana 1 y la competencia se corre.
+    // Repetir desplaza el calendario: hoy se hace de nuevo la semana 1 (Mi plan ya no muestra la tarjeta de semana actual y competencia).
     await page.reload();
     await expect(page.getByText("Sesión de hoy · semana 1 del plan")).toBeVisible();
     await page.goto("/plan");
-    await expect(page.getByText(/Con las semanas repetidas, la competencia del plan queda el/)).toBeVisible();
+    await expect(page.getByText("Semana actual")).toHaveCount(0);
+    await expect(page.getByText("Competencia", { exact: true })).toHaveCount(0);
 
     // Registro post-sesión (con consentimiento para datos de salud).
     await page.goto("/hoy");

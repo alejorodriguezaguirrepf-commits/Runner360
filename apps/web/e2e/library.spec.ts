@@ -77,7 +77,6 @@ test.describe("biblioteca de planes", () => {
     await page.getByRole("group", { name: "Días por semana" }).getByRole("link", { name: "3 días" }).click();
     await page.getByRole("group", { name: "Duración del plan" }).getByRole("link", { name: "3 meses (12 semanas)" }).click();
     await expect(page.getByRole("heading", { name: "5 km desde cero en 3 meses, 3 días" })).toBeVisible();
-    await expect(page.getByText(/Competencia del plan: domingo/)).toBeVisible();
     // Sin confirmar los avisos de seguridad no empieza.
     await page.getByRole("button", { name: "Empezar gratis" }).click();
     await expect(page.getByText("Para empezar, confirmá que leíste los avisos de seguridad.").first()).toBeVisible();
