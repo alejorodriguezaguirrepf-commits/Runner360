@@ -189,7 +189,7 @@ export async function EnrollmentView({
         {typeof selectedPlanWeek === "number" ? (
           ordered.length === 7 ? (
             <ol className="space-y-2.5">
-              {ordered.map(({ day, date }, i) => (
+              {ordered.filter((o) => !o.day.is_rest).map(({ day, date }, i) => (
                 <WorkoutDay
                   key={day.day_index}
                   day={day}

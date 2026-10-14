@@ -80,9 +80,11 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
         </div>
         {days.length === 7 ? (
           <ol className="space-y-2.5">
-            {days.map((d) => (
-              <WorkoutDay key={d.day_index} day={d} n={d.day_index + 1} legend={v.category_legend} open={d.day_index === firstSession} />
-            ))}
+            {days
+              .filter((d) => !d.is_rest)
+              .map((d, i) => (
+                <WorkoutDay key={d.day_index} day={d} n={i + 1} legend={v.category_legend} open={d.day_index === firstSession} />
+              ))}
           </ol>
         ) : (
           <Card className="flex flex-col items-start gap-3">

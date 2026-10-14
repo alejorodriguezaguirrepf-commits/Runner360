@@ -110,7 +110,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <div className="mb-6 space-y-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">{fmt(T.sessionOf, { n: slot.planWeek })}</p>
         <ol>
-          <WorkoutDay day={todayDay} n={(week?.dated.findIndex((x) => x.date === today) ?? 0) + 1} legend={v.category_legend} today open tips />
+          <WorkoutDay day={todayDay} n={(week?.dated.filter((x) => !x.day.is_rest).findIndex((x) => x.date === today) ?? 0) + 1} legend={v.category_legend} today open tips />
         </ol>
         <IntensityScale items={library.intensities} />
         {todayDay.is_rest ? (

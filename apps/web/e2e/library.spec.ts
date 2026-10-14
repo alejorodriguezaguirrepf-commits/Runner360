@@ -56,11 +56,13 @@ test.describe("biblioteca de planes", () => {
     await expect(strip.getByRole("link", { name: "Semana 1", exact: true })).toHaveAttribute("aria-current", "page");
     await expect(strip.getByRole("link", { name: "Semana 2, se libera con la suscripción" })).toBeVisible();
 
-    // Semana 1: 7 días numerados (Día 1 … Día 7), sin nombres de días; los pasos de la primera sesión a la vista.
+    // Semana 1: solo los 3 entrenamientos, numerados Día 1 … Día 3 (sin descansos ni nombres de días).
     const week = page.locator("section[aria-labelledby=semana]");
-    await expect(week.getByRole("heading", { level: 3 })).toHaveCount(7);
-    await expect(week.getByRole("heading", { name: /^Día 1: Descanso/ })).toBeVisible();
-    await expect(week.getByRole("heading", { name: /^Día 7:/ })).toBeVisible();
+    await expect(week.getByRole("heading", { level: 3 })).toHaveCount(3);
+    await expect(week.getByRole("heading", { name: /^Día 1:/ })).toBeVisible();
+    await expect(week.getByRole("heading", { name: /^Día 3:/ })).toBeVisible();
+    await expect(week.getByRole("heading", { name: /^Día 4:/ })).toHaveCount(0);
+    await expect(week.getByText("Descanso", { exact: true })).toHaveCount(0);
     await expect(week.getByText(/Lun|Mar ·|Dom/)).toHaveCount(0);
     await expect(week.getByText("Calentamiento").first()).toBeVisible();
     await expect(week.getByText("Vuelta a la calma").first()).toBeVisible();
@@ -85,7 +87,7 @@ test.describe("biblioteca de planes", () => {
     await expect(page.getByText("¡Listo! Tu calendario está armado.")).toBeVisible();
     await expect(page.getByRole("heading", { name: "5 km desde cero en 3 meses, 3 días" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Semana 1 de 12" })).toBeVisible();
-    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 })).toHaveCount(7);
+    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 })).toHaveCount(3);
     await expect(page.getByText("Valores estimados")).toHaveCount(0);
 
     // Mover días: válido.
