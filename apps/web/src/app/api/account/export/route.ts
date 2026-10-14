@@ -11,6 +11,9 @@ const TABLES = [
   "user_training_plans",
   "user_training_calendar",
   "workout_logs",
+  "plan_enrollments",
+  "weekly_checkins",
+  "session_ratings",
   "workout_splits",
   "hydration_logs",
   "hydration_reminders",
@@ -19,6 +22,7 @@ const TABLES = [
   "competition_splits",
   "subscriptions",
   "subscription_events",
+  "subscription_payments",
   "incident_reports",
 ] as const;
 

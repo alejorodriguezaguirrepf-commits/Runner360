@@ -13,6 +13,7 @@ import { formatDate } from "@runner360/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { SafetyNotices } from "@/components/library/notices";
+import { RatingForm } from "@/components/library/rating-form";
 import { WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
 import { IconLock } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
@@ -26,6 +27,9 @@ import { CancelEnrollmentButton } from "./plan-actions";
 const m = t.library;
 const c = m.calendar;
 const w = m.workout;
+const R = m.rating;
+
+type RatingRow = { workout_date: string; plan_week: number; plan_day_index: number; rating: number; note: string | null };
 
 /** "19 oct": fecha sin el nombre del día (los días se nombran por número). */
 const shortDate = (iso: string) =>
@@ -57,10 +61,27 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [week, overview] = await Promise.all([
+  const [week, overview, { data: ratingRows }] = await Promise.all([
     loadWeek(supabase, open, selected),
     getOverviewDays(supabase, enrollment.content_version, plan.id),
+    supabase
+      .from("session_ratings")
+      .select("workout_date, plan_week, plan_day_index, rating, note")
+      .eq("enrollment_id", enrollment.id)
+      .order("workout_date", { ascending: false }),
   ]);
+  const ratings = (ratingRows ?? []) as RatingRow[];
+  const ratingByDate = new Map(ratings.map((r) => [r.workout_date, r]));
+  // Número de día de entrenamiento (Día 1, Día 2…) de un día del plan, según el orden de la semana.
+  const trainingDayNumber = (planWeek: number, dayIndex: number) => {
+    const order = overview
+      .filter((d) => d.week === planWeek && !d.is_rest)
+      .sort((a, b) => enrollment.day_map[a.day_index]! - enrollment.day_map[b.day_index]!)
+      .map((d) => d.day_index);
+    const i = order.indexOf(dayIndex);
+    return i < 0 ? "—" : String(i + 1);
+  };
+  const average = ratings.length ? ratings.reduce((a, r) => a + r.rating, 0) / ratings.length : null;
   const openWeeks = new Set(overview.map((d) => d.week));
   const ordered = week?.dated ?? [];
   const doneDates = new Set((week?.logs ?? []).filter((l) => l.status !== "skipped").map((l) => l.workout_date));
@@ -179,6 +200,14 @@ export async function EnrollmentView({
                   done={doneDates.has(date)}
                   open={firstOpen?.date === date}
                   dateHint={shortDate(date)}
+                  rating={ratingByDate.get(date)?.rating ?? null}
+                  footer={
+                    date <= today ? (
+                      <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
+                    ) : (
+                      <p className="mt-4 text-xs text-muted">{R.later}</p>
+                    )
+                  }
                 />
               ))}
             </ol>
@@ -189,6 +218,32 @@ export async function EnrollmentView({
               <ButtonLink href="/suscripcion" variant="secondary">{m.detail.seePremium}</ButtonLink>
             </Card>
           )
+        ) : null}
+      </section>
+
+      <section aria-labelledby="valoraciones" className="mb-6 rounded-2xl border border-line bg-surface p-4">
+        <h2 id="valoraciones" className="text-lg font-bold">{R.historyTitle}</h2>
+        {average !== null ? (
+          <p className="mt-1 text-sm text-muted">{fmt(ratings.length === 1 ? R.averageOne : R.average, { avg: average.toFixed(1).replace(".", ","), n: ratings.length })}</p>
+        ) : (
+          <p className="mt-1 text-sm text-muted">{R.historyEmpty}</p>
+        )}
+        {ratings.length ? (
+          <ul className="mt-3 divide-y divide-line">
+            {ratings.map((r) => (
+              <li key={r.workout_date} className="flex items-start gap-3 py-2.5">
+                <span aria-hidden="true" className="text-2xl leading-none">{R.emoji[r.rating as 1]}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">
+                    {fmt(R.historyItem, { w: r.plan_week, d: trainingDayNumber(r.plan_week, r.plan_day_index) })}
+                    <span className="font-normal text-muted"> · {shortDate(r.workout_date)}</span>
+                  </p>
+                  <p className="text-sm">{R.options[r.rating as 1]}</p>
+                  {r.note ? <p className="mt-0.5 text-sm text-muted">“{r.note}”</p> : null}
+                </div>
+              </li>
+            ))}
+          </ul>
         ) : null}
       </section>
 

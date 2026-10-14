@@ -124,4 +124,39 @@ test.describe("Hoy, registro, reglas y check-in", () => {
     // Igual hubo sesiones perdidas la semana pasada: el motor no recomienda avanzar.
     await expect(checkin.getByText("Repetir la semana.", { exact: true })).toBeVisible();
   });
+
+  test("valoración: ¿cómo te fue? queda registrada en el historial", async ({ page }) => {
+    const name = `Valora ${Date.now()}`;
+    await signUp(page, uniqueEmail("valora"), name);
+    await completeOnboarding(page);
+    await enrollStartedLastWeek(page, name);
+    // Semana pasada (ya ocurrida): el primer entrenamiento se puede valorar.
+    const today = todayBA();
+    const lastMonday = addDays(today, -weekday(today) - 7);
+    await page.goto(`/plan?semana=${lastMonday}`);
+    const week = page.locator("section[aria-labelledby=semana]");
+    const first = week.locator("details").first();
+    await first.evaluate((el) => ((el as HTMLDetailsElement).open = true));
+    await expect(first.getByText("¿Cómo te fue?")).toBeVisible();
+    await first.getByText("Bien", { exact: true }).click();
+    await first.getByLabel("Nota (opcional)").fill("Piernas livianas");
+    await first.getByRole("button", { name: "Guardar valoración" }).click();
+    await expect(first.getByText("Valoración guardada.")).toBeVisible();
+
+    await page.reload();
+    const history = page.locator("section[aria-labelledby=valoraciones]");
+    await expect(history.getByText(/Semana 1 · Día 1/)).toBeVisible();
+    await expect(history.getByText("“Piernas livianas”")).toBeVisible();
+    await expect(history.getByText("Promedio: 4,0 de 5 · 1 entrenamiento valorado")).toBeVisible();
+
+    // Se puede cambiar: sigue habiendo una sola valoración para ese día.
+    const again = page.locator("section[aria-labelledby=semana] details").first();
+    await again.evaluate((el) => ((el as HTMLDetailsElement).open = true));
+    await again.getByText("Excelente", { exact: true }).click();
+    await again.getByRole("button", { name: "Actualizar valoración" }).click();
+    await expect(again.getByText("Valoración guardada.")).toBeVisible();
+    await page.reload();
+    await expect(page.locator("section[aria-labelledby=valoraciones] li")).toHaveCount(1);
+    await expect(page.locator("section[aria-labelledby=valoraciones]").getByText("Excelente")).toBeVisible();
+  });
 });

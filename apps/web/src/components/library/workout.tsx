@@ -1,5 +1,6 @@
 import { formatKmValue, formatMinutes, type Category } from "@runner360/plan-library";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { IconLock } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
@@ -7,6 +8,7 @@ import type { DayRow } from "@/lib/data/library";
 import { CATEGORY_CLASSES } from "./category";
 
 const m = t.library.workout;
+const R = t.library.rating;
 
 const categoryOf = (d: Pick<DayRow, "is_rest" | "category">): Category => (d.is_rest ? "rest" : (d.category ?? "rest"));
 
@@ -30,6 +32,8 @@ export function WorkoutDay({
   done = false,
   dateHint,
   tips = false,
+  rating = null,
+  footer,
 }: {
   day: DayRow;
   /** Número de día dentro de la semana (1–7). */
@@ -41,6 +45,10 @@ export function WorkoutDay({
   dateHint?: string;
   /** Muestra la observación técnica como consejo (pantalla Hoy). */
   tips?: boolean;
+  /** Valoración guardada (1–5): se muestra con su carita en el resumen. */
+  rating?: number | null;
+  /** Contenido extra al final del detalle (por ejemplo, "¿Cómo te fue?"). */
+  footer?: ReactNode;
 }) {
   const c = categoryOf(day);
   const badge = (
@@ -94,6 +102,12 @@ export function WorkoutDay({
               {day.distance_km_est ? <span className="tabular">· {formatKmValue(day.distance_km_est, { oneDecimal: true })}</span> : null}
               <span className={cx("rounded-md px-1.5 py-0.5 text-[11px] font-bold", CATEGORY_CLASSES[c])} title={legend[c]}>{m.category[c]}</span>
               {done ? <span className="rounded-md bg-lime-400 px-1.5 py-0.5 text-[11px] font-bold text-navy-950">{m.done}</span> : null}
+              {rating ? (
+                <span className="rounded-md border border-lime-400 px-1.5 py-0.5 text-[11px] font-bold text-ink">
+                  <span aria-hidden="true">{R.emoji[rating as 1]} </span>
+                  {R.options[rating as 1]}
+                </span>
+              ) : null}
             </p>
             {dateHint ? <p className="mt-0.5 text-xs text-muted">{dateHint}</p> : null}
           </div>
@@ -120,6 +134,7 @@ export function WorkoutDay({
             </p>
           ) : null}
           {tips && day.technical_notes ? <p className="mt-2 text-sm text-muted">💡 {day.technical_notes}</p> : null}
+          {footer}
         </div>
       </details>
     </li>

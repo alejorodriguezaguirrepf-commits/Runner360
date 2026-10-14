@@ -86,6 +86,12 @@ Después del onboarding se llega a `/planes`; `/plan` e `/inicio` sin plan activ
 
 Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ningún texto de interfaz de la biblioteca está fijo en los componentes). El contenido de los planes no pasa por el diccionario.
 
+## Valoración de entrenamientos ("¿Cómo te fue?")
+
+- En **Mi plan** y **Hoy**, cada entrenamiento ya ocurrido (hasta hoy) tiene "¿Cómo te fue?": Muy mal / Mal / Normal / Bien / Excelente (1–5) y una nota opcional (≤ 500 caracteres). Se puede cambiar; queda una por día.
+- Se guarda en `session_ratings` (inscripción, fecha, semana y día del plan, valoración, nota). RLS: cada persona ve y escribe solo las suyas (staff puede leer). El servidor valida que la fecha no sea futura y que ese día sea de entrenamiento.
+- La tarjeta del día muestra la valoración y **Mi plan** lista el historial ("Tus valoraciones", con el promedio). Se incluye en la exportación de datos de la cuenta.
+
 ## Suscripción y liberación mensual
 
 - Cualquiera puede empezar un plan: sin suscripción ve la muestra gratuita (`library_settings.free_preview_weeks`, 1 por defecto).

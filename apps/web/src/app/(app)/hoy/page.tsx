@@ -3,6 +3,7 @@ import { formatDate, todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { IntensityScale, SafetyNotices } from "@/components/library/notices";
+import { RatingForm } from "@/components/library/rating-form";
 import { WorkoutDay } from "@/components/library/workout";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
 import { IconLock } from "@/components/ui/icons";
@@ -71,6 +72,12 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const pending = pendingCheckinWeek(open, today, weekdayOf(today));
   const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
   const { data: consent } = await supabase.rpc("has_consent", { p_user: user.id, p_type: "health_data" });
+  const { data: todayRating } = await supabase
+    .from("session_ratings")
+    .select("rating, note")
+    .eq("enrollment_id", enrollment.id)
+    .eq("workout_date", today)
+    .maybeSingle<{ rating: number; note: string | null }>();
 
   // ¿Quedó sin registrar la sesión de ayer? (no se recupera: solo se informa).
   const yesterday = addDays(today, -1);
@@ -110,7 +117,16 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       <div className="mb-6 space-y-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">{fmt(T.sessionOf, { n: slot.planWeek })}</p>
         <ol>
-          <WorkoutDay day={todayDay} n={(week?.dated.filter((x) => !x.day.is_rest).findIndex((x) => x.date === today) ?? 0) + 1} legend={v.category_legend} today open tips />
+          <WorkoutDay
+            day={todayDay}
+            n={(week?.dated.filter((x) => !x.day.is_rest).findIndex((x) => x.date === today) ?? 0) + 1}
+            legend={v.category_legend}
+            today
+            open
+            tips
+            rating={todayRating?.rating ?? null}
+            footer={todayDay.is_rest ? null : <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} />}
+          />
         </ol>
         <IntensityScale items={library.intensities} />
         {todayDay.is_rest ? (
