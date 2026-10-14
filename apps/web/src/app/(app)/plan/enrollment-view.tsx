@@ -1,9 +1,7 @@
 import {
   addDays,
-  DAY_LABELS,
   formatClock,
   formatKmValue,
-  formatMinutes,
   formatPace,
   mondayOf,
   planWeekAt,
@@ -15,19 +13,24 @@ import {
 import { formatDate } from "@runner360/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
-import { DayCard, WeekHeader } from "@/components/library/plan-views";
-import { EstimateNotice, IntensityScale, SafetyNotices } from "@/components/library/notices";
-import { IconChevronLeft, IconChevronRight, IconLock } from "@/components/ui/icons";
-import { Alert, Badge, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
+import { SafetyNotices } from "@/components/library/notices";
+import { WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
+import { IconLock } from "@/components/ui/icons";
+import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { OpenEnrollment } from "@/lib/data/enrollment";
-import { getPlanWeeks, getWeekDays } from "@/lib/data/library";
-import { checkinProps, pendingCheckinWeek } from "@/lib/library/week";
+import { getOverviewDays } from "@/lib/data/library";
+import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { CancelEnrollmentButton } from "./plan-actions";
 
 const m = t.library;
 const c = m.calendar;
+const w = m.workout;
+
+/** "19 oct": fecha sin el nombre del día (los días se nombran por número). */
+const shortDate = (iso: string) =>
+  new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
 
 export async function EnrollmentView({
   open,
@@ -56,14 +59,13 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [planWeeks, days] = await Promise.all([
-    getPlanWeeks(enrollment.content_version, plan.id),
-    typeof selectedPlanWeek === "number" ? getWeekDays(supabase, enrollment.content_version, plan.id, selectedPlanWeek) : Promise.resolve([]),
+  const [week, overview] = await Promise.all([
+    loadWeek(supabase, open, selected),
+    getOverviewDays(supabase, enrollment.content_version, plan.id),
   ]);
-  const weekRow = planWeeks?.find((w) => w.week === selectedPlanWeek) ?? null;
-  const ordered = days
-    .map((d) => ({ d, date: addDays(selected, enrollment.day_map[d.day_index]!) }))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const openWeeks = new Set(overview.map((d) => d.week));
+  const ordered = week?.dated ?? [];
+  const doneDates = new Set((week?.logs ?? []).filter((l) => l.status !== "skipped").map((l) => l.workout_date));
 
   const pending = enrollment.status === "active" ? pendingCheckinWeek(open, today, weekdayOf(today)) : null;
   const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
@@ -73,10 +75,8 @@ export async function EnrollmentView({
       ? { distanceKm: enrollment.mark_distance_m / 1000, timeS: enrollment.mark_time_s, date: enrollment.mark_date }
       : null;
   const paces = mark ? referencePaces(mark, today) : null;
-  const weekHref = (w: string) => `/plan?semana=${w}#semana`;
-  const idx = weeks.findIndex((w) => w.weekStart === selected);
-  const prev = idx > 0 ? weeks[idx - 1] : undefined;
-  const next = idx >= 0 && idx < weeks.length - 1 ? weeks[idx + 1] : undefined;
+  const weekHref = (ws: string) => `/plan?semana=${ws}`;
+  const firstOpen = ordered.find((o) => o.date === today && !o.day.is_rest) ?? ordered.find((o) => !o.day.is_rest && o.date >= today) ?? ordered.find((o) => !o.day.is_rest);
 
   const status =
     enrollment.status === "paused" || currentPlanWeek === null
@@ -84,7 +84,7 @@ export async function EnrollmentView({
       : typeof currentPlanWeek === "number"
         ? fmt(c.weekOf, { n: currentPlanWeek, total: plan.duration_weeks })
         : today < enrollment.start_date
-          ? fmt(c.notStarted, { date: formatDate(enrollment.start_date, "long") })
+          ? fmt(c.notStarted, { date: shortDate(enrollment.start_date) })
           : c.finished;
 
   return (
@@ -120,27 +120,12 @@ export async function EnrollmentView({
           />
         </div>
       ) : null}
-      <div className="mb-6 space-y-3">
-        <EstimateNotice note={v.model_runner_assumptions.note} />
-        <SafetyNotices items={v.safety} />
-      </div>
-
       <Card className="mb-6">
-        <dl className="grid gap-4 text-sm sm:grid-cols-4">
+        <dl className="grid grid-cols-2 gap-4 text-sm">
           <div><dt className="text-muted">{c.currentWeek}</dt><dd className="text-lg font-bold">{status}</dd></div>
-          <div><dt className="text-muted">{c.start}</dt><dd className="text-lg font-bold">{formatDate(enrollment.start_date)}</dd></div>
-          <div><dt className="text-muted">{c.race}</dt><dd className="text-lg font-bold">{formatDate(enrollment.race_date)}</dd></div>
-          <div>
-            <dt className="text-muted">{c.days}</dt>
-            <dd className="text-lg font-bold">
-              {ordered.length
-                ? ordered.filter((o) => !o.d.is_rest).map((o) => DAY_LABELS[weekdayOf(o.date)]).join(" · ")
-                : "—"}
-            </dd>
-          </div>
+          <div><dt className="text-muted">{c.race}</dt><dd className="text-lg font-bold">{shortDate(enrollment.race_date)}</dd></div>
         </dl>
         {projected && projected !== enrollment.race_date ? <p className="mt-3 text-sm text-warning">{fmt(c.projectedRace, { date: formatDate(projected, "long") })}</p> : null}
-        <p className="mt-3 text-xs text-muted">{fmt(c.contentVersion, { v: enrollment.content_version })}</p>
       </Card>
 
       {mark ? (
@@ -181,75 +166,53 @@ export async function EnrollmentView({
         </Card>
       ) : null}
 
-      <Card id="semana" className="mb-6 scroll-mt-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <section aria-labelledby="semana" className="mb-6 space-y-4">
+        <WeekStrip
+          pills={weeks.map((x) => ({
+            key: x.weekStart,
+            label: typeof x.planWeek === "number" ? fmt(w.week, { n: x.planWeek }) : c.pausedWeek,
+            href: weekHref(x.weekStart),
+            locked: typeof x.planWeek === "number" && !openWeeks.has(x.planWeek),
+            selected: x.weekStart === selected,
+            current: x.weekStart === thisMonday,
+          }))}
+        />
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
-            <h2 className="text-base font-bold">{fmt(c.weekTitle, { from: formatDate(selected), to: formatDate(addDays(selected, 6)) })}</h2>
-            <p className="text-sm text-muted">
-              {typeof selectedPlanWeek === "number" ? fmt(c.planWeek, { n: selectedPlanWeek }) : selectedPlanWeek === null ? c.pausedWeek : "—"}
-            </p>
+            <h2 id="semana" className="text-2xl font-extrabold">
+              {typeof selectedPlanWeek === "number" ? fmt(w.weekOf, { n: selectedPlanWeek, total: plan.duration_weeks }) : c.pausedWeek}
+            </h2>
+            <p className="text-sm text-muted">{shortDate(selected)} – {shortDate(addDays(selected, 6))}</p>
           </div>
-          <nav aria-label={m.detail.weekPicker} className="flex gap-2">
-            {prev ? (
-              <Link href={weekHref(prev.weekStart)} aria-label={c.prev} className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-line px-3 text-sm font-semibold">
-                <IconChevronLeft width={16} height={16} />
-              </Link>
-            ) : null}
-            {selected !== thisMonday && weeks.some((w) => w.weekStart === thisMonday) ? (
-              <Link href={weekHref(thisMonday)} className="inline-flex min-h-11 items-center rounded-xl border border-line px-3 text-sm font-semibold">{c.today}</Link>
-            ) : null}
-            {next ? (
-              <Link href={weekHref(next.weekStart)} aria-label={c.next} className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-line px-3 text-sm font-semibold">
-                <IconChevronRight width={16} height={16} />
-              </Link>
-            ) : null}
-          </nav>
+          {ordered.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(ordered.map((o) => o.day))}</p> : null}
         </div>
-        {weekRow ? <WeekHeader week={weekRow} /> : null}
         {typeof selectedPlanWeek === "number" ? (
           ordered.length === 7 ? (
-            <div className="mt-4 grid gap-3">
-              {ordered.map(({ d, date }) => (
-                <div key={d.day_index} className={date === today ? "rounded-xl ring-2 ring-lime-400" : undefined}>
-                  <DayCard day={d} legend={v.category_legend} dateLabel={`${date === today ? `${c.today} · ` : ""}${formatDate(date)}`} />
-                </div>
+            <ol className="space-y-2.5">
+              {ordered.map(({ day, date }, i) => (
+                <WorkoutDay
+                  key={day.day_index}
+                  day={day}
+                  n={i + 1}
+                  legend={v.category_legend}
+                  today={date === today}
+                  done={doneDates.has(date)}
+                  open={firstOpen?.date === date}
+                  dateHint={shortDate(date)}
+                />
               ))}
-            </div>
+            </ol>
           ) : (
-            <div className="mt-4 flex flex-col items-start gap-3 rounded-xl border border-dashed border-line bg-canvas p-5">
+            <Card className="flex flex-col items-start gap-3">
               <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {m.detail.locked}</p>
               <p className="text-sm text-muted">{m.detail.lockedText}</p>
               <ButtonLink href="/suscripcion" variant="secondary">{m.detail.seePremium}</ButtonLink>
-            </div>
+            </Card>
           )
         ) : null}
-      </Card>
+      </section>
 
-      <details className="mb-6 rounded-xl border border-line bg-surface p-3 text-sm">
-        <summary className="min-h-11 cursor-pointer content-center font-semibold">{c.upcoming}</summary>
-        <ul className="mt-2 grid gap-1 sm:grid-cols-2">
-          {weeks.map((w) => {
-            const row = typeof w.planWeek === "number" ? planWeeks?.find((x) => x.week === w.planWeek) : null;
-            return (
-              <li key={w.weekStart}>
-                <Link href={weekHref(w.weekStart)} className="flex justify-between gap-3 rounded-lg bg-canvas px-3 py-1.5 hover:bg-navy-100">
-                  <span>
-                    <span className="font-semibold">{formatDate(w.weekStart)}</span> ·{" "}
-                    {typeof w.planWeek === "number" ? fmt(m.detail.weekShort, { n: w.planWeek }) : c.pausedWeek}
-                    {w.weekStart === thisMonday ? <Badge tone="lime" className="ml-2">{c.today}</Badge> : null}
-                  </span>
-                  <span className="tabular text-muted">{row ? `${formatKmValue(row.distance_km_est, { oneDecimal: true })} · ${formatMinutes(row.duration_min_est, { round: true })}` : ""}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </details>
-
-      <div className="space-y-3">
-        <IntensityScale items={library.intensities} />
-        <Link href={`/planes/${plan.id}`} className="inline-block text-sm font-semibold underline">{m.catalog.viewPlan}</Link>
-      </div>
+      <SafetyNotices items={v.safety} />
     </>
   );
 }

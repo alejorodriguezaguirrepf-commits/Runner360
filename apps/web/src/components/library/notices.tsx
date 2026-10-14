@@ -1,21 +1,8 @@
-import { IconInfo, IconShield } from "@/components/ui/icons";
+import { IconShield } from "@/components/ui/icons";
 import { t } from "@/i18n";
 import type { Intensity } from "@runner360/plan-library";
 
 const m = t.library;
-
-/** Aclaración obligatoria: los valores son estimados para un corredor modelo (texto del contenido). */
-export function EstimateNotice({ note }: { note: string }) {
-  return (
-    <div role="note" className="flex gap-3 rounded-xl border border-line bg-info-bg p-3 text-sm text-ink">
-      <IconInfo className="mt-0.5 shrink-0" />
-      <p>
-        <span className="font-semibold">{m.estimate.title}. </span>
-        {note}
-      </p>
-    </div>
-  );
-}
 
 /** Avisos de seguridad del contenido, visibles desde cualquier plan. */
 export function SafetyNotices({ items, defaultOpen = false }: { items: string[]; defaultOpen?: boolean }) {

@@ -2,8 +2,8 @@ import { addDays, DAY_LABELS, formatClock, mondayOf, planDayAt, ruleText, weekda
 import { formatDate, todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import { CheckinCard } from "@/components/library/checkin-card";
-import { EstimateNotice, IntensityScale, SafetyNotices } from "@/components/library/notices";
-import { DayCard } from "@/components/library/plan-views";
+import { IntensityScale, SafetyNotices } from "@/components/library/notices";
+import { WorkoutDay } from "@/components/library/workout";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
 import { IconLock } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, cx, EmptyState, PageHeader } from "@/components/ui/primitives";
@@ -37,7 +37,6 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const header = <PageHeader title={T.title} subtitle={`${formatDate(today, "weekday")} · ${plan.title}`} actions={<ButtonLink href="/plan" variant="ghost">{t.library.nav.myPlan}</ButtonLink>} />;
   const notices = (
     <div className="mb-6 space-y-3">
-      <EstimateNotice note={v.model_runner_assumptions.note} />
       <SafetyNotices items={v.safety} />
     </div>
   );
@@ -110,7 +109,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     main = (
       <div className="mb-6 space-y-4">
         <p className="text-sm font-semibold uppercase tracking-wide text-muted">{fmt(T.sessionOf, { n: slot.planWeek })}</p>
-        <DayCard day={todayDay} legend={v.category_legend} dateLabel={formatDate(today, "weekday")} headingLevel={3} />
+        <ol>
+          <WorkoutDay day={todayDay} n={(week?.dated.findIndex((x) => x.date === today) ?? 0) + 1} legend={v.category_legend} today open tips />
+        </ol>
         <IntensityScale items={library.intensities} />
         {todayDay.is_rest ? (
           <Card>

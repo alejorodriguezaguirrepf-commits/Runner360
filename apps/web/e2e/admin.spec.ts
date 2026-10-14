@@ -112,9 +112,9 @@ test.describe("panel administrativo", () => {
       await signUp(runner, uniqueEmail("semanas"));
       await completeOnboarding(runner);
       await runner.goto("/planes/plan-04?semana=2");
-      await expect(runner.locator("#semana").getByRole("heading", { level: 3 })).toHaveCount(7);
+      await expect(runner.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 })).toHaveCount(7);
       await runner.goto("/planes/plan-04?semana=3");
-      await expect(runner.locator("#semana").getByText("Con la suscripción mensual, cada débito automático libera", { exact: false })).toBeVisible();
+      await expect(runner.locator("section[aria-labelledby=semana]").getByText("Con la suscripción mensual, cada débito automático libera", { exact: false })).toBeVisible();
     } finally {
       await ctx.close();
       await page.goto("/admin/productos");

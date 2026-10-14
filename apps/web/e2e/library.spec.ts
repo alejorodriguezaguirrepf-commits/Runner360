@@ -43,29 +43,31 @@ test.describe("biblioteca de planes", () => {
     await expect(page.getByRole("heading", { name: "10 km en 3 meses, 3 días" })).toBeVisible();
   });
 
-  test("detalle: ficha, avisos, grilla con descansos y semanas por liberar", async ({ page }) => {
+  test("detalle: solo las tareas, días numerados y semanas por liberar", async ({ page }) => {
     await newRunner(page, "detalle");
     await page.goto("/planes/plan-04");
     await expect(page.getByRole("heading", { name: "5 km desde cero en 3 meses, 3 días" })).toBeVisible();
-    await expect(page.getByText("Recomendaciones antes de empezar")).toBeVisible();
-    await expect(page.getByText("Caminar 30' a paso ligero sin molestias (no hace falta saber correr)")).toBeVisible();
-    await page.getByText("Ver avisos de seguridad").click();
-    await expect(page.getByText(/Suspender de inmediato y buscar atención/)).toBeVisible();
+    // Sin explicaciones del plan.
+    for (const gone of ["Valores estimados", "Para quién es", "Objetivo principal", "Fases", "Vista rápida de todas las semanas"]) {
+      await expect(page.getByText(gone, { exact: true })).toHaveCount(0);
+    }
+    await expect(page.getByRole("heading", { name: "Semana 1 de 12" })).toBeVisible();
+    const strip = page.getByRole("navigation", { name: "Semanas del plan" });
+    await expect(strip.getByRole("link", { name: "Semana 1", exact: true })).toHaveAttribute("aria-current", "page");
+    await expect(strip.getByRole("link", { name: "Semana 2, se libera con la suscripción" })).toBeVisible();
 
-    // Vista rápida: semana 1 visible; las siguientes, solo con Premium.
-    const overview = page.getByRole("table", { name: "Vista rápida de todas las semanas" });
-    await expect(overview.getByRole("rowheader", { name: "S1", exact: true })).toBeVisible();
-    await expect(overview.getByText(/Semanas 2–12: se liberan mes a mes con la suscripción/)).toBeVisible();
-
-    // Semana 1 día por día: 7 días, con los descansos visibles y todas las columnas.
-    const week = page.locator("#semana");
+    // Semana 1: 7 días numerados (Día 1 … Día 7), sin nombres de días; los pasos de la primera sesión a la vista.
+    const week = page.locator("section[aria-labelledby=semana]");
     await expect(week.getByRole("heading", { level: 3 })).toHaveCount(7);
-    await expect(week.getByRole("heading", { name: /Lun · Descanso/ })).toBeVisible();
+    await expect(week.getByRole("heading", { name: /^Día 1: Descanso/ })).toBeVisible();
+    await expect(week.getByRole("heading", { name: /^Día 7:/ })).toBeVisible();
+    await expect(week.getByText(/Lun|Mar ·|Dom/)).toHaveCount(0);
     await expect(week.getByText("Calentamiento").first()).toBeVisible();
     await expect(week.getByText("Vuelta a la calma").first()).toBeVisible();
 
-    await page.goto("/planes/plan-04?semana=2");
-    await expect(page.locator("#semana").getByText("Con la suscripción mensual, cada débito automático libera", { exact: false })).toBeVisible();
+    await strip.getByRole("link", { name: "Semana 2, se libera con la suscripción" }).click();
+    await expect(page.getByRole("heading", { name: "Semana 2 de 12" })).toBeVisible();
+    await expect(week.getByText("Con la suscripción mensual, cada débito automático libera", { exact: false })).toBeVisible();
   });
 
   test("inscripción gratis: calendario con fechas reales, mover días y un solo plan en curso", async ({ page }) => {
@@ -82,8 +84,9 @@ test.describe("biblioteca de planes", () => {
     await expect(page).toHaveURL(/\/plan\?inscripto=1/);
     await expect(page.getByText("¡Listo! Tu calendario está armado.")).toBeVisible();
     await expect(page.getByRole("heading", { name: "5 km desde cero en 3 meses, 3 días" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /^Semana del / })).toBeVisible();
-    await expect(page.locator("#semana").getByRole("heading", { level: 3 })).toHaveCount(7);
+    await expect(page.getByRole("heading", { name: "Semana 1 de 12" })).toBeVisible();
+    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 })).toHaveCount(7);
+    await expect(page.getByText("Valores estimados")).toHaveCount(0);
 
     // Mover días: válido.
     await page.getByRole("link", { name: "Mover días" }).click();
@@ -120,8 +123,8 @@ test.describe("biblioteca de planes", () => {
 
     // Gratis: solo la semana 1.
     await page.goto("/planes/plan-10");
-    const overview = page.getByRole("table", { name: "Vista rápida de todas las semanas" });
-    await expect(overview.getByText(/Semanas 2–24: se liberan mes a mes/)).toBeVisible();
+    const strip = page.getByRole("navigation", { name: "Semanas del plan" });
+    await expect(strip.getByRole("link", { name: "Semana 2, se libera con la suscripción" })).toBeVisible();
 
     // Dos débitos aprobados (como los registra el aviso de pago) → 8 semanas.
     const res = await fetch(`${SUPABASE}/rest/v1/profiles?display_name=eq.${encodeURIComponent(name)}&select=id`, { headers });
@@ -137,8 +140,8 @@ test.describe("biblioteca de planes", () => {
     });
     expect(ins.ok, await ins.text()).toBeTruthy();
     await page.reload();
-    await expect(overview.getByRole("rowheader", { name: "S8", exact: true })).toBeVisible();
-    await expect(overview.getByText(/Semanas 9–24: se liberan mes a mes/)).toBeVisible();
+    await expect(strip.getByRole("link", { name: "Semana 8", exact: true })).toBeVisible();
+    await expect(strip.getByRole("link", { name: "Semana 9, se libera con la suscripción" })).toBeVisible();
     await page.goto("/suscripcion");
     await expect(page.getByText("Aprobado · mes liberado")).toHaveCount(2);
   });

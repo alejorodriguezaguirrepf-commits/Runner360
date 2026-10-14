@@ -2,8 +2,8 @@ import { catalogSteps, LEVELS, raceDateFromStart, type CatalogFilter, type Level
 import { todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EstimateNotice, SafetyNotices } from "@/components/library/notices";
-import { IconCheck, IconChevronRight } from "@/components/ui/icons";
+import { SafetyNotices } from "@/components/library/notices";
+import { IconChevronRight } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, cx, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import { hasPremium, requireOnboardedSession } from "@/lib/auth";
@@ -189,17 +189,6 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
               <Badge>{plan.duration_label}</Badge>
               <Badge>{fmt(m.catalog.days, { n: plan.days_per_week })}</Badge>
             </div>
-            <p className="mt-3 text-sm">{plan.main_goal}</p>
-            {plan.entry_requirements.length ? (
-              <>
-                <h3 className="mt-4 text-sm font-semibold">{m.catalog.recommendedIf}</h3>
-                <ul className="mt-2 space-y-1.5 text-sm">
-                  {plan.entry_requirements.map((r) => (
-                    <li key={r} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-success" width={16} height={16} />{r}</li>
-                  ))}
-                </ul>
-              </>
-            ) : null}
             <Link href={`/planes/${plan.id}`} className="mt-4 inline-flex min-h-11 items-center gap-1 text-sm font-semibold underline">
               {m.catalog.viewPlan} <IconChevronRight width={16} height={16} />
             </Link>
@@ -216,10 +205,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
         </section>
       ) : null}
 
-      <div className="space-y-3">
-        <EstimateNotice note={library.version.model_runner_assumptions.note} />
-        <SafetyNotices items={library.version.safety} />
-      </div>
+      <SafetyNotices items={library.version.safety} />
     </>
   );
 }

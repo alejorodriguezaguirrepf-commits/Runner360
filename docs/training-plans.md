@@ -75,13 +75,13 @@ Los datos de salud (`pain_score`, `red_flags`, `sleep_quality`, notas) son sensi
 | Ruta | Qué muestra |
 |---|---|
 | `/planes` | Acceso directo, sin evaluación previa. Arriba, las dos opciones: **plan gratis** (la muestra de `free_preview_weeks`) o **suscripción mensual**. Pestañas **5 / 10 / 21 / 42 km** (la inicial es la distancia del perfil) → días por semana → duración del plan → nivel; un paso con una sola opción se elige solo. Con el plan definido: resumen, "Pensado para quien" (los `entry_requirements`, informativos) e inscripción (lunes de inicio entre los próximos 12 + confirmación de los avisos de seguridad). Los pasos viajan en la URL (`?d=10&dias=4&s=24&n=Intermedio`, o `?plan=plan-NN`). |
-| `/planes/[id]` | Ficha (perfil, recomendaciones antes de empezar, objetivos, semana tipo, semana de competencia), fases, vista rápida de todas las semanas, totales semanales, una semana día por día (`?semana=N`), escala de intensidad, rutina de fuerza, notas y validación técnica. "Empezar este plan" lleva a `/planes?plan=plan-NN`. |
+| `/planes/[id]` | Vista simple, solo tareas: título y etiquetas, tira de semanas S1…SN (candado en las no liberadas), "Semana N de T" con el resumen (entrenamientos y tiempo) y los días numerados **Día 1…Día 7** (no por nombre). Cada entrenamiento se despliega en pasos: calentamiento → principal → vuelta a la calma (+ fuerza) e intensidad. Rutina de fuerza y avisos de seguridad colapsables. Sin valores estimados, perfil, objetivos, fases ni vista rápida. |
 | `/planes/elegir` | Redirige a `/planes` (el asistente de evaluación se quitó). |
-| `/plan` | Calendario de la inscripción: estado, inicio, competencia (y la proyectada si se repitieron semanas), ritmos de referencia (Riegel), la semana elegida con fechas reales y los 7 días, y la lista de todas las semanas. |
+| `/plan` | La misma vista sobre el calendario de la inscripción: semana actual y competencia, tira de semanas del calendario (con repeticiones y pausas), días numerados por orden de fecha con la fecha corta, "hoy" y "Hecho" según los registros. |
 | `/plan/dias` | Mover días: qué día de la semana se hace cada día del plan. |
 | `/hoy` | La sesión del día (calentamiento, parte principal, vuelta a la calma, intensidad con la escala RPE a un toque, observaciones), el registro post-sesión, el check-in semanal pendiente, el aviso de sesión perdida y la semana en curso. En pausa: avisos de seguridad y "Retomar". |
 
-En todas: aclaración de valores estimados (`model_runner_assumptions.note`) y avisos de `safety`.
+En todas: avisos de `safety` (colapsables). La aclaración de valores estimados ya no se muestra.
 Después del onboarding se llega a `/planes`; `/plan` e `/inicio` sin plan activo llevan a la biblioteca (los planes DEMO ya no se ofrecen; quien tenga uno activo lo sigue viendo).
 
 Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ningún texto de interfaz de la biblioteca está fijo en los componentes). El contenido de los planes no pasa por el diccionario.
