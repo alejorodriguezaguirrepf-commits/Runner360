@@ -37,6 +37,9 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         await auth.signInWithPassword(email: _email.text.trim(), password: _password.text);
       }
+    } on AuthRetryableFetchException {
+      // Sin conexión o servidor inaccesible: no es un problema de credenciales.
+      setState(() => _message = 'No pudimos conectarnos. Revisá tu conexión.');
     } on AuthException catch (e) {
       setState(() => _message = _register ? e.message : 'Correo o contraseña incorrectos.');
     } catch (_) {

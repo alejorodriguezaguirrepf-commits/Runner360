@@ -74,6 +74,7 @@ class _RegisterWorkoutScreenState extends State<RegisterWorkoutScreen> {
       const Text('Registrar entrenamiento', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
       const SizedBox(height: 16),
       SegmentedButton<WorkoutStatus>(
+        showSelectedIcon: false,
         segments: const [
           ButtonSegment(value: WorkoutStatus.completed, label: Text('Completada')),
           ButtonSegment(value: WorkoutStatus.modified, label: Text('Modificada')),

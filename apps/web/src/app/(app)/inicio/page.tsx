@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SessionFacts, StatusBadge } from "@/components/app/session-summary";
 import { PlanDashboard } from "@/components/library/plan-dashboard";
 import { IconChart, IconDrop, IconPlus, IconTimer } from "@/components/ui/icons";
-import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, PageHeader, ProgressBar, Stat } from "@/components/ui/primitives";
+import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, ProgressBar, Stat } from "@/components/ui/primitives";
 import { requireOnboardedSession } from "@/lib/auth";
 import { buildDashboard } from "@/lib/data/dashboard";
 import { t } from "@/i18n";
@@ -36,19 +36,22 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <PageHeader
-        title={`${greeting()}, ${profile.display_name ?? "corredor"}`}
-        subtitle={formatDate(today, "weekday")}
-        actions={
-          <Link
-            href="/perfil"
-            aria-label={t.dashboard.profile}
-            className="inline-flex size-11 items-center justify-center rounded-full bg-accent text-lg font-extrabold text-on-accent hover:brightness-95"
-          >
-            {(profile.display_name ?? "C").trim().charAt(0).toUpperCase()}
-          </Link>
-        }
-      />
+      {/* Saludo y acceso al perfil en una sola fila también en el teléfono. */}
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[28px] font-extrabold leading-tight tracking-tight text-ink sm:text-[32px]">
+            {greeting()}, {profile.display_name ?? "corredor"}
+          </h1>
+          <p className="mt-1 text-sm text-muted">{formatDate(today, "weekday")}</p>
+        </div>
+        <Link
+          href="/perfil"
+          aria-label={t.dashboard.profile}
+          className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-accent text-lg font-extrabold text-on-accent hover:brightness-95"
+        >
+          {(profile.display_name ?? "C").trim().charAt(0).toUpperCase()}
+        </Link>
+      </header>
 
       {openEnrollment ? (
         <PlanDashboard open={openEnrollment} supabase={supabase} today={today} />
@@ -125,7 +128,7 @@ export default async function DashboardPage() {
 
       <Card className="mb-6">
         <CardTitle>{t.dashboard.last30}</CardTitle>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Stat label="Distancia" value={formatKm(d.totals30d.distanceM)} />
           <Stat label="Tiempo" value={formatMinutesLong(d.totals30d.durationS)} />
           <Stat label="Entrenamientos" value={d.totals30d.workouts} />

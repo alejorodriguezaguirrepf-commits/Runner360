@@ -32,7 +32,7 @@ export default async function ContentsAdminPage() {
               {c.is_premium ? <Badge tone="navy">Premium</Badge> : null}
               {c.reviewed_by ? <Badge tone="success">Revisado</Badge> : <Badge tone="warning">Sin revisión profesional</Badge>}
             </div>
-            <details><summary className="cursor-pointer text-sm font-semibold text-primary-ink">Editar</summary><ContentForm content={c} /></details>
+            <details><summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-primary-ink">Editar</summary><ContentForm content={c} /></details>
           </Card>
         ))}
         <Card><CardTitle>Nuevo contenido</CardTitle><ContentForm content={null} /></Card>

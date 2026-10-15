@@ -31,7 +31,7 @@ test.describe("flujo vertical con backend", () => {
     // Progreso con gráficos y tabla accesible.
     await page.goto("/progreso");
     await expect(page.getByRole("heading", { name: "Kilómetros por semana" })).toBeVisible();
-    await expect(page.getByRole("img", { name: /Kilómetros por semana/ })).toBeVisible();
+    await expect(page.getByRole("group", { name: /Kilómetros por semana/ })).toBeVisible();
 
     // Validación del servidor: duración inválida.
     await page.goto("/registrar");

@@ -34,7 +34,7 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
   return (
     <figure className="space-y-2">
       <div className="relative">
-        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={`${title}. Ver tabla de datos debajo.`}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="group" aria-label={`${title}. Ver tabla de datos debajo.`}>
           {gridValues.map((g) => {
             const y = pad.top + plotH - (g / max) * plotH;
             return <line key={g} x1={pad.left} x2={W - pad.right} y1={y} y2={y} className="stroke-line" strokeWidth={1} />;
@@ -81,7 +81,7 @@ export function BarChart({ title, data, unitLabel }: { title: string; data: BarD
       <figcaption className="text-xs text-muted">
         {title} ({unitLabel}).{" "}
         <details className="inline">
-          <summary className="inline cursor-pointer font-semibold text-primary-ink">Ver datos</summary>
+          <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-primary-ink">Ver datos</summary>
           <table className="mt-2 w-full text-left text-xs">
             <thead><tr><th className="py-1 pr-4">Período</th><th className="py-1">Valor</th></tr></thead>
             <tbody>

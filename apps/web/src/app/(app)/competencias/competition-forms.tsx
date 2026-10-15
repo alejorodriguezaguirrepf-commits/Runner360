@@ -86,7 +86,7 @@ export function PaceCalculator() {
       </div>
       {splits.length > 0 ? (
         <details>
-          <summary className="cursor-pointer text-sm font-semibold text-primary-ink">Ver parciales ({splits.length})</summary>
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-primary-ink">Ver parciales ({splits.length})</summary>
           <table className="mt-2 w-full text-left text-sm">
             <thead className="text-muted"><tr><th className="py-1">Parcial</th><th>Distancia acumulada</th><th>Tiempo del parcial</th><th>Acumulado</th></tr></thead>
             <tbody className="divide-y divide-line">

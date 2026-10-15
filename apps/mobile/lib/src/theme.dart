@@ -200,6 +200,9 @@ ThemeData _build(R360Colors c, Brightness brightness) {
         selectedForegroundColor: Brand.night,
         foregroundColor: c.ink,
         side: BorderSide(color: c.field),
+        // Etiquetas en una sola línea en pantallas angostas.
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(

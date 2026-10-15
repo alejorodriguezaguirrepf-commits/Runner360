@@ -86,7 +86,7 @@ export function CheckboxField({ label, name, error, hint, ...props }: Omit<Field
   return (
     <div className="space-y-1">
       <div className="flex items-start gap-3">
-        <input id={id} type="checkbox" name={name} className="mt-0.5 size-5 shrink-0 accent-primary" aria-invalid={error ? true : undefined} {...props} />
+        <input id={id} type="checkbox" name={name} className="mt-0.5 size-6 shrink-0 accent-primary" aria-invalid={error ? true : undefined} {...props} />
         <label htmlFor={id} className="text-sm text-ink">
           {label}
           {hint ? <span className="mt-0.5 block text-xs text-muted">{hint}</span> : null}

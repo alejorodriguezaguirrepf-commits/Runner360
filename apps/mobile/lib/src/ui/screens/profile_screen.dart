@@ -66,9 +66,9 @@ class ThemeSelector extends StatelessWidget {
           SegmentedButton<ThemeMode>(
             showSelectedIcon: false,
             segments: const [
-              ButtonSegment(value: ThemeMode.light, label: Text('Claro'), icon: Icon(Icons.light_mode_outlined)),
-              ButtonSegment(value: ThemeMode.dark, label: Text('Oscuro'), icon: Icon(Icons.dark_mode_outlined)),
-              ButtonSegment(value: ThemeMode.system, label: Text('Automático'), icon: Icon(Icons.brightness_auto_outlined)),
+              ButtonSegment(value: ThemeMode.light, label: Text('Claro')),
+              ButtonSegment(value: ThemeMode.dark, label: Text('Oscuro')),
+              ButtonSegment(value: ThemeMode.system, label: Text('Automático')),
             ],
             selected: {mode},
             onSelectionChanged: (s) => themeController.set(s.first),
