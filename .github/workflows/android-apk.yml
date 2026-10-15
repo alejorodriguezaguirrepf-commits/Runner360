@@ -47,6 +47,8 @@ jobs:
     steps:
       - name: Configuración disponible
         id: cfg
+        # Antes del checkout: todavía no existe apps/mobile.
+        working-directory: ${{ github.workspace }}
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
             echo "Falta SUPABASE_URL o SUPABASE_PUBLISHABLE_KEY: no se compila (la app quedaría sin conexión)."
