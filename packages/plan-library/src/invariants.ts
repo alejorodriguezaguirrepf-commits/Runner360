@@ -2,7 +2,7 @@ import type { Library, LibraryDay, LibraryPlan, LibrarySessionDay } from "./sche
 import { DAY_LABELS } from "./schema";
 
 /** Cantidad de planes que trae la biblioteca. Si cambia, es un cambio de contenido deliberado. */
-export const EXPECTED_PLAN_COUNT = 18;
+export const EXPECTED_PLAN_COUNT = 21;
 /** Tolerancia para comparar la suma de km del calendario con los totales semanales. */
 export const KM_TOLERANCE = 0.1;
 /** Tolerancia (minutos) para comparar la suma de minutos con los totales semanales. */

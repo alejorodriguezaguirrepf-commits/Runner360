@@ -1,6 +1,6 @@
 # Biblioteca de planes de running
 
-18 planes (5 km, 10 km, 21,1 km y 42,195 km), 324 semanas y 1.632 sesiones de carrera programadas día por día.
+21 planes (5 km, 10 km, 21,1 km y 42,195 km), 354 semanas y 1.752 sesiones de carrera programadas día por día. Versión de contenido vigente: `2026.10.1`.
 
 | Capítulo | Distancia | Nivel | Duración | Días/semana | Planes |
 |---|---|---|---|---|---|
@@ -8,6 +8,9 @@
 | 2 | 10 km | Intermedio | 12 y 24 semanas | 3, 4 y 5 | 7–12 |
 | 3 | 21,1 km | Avanzado | 12, 24 y 48 semanas | 6 | 13–15 |
 | 4 | 42,195 km | Avanzado | 12, 24 y 48 semanas | 6 | 16–18 |
+| 5 | 5 km | Intermedio (bajar la marca) | 10 semanas | 3, 4 y 5 | 19–21 |
+
+Los capítulos no se asumen consecutivos ni fijos: distancias, niveles y duraciones del selector salen de los datos.
 
 ## Fuente de verdad
 
@@ -41,7 +44,7 @@ El **catálogo** (contenido) está separado del **estado del usuario**. Todo el 
 | `library_intensities` | versión + nombre | Las 6 intensidades con RPE, prueba del habla y sensación. |
 | `library_session_types` | versión + código | Catálogo de sesiones (`CC`, `R`, `UMB`, …). |
 | `library_strength_exercises` | versión + rutina + posición | Rutinas de fuerza A, B y C. |
-| `library_plans` | versión + `plan-01…plan-18` | Ficha: distancia, nivel, duración, días, requisitos, objetivos, fases, notas, validación y `race_week` (semana de la competencia objetivo). |
+| `library_plans` | versión + `plan-01…plan-21` | Ficha: distancia, nivel, duración, días, requisitos, objetivos, fases, notas, validación y `race_week` (semana de la competencia objetivo). |
 | `library_weeks` | versión + plan + semana | Fase, tipo de semana, objetivo, criterio de progresión y totales. |
 | `library_days` | versión + plan + semana + `day_index` | 7 por semana (0 = lunes … 6 = domingo), con descansos y fuerza sola. En las sesiones: código, categoría, calentamiento, parte principal, vuelta a la calma, duración y distancia estimadas, intensidad, observaciones, fuerza después y si es de calidad. |
 
@@ -183,7 +186,7 @@ El repositorio no tiene una capa de analítica, así que **no se envían** `plan
 
 ## Invariantes (si alguno falla, la importación se aborta)
 
-- `plans.length` = 18 y los ids son `plan-NN` según su número.
+- `plans.length` = 21 y los ids son `plan-NN` según su número.
 - Semanas del plan = `duration_weeks`, numeradas de 1 en adelante.
 - 7 días por semana, en orden de lunes a domingo.
 - Sesiones de carrera por semana = `days_per_week` = `totals.running_sessions`.
@@ -212,6 +215,16 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 - Para bases instaladas antes de este registro, el migrador toma como línea de base lo que ya existe.
 - Reversión: `supabase/rollback/20261012000100_plan_library.down.sql`. Borra inscripciones, check-ins y datos de salud de los registros: solo con autorización explícita.
 
+## Versión 2026.10.1 (5 km intermedio)
+
+- Suma el capítulo 5: planes `plan-19`, `plan-20` y `plan-21` (5 km para bajar la marca, 10 semanas, 3, 4 y 5 días). Prueba de control de 5 km en la semana 8 y competencia el domingo de la semana 10.
+- Los planes 01–18 son idénticos a `2026.10`: lo verifica una prueba con la huella SHA-256 de cada plan (`packages/plan-library/test/fixtures/plan-hashes-2026.10.json`).
+- `model_runner_assumptions.chapter5_kmh` agrega las velocidades del corredor modelo del capítulo 5 (incluye `r5` y `r3`).
+- Las inscripciones existentes siguen en `2026.10` (calendario, progreso y registros sin cambios); las nuevas usan `2026.10.1`. Lo cubre `supabase/tests/70_version_upgrade.sql`.
+- Sin migraciones de estructura: el contenido llega solo en la publicación de Vercel.
+- El plan nuevo aparece en el catálogo como una opción más, con el mismo acceso que los demás (sin asistente ni requisitos bloqueantes: los requisitos de entrada se muestran como información).
+- **Reversión:** revertir el JSON en `main` y volver a marcar `2026.10` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10';`). Las inscripciones hechas en `2026.10.1` siguen funcionando porque su versión no se borra.
+
 ## Decisiones
 
 | Decisión | Motivo |
@@ -225,5 +238,5 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 | Analítica | El repo no tiene capa de analítica; no se envían eventos (ver sección Analítica). |
 | Catálogo dentro del área privada | Requiere sesión (como el resto de la app). La ficha es pública en la base (RLS), así que se puede abrir sin sesión más adelante sin cambiar datos. |
 | Semanas bloqueadas en la vista rápida | Se resumen en una fila; sus totales (públicos) quedan en una lista colapsable. |
-| App móvil | Sigue con el flujo anterior (planes DEMO) hasta que se migre; la biblioteca es solo web en esta etapa. |
+| App móvil | Muestra el plan de la biblioteca igual que la web (semanas, días de entrenamiento y valoraciones). |
 | Trabajo en PR | El pedido de integración pide PR pequeños y CLAUDE.md dice "push directo a main": se trabaja en PR que se mergean a `main` cuando están en verde (aprobado). |

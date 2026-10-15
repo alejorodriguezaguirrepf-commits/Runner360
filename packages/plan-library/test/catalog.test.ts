@@ -22,7 +22,7 @@ describe("selector de planes (distancia → días → duración → nivel)", () 
     expect(step1.options.days).toEqual([3, 4, 5]);
     expect(step1.options.durations).toEqual([]);
     const step2 = catalogSteps(plans, { distanceKm: 5, daysPerWeek: 4 });
-    expect(step2.options.durations).toEqual([4, 12]);
+    expect(step2.options.durations).toEqual([4, 10, 12]);
     expect(step2.plan).toBeNull();
     const step3 = catalogSteps(plans, { distanceKm: 5, daysPerWeek: 4, durationWeeks: 12 });
     expect(step3.filter.level).toBe("Principiante");
@@ -35,6 +35,19 @@ describe("selector de planes (distancia → días → duración → nivel)", () 
     expect(s.filter.daysPerWeek).toBe(6);
     expect(s.options.durations).toEqual([12, 24, 48]);
     expect(catalogSteps(plans, { distanceKm: 21.0975, durationWeeks: 48 }).plan?.id).toBe("plan-15");
+  });
+
+  it("5 km tiene dos niveles: Principiante (planes 1–6) e Intermedio (planes 19–21)", () => {
+    const levels = new Set<string>();
+    for (const n of catalogSteps(plans, { distanceKm: 5 }).options.days)
+      for (const w of catalogSteps(plans, { distanceKm: 5, daysPerWeek: n }).options.durations)
+        for (const l of catalogSteps(plans, { distanceKm: 5, daysPerWeek: n, durationWeeks: w }).options.levels) levels.add(l);
+    expect([...levels].sort()).toEqual(["Intermedio", "Principiante"]);
+    for (const [n, id] of [[3, "plan-19"], [4, "plan-20"], [5, "plan-21"]] as const) {
+      const s = catalogSteps(plans, { distanceKm: 5, daysPerWeek: n, durationWeeks: 10 });
+      expect(s.filter.level).toBe("Intermedio");
+      expect(s.plan?.id).toBe(id);
+    }
   });
 
   it("descarta valores que no existen para la distancia elegida", () => {

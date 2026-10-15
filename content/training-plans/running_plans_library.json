@@ -1,6 +1,6 @@
 {
  "schema_version": "1.0.0",
- "content_version": "2026.10",
+ "content_version": "2026.10.1",
  "language": "es-AR",
  "source": {
   "theoretical_base": "Planificación de resistencia aeróbica: López Chicharro vs. autores europeos (12 de octubre de 2026)",
@@ -49,6 +49,19 @@
    "vel": 17.0,
    "test": 14.6,
    "h21": 13.9
+  },
+  "chapter5_kmh": {
+   "walk": 6.0,
+   "rec": 8.5,
+   "suave": 9.5,
+   "mod": 10.5,
+   "umb": 11.0,
+   "r10": 11.3,
+   "int": 11.8,
+   "vel": 13.0,
+   "test": 11.2,
+   "r5": 11.8,
+   "r3": 12.3
   }
  },
  "intensity_scale": [
@@ -52185,6 +52198,4436 @@
        "minutes_by_intensity": {
         "Recuperación": 10,
         "Suave": 60
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "plan-19",
+   "number": 19,
+   "chapter": 5,
+   "distance": "5 km",
+   "distance_km": 5,
+   "level": "Intermedio",
+   "duration_label": "10 semanas (≈2,5 meses)",
+   "duration_weeks": 10,
+   "days_per_week": 3,
+   "title": "5 km para bajar la marca, 3 días",
+   "runner_profile": "Corredor que ya completó un 5 km, corre 50–55' continuos y quiere mejorar su tiempo con solo tres días: una sesión de calidad, un rodaje con progresivos y una tirada larga.",
+   "entry_requirements": [
+    "Volumen habitual de al menos 21 km por semana en las últimas 4–6 semanas (la semana 1 tiene 23,0 km)",
+    "Correr 55' continuos en Suave sin dolor (tirada larga de la semana 1)",
+    "Haber completado al menos un 5 km y tener experiencia con alguna sesión de ritmo (cambios, fartlek o series)",
+    "Una marca reciente (≤ 8 semanas) en 5 km, o hacer el test de 30' antes de empezar, para calcular los ritmos de referencia",
+    "Sin lesión activa; ante enfermedad conocida o síntomas al esfuerzo, consulta médica previa"
+   ],
+   "min_weekly_km": 21,
+   "main_goal": "Bajar la marca personal en 5 km con una progresión segura",
+   "secondary_goals": [
+    "Elevar el umbral en el bloque piramidal",
+    "Desarrollar la potencia aeróbica (VO2máx) en el bloque polarizado",
+    "Aprender a distribuir el esfuerzo en 5 km",
+    "Mantener dos sesiones semanales de fuerza (rutina B)"
+   ],
+   "strength_routine": "B",
+   "weekly_template": "Mar: única sesión de calidad (umbral en el bloque piramidal; HIIT en el polarizado) · Jue: rodaje con progresivos + fuerza · Dom: tirada larga · Lun: fuerza sin correr.",
+   "phases": [
+    {
+     "weeks": "1–5",
+     "phase": "Bloque piramidal (umbral)",
+     "goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular",
+     "km_range": "18,4 – 25,7"
+    },
+    {
+     "weeks": "6–9",
+     "phase": "Bloque polarizado (VO2máx)",
+     "goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento",
+     "km_range": "20,6 – 29,8"
+    },
+    {
+     "weeks": "10",
+     "phase": "Puesta a punto",
+     "goal": "Reducir el volumen manteniendo la intensidad y la frecuencia para llegar fresco",
+     "km_range": "21,4 – 21,4"
+    }
+   ],
+   "notes": [],
+   "validation": [
+    {
+     "check": "Semanas",
+     "result": "10 de 10",
+     "ok": true
+    },
+    {
+     "check": "Sesiones por semana",
+     "result": "3 en las 10 semanas (30 sesiones en total)",
+     "ok": true
+    },
+    {
+     "check": "Descansos",
+     "result": "4 por semana, identificados en el calendario",
+     "ok": true
+    },
+    {
+     "check": "Coherencia matemática",
+     "result": "Km y tiempo semanales = suma de las sesiones del calendario (calculado, no estimado a mano)",
+     "ok": true
+    },
+    {
+     "check": "Días exigentes seguidos",
+     "result": "ninguno",
+     "ok": true
+    },
+    {
+     "check": "Progresión de volumen",
+     "result": "suba semanal máxima 7% (S5→S6); máxima en 2 semanas 13% (S5→S7); límite de referencia del PDF: 30% en 2 semanas",
+     "ok": true
+    },
+    {
+     "check": "Descargas",
+     "result": "semanas 4, 8; reducción frente a la semana de carga previa entre 28% y 29%",
+     "ok": true
+    },
+    {
+     "check": "Distribución de intensidades (semanas de carga)",
+     "result": "Z1 entre 81% y 89%; Z3 entre 2% y 19% del tiempo en movimiento",
+     "ok": true
+    },
+    {
+     "check": "Sesiones de calidad por semana",
+     "result": "máximo 2 (sin contar la semana de competencia)",
+     "ok": true
+    },
+    {
+     "check": "Puesta a punto",
+     "result": "semana de competencia: 12,2 km de entrenamiento + la carrera, 59% menos que la semana pico (29,8 km); banda de referencia del PDF: 41–60%",
+     "ok": true
+    },
+    {
+     "check": "Tirada larga más larga",
+     "result": "semana 7: 1h10' continuos en Suave — 1 h 26' con entrada en calor y vuelta a la calma, ≈12,5 km estimados",
+     "ok": true
+    },
+    {
+     "check": "Requisitos de entrada",
+     "result": "la semana 1 (23,0 km) queda dentro de un 10–12% del volumen mínimo exigido (21 km/semana)",
+     "ok": true
+    }
+   ],
+   "weeks": [
+    {
+     "week": 1,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 6' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 23.02,
+      "duration_min_est": 164,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 86,
+       "Z2": 12,
+       "Z3": 2
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 6'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 6' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.4,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 18
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 55'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "55' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 71,
+       "distance_km_est": 10.12,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 55
+       }
+      }
+     ]
+    },
+    {
+     "week": 2,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 7' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 24.36,
+      "duration_min_est": 172,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 84,
+       "Z2": 14,
+       "Z3": 2
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 7'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 7' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 55,
+       "distance_km_est": 7.95,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 21
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 00'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h00' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 76,
+       "distance_km_est": 10.92,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 60
+       }
+      }
+     ]
+    },
+    {
+     "week": 3,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 8' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 25.7,
+      "duration_min_est": 180,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 83,
+       "Z2": 15,
+       "Z3": 2
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 58,
+       "distance_km_est": 8.5,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 4,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "DC",
+     "week_type_label": "Descarga + control",
+     "weekly_goal": "Descarga con control: Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+     "progression_criterion": "Anotar el resultado y recalcular los ritmos de referencia. Si empeoró respecto al control anterior o el RPE fue anormalmente alto, repetir la semana 2 del bloque anterior antes de seguir.",
+     "totals": {
+      "distance_km_est": 18.42,
+      "duration_min_est": 132,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 71,
+       "Z2": 26,
+       "Z3": 3
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "CTRL",
+       "type": "Control",
+       "category": "thr",
+       "short_label": "CTRL test 30'",
+       "physiological_goal": "Evaluar el estado de forma y recalcular ritmos",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 60,
+       "distance_km_est": 9.13,
+       "intensity": "Umbral alto (RPE 8 al final)",
+       "technical_notes": "Anotar distancia y RPE. El ritmo medio del test se usa como referencia de Umbral.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 10,
+        "Umbral": 30
+       }
+      }
+     ]
+    },
+    {
+     "week": 5,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 2 × 12' en Umbral, pausa 3' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 25.56,
+      "duration_min_est": 179,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 83,
+       "Z2": 15,
+       "Z3": 2
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 12'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 12' en Umbral, pausa 3' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 57,
+       "distance_km_est": 8.36,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 13,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 6,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 27.32,
+      "duration_min_est": 190,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 89,
+       "Z2": 0,
+       "Z3": 11
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 5 × 3'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 53,
+       "distance_km_est": 7.74,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 18,
+        "Intenso": 15
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 40'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "40' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 56,
+       "distance_km_est": 7.87,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 38,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 7,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 28.94,
+      "duration_min_est": 197.5,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 81,
+       "Z2": 0,
+       "Z3": 19
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 6 × 1000 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 70.5,
+       "distance_km_est": 10.95,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 20,
+        "Intenso": 30.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 8,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "DCOMP",
+     "week_type_label": "Descarga + competencia intermedia",
+     "weekly_goal": "Descarga y competencia intermedia: 5 km (intermedia: 5 km de control)",
+     "progression_criterion": "Con el resultado se recalculan los ritmos. Después de la competencia, al menos 2 días solo con Suave o descanso; si hay dolor o fatiga marcada, alargar la recuperación.",
+     "totals": {
+      "distance_km_est": 20.57,
+      "duration_min_est": 141.9,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 69,
+       "Z2": 0,
+       "Z3": 31
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 25'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.49,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 23,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia intermedia",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Evaluar y ensayar la estrategia de carrera",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (intermedia: 5 km de control)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Carrera o contrarreloj de 5 km a fondo controlado. El resultado fija el ritmo objetivo de la semana 10.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
+       }
+      }
+     ]
+    },
+    {
+     "week": 9,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 29.81,
+      "duration_min_est": 205.0,
+      "running_sessions": 3,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 88,
+       "Z2": 0,
+       "Z3": 12
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 10 × 400 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 63.0,
+       "distance_km_est": 9.45,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 23.5,
+        "Intenso": 19.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 40'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "40' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 56,
+       "distance_km_est": 7.87,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 38,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 10,
+     "phase": "Puesta a punto",
+     "week_type": "RACE",
+     "week_type_label": "Competencia objetivo",
+     "weekly_goal": "Competencia objetivo: llegar fresco y ejecutar la estrategia de ritmo",
+     "progression_criterion": "Correr solo si no hay dolor que altere la pisada, fiebre ni fatiga marcada; si los hay, bajar el objetivo o postergar.",
+     "totals": {
+      "distance_km_est": 21.36,
+      "duration_min_est": 146.9,
+      "running_sessions": 3,
+      "strength_sessions": 1,
+      "zone_pct": {
+       "Z1": 71,
+       "Z2": 0,
+       "Z3": 29
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo objetivo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 30'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "30' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 46,
+       "distance_km_est": 6.28,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 28,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia objetivo",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Rendir en la distancia objetivo",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (objetivo: 5 km)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Primer km a ritmo objetivo o 2–3\" más lento, sin salir a fondo; km 2–4 parejos; último km, acelerar progresivamente.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "plan-20",
+   "number": 20,
+   "chapter": 5,
+   "distance": "5 km",
+   "distance_km": 5,
+   "level": "Intermedio",
+   "duration_label": "10 semanas (≈2,5 meses)",
+   "duration_weeks": 10,
+   "days_per_week": 4,
+   "title": "5 km para bajar la marca, 4 días",
+   "runner_profile": "Corredor regular que quiere mejorar su 5 km con la semana tipo del PDF: umbral y HIIT separados, rodaje y tirada larga.",
+   "entry_requirements": [
+    "Volumen habitual de al menos 25 km por semana en las últimas 4–6 semanas (la semana 1 tiene 27,4 km)",
+    "Correr 55' continuos en Suave sin dolor (tirada larga de la semana 1)",
+    "Haber completado al menos un 5 km y tener experiencia con alguna sesión de ritmo (cambios, fartlek o series)",
+    "Una marca reciente (≤ 8 semanas) en 5 km, o hacer el test de 30' antes de empezar, para calcular los ritmos de referencia",
+    "Sin lesión activa; ante enfermedad conocida o síntomas al esfuerzo, consulta médica previa"
+   ],
+   "min_weekly_km": 25,
+   "main_goal": "Bajar la marca personal en 5 km con una progresión segura",
+   "secondary_goals": [
+    "Elevar el umbral en el bloque piramidal",
+    "Desarrollar la potencia aeróbica (VO2máx) en el bloque polarizado",
+    "Aprender a distribuir el esfuerzo en 5 km",
+    "Mantener dos sesiones semanales de fuerza (rutina B)"
+   ],
+   "strength_routine": "B",
+   "weekly_template": "Lun: fuerza · Mar: calidad 1 (umbral → HIIT) · Mié: rodaje + fuerza · Vie: calidad 2 (cuestas → umbral de mantenimiento) · Dom: tirada larga. Es la semana tipo del PDF para 5 km intermedio.",
+   "phases": [
+    {
+     "weeks": "1–5",
+     "phase": "Bloque piramidal (umbral)",
+     "goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular",
+     "km_range": "25,0 – 33,2"
+    },
+    {
+     "weeks": "6–9",
+     "phase": "Bloque polarizado (VO2máx)",
+     "goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento",
+     "km_range": "24,2 – 36,3"
+    },
+    {
+     "weeks": "10",
+     "phase": "Puesta a punto",
+     "goal": "Reducir el volumen manteniendo la intensidad y la frecuencia para llegar fresco",
+     "km_range": "25,9 – 25,9"
+    }
+   ],
+   "notes": [],
+   "validation": [
+    {
+     "check": "Semanas",
+     "result": "10 de 10",
+     "ok": true
+    },
+    {
+     "check": "Sesiones por semana",
+     "result": "4 en las 10 semanas (40 sesiones en total)",
+     "ok": true
+    },
+    {
+     "check": "Descansos",
+     "result": "3 por semana, identificados en el calendario",
+     "ok": true
+    },
+    {
+     "check": "Coherencia matemática",
+     "result": "Km y tiempo semanales = suma de las sesiones del calendario (calculado, no estimado a mano)",
+     "ok": true
+    },
+    {
+     "check": "Días exigentes seguidos",
+     "result": "ninguno",
+     "ok": true
+    },
+    {
+     "check": "Progresión de volumen",
+     "result": "suba semanal máxima 12% (S6→S7); máxima en 2 semanas 13% (S1→S3); límite de referencia del PDF: 30% en 2 semanas",
+     "ok": true
+    },
+    {
+     "check": "Descargas",
+     "result": "semanas 4, 8; reducción frente a la semana de carga previa entre 19% y 33%",
+     "ok": true
+    },
+    {
+     "check": "Distribución de intensidades (semanas de carga)",
+     "result": "Z1 entre 77% y 87%; Z3 entre 3% y 15% del tiempo en movimiento",
+     "ok": true
+    },
+    {
+     "check": "Sesiones de calidad por semana",
+     "result": "máximo 2 (sin contar la semana de competencia)",
+     "ok": true
+    },
+    {
+     "check": "Puesta a punto",
+     "result": "semana de competencia: 16,8 km de entrenamiento + la carrera, 54% menos que la semana pico (36,3 km); banda de referencia del PDF: 41–60%",
+     "ok": true
+    },
+    {
+     "check": "Tirada larga más larga",
+     "result": "semana 7: 1h10' continuos en Suave — 1 h 26' con entrada en calor y vuelta a la calma, ≈12,5 km estimados",
+     "ok": true
+    },
+    {
+     "check": "Requisitos de entrada",
+     "result": "la semana 1 (27,4 km) queda dentro de un 10–12% del volumen mínimo exigido (25 km/semana)",
+     "ok": true
+    }
+   ],
+   "weeks": [
+    {
+     "week": 1,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 6' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 27.39,
+      "duration_min_est": 202.0,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 87,
+       "Z2": 10,
+       "Z3": 3
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 6'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 6' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.4,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 18
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 8 × 20\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "8 × 20\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 38.0,
+       "distance_km_est": 4.49,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 15.3,
+        "Intenso": 2.7
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 55'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "55' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 71,
+       "distance_km_est": 10.12,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 55
+       }
+      }
+     ]
+    },
+    {
+     "week": 2,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 7' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 28.97,
+      "duration_min_est": 212.0,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 86,
+       "Z2": 11,
+       "Z3": 3
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 7'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 7' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 55,
+       "distance_km_est": 7.95,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 21
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 10 × 20\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 20\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 40.0,
+       "distance_km_est": 4.72,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16.7,
+        "Intenso": 3.3
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 00'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h00' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 76,
+       "distance_km_est": 10.92,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 60
+       }
+      }
+     ]
+    },
+    {
+     "week": 3,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 8' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 30.9,
+      "duration_min_est": 225.0,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 84,
+       "Z2": 12,
+       "Z3": 4
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 58,
+       "distance_km_est": 8.5,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 10 × 30\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 30\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 45.0,
+       "distance_km_est": 5.32,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 20.0,
+        "Intenso": 5.0
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 4,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "DC",
+     "week_type_label": "Descarga + control",
+     "weekly_goal": "Descarga con control: Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+     "progression_criterion": "Anotar el resultado y recalcular los ritmos de referencia. Si empeoró respecto al control anterior o el RPE fue anormalmente alto, repetir la semana 2 del bloque anterior antes de seguir.",
+     "totals": {
+      "distance_km_est": 25.05,
+      "duration_min_est": 180,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 69,
+       "Z2": 30,
+       "Z3": 1
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 48,
+       "distance_km_est": 6.75,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 16
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "CTRL",
+       "type": "Control",
+       "category": "thr",
+       "short_label": "CTRL test 30'",
+       "physiological_goal": "Evaluar el estado de forma y recalcular ritmos",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 60,
+       "distance_km_est": 9.13,
+       "intensity": "Umbral alto (RPE 8 al final)",
+       "technical_notes": "Anotar distancia y RPE. El ritmo medio del test se usa como referencia de Umbral.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 10,
+        "Umbral": 30
+       }
+      }
+     ]
+    },
+    {
+     "week": 5,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 2 × 12' en Umbral, pausa 3' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 33.18,
+      "duration_min_est": 232,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 80,
+       "Z2": 12,
+       "Z3": 8
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 12'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 12' en Umbral, pausa 3' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 57,
+       "distance_km_est": 8.36,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 13,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 5 × 3'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 53,
+       "distance_km_est": 7.74,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 18,
+        "Intenso": 15
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 6,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 32.31,
+      "duration_min_est": 227,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 82,
+       "Z2": 10,
+       "Z3": 8
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 5 × 3'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 53,
+       "distance_km_est": 7.74,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 18,
+        "Intenso": 15
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 10'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 10' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.48,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 20
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 7,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 36.31,
+      "duration_min_est": 249.5,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 76,
+       "Z2": 9,
+       "Z3": 15
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 6 × 1000 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 70.5,
+       "distance_km_est": 10.95,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 20,
+        "Intenso": 30.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 10'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 10' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.48,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 20
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 8,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "DCOMP",
+     "week_type_label": "Descarga + competencia intermedia",
+     "weekly_goal": "Descarga y competencia intermedia: 5 km (intermedia: 5 km de control)",
+     "progression_criterion": "Con el resultado se recalculan los ritmos. Después de la competencia, al menos 2 días solo con Suave o descanso; si hay dolor o fatiga marcada, alargar la recuperación.",
+     "totals": {
+      "distance_km_est": 24.24,
+      "duration_min_est": 172.9,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 76,
+       "Z2": 0,
+       "Z3": 24
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia intermedia",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Evaluar y ensayar la estrategia de carrera",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (intermedia: 5 km de control)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Carrera o contrarreloj de 5 km a fondo controlado. El resultado fija el ritmo objetivo de la semana 10.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
+       }
+      }
+     ]
+    },
+    {
+     "week": 9,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 34.86,
+      "duration_min_est": 243.0,
+      "running_sessions": 4,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 83,
+       "Z2": 7,
+       "Z3": 10
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 10 × 400 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 63.0,
+       "distance_km_est": 9.45,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 23.5,
+        "Intenso": 19.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 30'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "30' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 46,
+       "distance_km_est": 6.17,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": true,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 30
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 48,
+       "distance_km_est": 6.75,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 16
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 10,
+     "phase": "Puesta a punto",
+     "week_type": "RACE",
+     "week_type_label": "Competencia objetivo",
+     "weekly_goal": "Competencia objetivo: llegar fresco y ejecutar la estrategia de ritmo",
+     "progression_criterion": "Correr solo si no hay dolor que altere la pisada, fiebre ni fatiga marcada; si los hay, bajar el objetivo o postergar.",
+     "totals": {
+      "distance_km_est": 25.94,
+      "duration_min_est": 182.9,
+      "running_sessions": 4,
+      "strength_sessions": 1,
+      "zone_pct": {
+       "Z1": 76,
+       "Z2": 0,
+       "Z3": 24
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo objetivo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 30'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "30' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 46,
+       "distance_km_est": 6.17,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 30
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia objetivo",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Rendir en la distancia objetivo",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (objetivo: 5 km)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Primer km a ritmo objetivo o 2–3\" más lento, sin salir a fondo; km 2–4 parejos; último km, acelerar progresivamente.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "plan-21",
+   "number": 21,
+   "chapter": 5,
+   "distance": "5 km",
+   "distance_km": 5,
+   "level": "Intermedio",
+   "duration_label": "10 semanas (≈2,5 meses)",
+   "duration_weeks": 10,
+   "days_per_week": 5,
+   "title": "5 km para bajar la marca, 5 días",
+   "runner_profile": "Corredor regular con cinco días disponibles; el quinto día suma volumen Suave, no más intensidad.",
+   "entry_requirements": [
+    "Volumen habitual de al menos 28 km por semana en las últimas 4–6 semanas (la semana 1 tiene 31,3 km)",
+    "Correr 55' continuos en Suave sin dolor (tirada larga de la semana 1)",
+    "Haber completado al menos un 5 km y tener experiencia con alguna sesión de ritmo (cambios, fartlek o series)",
+    "Una marca reciente (≤ 8 semanas) en 5 km, o hacer el test de 30' antes de empezar, para calcular los ritmos de referencia",
+    "Sin lesión activa; ante enfermedad conocida o síntomas al esfuerzo, consulta médica previa"
+   ],
+   "min_weekly_km": 28,
+   "main_goal": "Bajar la marca personal en 5 km con una progresión segura",
+   "secondary_goals": [
+    "Elevar el umbral en el bloque piramidal",
+    "Desarrollar la potencia aeróbica (VO2máx) en el bloque polarizado",
+    "Aprender a distribuir el esfuerzo en 5 km",
+    "Mantener dos sesiones semanales de fuerza (rutina B)"
+   ],
+   "strength_routine": "B",
+   "weekly_template": "Mar: calidad 1 (umbral → HIIT) · Mié: rodaje · Jue: calidad 2 (cuestas → umbral de mantenimiento) · Sáb: rodaje con progresivos · Dom: tirada larga · Lun y Vie: fuerza sin correr.",
+   "phases": [
+    {
+     "weeks": "1–5",
+     "phase": "Bloque piramidal (umbral)",
+     "goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular",
+     "km_range": "27,4 – 37,1"
+    },
+    {
+     "weeks": "6–9",
+     "phase": "Bloque polarizado (VO2máx)",
+     "goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento",
+     "km_range": "26,6 – 40,2"
+    },
+    {
+     "weeks": "10",
+     "phase": "Puesta a punto",
+     "goal": "Reducir el volumen manteniendo la intensidad y la frecuencia para llegar fresco",
+     "km_range": "30,5 – 30,5"
+    }
+   ],
+   "notes": [],
+   "validation": [
+    {
+     "check": "Semanas",
+     "result": "10 de 10",
+     "ok": true
+    },
+    {
+     "check": "Sesiones por semana",
+     "result": "5 en las 10 semanas (50 sesiones en total)",
+     "ok": true
+    },
+    {
+     "check": "Descansos",
+     "result": "2 por semana, identificados en el calendario",
+     "ok": true
+    },
+    {
+     "check": "Coherencia matemática",
+     "result": "Km y tiempo semanales = suma de las sesiones del calendario (calculado, no estimado a mano)",
+     "ok": true
+    },
+    {
+     "check": "Días exigentes seguidos",
+     "result": "ninguno",
+     "ok": true
+    },
+    {
+     "check": "Progresión de volumen",
+     "result": "suba semanal máxima 11% (S6→S7); máxima en 2 semanas 11% (S1→S3); límite de referencia del PDF: 30% en 2 semanas",
+     "ok": true
+    },
+    {
+     "check": "Descargas",
+     "result": "semanas 4, 8; reducción frente a la semana de carga previa entre 21% y 34%",
+     "ok": true
+    },
+    {
+     "check": "Distribución de intensidades (semanas de carga)",
+     "result": "Z1 entre 78% y 88%; Z3 entre 3% y 14% del tiempo en movimiento",
+     "ok": true
+    },
+    {
+     "check": "Sesiones de calidad por semana",
+     "result": "máximo 2 (sin contar la semana de competencia)",
+     "ok": true
+    },
+    {
+     "check": "Puesta a punto",
+     "result": "semana de competencia: 21,4 km de entrenamiento + la carrera, 47% menos que la semana pico (40,2 km); banda de referencia del PDF: 41–60%",
+     "ok": true
+    },
+    {
+     "check": "Tirada larga más larga",
+     "result": "semana 7: 1h10' continuos en Suave — 1 h 26' con entrada en calor y vuelta a la calma, ≈12,5 km estimados",
+     "ok": true
+    },
+    {
+     "check": "Requisitos de entrada",
+     "result": "la semana 1 (31,3 km) queda dentro de un 10–12% del volumen mínimo exigido (28 km/semana)",
+     "ok": true
+    }
+   ],
+   "weeks": [
+    {
+     "week": 1,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 6' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 31.29,
+      "duration_min_est": 233.0,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 88,
+       "Z2": 9,
+       "Z3": 3
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 6'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 6' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.4,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 18
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 8 × 20\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "8 × 20\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 38.0,
+       "distance_km_est": 4.49,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 15.3,
+        "Intenso": 2.7
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 55'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "55' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 71,
+       "distance_km_est": 10.12,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 55
+       }
+      }
+     ]
+    },
+    {
+     "week": 2,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 7' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 32.87,
+      "duration_min_est": 243.0,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 87,
+       "Z2": 10,
+       "Z3": 3
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 7'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 7' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 55,
+       "distance_km_est": 7.95,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 21
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 10 × 20\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 20\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 40.0,
+       "distance_km_est": 4.72,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16.7,
+        "Intenso": 3.3
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 00'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h00' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 76,
+       "distance_km_est": 10.92,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 60
+       }
+      }
+     ]
+    },
+    {
+     "week": 3,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 3 × 8' en Umbral, pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 34.81,
+      "duration_min_est": 256.0,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 85,
+       "Z2": 11,
+       "Z3": 4
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 3 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "3 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 58,
+       "distance_km_est": 8.5,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 14,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "CUE",
+       "type": "Cuestas",
+       "category": "hard",
+       "short_label": "CUE 10 × 30\"",
+       "physiological_goal": "Fuerza específica y economía de carrera",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 30\" en subida (pendiente 4–6%), vuelta caminando o trotando al punto de partida",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 45.0,
+       "distance_km_est": 5.32,
+       "intensity": "Intenso (RPE 8) en la subida",
+       "technical_notes": "Tronco erguido, braceo activo, pasos cortos. No esprintar.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 20.0,
+        "Intenso": 5.0
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 4,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "DC",
+     "week_type_label": "Descarga + control",
+     "weekly_goal": "Descarga con control: Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+     "progression_criterion": "Anotar el resultado y recalcular los ritmos de referencia. Si empeoró respecto al control anterior o el RPE fue anormalmente alto, repetir la semana 2 del bloque anterior antes de seguir.",
+     "totals": {
+      "distance_km_est": 27.38,
+      "duration_min_est": 201,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 71,
+       "Z2": 27,
+       "Z3": 2
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 48,
+       "distance_km_est": 6.75,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 16
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 15'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.79,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 15
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 15'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.79,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 15
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 15'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.91,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 13,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "CTRL",
+       "type": "Control",
+       "category": "thr",
+       "short_label": "CTRL test 30'",
+       "physiological_goal": "Evaluar el estado de forma y recalcular ritmos",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "Test de 30' a la máxima intensidad sostenible (ritmo parejo)",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 60,
+       "distance_km_est": 9.13,
+       "intensity": "Umbral alto (RPE 8 al final)",
+       "technical_notes": "Anotar distancia y RPE. El ritmo medio del test se usa como referencia de Umbral.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 10,
+        "Umbral": 30
+       }
+      }
+     ]
+    },
+    {
+     "week": 5,
+     "phase": "Bloque piramidal (umbral)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Elevar el umbral (fase II) con distribución piramidal: umbral fraccionado como sesión principal y cuestas cortas como estímulo neuromuscular. Clave: 2 × 12' en Umbral, pausa 3' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 37.09,
+      "duration_min_est": 263,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 81,
+       "Z2": 11,
+       "Z3": 8
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 12'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 12' en Umbral, pausa 3' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 57,
+       "distance_km_est": 8.36,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 13,
+        "Umbral": 24
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 5 × 3'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 53,
+       "distance_km_est": 7.74,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 18,
+        "Intenso": 15
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 6,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 36.22,
+      "duration_min_est": 258,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 83,
+       "Z2": 9,
+       "Z3": 8
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 5 × 3'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "5 × 3' a ritmo de 3 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 53,
+       "distance_km_est": 7.74,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 18,
+        "Intenso": 15
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 10'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 10' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.48,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 20
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 05'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h05' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 81,
+       "distance_km_est": 11.71,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 65
+       }
+      }
+     ]
+    },
+    {
+     "week": 7,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%. La semana siguiente es de descarga.",
+     "totals": {
+      "distance_km_est": 40.22,
+      "duration_min_est": 280.5,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 78,
+       "Z2": 8,
+       "Z3": 14
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 6 × 1000 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "6 × 1000 m a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 70.5,
+       "distance_km_est": 10.95,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 20,
+        "Intenso": 30.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 10'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 10' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 52,
+       "distance_km_est": 7.48,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 20
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 8,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "DCOMP",
+     "week_type_label": "Descarga + competencia intermedia",
+     "weekly_goal": "Descarga y competencia intermedia: 5 km (intermedia: 5 km de control)",
+     "progression_criterion": "Con el resultado se recalculan los ritmos. Después de la competencia, al menos 2 días solo con Suave o descanso; si hay dolor o fatiga marcada, alargar la recuperación.",
+     "totals": {
+      "distance_km_est": 26.57,
+      "duration_min_est": 193.9,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 77,
+       "Z2": 0,
+       "Z3": 23
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 15'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.79,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 15
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 15'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.79,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 15
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 15'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.91,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 13,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia intermedia",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Evaluar y ensayar la estrategia de carrera",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (intermedia: 5 km de control)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Carrera o contrarreloj de 5 km a fondo controlado. El resultado fija el ritmo objetivo de la semana 10.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
+       }
+      }
+     ]
+    },
+    {
+     "week": 9,
+     "phase": "Bloque polarizado (VO2máx)",
+     "week_type": "L",
+     "week_type_label": "Carga",
+     "weekly_goal": "Desarrollar la potencia aeróbica (VO2máx) con distribución polarizada: una sesión de HIIT por semana a ritmo de 3–5 km, umbral solo de mantenimiento. Clave: 10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+     "progression_criterion": "Sesiones de calidad completas con repeticiones parejas y el RPE indicado; rodajes en RPE ≤4; dolor ≤2/10 y sueño normal. Si no se cumple, repetir la semana con la sesión de calidad acortada un 20–25%.",
+     "totals": {
+      "distance_km_est": 37.98,
+      "duration_min_est": 269.0,
+      "running_sessions": 5,
+      "strength_sessions": 2,
+      "zone_pct": {
+       "Z1": 83,
+       "Z2": 7,
+       "Z3": 10
+      },
+      "includes_race": false
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 10 × 400 m",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "10 × 400 m a ritmo de 3 km (Intenso), pausa 1'30\" de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 63.0,
+       "distance_km_est": 9.45,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 23.5,
+        "Intenso": 19.5
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 20'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.58,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 20
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "UMB",
+       "type": "Umbral fraccionado",
+       "category": "thr",
+       "short_label": "UMB 2 × 8'",
+       "physiological_goal": "Elevar la velocidad en el umbral anaeróbico (fase II)",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "2 × 8' en Umbral, pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 48,
+       "distance_km_est": 6.75,
+       "intensity": "Umbral (RPE 6–7; frases de 2–4 palabras)",
+       "technical_notes": "Ritmo sostenible de forma uniforme: la última repetición igual que la primera. Si hay medición de lactato, 2,5–3,5 mmol/L.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 12,
+        "Umbral": 16
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 20'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "20' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 36,
+       "distance_km_est": 4.7,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 18,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "TL",
+       "type": "Tirada larga",
+       "category": "easy",
+       "short_label": "TL 1 h 10'",
+       "physiological_goal": "Resistencia aeróbica general y durabilidad",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "1h10' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 86,
+       "distance_km_est": 12.5,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Tirada larga: ritmo cómodo constante; hidratarse si supera 75'.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 70
+       }
+      }
+     ]
+    },
+    {
+     "week": 10,
+     "phase": "Puesta a punto",
+     "week_type": "RACE",
+     "week_type_label": "Competencia objetivo",
+     "weekly_goal": "Competencia objetivo: llegar fresco y ejecutar la estrategia de ritmo",
+     "progression_criterion": "Correr solo si no hay dolor que altere la pisada, fiebre ni fatiga marcada; si los hay, bajar el objetivo o postergar.",
+     "totals": {
+      "distance_km_est": 30.52,
+      "duration_min_est": 218.9,
+      "running_sessions": 5,
+      "strength_sessions": 1,
+      "zone_pct": {
+       "Z1": 80,
+       "Z2": 0,
+       "Z3": 20
+      },
+      "includes_race": true
+     },
+     "days": [
+      {
+       "day_index": 0,
+       "day": "Lun",
+       "is_rest": true,
+       "strength_only": true
+      },
+      {
+       "day_index": 1,
+       "day": "Mar",
+       "is_rest": false,
+       "code": "INT",
+       "type": "Intervalos intensos",
+       "category": "hard",
+       "short_label": "INT 4 × 2'",
+       "physiological_goal": "Potencia aeróbica (VO2máx) y tolerancia a ritmos de competición",
+       "warmup": "12' Suave + 3' movilidad + 3 × 20\" progresivos (pausa 40\")",
+       "main_set": "4 × 2' a ritmo objetivo de 5 km (Intenso), pausa 2' de trote suave",
+       "cooldown": "8' trote muy suave + 4' estiramientos",
+       "duration_min_est": 44,
+       "distance_km_est": 5.96,
+       "intensity": "Intenso (RPE 8; solo palabras sueltas)",
+       "technical_notes": "Repeticiones parejas; si una sale más de 5% más lenta, cortar la serie. Máximo una sesión de este tipo cada 3–4 días.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 12,
+        "Velocidad": 1,
+        "Recuperación": 16,
+        "Intenso": 8
+       }
+      },
+      {
+       "day_index": 2,
+       "day": "Mié",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 30'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "30' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 46,
+       "distance_km_est": 6.17,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 30
+       }
+      },
+      {
+       "day_index": 3,
+       "day": "Jue",
+       "is_rest": false,
+       "code": "R",
+       "type": "Rodaje",
+       "category": "easy",
+       "short_label": "R 25'",
+       "physiological_goal": "Capacidad aeróbica (fase I)",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "25' continuos en Suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 41,
+       "distance_km_est": 5.38,
+       "intensity": "Suave (RPE 3–4)",
+       "technical_notes": "Ritmo de conversación; no acelerar aunque se sienta fácil.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 25
+       }
+      },
+      {
+       "day_index": 4,
+       "day": "Vie",
+       "is_rest": true,
+       "strength_only": false
+      },
+      {
+       "day_index": 5,
+       "day": "Sáb",
+       "is_rest": false,
+       "code": "R+P",
+       "type": "Rodaje con progresivos",
+       "category": "easy",
+       "short_label": "R+P 15'",
+       "physiological_goal": "Capacidad aeróbica y economía de carrera",
+       "warmup": "5' en Recuperación + 3' movilidad",
+       "main_set": "15' en Suave; al final, 6 × 20\" progresivos (Velocidad) con 1'40\" de trote suave",
+       "cooldown": "5' en Recuperación + 3' estiramientos",
+       "duration_min_est": 31,
+       "distance_km_est": 3.91,
+       "intensity": "Suave (RPE 3–4); progresivos RPE 8 sin fatiga",
+       "technical_notes": "Los progresivos son rápidos pero relajados; técnica antes que velocidad.",
+       "strength_after": false,
+       "is_quality": false,
+       "minutes_by_intensity": {
+        "Recuperación": 10,
+        "Suave": 13,
+        "Velocidad": 2
+       }
+      },
+      {
+       "day_index": 6,
+       "day": "Dom",
+       "is_rest": false,
+       "code": "COMP",
+       "type": "Competencia objetivo",
+       "category": "race",
+       "short_label": "COMP 5 km",
+       "physiological_goal": "Rendir en la distancia objetivo",
+       "warmup": "15' Suave + 4 × 20\" progresivos + 5' movilidad",
+       "main_set": "5 km (objetivo: 5 km)",
+       "cooldown": "10' trote muy suave o caminata",
+       "duration_min_est": 56.9,
+       "distance_km_est": 9.12,
+       "intensity": "Intenso (RPE 8–9)",
+       "technical_notes": "Primer km a ritmo objetivo o 2–3\" más lento, sin salir a fondo; km 2–4 parejos; último km, acelerar progresivamente.",
+       "strength_after": false,
+       "is_quality": true,
+       "minutes_by_intensity": {
+        "Suave": 15,
+        "Velocidad": 1.5,
+        "Intenso": 25.4,
+        "Recuperación": 10
        }
       }
      ]
