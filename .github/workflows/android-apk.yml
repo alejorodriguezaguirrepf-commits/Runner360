@@ -1,0 +1,100 @@
+name: APK Android
+
+# Compila el APK de la app móvil y lo publica como descarga en la release "android-latest".
+# La configuración es pública (URL de Supabase y clave PUBLICABLE, la misma que usa la web en el
+# navegador); nunca la clave de servicio. Se toma de los inputs al ejecutarlo a mano o de las
+# variables del repositorio (Settings → Secrets and variables → Actions → Variables):
+#   SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY y, opcional, API_BASE_URL.
+# Firma: la de depuración de Flutter (sirve para instalar en el teléfono; para Play Store hace falta
+# una clave de firma propia).
+
+on:
+  workflow_dispatch:
+    inputs:
+      supabase_url:
+        description: "URL del proyecto de Supabase (https://….supabase.co)"
+        required: false
+      supabase_publishable_key:
+        description: "Clave PUBLICABLE de Supabase (sb_publishable_… o anon). Nunca la de servicio."
+        required: false
+      api_base_url:
+        description: "Dominio de la web"
+        required: false
+        default: "https://runner360.vercel.app"
+  push:
+    branches: [main]
+    paths: ["apps/mobile/**", ".github/workflows/android-apk.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Compilar APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      SUPABASE_URL: ${{ inputs.supabase_url || vars.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ inputs.supabase_publishable_key || vars.SUPABASE_PUBLISHABLE_KEY }}
+      API_BASE_URL: ${{ inputs.api_base_url || vars.API_BASE_URL || 'https://runner360.vercel.app' }}
+    steps:
+      - name: Configuración disponible
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "Falta SUPABASE_URL o SUPABASE_PUBLISHABLE_KEY: no se compila (la app quedaría sin conexión)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            case "$SUPABASE_KEY" in
+              sb_secret_*) echo "::error::Se pasó una clave SECRETA. Usá la publicable."; exit 1 ;;
+            esac
+            echo "::add-mask::$SUPABASE_KEY"
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ok == 'true'
+      - uses: actions/setup-java@v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          channel: stable
+          cache: true
+      - name: Compilar
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          flutter pub get
+          flutter build apk --release \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_KEY" \
+            --dart-define=API_BASE_URL="$API_BASE_URL"
+          cp build/app/outputs/flutter-apk/app-release.apk "$GITHUB_WORKSPACE/runner360.apk"
+      - uses: actions/upload-artifact@v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          name: runner360-apk
+          path: runner360.apk
+          retention-days: 30
+      - name: Publicar en la release android-latest
+        if: steps.cfg.outputs.ok == 'true'
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="APK de prueba de RUNNER 360 (commit ${GITHUB_SHA::7}). Instalación: descargar runner360.apk en el teléfono Android y abrirlo (permitir instalar apps de esta fuente)."
+          if gh release view android-latest >/dev/null 2>&1; then
+            gh release upload android-latest runner360.apk --clobber
+            gh release edit android-latest --notes "$notes"
+          else
+            gh release create android-latest runner360.apk --prerelease --title "RUNNER 360 · APK Android" --notes "$notes" --target "$GITHUB_SHA"
+          fi
