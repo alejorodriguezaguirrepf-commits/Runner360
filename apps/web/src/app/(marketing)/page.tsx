@@ -11,7 +11,10 @@ import {
   IconShield,
   IconTimer,
 } from "@/components/ui/icons";
+import { FaqAccordion } from "@/components/marketing/faq-accordion";
 import { Badge, ButtonLink } from "@/components/ui/primitives";
+import { faq } from "@/i18n/es-AR/faq";
+import { faqJsonLd, serializeJsonLd, sortedFaq } from "@/lib/faq";
 import { getPricedProducts } from "@/lib/data/pricing";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -32,29 +35,6 @@ const FEATURES = [
   { icon: IconDrop, title: "Hidratación", text: "Registrá lo que tomás y consultá recomendaciones educativas generales." },
   { icon: IconFlag, title: "Competencias", text: "Objetivos, resultados reales, parciales y marcas personales." },
   { icon: IconShield, title: "Privacidad", text: "Tus datos son tuyos: acceso restringido, exportación y eliminación de cuenta." },
-];
-
-const FAQ = [
-  {
-    q: "¿Quién diseña los planes?",
-    a: "La metodología la administra y valida un profesional de Ciencias del Entrenamiento desde el panel de la plataforma. Mientras la beta está en desarrollo, los planes visibles son de demostración y están marcados como DEMO / NO VALIDADO.",
-  },
-  {
-    q: "¿Necesito experiencia previa?",
-    a: "No. Si estás empezando, el sistema te propone una fase introductoria. Si tus datos indican que no tenés base suficiente para una distancia, no te asigna un plan exigente.",
-  },
-  {
-    q: "¿La app reemplaza a un médico o entrenador?",
-    a: "No. RUNNER 360 no realiza diagnósticos médicos. Si declarás antecedentes de salud, te recomendamos consultar con un profesional antes de empezar.",
-  },
-  {
-    q: "¿Puedo usarla gratis?",
-    a: "Sí. El plan Free incluye perfil, registro básico, contenido introductorio y un plan gratuito. Premium suma planes adicionales, estadísticas avanzadas, hidratación y competencias.",
-  },
-  {
-    q: "¿Cómo se cobran las suscripciones?",
-    a: "Los medios de pago están en proceso de integración. Mientras tanto no se realizan cobros desde la plataforma.",
-  },
 ];
 
 export default async function LandingPage() {
@@ -225,20 +205,11 @@ export default async function LandingPage() {
 
       {/* 8. Preguntas frecuentes */}
       <section id="preguntas" className="bg-surface py-16">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd(faq.items)) }} />
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
-          <h2 className="text-3xl font-extrabold tracking-tight">Preguntas frecuentes</h2>
-          <div className="mt-8 divide-y divide-line rounded-2xl border border-line">
-            {FAQ.map(({ q, a }) => (
-              <details key={q} className="group p-5">
-                <summary className="cursor-pointer list-none font-semibold marker:hidden">
-                  <span className="flex items-center justify-between gap-4">
-                    {q}
-                    <span aria-hidden="true" className="text-xl leading-none text-muted transition group-open:rotate-45">+</span>
-                  </span>
-                </summary>
-                <p className="mt-3 text-sm text-muted">{a}</p>
-              </details>
-            ))}
+          <h2 className="text-3xl font-extrabold tracking-tight">{faq.title}</h2>
+          <div className="mt-8">
+            <FaqAccordion items={sortedFaq(faq.items)} />
           </div>
         </div>
       </section>
