@@ -1,5 +1,5 @@
 import { raceWeekOf } from "./invariants";
-import type { Level, LibraryPlan } from "./schema";
+import { LEVELS, type Level, type LibraryPlan } from "./schema";
 
 /** Ficha de un plan tal como está en library_plans (sin semanas). */
 export type CatalogPlan = Omit<LibraryPlan, "weeks" | "distance"> & { distance_label: string; race_week: number };
@@ -34,7 +34,9 @@ export function catalogSteps<P extends PlanSummary>(plans: P[], filter: CatalogF
   const daysPerWeek = pick(days, filter.daysPerWeek, distanceKm !== undefined);
   const byDays = byDistance.filter((p) => p.days_per_week === daysPerWeek);
 
-  const durations = uniq(byDays.map((p) => p.duration_weeks)).sort((a, b) => a - b);
+  // Duraciones de menor a mayor nivel (Principiante antes que Intermedio) y, dentro del nivel, por semanas.
+  const levelRank = (w: number) => Math.min(...byDays.filter((p) => p.duration_weeks === w).map((p) => LEVELS.indexOf(p.level)));
+  const durations = uniq(byDays.map((p) => p.duration_weeks)).sort((a, b) => levelRank(a) - levelRank(b) || a - b);
   const durationWeeks = pick(durations, filter.durationWeeks, daysPerWeek !== undefined);
   const byDuration = byDays.filter((p) => p.duration_weeks === durationWeeks);
 
@@ -50,6 +52,9 @@ export function catalogSteps<P extends PlanSummary>(plans: P[], filter: CatalogF
       durations: daysPerWeek === undefined ? [] : durations,
       levels: durationWeeks === undefined ? [] : levels,
     },
+    /** Nivel de cada duración cuando la distancia tiene más de un nivel (para rotular las opciones). */
+    durationLevel: (w: number): Level | undefined =>
+      uniq(byDistance.map((p) => p.level)).length > 1 ? byDays.find((p) => p.duration_weeks === w)?.level : undefined,
     /** El plan elegido: solo cuando los cuatro pasos quedaron definidos. */
     plan: results.length === 1 ? results[0]! : null,
   };

@@ -222,6 +222,8 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 - `model_runner_assumptions.chapter5_kmh` agrega las velocidades del corredor modelo del capítulo 5 (incluye `r5` y `r3`).
 - Las inscripciones existentes siguen en `2026.10` (calendario, progreso y registros sin cambios); las nuevas usan `2026.10.1`. Lo cubre `supabase/tests/70_version_upgrade.sql`.
 - Sin migraciones de estructura: el contenido llega solo en la publicación de Vercel.
+- Selector: cuando una distancia tiene más de un nivel (hoy, 5 km), cada duración muestra su nivel (“10 semanas (≈2,5 meses) · Intermedio”) y se ordenan de menor a mayor nivel (`catalogSteps().durationLevel`).
+- Ritmos r5/r3 (`fiveKPaces` en `riegel.ts`): r5 sale directo de una marca de 5 km de las últimas 8 semanas; con otra distancia, por Riegel (T2 = T1 × (D2/D1)^1,06). r3 siempre por Riegel. Sin marca reciente no se calculan. Hoy la inscripción no pide marca, así que no se recalculan ritmos después de las pruebas: la intensidad sigue guiándose por RPE y prueba del habla.
 - El plan nuevo aparece en el catálogo como una opción más, con el mismo acceso que los demás (sin asistente ni requisitos bloqueantes: los requisitos de entrada se muestran como información).
 - **Reversión:** revertir el JSON en `main` y volver a marcar `2026.10` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10';`). Las inscripciones hechas en `2026.10.1` siguen funcionando porque su versión no se borra.
 

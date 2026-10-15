@@ -99,7 +99,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
   ]);
   if (requested.distanceKm === undefined) requested = { distanceKm: (tp && PROFILE_DISTANCE[tp.target_distance]) || 5 };
 
-  const { filter, options, plan } = catalogSteps(library.plans, requested);
+  const { filter, options, plan, durationLevel } = catalogSteps(library.plans, requested);
   const durationLabel = (w: number) => library.plans.find((p) => p.duration_weeks === w)?.duration_label ?? fmt(m.catalog.weeks, { n: w });
   const freeWeeks = library.freePreviewWeeks;
   const mondays = startMondays(todayIn(profile.timezone));
@@ -171,7 +171,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
             title={m.catalog.steps.duration}
             options={options.durations}
             selected={filter.durationWeeks}
-            label={durationLabel}
+            label={(w) => [durationLabel(w), durationLevel(w)].filter(Boolean).join(" · ")}
             link={(w) => href({ distanceKm: filter.distanceKm, daysPerWeek: filter.daysPerWeek, durationWeeks: w })}
           />
           <Step title={m.catalog.steps.level} options={options.levels} selected={filter.level} label={(l) => l} link={(l) => href({ ...filter, level: l })} />

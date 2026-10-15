@@ -34,6 +34,19 @@ test.describe("biblioteca de planes", () => {
     await page.getByRole("link", { name: "Ver el plan completo" }).click();
     await expect(page).toHaveURL(/\/planes\/plan-11/);
 
+    // 5 km tiene dos niveles: cada duración muestra el suyo y el intermedio es una opción más.
+    await page.goto("/planes?d=5");
+    await page.getByRole("group", { name: "Días por semana" }).getByRole("link", { name: "4 días" }).click();
+    const durations = page.getByRole("group", { name: "Duración del plan" }).getByRole("link");
+    await expect(durations).toHaveCount(3);
+    await expect(durations.last()).toHaveText("10 semanas (≈2,5 meses) · Intermedio");
+    await durations.last().click();
+    await expect(page.getByRole("group", { name: "Nivel" }).getByRole("link", { name: "Intermedio" })).toHaveAttribute("aria-current", "true");
+    await expect(page.getByRole("heading", { name: "5 km para bajar la marca, 4 días" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Empezar gratis" })).toBeVisible();
+    await page.getByRole("link", { name: "Ver el plan completo" }).click();
+    await expect(page).toHaveURL(/\/planes\/plan-20/);
+
     // 21 km: los días se eligen solos (siempre 6).
     await page.goto("/planes?d=21.0975");
     await expect(page.getByRole("group", { name: "Días por semana" }).getByRole("link", { name: "6 días" })).toHaveAttribute("aria-current", "true");

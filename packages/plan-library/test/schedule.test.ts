@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readLibraryJson } from "../scripts/paths";
 import { raceDateFromStart } from "../src/dates";
-import { isMarkRecent, referencePaces, riegelTime } from "../src/riegel";
+import { fiveKPaces, isMarkRecent, referencePaces, riegelTime } from "../src/riegel";
 import {
   dateOfPlanDay,
   dayMapViolations,
@@ -129,5 +129,25 @@ describe("Riegel", () => {
 
   it("rechaza valores inválidos", () => {
     expect(() => riegelTime(0, 5, 10)).toThrow();
+  });
+
+  it("5 km intermedio: r5 directo de una marca de 5 km reciente y r3 por Riegel", () => {
+    const r = fiveKPaces({ distanceKm: 5, timeS: 1500, date: "2026-10-01" }, "2026-10-14")!;
+    expect(r.fromFiveK).toBe(true);
+    expect(r.r5PaceSPerKm).toBe(300);
+    expect(r.r3PaceSPerKm).toBeCloseTo((1500 * Math.pow(3 / 5, 1.06)) / 3, 6);
+    expect(r.r3PaceSPerKm).toBeLessThan(r.r5PaceSPerKm);
+  });
+
+  it("5 km intermedio: con una marca de otra distancia, r5 también sale de Riegel", () => {
+    const r = fiveKPaces({ distanceKm: 10, timeS: 3000, date: "2026-10-01" }, "2026-10-14")!;
+    expect(r.fromFiveK).toBe(false);
+    expect(r.r5PaceSPerKm).toBeCloseTo(riegelTime(3000, 10, 5) / 5, 6);
+    expect(r.r3PaceSPerKm).toBeCloseTo(riegelTime(3000, 10, 3) / 3, 6);
+  });
+
+  it("5 km intermedio: sin marca reciente (más de 8 semanas o futura) no hay ritmos", () => {
+    expect(fiveKPaces({ distanceKm: 5, timeS: 1500, date: "2026-08-18" }, "2026-10-14")).toBeNull();
+    expect(fiveKPaces({ distanceKm: 5, timeS: 1500, date: "2026-10-20" }, "2026-10-14")).toBeNull();
   });
 });

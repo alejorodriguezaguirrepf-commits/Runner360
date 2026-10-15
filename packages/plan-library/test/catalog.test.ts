@@ -22,7 +22,8 @@ describe("selector de planes (distancia → días → duración → nivel)", () 
     expect(step1.options.days).toEqual([3, 4, 5]);
     expect(step1.options.durations).toEqual([]);
     const step2 = catalogSteps(plans, { distanceKm: 5, daysPerWeek: 4 });
-    expect(step2.options.durations).toEqual([4, 10, 12]);
+    // Primero las de Principiante (4 y 12) y después la de Intermedio (10).
+    expect(step2.options.durations).toEqual([4, 12, 10]);
     expect(step2.plan).toBeNull();
     const step3 = catalogSteps(plans, { distanceKm: 5, daysPerWeek: 4, durationWeeks: 12 });
     expect(step3.filter.level).toBe("Principiante");
@@ -48,6 +49,13 @@ describe("selector de planes (distancia → días → duración → nivel)", () 
       expect(s.filter.level).toBe("Intermedio");
       expect(s.plan?.id).toBe(id);
     }
+  });
+
+  it("rotula el nivel de cada duración solo si la distancia tiene más de un nivel", () => {
+    const five = catalogSteps(plans, { distanceKm: 5, daysPerWeek: 3 });
+    expect(five.options.durations.map((w) => five.durationLevel(w))).toEqual(["Principiante", "Principiante", "Intermedio"]);
+    const ten = catalogSteps(plans, { distanceKm: 10, daysPerWeek: 3 });
+    expect(ten.options.durations.map((w) => ten.durationLevel(w))).toEqual([undefined, undefined]);
   });
 
   it("descarta valores que no existen para la distancia elegida", () => {

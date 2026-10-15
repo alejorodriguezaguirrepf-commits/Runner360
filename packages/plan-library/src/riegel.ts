@@ -32,3 +32,18 @@ export function referencePaces(mark: RecentMark, today: string): ReferencePace[]
     return { distanceKm: d, timeS: t, paceSPerKm: t / d, marathonFastLimit: d > 40 };
   });
 }
+
+export type FiveKPaces = { r5PaceSPerKm: number; r3PaceSPerKm: number; fromFiveK: boolean };
+
+/**
+ * Ritmos de los trabajos de 5 km intermedio (capítulo 5): r5 (ritmo de 5 km) y r3 (ritmo de 3 km).
+ * Con una marca de 5 km reciente, r5 es su ritmo directo; si la marca es de otra distancia, se estima
+ * con Riegel. r3 siempre sale de Riegel. null si la marca no es reciente (≤ 8 semanas).
+ */
+export function fiveKPaces(mark: RecentMark, today: string): FiveKPaces | null {
+  if (!isMarkRecent(mark, today)) return null;
+  const fromFiveK = Math.abs(mark.distanceKm - 5) < 1e-9;
+  const t5 = fromFiveK ? mark.timeS : riegelTime(mark.timeS, mark.distanceKm, 5);
+  const t3 = riegelTime(mark.timeS, mark.distanceKm, 3);
+  return { r5PaceSPerKm: t5 / 5, r3PaceSPerKm: t3 / 3, fromFiveK };
+}
