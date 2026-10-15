@@ -23,7 +23,7 @@ export default async function PlansAdminPage() {
             <ul className="divide-y divide-line text-sm">
               {((versions ?? []) as PlanVersionRow[]).filter((v) => v.plan_id === p.id).map((v) => (
                 <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                  <Link href={`/admin/planes/${v.id}`} className="font-semibold text-lime-400 hover:underline">Versión {v.version_number}</Link>
+                  <Link href={`/admin/planes/${v.id}`} className="font-semibold text-primary-ink hover:underline">Versión {v.version_number}</Link>
                   <span className="flex flex-wrap gap-1">
                     {v.is_demo ? <DemoBadge /> : v.validated_at ? <Badge tone="success">Validada</Badge> : <Badge tone="warning">Sin validar</Badge>}
                     <Badge tone={v.status === "published" ? "lime" : v.status === "archived" ? "neutral" : "navy"}>{PLAN_STATUS_LABELS[v.status]}</Badge>

@@ -55,11 +55,11 @@ export function WorkoutDay({
     <span
       className={cx(
         "flex size-12 shrink-0 flex-col items-center justify-center rounded-2xl leading-none",
-        today ? "bg-lime-400 text-navy-950" : day.is_rest ? "border border-line text-muted" : "bg-navy-700 text-ink",
+        today ? "bg-accent text-on-accent" : day.is_rest ? "border border-line text-muted" : "bg-surface-2 text-ink",
       )}
       aria-hidden="true"
     >
-      <span className="text-[10px] font-bold uppercase tracking-wider">{m.day}</span>
+      <span className="text-xs font-bold uppercase tracking-wider">{m.day}</span>
       <span className="text-lg font-extrabold">{n}</span>
     </span>
   );
@@ -89,7 +89,7 @@ export function WorkoutDay({
 
   return (
     <li>
-      <details open={open} className={cx("group rounded-2xl border bg-surface", today ? "border-lime-400" : "border-line")}>
+      <details open={open} className={cx("group rounded-2xl border bg-surface", today ? "border-primary" : "border-line")}>
         <summary className="flex cursor-pointer list-none items-center gap-3 p-3 [&::-webkit-details-marker]:hidden">
           {badge}
           <div className="min-w-0 flex-1">
@@ -100,10 +100,10 @@ export function WorkoutDay({
             <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
               <span className="tabular font-semibold text-ink">{formatMinutes(day.duration_min_est)}</span>
               {day.distance_km_est ? <span className="tabular">· {formatKmValue(day.distance_km_est, { oneDecimal: true })}</span> : null}
-              <span className={cx("rounded-md px-1.5 py-0.5 text-[11px] font-bold", CATEGORY_CLASSES[c])} title={legend[c]}>{m.category[c]}</span>
-              {done ? <span className="rounded-md bg-lime-400 px-1.5 py-0.5 text-[11px] font-bold text-navy-950">{m.done}</span> : null}
+              <span className={cx("rounded-md px-1.5 py-0.5 text-xs font-bold", CATEGORY_CLASSES[c])} title={legend[c]}>{m.category[c]}</span>
+              {done ? <span className="rounded-md bg-success-bg px-1.5 py-0.5 text-xs font-bold text-success">✓ {m.done}</span> : null}
               {rating ? (
-                <span className="rounded-md border border-lime-400 px-1.5 py-0.5 text-[11px] font-bold text-ink">
+                <span className="rounded-md border border-line bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-ink">
                   <span aria-hidden="true">{R.emoji[rating as 1]} </span>
                   {R.options[rating as 1]}
                 </span>
@@ -120,7 +120,7 @@ export function WorkoutDay({
               <li key={s.label} className="relative">
                 <span
                   aria-hidden="true"
-                  className={cx("absolute -left-6 top-1 size-4 rounded-full border-2", i === 1 ? "border-lime-400 bg-lime-400" : "border-lime-400 bg-surface")}
+                  className={cx("absolute -left-6 top-1 size-4 rounded-full border-2", i === 1 ? "border-primary bg-primary" : "border-primary bg-surface")}
                 />
                 <p className="text-xs font-bold uppercase tracking-wider text-muted">{s.label}</p>
                 <p className={cx("mt-0.5 text-ink", i === 1 ? "text-base font-semibold" : "text-sm")}>{s.text}</p>
@@ -128,7 +128,7 @@ export function WorkoutDay({
             ))}
           </ol>
           {day.intensity ? (
-            <p className="mt-4 rounded-xl bg-navy-950 px-3 py-2 text-sm">
+            <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2 text-sm">
               <span className="font-semibold text-muted">{m.intensity}: </span>
               {day.intensity}
             </p>
@@ -157,12 +157,12 @@ export function WeekStrip({ pills }: { pills: WeekPill[] }) {
               aria-label={`${p.label}${p.locked ? `, ${m.locked}` : ""}${p.current ? `, ${m.current}` : ""}`}
               className={cx(
                 "relative inline-flex min-h-11 min-w-12 items-center justify-center gap-1 rounded-xl border px-3 text-sm font-bold tabular transition",
-                p.selected ? "border-lime-400 bg-lime-400 text-navy-950" : p.locked ? "border-line text-muted" : "border-line text-ink hover:border-lime-400",
+                p.selected ? "border-primary-ink bg-accent text-on-accent" : p.locked ? "border-line bg-surface-2 text-muted" : "border-line bg-surface text-ink hover:border-primary",
               )}
             >
               {p.locked ? <IconLock width={12} height={12} /> : null}
               {p.label.replace(/\D+/g, "") || p.label}
-              {p.current && !p.selected ? <span aria-hidden="true" className="absolute -top-1 right-1 size-2 rounded-full bg-lime-400" /> : null}
+              {p.current && !p.selected ? <span aria-hidden="true" className="absolute -top-1 right-1 size-2.5 rounded-full border-2 border-surface bg-primary" /> : null}
             </Link>
           </li>
         ))}

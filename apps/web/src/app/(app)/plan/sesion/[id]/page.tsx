@@ -20,7 +20,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <p className="mb-2 text-sm"><Link href="/plan" className="font-semibold text-lime-400 hover:underline">← Volver al plan</Link></p>
+      <p className="mb-2 text-sm"><Link href="/plan" className="font-semibold text-primary-ink hover:underline">← Volver al plan</Link></p>
       <PageHeader
         title={s.title}
         subtitle={`${formatDate(item.scheduled_date, "weekday")} · semana ${item.week_number}, sesión ${item.session_number}`}
@@ -36,7 +36,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
         {(exercises ?? []).length > 0 ? (
           <Card>
             <CardTitle>Ejercicios</CardTitle>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Bloques de la sesión">
               <table className="w-full text-left text-sm">
                 <thead className="text-muted"><tr><th className="py-2 pr-4">Ejercicio</th><th className="py-2 pr-4">Series</th><th className="py-2 pr-4">Repeticiones / tiempo</th><th className="py-2">Pausa</th></tr></thead>
                 <tbody className="divide-y divide-line">

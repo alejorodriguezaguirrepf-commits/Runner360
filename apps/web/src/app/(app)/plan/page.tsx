@@ -62,7 +62,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
           {[...byWeek.entries()].map(([weekNumber, items]) => {
             const meta = version.weeks.find((w) => w.weekNumber === weekNumber);
             return (
-              <Card key={weekNumber} aria-labelledby={`semana-${weekNumber}`} className={weekNumber === week ? "ring-2 ring-lime-400" : undefined}>
+              <Card key={weekNumber} aria-labelledby={`semana-${weekNumber}`} className={weekNumber === week ? "ring-2 ring-primary" : undefined}>
                 <CardTitle action={weekNumber === week ? <Badge tone="lime">Semana actual</Badge> : null}>
                   <span id={`semana-${weekNumber}`}>Semana {weekNumber}{meta?.focus ? ` · ${meta.focus}` : ""}</span>
                 </CardTitle>
@@ -71,7 +71,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
                     <li key={it.id}>
                       <Link href={`/plan/sesion/${it.id}`} className="flex items-center gap-3 py-3 hover:bg-canvas">
                         <div className="w-24 shrink-0 text-sm">
-                          <p className={`font-semibold ${it.scheduled_date === today ? "text-lime-700" : ""}`}>{it.scheduled_date === today ? "Hoy" : formatDate(it.scheduled_date)}</p>
+                          <p className={`font-semibold ${it.scheduled_date === today ? "text-primary-ink" : ""}`}>{it.scheduled_date === today ? "Hoy" : formatDate(it.scheduled_date)}</p>
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate font-semibold">{it.session.title}</p>

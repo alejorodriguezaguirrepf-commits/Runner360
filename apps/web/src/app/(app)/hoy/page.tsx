@@ -58,7 +58,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <SafetyNotices items={v.safety} defaultOpen />
           <p className="text-sm text-muted">{fmt(T.resumeText, { n: target })}</p>
           <form action={resumePlanAction}>
-            <button type="submit" className="min-h-11 rounded-xl bg-lime-400 px-4 text-sm font-semibold text-navy-950">{T.resume}</button>
+            <button type="submit" className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary hover:bg-primary-hover">{T.resume}</button>
           </form>
         </Card>
       </>
@@ -172,11 +172,11 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
               const log = week.logs.find((l) => l.workout_date === date);
               const status = day.is_rest ? T.restShort : log ? (log.status === "skipped" ? T.skipped : T.logged) : date < today ? T.missed : T.planned;
               return (
-                <li key={date} className={cx("rounded-lg border p-1.5", date === today ? "border-lime-500 bg-lime-300/40" : "border-line")}>
+                <li key={date} className={cx("rounded-lg border p-1.5", date === today ? "border-2 border-primary bg-primary/10" : "border-line")}>
                   <p className="font-semibold">{DAY_LABELS[weekdayOf(date)]}</p>
                   <p className="text-muted">{date.slice(8)}</p>
                   <p className="mt-1 truncate font-semibold">{day.is_rest ? "—" : day.short_label}</p>
-                  <Badge tone={log && log.status !== "skipped" ? "success" : !day.is_rest && date < today ? "warning" : "neutral"} className="mt-1 max-w-full truncate px-1 text-[10px]">{status}</Badge>
+                  <Badge tone={log && log.status !== "skipped" ? "success" : !day.is_rest && date < today ? "warning" : "neutral"} className="mt-1 max-w-full truncate px-1 text-xs">{status}</Badge>
                 </li>
               );
             })}

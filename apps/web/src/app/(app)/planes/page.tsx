@@ -60,7 +60,7 @@ function Step<T extends string | number>({ title, options, selected, label, link
                 aria-current={active ? "true" : undefined}
                 className={cx(
                   "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold transition",
-                  active ? "border-lime-400 bg-lime-400 text-navy-950" : "border-line bg-surface text-ink hover:border-lime-400",
+                  active ? "border-primary-ink bg-accent text-on-accent" : "border-line bg-surface text-ink hover:border-primary",
                 )}
               >
                 {label(o)}
@@ -124,7 +124,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
             <CardTitle>{m.access.freeTitle}</CardTitle>
             <p className="text-sm text-muted">{fmt(freeWeeks === 1 ? m.access.freeText : m.access.freeTextMany, { n: freeWeeks })}</p>
           </Card>
-          <Card className={premium ? undefined : "border-lime-400"}>
+          <Card className={premium ? undefined : "border-primary"}>
             <CardTitle action={premium ? <Badge tone="lime">{m.access.active}</Badge> : null}>{m.access.paidTitle}</CardTitle>
             <p className="text-sm text-muted">{premium ? m.access.activeText : m.access.paidText}</p>
             {premium ? null : (
@@ -149,7 +149,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
                     aria-current={active ? "page" : undefined}
                     className={cx(
                       "flex min-h-12 items-center justify-center border-b-4 text-base font-extrabold transition",
-                      active ? "border-lime-400 text-lime-400" : "border-transparent text-muted hover:text-ink",
+                      active ? "border-primary text-primary-ink" : "border-transparent text-muted hover:text-ink",
                     )}
                   >
                     {tabLabel(d)}

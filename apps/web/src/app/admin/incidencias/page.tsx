@@ -29,7 +29,7 @@ export default async function IncidentsPage() {
                 <input type="hidden" name="id" value={i.id} />
                 <label className="text-xs font-semibold">Notas internas<input name="adminNotes" defaultValue={i.admin_notes} className="mt-1 block min-h-9 w-72 max-w-full rounded-lg border border-line px-2 text-sm font-normal" /></label>
                 <label className="text-xs font-semibold">Estado<select name="status" defaultValue={i.status} className="mt-1 block min-h-9 rounded-lg border border-line px-2 text-sm font-normal">{Object.entries(STATUS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-                <button className="min-h-9 rounded-lg bg-navy-950 px-3 text-xs font-semibold text-ink">Actualizar</button>
+                <button className="min-h-9 rounded-lg bg-primary px-3 text-xs font-semibold text-on-primary">Actualizar</button>
               </form>
             </Card>
           ))}

@@ -121,6 +121,7 @@ Ver [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) para despliegue, webhooks y check
 ## Documentación
 
 - [Requisitos del producto](docs/PRODUCT_REQUIREMENTS.md)
+- [Sistema visual](docs/DESIGN_SYSTEM.md)
 - [Arquitectura](docs/ARCHITECTURE.md)
 - [Base de datos](docs/DATABASE.md)
 - [Seguridad y privacidad](docs/SECURITY.md)

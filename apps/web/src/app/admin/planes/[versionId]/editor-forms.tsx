@@ -37,7 +37,7 @@ export function SessionEditor({ versionId, weekNumber, sessionNumber, session }:
   const [state, action] = useActionState(saveSessionAction, initialActionState);
   return (
     <details className="w-full">
-      <summary className="cursor-pointer text-xs font-semibold text-lime-400">{session ? "Editar" : "Cargar sesión"}</summary>
+      <summary className="cursor-pointer text-xs font-semibold text-primary-ink">{session ? "Editar" : "Cargar sesión"}</summary>
       <form action={action} className="mt-3 grid gap-3 sm:grid-cols-4">
         <input type="hidden" name="versionId" value={versionId} />
         <input type="hidden" name="weekNumber" value={weekNumber} />

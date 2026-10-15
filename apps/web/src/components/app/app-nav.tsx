@@ -55,7 +55,7 @@ export function SideNav({ isAdmin }: { isAdmin: boolean }) {
             aria-current={active ? "page" : undefined}
             className={cx(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-              active ? "bg-lime-400 text-navy-950" : "text-ink/80 hover:bg-surface/10 hover:text-ink",
+              active ? "bg-accent text-on-accent" : "text-nav-muted hover:bg-white/10 hover:text-nav-ink",
             )}
           >
             <Icon />
@@ -80,9 +80,9 @@ export function BottomNav() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={cx("flex min-h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold", active ? "text-lime-400" : "text-muted")}
+                className={cx("flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-semibold", active ? "text-primary-ink" : "text-muted")}
               >
-                <span className={cx("inline-flex items-center justify-center rounded-full", isCta ? "size-9 bg-lime-400 text-navy-950" : active ? "text-lime-400" : "")}>
+                <span className={cx("inline-flex items-center justify-center rounded-full", isCta ? "size-9 bg-primary text-on-primary" : active ? "text-primary-ink" : "")}>
                   <Icon />
                 </span>
                 {label}
@@ -100,7 +100,7 @@ export function MobileMoreLinks({ isAdmin }: { isAdmin: boolean }) {
   return (
     <nav aria-label="Secciones" className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:hidden">
       {items.map(({ href, label, icon: Icon }) => (
-        <Link key={href} href={href} className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-semibold text-ink">
+        <Link key={href} href={href} className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm font-semibold text-ink hover:border-primary">
           <Icon width={16} height={16} />
           {label}
         </Link>

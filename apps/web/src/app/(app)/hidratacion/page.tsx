@@ -23,7 +23,7 @@ export default async function HydrationPage() {
       <ul className="space-y-3">
         {((contents ?? []) as Pick<ContentRow, "slug" | "title" | "summary" | "reviewed_by">[]).map((c) => (
           <li key={c.slug}>
-            <Link href={`/aprender/${c.slug}`} className="font-semibold text-lime-400 hover:underline">{c.title}</Link>
+            <Link href={`/aprender/${c.slug}`} className="font-semibold text-primary-ink hover:underline">{c.title}</Link>
             {!c.reviewed_by ? <Badge tone="warning" className="ml-2">Pendiente de revisión profesional</Badge> : null}
             <p className="text-sm text-muted">{c.summary}</p>
           </li>
@@ -96,7 +96,7 @@ export default async function HydrationPage() {
                     <form action={toggleReminderAction}>
                       <input type="hidden" name="id" value={r.id} />
                       <input type="hidden" name="enabled" value={String(!r.enabled)} />
-                      <button className="min-h-11 px-2 text-xs font-semibold text-lime-400">{r.enabled ? "Desactivar" : "Activar"}</button>
+                      <button className="min-h-11 px-2 text-xs font-semibold text-primary-ink">{r.enabled ? "Desactivar" : "Activar"}</button>
                     </form>
                     <form action={deleteReminderAction}><input type="hidden" name="id" value={r.id} /><button className="min-h-11 px-2 text-xs font-semibold text-danger">Eliminar</button></form>
                   </span>

@@ -11,7 +11,7 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const color = Brand.ink;
+    final color = dark ? Brand.navInk : Brand.ink;
     return Card(
       color: dark ? Brand.navyDeep : Brand.surface,
       child: Padding(
@@ -39,7 +39,7 @@ class DemoBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
         decoration: BoxDecoration(color: Brand.warningBg, borderRadius: BorderRadius.circular(99)),
-        child: const Text('DEMO / NO VALIDADO', style: TextStyle(color: Brand.warning, fontSize: 11, fontWeight: FontWeight.w700)),
+        child: const Text('DEMO / NO VALIDADO', style: TextStyle(color: Brand.warning, fontSize: 12, fontWeight: FontWeight.w700)),
       );
 }
 
@@ -51,7 +51,7 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Brand.canvas, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: Brand.surface2, borderRadius: BorderRadius.circular(12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(label, style: const TextStyle(fontSize: 12, color: Brand.muted)),
           const SizedBox(height: 4),

@@ -3,13 +3,13 @@ import { formatDate, formatKm, formatMinutesLong, formatPercent, todayIn } from 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SessionFacts, StatusBadge } from "@/components/app/session-summary";
-import { IconChart, IconDrop, IconPlus, IconUser } from "@/components/ui/icons";
+import { PlanDashboard } from "@/components/library/plan-dashboard";
+import { IconChart, IconDrop, IconPlus, IconTimer } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, PageHeader, ProgressBar, Stat } from "@/components/ui/primitives";
 import { requireOnboardedSession } from "@/lib/auth";
 import { buildDashboard } from "@/lib/data/dashboard";
 import { t } from "@/i18n";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
-import { todaySummary } from "@/lib/library/week";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
 
 export const metadata: Metadata = { title: "Inicio" };
@@ -31,7 +31,6 @@ export default async function DashboardPage() {
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
   const openEnrollment = await getOpenEnrollment(supabase, user.id);
-  const todayLabel = openEnrollment ? await todaySummary(supabase, openEnrollment, today) : "";
   const d = buildDashboard(active, workouts, today);
   const rec = d.recommendation ? RECOMMENDATION_TEXT[d.recommendation.action] : null;
 
@@ -40,34 +39,34 @@ export default async function DashboardPage() {
       <PageHeader
         title={`${greeting()}, ${profile.display_name ?? "corredor"}`}
         subtitle={formatDate(today, "weekday")}
-        actions={<ButtonLink href="/registrar"><IconPlus /> Registrar</ButtonLink>}
+        actions={
+          <Link
+            href="/perfil"
+            aria-label={t.dashboard.profile}
+            className="inline-flex size-11 items-center justify-center rounded-full bg-accent text-lg font-extrabold text-on-accent hover:brightness-95"
+          >
+            {(profile.display_name ?? "C").trim().charAt(0).toUpperCase()}
+          </Link>
+        }
       />
 
       {openEnrollment ? (
-        <Card tone="dark" className="mb-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-lime-400">{t.library.today.title}</p>
-          <p className="mt-1 text-xl font-bold">{openEnrollment.plan.title}</p>
-          <p className="mt-1 text-ink/80">{todayLabel}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <ButtonLink href="/hoy">{t.library.today.title}</ButtonLink>
-            <ButtonLink href="/plan" variant="inverse">{t.library.nav.myPlan}</ButtonLink>
-          </div>
-        </Card>
+        <PlanDashboard open={openEnrollment} supabase={supabase} today={today} />
       ) : !active ? (
         <Card className="mb-6">
           <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes">Elegir un plan</ButtonLink>}>
-            Te recomendamos el plan de la biblioteca que corresponde a tu evaluación. Mientras tanto, podés registrar entrenamientos libres.
+            Elegí la distancia, los días por semana y la duración. Mientras tanto, podés registrar entrenamientos libres.
           </EmptyState>
         </Card>
       ) : (
         <>
-          <Card tone="dark" className="mb-6">
+          <Card className="mb-6">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-lime-400">Entrenamiento de hoy</h2>
+              <h2 className="text-sm font-semibold text-primary-ink">Entrenamiento de hoy</h2>
               {active.version.isDemo ? <DemoBadge /> : null}
             </div>
             {d.todaySessions.length === 0 ? (
-              <p className="text-ink/80">
+              <p className="text-muted">
                 {active.userPlan.start_date > today
                   ? `Tu plan comienza el ${formatDate(active.userPlan.start_date, "weekday")}. Hasta entonces podés registrar entrenamientos libres.`
                   : "Hoy no hay sesión planificada. Descansá o hacé actividad suave si te sentís bien."}
@@ -79,11 +78,11 @@ export default async function DashboardPage() {
                     <p className="text-2xl font-extrabold">{s.session.title}</p>
                     <StatusBadge status={s.status} />
                   </div>
-                  {s.session.objective ? <p className="text-sm text-ink/75">{s.session.objective}</p> : null}
-                  <div className="rounded-xl bg-surface p-4 text-ink"><SessionFacts session={s.session} /></div>
+                  {s.session.objective ? <p className="text-sm text-muted">{s.session.objective}</p> : null}
+                  <div className="rounded-xl bg-surface-2 p-4 text-ink"><SessionFacts session={s.session} /></div>
                   <div className="flex flex-wrap gap-2">
                     {s.status === "pending" ? <ButtonLink href={`/registrar?sesion=${s.id}`}>Registrar sesión</ButtonLink> : null}
-                    <ButtonLink href={`/plan/sesion/${s.id}`} variant="inverse">Ver detalle</ButtonLink>
+                    <ButtonLink href={`/plan/sesion/${s.id}`} variant="secondary">Ver detalle</ButtonLink>
                   </div>
                 </div>
               ))
@@ -115,7 +114,7 @@ export default async function DashboardPage() {
 
           {d.nextSession ? (
             <Card className="mb-6">
-              <CardTitle action={<Link href={`/plan/sesion/${d.nextSession.id}`} className="text-sm font-semibold text-lime-400 hover:underline">Ver</Link>}>Próxima sesión</CardTitle>
+              <CardTitle action={<Link href={`/plan/sesion/${d.nextSession.id}`} className="text-sm font-semibold text-primary-ink hover:underline">Ver</Link>}>Próxima sesión</CardTitle>
               <p className="text-sm text-muted">{formatDate(d.nextSession.scheduled_date, "weekday")}</p>
               <p className="mb-3 font-semibold">{d.nextSession.session.title}</p>
               <SessionFacts session={d.nextSession.session} compact />
@@ -125,7 +124,7 @@ export default async function DashboardPage() {
       )}
 
       <Card className="mb-6">
-        <CardTitle>Últimos 30 días</CardTitle>
+        <CardTitle>{t.dashboard.last30}</CardTitle>
         <div className="grid grid-cols-3 gap-3">
           <Stat label="Distancia" value={formatKm(d.totals30d.distanceM)} />
           <Stat label="Tiempo" value={formatMinutesLong(d.totals30d.durationS)} />
@@ -133,15 +132,15 @@ export default async function DashboardPage() {
         </div>
       </Card>
 
-      <nav aria-label="Accesos rápidos" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <nav aria-label={t.dashboard.quick} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { href: "/registrar", label: "Entrenamiento", icon: IconPlus },
+          { href: "/registrar", label: "Registrar", icon: IconPlus },
           { href: "/hidratacion", label: "Hidratación", icon: IconDrop },
-          { href: "/progreso", label: "Evolución", icon: IconChart },
-          { href: "/perfil", label: "Perfil", icon: IconUser },
+          { href: "/progreso", label: "Progreso", icon: IconChart },
+          { href: "/entrenamientos", label: "Historial", icon: IconTimer },
         ].map(({ href, label, icon: Icon }) => (
-          <Link key={href} href={href} className="flex flex-col items-center gap-2 rounded-2xl border border-line bg-surface p-4 text-sm font-semibold hover:border-navy-700">
-            <span className="inline-flex size-10 items-center justify-center rounded-xl bg-lime-400 text-navy-950"><Icon /></span>
+          <Link key={href} href={href} className="flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-line bg-surface p-4 text-sm font-semibold hover:border-primary">
+            <span className="inline-flex size-10 items-center justify-center rounded-xl bg-surface-2 text-primary-ink"><Icon /></span>
             {label}
           </Link>
         ))}

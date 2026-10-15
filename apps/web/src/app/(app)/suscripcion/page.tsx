@@ -70,7 +70,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
               <CardTitle>{p.name}</CardTitle>
               <p className="tabular text-2xl font-extrabold">{p.priceLabel ?? "Precio a definir"}{p.priceLabel ? <span className="text-sm font-medium text-muted"> / {p.billing_interval === "year" ? "año" : "mes"}</span> : null}</p>
               <ul className="my-4 space-y-1.5 text-sm">
-                {p.features.map((f) => <li key={f} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-lime-700" />{f}</li>)}
+                {p.features.map((f) => <li key={f} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-primary-ink" />{f}</li>)}
               </ul>
               {!premium ? <CheckoutForm productId={p.id} providers={providers.filter((pr) => p.prices.some((price) => price.provider === pr.id))} /> : null}
             </Card>

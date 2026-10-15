@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
+import { THEME_SCRIPT } from "@/components/theme/theme";
 import { publicEnv } from "@/lib/env";
 import "./globals.css";
+
+// Inter autoalojada por next/font (sin pedidos a terceros desde el navegador).
+const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.siteUrl),
@@ -14,16 +19,23 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b1d36",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#101820" },
+  ],
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es-AR">
+    // data-theme lo fija THEME_SCRIPT antes de pintar; React no lo conoce (de ahí suppressHydrationWarning).
+    <html lang="es-AR" data-theme="light" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-dvh antialiased">
-        <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-lime-400 focus:px-4 focus:py-2 focus:font-semibold focus:text-navy-900">
+        <a href="#contenido" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:font-semibold focus:text-on-accent">
           Saltar al contenido
         </a>
         {children}

@@ -1,3 +1,4 @@
+import { dashboard } from "./es-AR/dashboard";
 import { library } from "./es-AR/library";
 
 /**
@@ -5,7 +6,7 @@ import { library } from "./es-AR/library";
  * con la misma forma (el tipo lo exige) y se elige según la preferencia del usuario.
  * El CONTENIDO de los planes no pasa por acá: se muestra tal como viene de la base.
  */
-export const messages = { library } as const;
+export const messages = { library, dashboard } as const;
 export type Messages = typeof messages;
 
 /** Reemplaza {nombre} por el valor correspondiente. */

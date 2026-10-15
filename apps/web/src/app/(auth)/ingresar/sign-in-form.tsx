@@ -27,8 +27,8 @@ export function SignInForm({ next, notice }: { next: string; notice: SignInNotic
       <FormMessage state={state} />
       <SubmitButton pending={pending} className="w-full" pendingText="Ingresando…">Ingresar</SubmitButton>
       <div className="flex justify-between text-sm">
-        <Link href="/recuperar" className="font-medium text-lime-400 underline-offset-4 hover:underline">Olvidé mi contraseña</Link>
-        <Link href="/registro" className="font-medium text-lime-400 underline-offset-4 hover:underline">Crear cuenta</Link>
+        <Link href="/recuperar" className="font-medium text-primary-ink underline-offset-4 hover:underline">Olvidé mi contraseña</Link>
+        <Link href="/registro" className="font-medium text-primary-ink underline-offset-4 hover:underline">Crear cuenta</Link>
       </div>
     </form>
   );

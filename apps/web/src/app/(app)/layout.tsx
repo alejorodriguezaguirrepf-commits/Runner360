@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = profile.role === "admin";
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
-      <aside className="dark-zone sticky top-0 hidden h-dvh flex-col justify-between bg-navy-950 p-4 lg:flex">
+      <aside className="nav-zone sticky top-0 hidden h-dvh flex-col justify-between overflow-y-auto bg-nav p-4 lg:flex">
         <div className="space-y-8">
           <Link href="/inicio" className="block px-2 pt-2" aria-label="RUNNER 360, inicio">
             <Logo inverted />
@@ -17,14 +17,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <SideNav isAdmin={isAdmin} />
         </div>
         <form action={signOutAction}>
-          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink/70 hover:bg-surface/10 hover:text-ink">
+          <button type="submit" className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-nav-muted hover:bg-white/10 hover:text-nav-ink">
             <IconLogout />
             Cerrar sesión
           </button>
         </form>
       </aside>
       <div className="min-w-0">
-        <header className="flex items-center justify-between border-b border-line bg-surface px-4 py-3 lg:hidden">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-surface/95 px-4 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur lg:hidden">
           <Link href="/inicio" aria-label="RUNNER 360, inicio"><Logo /></Link>
           <form action={signOutAction}>
             <button type="submit" className="inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-muted" aria-label="Cerrar sesión">

@@ -49,7 +49,8 @@ export async function PlanProgress({ supabase, open, today }: { supabase: Supaba
             <Stat label={`${P.real} (km)`} value={formatKmValue(rows.reduce((s, r) => s + r.realKm, 0), { oneDecimal: true })} />
             <Stat label={`${P.real} (tiempo)`} value={formatMinutes(rows.reduce((s, r) => s + r.realMin, 0), { round: true })} />
           </div>
-          <div className="overflow-x-auto">
+          {/* Desplazable con teclado en pantallas chicas (región enfocable con nombre). */}
+          <div className="overflow-x-auto" tabIndex={0} role="region" aria-label={P.title}>
             <table className="w-full min-w-[44rem] text-left text-sm">
               <caption className="sr-only">{P.title}</caption>
               <thead className="text-muted">

@@ -63,14 +63,14 @@ export default async function LandingPage() {
   return (
     <>
       {/* 1. Hero */}
-      <section className="dark-zone relative overflow-hidden bg-navy-950 text-ink">
+      <section className="nav-zone relative overflow-hidden bg-nav text-nav-ink">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.2fr_1fr] md:py-24">
           <div className="space-y-6">
             <Badge tone="lime">Beta en desarrollo</Badge>
             <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
               Tu próximo objetivo empieza con un plan.
             </h1>
-            <p className="max-w-xl text-lg text-ink/80">
+            <p className="max-w-xl text-lg text-nav-muted">
               Entrená para tus primeros 5K, mejorá tus marcas o prepará tu próxima maratón con un plan adaptado a vos.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -80,9 +80,9 @@ export default async function LandingPage() {
               </ButtonLink>
             </div>
           </div>
-          <div aria-hidden="true" className="rounded-3xl border border-white/10 bg-navy-800 p-6 shadow-2xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-lime-400">Vista de ejemplo</p>
-            <p className="mt-3 text-sm text-ink/70">Sesión de hoy</p>
+          <div aria-hidden="true" className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-accent">Vista de ejemplo</p>
+            <p className="mt-3 text-sm text-nav-muted">Sesión de hoy</p>
             <p className="text-2xl font-bold">Rodaje fácil</p>
             <div className="mt-4 grid grid-cols-3 gap-3 text-center">
               {[
@@ -90,16 +90,16 @@ export default async function LandingPage() {
                 ["Intensidad", "Baja"],
                 ["RPE", "3–4"],
               ].map(([k, v]) => (
-                <div key={k} className="rounded-xl bg-navy-950 p-3">
-                  <p className="text-[11px] text-ink/60">{k}</p>
+                <div key={k} className="rounded-xl bg-nav p-3">
+                  <p className="text-xs text-nav-muted">{k}</p>
                   <p className="font-bold">{v}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-5 h-2 rounded-full bg-navy-950">
-              <div className="h-2 w-2/3 rounded-full bg-lime-400" />
+            <div className="mt-5 h-2 rounded-full bg-nav">
+              <div className="h-2 w-2/3 rounded-full bg-primary" />
             </div>
-            <p className="mt-2 text-xs text-ink/60">Progreso de la semana (ilustrativo)</p>
+            <p className="mt-2 text-xs text-nav-muted">Progreso de la semana (ilustrativo)</p>
           </div>
         </div>
       </section>
@@ -113,7 +113,7 @@ export default async function LandingPage() {
             { icon: IconBolt, t: "Datos que te sirven", d: "Ritmos, volumen y cumplimiento calculados con precisión a partir de lo que registrás." },
           ].map(({ icon: Icon, t, d }) => (
             <div key={t} className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-lime-400 text-navy-950"><Icon /></span>
+              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-accent text-on-accent"><Icon /></span>
               <h2 className="mt-4 text-lg font-bold">{t}</h2>
               <p className="mt-2 text-sm text-muted">{d}</p>
             </div>
@@ -133,7 +133,7 @@ export default async function LandingPage() {
               ["Registrá y progresá", "Cargá cada sesión y seguí tu evolución semana a semana."],
             ].map(([t, d], i) => (
               <li key={t} className="rounded-2xl border border-line p-5">
-                <span className="tabular text-sm font-bold text-lime-700">Paso {i + 1}</span>
+                <span className="tabular text-sm font-bold text-primary-ink">Paso {i + 1}</span>
                 <p className="mt-1 font-bold">{t}</p>
                 <p className="mt-1 text-sm text-muted">{d}</p>
               </li>
@@ -148,10 +148,10 @@ export default async function LandingPage() {
         <p className="mt-2 text-muted">Cada distancia contempla niveles principiante, intermedio y avanzado.</p>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {DISTANCE_CODES.map((d) => (
-            <div key={d} className="rounded-2xl bg-navy-950 p-5 text-ink">
-              <p className="text-3xl font-extrabold text-lime-400">{d}</p>
-              <p className="tabular text-xs text-ink/60">{formatKm(DISTANCE_METERS[d])}</p>
-              <p className="mt-3 text-sm text-ink/80">{DISTANCE_COPY[d]}</p>
+            <div key={d} className="rounded-2xl bg-nav p-5 text-nav-ink">
+              <p className="text-3xl font-extrabold text-accent">{d}</p>
+              <p className="tabular text-xs text-nav-muted">{formatKm(DISTANCE_METERS[d])}</p>
+              <p className="mt-3 text-sm text-nav-muted">{DISTANCE_COPY[d]}</p>
               <span className="sr-only">{DISTANCE_LABELS[d]}</span>
             </div>
           ))}
@@ -165,7 +165,7 @@ export default async function LandingPage() {
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, text }) => (
               <div key={title} className="flex gap-4">
-                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-navy-100 text-lime-400"><Icon /></span>
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-surface-2 text-primary-ink"><Icon /></span>
                 <div>
                   <h3 className="font-bold">{title}</h3>
                   <p className="mt-1 text-sm text-muted">{text}</p>
@@ -182,7 +182,7 @@ export default async function LandingPage() {
                 "Distinguir tiempos estimados de resultados reales.",
                 "Tener tu historial ordenado y exportable cuando lo necesites.",
               ].map((b) => (
-                <li key={b} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-lime-700" />{b}</li>
+                <li key={b} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-primary-ink" />{b}</li>
               ))}
             </ul>
           </div>
@@ -196,7 +196,7 @@ export default async function LandingPage() {
         {products && products.length > 0 ? (
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {products.map((p) => (
-              <div key={p.id} className={`flex flex-col rounded-2xl p-6 ring-1 ${p.tier === "premium" ? "bg-navy-950 text-ink ring-lime-400" : "bg-surface ring-line"}`}>
+              <div key={p.id} className={`flex flex-col rounded-2xl p-6 ring-1 ${p.tier === "premium" ? "bg-nav text-nav-ink ring-primary" : "bg-surface ring-line"}`}>
                 <p className="text-sm font-semibold uppercase tracking-wide">{p.name}</p>
                 <p className="tabular mt-3 text-3xl font-extrabold">
                   {p.tier === "free" ? "Gratis" : (p.priceLabel ?? "Precio a definir")}
@@ -204,10 +204,10 @@ export default async function LandingPage() {
                     <span className="text-base font-medium opacity-70"> / {p.billing_interval === "year" ? "año" : "mes"}</span>
                   ) : null}
                 </p>
-                <p className={`mt-2 text-sm ${p.tier === "premium" ? "text-ink/75" : "text-muted"}`}>{p.description}</p>
+                <p className={`mt-2 text-sm ${p.tier === "premium" ? "text-nav-muted" : "text-muted"}`}>{p.description}</p>
                 <ul className="mt-5 flex-1 space-y-2 text-sm">
                   {p.features.map((f) => (
-                    <li key={f} className="flex gap-2"><IconCheck className={`mt-0.5 shrink-0 ${p.tier === "premium" ? "text-lime-400" : "text-lime-700"}`} />{f}</li>
+                    <li key={f} className="flex gap-2"><IconCheck className={`mt-0.5 shrink-0 ${p.tier === "premium" ? "text-accent" : "text-primary-ink"}`} />{f}</li>
                   ))}
                 </ul>
                 <ButtonLink href="/registro" variant={p.tier === "premium" ? "primary" : "secondary"} className="mt-6">
@@ -244,10 +244,10 @@ export default async function LandingPage() {
       </section>
 
       {/* 9. Registro */}
-      <section className="dark-zone bg-navy-950 py-16 text-ink">
+      <section className="nav-zone bg-nav py-16 text-nav-ink">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-5 px-4 text-center sm:px-6">
           <h2 className="text-3xl font-extrabold tracking-tight">Empezá hoy con tu perfil de corredor</h2>
-          <p className="text-ink/75">Creá tu cuenta gratis y completá el cuestionario en pocos minutos.</p>
+          <p className="text-nav-muted">Creá tu cuenta gratis y completá el cuestionario en pocos minutos.</p>
           <div className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/registro" className="px-6 text-base">Comenzar gratis</ButtonLink>
             <ButtonLink href="/ingresar" variant="inverse" className="px-6 text-base">Ya tengo cuenta</ButtonLink>

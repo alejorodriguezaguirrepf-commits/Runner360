@@ -4,6 +4,7 @@ import { Badge, ButtonLink, Card, CardTitle, DefinitionList, PageHeader } from "
 import { hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { loadTrainingProfile } from "@/lib/data/training";
 import { t } from "@/i18n";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { DeleteAccountForm, DeleteHealthDataForm, IncidentForm, RevokeHealthButton } from "./account-forms";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -44,6 +45,11 @@ export default async function ProfilePage() {
             ]}
           />
         </Card>
+        <Card>
+          <CardTitle>Apariencia</CardTitle>
+          <p className="mb-3 text-sm text-muted">Elegí cómo se ve la aplicación en este dispositivo.</p>
+          <ThemeSwitcher />
+        </Card>
         {tp ? (
           <Card>
             <CardTitle>Perfil de corredor</CardTitle>
@@ -74,7 +80,7 @@ export default async function ProfilePage() {
             ))}
           </ul>
           <p className="text-sm text-muted">No recopilamos tu ubicación. Podés descargar una copia de todos tus datos en formato JSON.</p>
-          <div className="mt-3"><a href="/api/account/export" className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-semibold hover:bg-navy-100">Descargar mis datos</a></div>
+          <div className="mt-3"><a href="/api/account/export" className="inline-flex min-h-11 items-center rounded-xl border border-line px-4 text-sm font-semibold hover:bg-surface-2">Descargar mis datos</a></div>
         </Card>
         <Card>
           <CardTitle>{t.library.health.title}</CardTitle>

@@ -96,25 +96,26 @@ export const IconChevronLeft = (p: IconProps) => (
 export function RunnerMark({ size = 28, className = "" }: { size?: number; className?: string }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true" className={className}>
-      <rect width="32" height="32" rx="8" fill="#4ADE80" />
-      <g fill="none" stroke="#0B1D36" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+      <rect width="32" height="32" rx="8" fill="#18A999" />
+      <g fill="none" stroke="#101C2C" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17.5 10.5 14 17.5" />
         <path d="m16.8 12 3.7 2.6 3.3-1.4" />
         <path d="m16.8 12-3.9-.4-2.6 2.6" />
         <path d="m14 17.5 4.4 3.2-1.3 5.3" />
         <path d="m14 17.5-2.4 4.3-4.6.6" />
       </g>
-      <circle cx="19.6" cy="6.6" r="2.6" fill="#0B1D36" />
+      <circle cx="19.6" cy="6.6" r="2.6" fill="#101C2C" />
     </svg>
   );
 }
 
-export function Logo({ className = "" }: { className?: string; inverted?: boolean }) {
+/** Logotipo. `inverted` para zonas azul noche (navegación lateral, portada): texto claro y 360 en lima. */
+export function Logo({ className = "", inverted = false }: { className?: string; inverted?: boolean }) {
   return (
     <span className={`inline-flex items-center gap-2 whitespace-nowrap font-extrabold tracking-tight ${className}`}>
       <RunnerMark />
-      <span className="text-ink">
-        RUNNER <span className="text-lime-400">360</span>
+      <span className={inverted ? "text-nav-ink" : "text-ink"}>
+        RUNNER <span className={inverted ? "text-accent" : "text-primary-ink"}>360</span>
       </span>
     </span>
   );

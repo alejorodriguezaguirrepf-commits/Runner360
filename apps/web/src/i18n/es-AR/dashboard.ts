@@ -1,0 +1,20 @@
+/** Textos de interfaz del Inicio (es-AR). */
+export const dashboard = {
+  today: "Entrenamiento de hoy",
+  dayOfWeek: "Día {n} · Semana {w} de {total}",
+  duration: "Duración",
+  distance: "Distancia",
+  intensity: "Intensidad",
+  viewWorkout: "Ver entrenamiento",
+  restTitle: "Hoy descansás",
+  restText: "El descanso también es parte del plan.",
+  weekProgress: "Progreso de la semana",
+  sessions: "{n} entrenamientos",
+  sessionsOne: "{n} entrenamiento",
+  minutes: "{done} de {total} planificados",
+  next: "Próxima sesión",
+  noNext: "No hay más sesiones liberadas por ahora.",
+  last30: "Últimos 30 días",
+  quick: "Accesos rápidos",
+  profile: "Ir a tu perfil",
+} as const;

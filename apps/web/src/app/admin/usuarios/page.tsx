@@ -37,7 +37,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
           <option value="coach">Entrenadores</option>
           <option value="admin">Administradores</option>
         </select>
-        <button className="min-h-11 rounded-xl bg-navy-950 px-4 text-sm font-semibold text-ink">Filtrar</button>
+        <button className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">Filtrar</button>
       </form>
       <Card flush className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
@@ -49,7 +49,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 <tr key={u.id} className="align-top">
                   <td className="p-3">
                     <p className="font-semibold">{u.display_name ?? "Sin nombre"}</p>
-                    <p className="font-mono text-[11px] text-muted">{u.id}</p>
+                    <p className="font-mono text-xs text-muted">{u.id}</p>
                     {!u.onboarding_completed_at ? <Badge tone="warning">Sin onboarding</Badge> : null}
                     {u.deletion_requested_at ? <Badge tone="danger">Pidió eliminar cuenta</Badge> : null}
                   </td>
@@ -75,8 +75,8 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         </table>
       </Card>
       <div className="mt-4 flex gap-2 text-sm">
-        {page > 1 ? <a className="font-semibold text-lime-400" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page - 1}`}>← Anterior</a> : null}
-        {(count ?? 0) > page * size ? <a className="font-semibold text-lime-400" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page + 1}`}>Siguiente →</a> : null}
+        {page > 1 ? <a className="font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page - 1}`}>← Anterior</a> : null}
+        {(count ?? 0) > page * size ? <a className="font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page + 1}`}>Siguiente →</a> : null}
       </div>
     </>
   );

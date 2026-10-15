@@ -137,7 +137,7 @@ export async function EnrollmentView({
               <p className="mb-3 text-sm text-muted">
                 {fmt(m.paces.text, { date: formatDate(mark.date, "long"), km: formatKmValue(mark.distanceKm), time: formatClock(mark.timeS) })}
               </p>
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto" tabIndex={0} role="region" aria-label={m.paces.title}>
                 <table className="w-full min-w-[24rem] text-left text-sm">
                   <thead className="text-muted">
                     <tr>

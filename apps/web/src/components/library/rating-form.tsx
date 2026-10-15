@@ -14,7 +14,7 @@ export function RatingForm({ date, rating, note }: { date: string; rating: numbe
   const { state, pending, onSubmit } = useFormAction(rateSessionAction, { ok: false });
   const [value, setValue] = useState<number | null>(rating);
   return (
-    <form onSubmit={onSubmit} className="mt-4 space-y-3 rounded-xl border border-line bg-navy-950 p-3">
+    <form onSubmit={onSubmit} className="mt-4 space-y-3 rounded-xl border border-line bg-surface-2 p-3">
       <input type="hidden" name="date" value={date} />
       <fieldset>
         <legend className="mb-2 text-sm font-bold text-ink">{R.question}</legend>
@@ -23,13 +23,13 @@ export function RatingForm({ date, rating, note }: { date: string; rating: numbe
             <label
               key={v}
               className={cx(
-                "flex min-h-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border text-center transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-lime-400",
-                value === v ? "border-lime-400 bg-lime-400 text-navy-950" : "border-line text-ink hover:border-lime-400",
+                "flex min-h-16 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl border text-center transition has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-primary-ink",
+                value === v ? "border-primary-ink bg-accent text-on-accent" : "border-line bg-surface text-ink hover:border-primary",
               )}
             >
               <input type="radio" name="rating" value={v} checked={value === v} onChange={() => setValue(v)} className="sr-only" />
               <span aria-hidden="true" className="text-xl leading-none">{R.emoji[v]}</span>
-              <span className="text-[11px] font-semibold leading-tight">{R.options[v]}</span>
+              <span className="text-xs font-semibold leading-tight">{R.options[v]}</span>
             </label>
           ))}
         </div>
