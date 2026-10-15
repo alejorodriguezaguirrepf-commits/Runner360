@@ -71,6 +71,10 @@ y Pixel 7): sin violaciones, sin desplazamiento horizontal. Capturas en `docs/sc
 
 ## App móvil (Flutter)
 
-`apps/mobile/lib/src/theme.dart` replica la paleta en tema claro. El tema oscuro de Flutter queda
-pendiente: los widgets usan colores fijos de `Brand` y hay que pasarlos a `Theme.of(context)` antes
-de activarlo.
+`apps/mobile/lib/src/theme.dart` replica los mismos tokens con una `ThemeExtension` (`R360Colors.light`
+y `R360Colors.dark`); las pantallas los leen con `context.colors` (nunca colores fijos).
+
+- Tema claro por defecto; **Oscuro** y **Automático** desde **Perfil → Apariencia**.
+- La elección se guarda en el dispositivo (`shared_preferences`, clave `r360-theme`) y se aplica al
+  abrir la app (`theme_controller.dart`, cargado en `main()` antes de dibujar).
+- Pruebas: `test/theme_test.dart` (preferencia recordada, paleta, tarjetas en oscuro y selector).

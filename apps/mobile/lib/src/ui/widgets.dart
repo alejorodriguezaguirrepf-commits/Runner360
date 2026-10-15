@@ -11,9 +11,9 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = dark ? Brand.navInk : Brand.ink;
+    final color = dark ? context.colors.navInk : context.colors.ink;
     return Card(
-      color: dark ? Brand.navyDeep : Brand.surface,
+      color: dark ? context.colors.nav : context.colors.surface,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -38,8 +38,8 @@ class DemoBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        decoration: BoxDecoration(color: Brand.warningBg, borderRadius: BorderRadius.circular(99)),
-        child: const Text('DEMO / NO VALIDADO', style: TextStyle(color: Brand.warning, fontSize: 12, fontWeight: FontWeight.w700)),
+        decoration: BoxDecoration(color: context.colors.warningBg, borderRadius: BorderRadius.circular(99)),
+        child: Text('DEMO / NO VALIDADO', style: TextStyle(color: context.colors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
       );
 }
 
@@ -51,11 +51,11 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Brand.surface2, borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: context.colors.surface2, borderRadius: BorderRadius.circular(12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(fontSize: 12, color: Brand.muted)),
+          Text(label, style: TextStyle(fontSize: 12, color: context.colors.muted)),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Brand.ink)),
+          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: context.colors.ink)),
         ]),
       );
 }
@@ -70,7 +70,7 @@ class ErrorView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.error_outline, color: Brand.danger, size: 40),
+            Icon(Icons.error_outline, color: context.colors.danger, size: 40),
             const SizedBox(height: 12),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 12),

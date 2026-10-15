@@ -39,12 +39,12 @@ class _PlanScreenState extends State<PlanScreen> {
           byWeek.putIfAbsent(c['week_number'] as int, () => []).add(c);
         }
         return ListView(padding: const EdgeInsets.all(16), children: [
-          Text(version['name'] as String, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.ink)),
+          Text(version['name'] as String, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink)),
           if (version['is_demo'] == true) ...[
             const SizedBox(height: 8),
             const DemoBadge(),
             const SizedBox(height: 4),
-            const Text('Estructura de ejemplo, no validada por un profesional.', style: TextStyle(color: Brand.warning, fontSize: 12)),
+            Text('Estructura de ejemplo, no validada por un profesional.', style: TextStyle(color: context.colors.warning, fontSize: 12)),
           ],
           const SizedBox(height: 16),
           for (final entry in byWeek.entries) ...[
@@ -56,7 +56,7 @@ class _PlanScreenState extends State<PlanScreen> {
                     contentPadding: EdgeInsets.zero,
                     title: Text((c['session'] as Map)['title'] as String, style: const TextStyle(fontWeight: FontWeight.w700)),
                     subtitle: Text('${formatDateShort(DateTime.parse(c['scheduled_date'] as String))} · ${formatMinutesLong((c['session'] as Map)['duration_s'] as int?)}'),
-                    trailing: Text(calendarStatusLabels[c['status']] ?? '', style: const TextStyle(fontSize: 12, color: Brand.muted)),
+                    trailing: Text(calendarStatusLabels[c['status']] ?? '', style: TextStyle(fontSize: 12, color: context.colors.muted)),
                     onTap: () => _showSession(context, c),
                   ),
               ]),
@@ -89,8 +89,8 @@ class _PlanScreenState extends State<PlanScreen> {
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Brand.warningBg, borderRadius: BorderRadius.circular(12)),
-            child: Text('Cuándo reducir o suspender: ${s['stop_criteria'] ?? ''}', style: const TextStyle(color: Brand.warning)),
+            decoration: BoxDecoration(color: context.colors.warningBg, borderRadius: BorderRadius.circular(12)),
+            child: Text('Cuándo reducir o suspender: ${s['stop_criteria'] ?? ''}', style: TextStyle(color: context.colors.warning)),
           ),
         ]),
       ),

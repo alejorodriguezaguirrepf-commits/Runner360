@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/config.dart';
 import 'src/theme.dart';
+import 'src/theme_controller.dart';
 import 'src/ui/screens/auth_screen.dart';
 import 'src/ui/screens/config_missing_screen.dart';
 import 'src/ui/screens/home_shell.dart';
@@ -12,6 +13,7 @@ import 'src/ui/screens/home_shell.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_AR');
+  await themeController.load();
   if (AppConfig.isConfigured) {
     await Supabase.initialize(url: AppConfig.supabaseUrl, publishableKey: AppConfig.supabaseAnonKey);
   }
@@ -23,10 +25,14 @@ class Runner360App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeController,
+      builder: (context, mode, _) => MaterialApp(
       title: 'RUNNER 360',
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: mode,
       locale: const Locale('es', 'AR'),
       supportedLocales: const [Locale('es', 'AR')],
       localizationsDelegates: const [
@@ -35,6 +41,7 @@ class Runner360App extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       home: AppConfig.isConfigured ? const AuthGate() : const ConfigMissingScreen(),
+      ),
     );
   }
 }

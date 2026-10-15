@@ -1,59 +1,173 @@
 import 'package:flutter/material.dart';
 
-/// Sistema visual RUNNER 360 (mismos tokens que la web, tema claro).
-/// Turquesa para acciones y progreso; lima solo para destacados y estado seleccionado.
+/// Colores fijos de la marca RUNNER 360 (iguales en ambos temas).
 class Brand {
   static const night = Color(0xFF101C2C);
   static const teal = Color(0xFF18A999);
-  static const tealInk = Color(0xFF0A7266);
   static const lime = Color(0xFFD9F36A);
-
-  static const canvas = Color(0xFFF5F7FA);
-  static const surface = Color(0xFFFFFFFF);
-  static const surface2 = Color(0xFFEEF2F6);
-  static const ink = Color(0xFF101C2C);
-  static const muted = Color(0xFF5B6B80);
-  static const line = Color(0xFFE2E8F0);
-  static const field = Color(0xFF7B8BA0);
-
-  /// Zonas azul noche (tarjeta destacada): texto claro.
-  static const navyDeep = night;
-  static const navInk = Color(0xFFF5F7FA);
-  static const navMuted = Color(0xFFB8C5D3);
-
-  static const warning = Color(0xFF92400E);
-  static const warningBg = Color(0xFFFFF7E6);
-  static const danger = Color(0xFFB42318);
-
-  /// Compatibilidad con nombres anteriores.
-  static const navy = night;
-  static const navy700 = tealInk;
 }
 
-ThemeData buildTheme() {
+/// Tokens semánticos (mismos valores que la web, ver docs/DESIGN_SYSTEM.md).
+/// Las pantallas los leen con `context.colors`, así responden al tema claro u oscuro.
+@immutable
+class R360Colors extends ThemeExtension<R360Colors> {
+  const R360Colors({
+    required this.canvas,
+    required this.surface,
+    required this.surface2,
+    required this.ink,
+    required this.muted,
+    required this.line,
+    required this.field,
+    required this.primaryInk,
+    required this.nav,
+    required this.navInk,
+    required this.warning,
+    required this.warningBg,
+    required this.danger,
+  });
+
+  final Color canvas;
+  final Color surface;
+  final Color surface2;
+  final Color ink;
+  final Color muted;
+  final Color line;
+  final Color field;
+  /// Texto turquesa con contraste AA sobre las superficies del tema.
+  final Color primaryInk;
+  /// Zona azul noche (tarjeta destacada) y su texto.
+  final Color nav;
+  final Color navInk;
+  final Color warning;
+  final Color warningBg;
+  final Color danger;
+
+  static const light = R360Colors(
+    canvas: Color(0xFFF5F7FA),
+    surface: Color(0xFFFFFFFF),
+    surface2: Color(0xFFEEF2F6),
+    ink: Color(0xFF101C2C),
+    muted: Color(0xFF5B6B80),
+    line: Color(0xFFE2E8F0),
+    field: Color(0xFF7B8BA0),
+    primaryInk: Color(0xFF0A7266),
+    nav: Color(0xFF101C2C),
+    navInk: Color(0xFFF5F7FA),
+    warning: Color(0xFF92400E),
+    warningBg: Color(0xFFFFF7E6),
+    danger: Color(0xFFB42318),
+  );
+
+  static const dark = R360Colors(
+    canvas: Color(0xFF101820),
+    surface: Color(0xFF1D2C3E),
+    surface2: Color(0xFF25364A),
+    ink: Color(0xFFF5F7FA),
+    muted: Color(0xFFB8C5D3),
+    line: Color(0xFF344558),
+    field: Color(0xFF71859E),
+    primaryInk: Color(0xFF3FD0BE),
+    nav: Color(0xFF0B131B),
+    navInk: Color(0xFFF5F7FA),
+    warning: Color(0xFFFCD34D),
+    warningBg: Color(0xFF3A2E0F),
+    danger: Color(0xFFFCA5A5),
+  );
+
+  @override
+  R360Colors copyWith({
+    Color? canvas,
+    Color? surface,
+    Color? surface2,
+    Color? ink,
+    Color? muted,
+    Color? line,
+    Color? field,
+    Color? primaryInk,
+    Color? nav,
+    Color? navInk,
+    Color? warning,
+    Color? warningBg,
+    Color? danger,
+  }) =>
+      R360Colors(
+        canvas: canvas ?? this.canvas,
+        surface: surface ?? this.surface,
+        surface2: surface2 ?? this.surface2,
+        ink: ink ?? this.ink,
+        muted: muted ?? this.muted,
+        line: line ?? this.line,
+        field: field ?? this.field,
+        primaryInk: primaryInk ?? this.primaryInk,
+        nav: nav ?? this.nav,
+        navInk: navInk ?? this.navInk,
+        warning: warning ?? this.warning,
+        warningBg: warningBg ?? this.warningBg,
+        danger: danger ?? this.danger,
+      );
+
+  @override
+  R360Colors lerp(R360Colors? other, double t) {
+    if (other == null) return this;
+    Color l(Color a, Color b) => Color.lerp(a, b, t)!;
+    return R360Colors(
+      canvas: l(canvas, other.canvas),
+      surface: l(surface, other.surface),
+      surface2: l(surface2, other.surface2),
+      ink: l(ink, other.ink),
+      muted: l(muted, other.muted),
+      line: l(line, other.line),
+      field: l(field, other.field),
+      primaryInk: l(primaryInk, other.primaryInk),
+      nav: l(nav, other.nav),
+      navInk: l(navInk, other.navInk),
+      warning: l(warning, other.warning),
+      warningBg: l(warningBg, other.warningBg),
+      danger: l(danger, other.danger),
+    );
+  }
+}
+
+extension R360ColorsContext on BuildContext {
+  /// Colores del tema activo (con respaldo si el árbol no usa nuestro tema, p. ej. en pruebas).
+  R360Colors get colors {
+    final theme = Theme.of(this);
+    return theme.extension<R360Colors>() ?? (theme.brightness == Brightness.dark ? R360Colors.dark : R360Colors.light);
+  }
+}
+
+ThemeData buildLightTheme() => _build(R360Colors.light, Brightness.light);
+ThemeData buildDarkTheme() => _build(R360Colors.dark, Brightness.dark);
+
+/// Compatibilidad: tema claro.
+ThemeData buildTheme() => buildLightTheme();
+
+ThemeData _build(R360Colors c, Brightness brightness) {
   final scheme = ColorScheme.fromSeed(
     seedColor: Brand.teal,
-    brightness: Brightness.light,
+    brightness: brightness,
     primary: Brand.teal,
     onPrimary: Brand.night,
     secondary: Brand.lime,
     onSecondary: Brand.night,
-    surface: Brand.surface,
-    onSurface: Brand.ink,
-    error: Brand.danger,
+    surface: c.surface,
+    onSurface: c.ink,
+    error: c.danger,
   );
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    brightness: brightness,
     colorScheme: scheme,
-    scaffoldBackgroundColor: Brand.canvas,
-    textTheme: ThemeData(brightness: Brightness.light).textTheme.apply(bodyColor: Brand.ink, displayColor: Brand.ink),
-    appBarTheme: const AppBarTheme(backgroundColor: Brand.canvas, foregroundColor: Brand.ink, elevation: 0, centerTitle: false),
+    extensions: [c],
+    scaffoldBackgroundColor: c.canvas,
+    textTheme: ThemeData(brightness: brightness).textTheme.apply(bodyColor: c.ink, displayColor: c.ink),
+    appBarTheme: AppBarTheme(backgroundColor: c.canvas, foregroundColor: c.ink, elevation: 0, centerTitle: false),
     cardTheme: CardThemeData(
-      color: Brand.surface,
+      color: c.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Brand.line)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: c.line)),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -64,13 +178,37 @@ ThemeData buildTheme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: c.ink,
+        minimumSize: const Size.fromHeight(48),
+        side: BorderSide(color: c.field),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: c.primaryInk)),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Brand.surface,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Brand.field)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Brand.field)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Brand.tealInk, width: 2)),
+      fillColor: c.surface,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.field)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.field)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.primaryInk, width: 2)),
     ),
-    navigationBarTheme: const NavigationBarThemeData(backgroundColor: Brand.surface, indicatorColor: Brand.lime),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: Brand.lime,
+        selectedForegroundColor: Brand.night,
+        foregroundColor: c.ink,
+        side: BorderSide(color: c.field),
+      ),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: c.surface,
+      indicatorColor: Brand.lime,
+      iconTheme: WidgetStateProperty.resolveWith((s) => IconThemeData(color: s.contains(WidgetState.selected) ? Brand.night : c.muted)),
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (s) => TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: s.contains(WidgetState.selected) ? c.ink : c.muted),
+      ),
+    ),
   );
 }

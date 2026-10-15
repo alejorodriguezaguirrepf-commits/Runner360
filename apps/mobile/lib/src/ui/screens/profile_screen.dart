@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../data/repository.dart';
 import '../../theme.dart';
+import '../../theme_controller.dart';
 import '../widgets.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -18,12 +19,14 @@ class ProfileScreen extends StatelessWidget {
         final profile = snap.data?.$1;
         final premium = snap.data?.$2 ?? false;
         return ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('Perfil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Brand.ink)),
+          Text('Perfil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink)),
           const SizedBox(height: 16),
           SectionCard(
             title: profile?['display_name'] as String? ?? '—',
             child: Text(premium ? 'Plan Premium' : 'Plan Free'),
           ),
+          const SizedBox(height: 12),
+          const SectionCard(title: 'Apariencia', child: ThemeSelector()),
           const SizedBox(height: 12),
           const SectionCard(
             title: 'Suscripción en la app',
@@ -42,6 +45,36 @@ class ProfileScreen extends StatelessWidget {
           ),
         ]);
       },
+    );
+  }
+}
+
+
+/// Claro (predeterminado), Oscuro o Automático (según el sistema). Se recuerda en el dispositivo.
+class ThemeSelector extends StatelessWidget {
+  const ThemeSelector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeController,
+      builder: (context, mode, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Elegí cómo se ve la app en este dispositivo.', style: TextStyle(color: context.colors.muted)),
+          const SizedBox(height: 12),
+          SegmentedButton<ThemeMode>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(value: ThemeMode.light, label: Text('Claro'), icon: Icon(Icons.light_mode_outlined)),
+              ButtonSegment(value: ThemeMode.dark, label: Text('Oscuro'), icon: Icon(Icons.dark_mode_outlined)),
+              ButtonSegment(value: ThemeMode.system, label: Text('Automático'), icon: Icon(Icons.brightness_auto_outlined)),
+            ],
+            selected: {mode},
+            onSelectionChanged: (s) => themeController.set(s.first),
+          ),
+        ],
+      ),
     );
   }
 }

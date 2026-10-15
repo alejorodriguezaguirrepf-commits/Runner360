@@ -93,7 +93,7 @@ class _RegisterWorkoutScreenState extends State<RegisterWorkoutScreen> {
           if (picked != null) setState(() => _date = picked);
         },
       ),
-      if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: const TextStyle(color: Brand.danger)),
+      if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: TextStyle(color: context.colors.danger)),
       if (_status != WorkoutStatus.skipped) ...[
         TextField(controller: _km, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: 'Distancia (km)', errorText: _errors['distanceKm'])),
         const SizedBox(height: 12),

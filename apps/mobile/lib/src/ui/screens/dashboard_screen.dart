@@ -61,8 +61,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           final weekDistance = d.workouts.where((w) => w['status'] != 'skipped').fold<int>(0, (a, w) => a + ((w['distance_m'] as int?) ?? 0));
           final version = d.plan?['version'] as Map<String, dynamic>?;
           return ListView(padding: const EdgeInsets.all(16), children: [
-            Text('Hola, ${d.profile?['display_name'] ?? 'corredor'}', style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Brand.ink)),
-            Text(formatDateLong(DateTime.now()), style: const TextStyle(color: Brand.muted)),
+            Text('Hola, ${d.profile?['display_name'] ?? 'corredor'}', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: context.colors.ink)),
+            Text(formatDateLong(DateTime.now()), style: TextStyle(color: context.colors.muted)),
             const SizedBox(height: 16),
             if (d.profile?['onboarding_completed_at'] == null)
               const SectionCard(title: 'Completá tu perfil de corredor', child: Text('El cuestionario deportivo está disponible en la versión web. Pronto también en la app.'))
@@ -71,7 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 title: 'Todavía no tenés un plan activo',
                 child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   const Text('Te proponemos el plan publicado que corresponde a tu perfil.'),
-                  if (_enrollMessage != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(_enrollMessage!, style: const TextStyle(color: Brand.warning))),
+                  if (_enrollMessage != null) Padding(padding: EdgeInsets.only(top: 8), child: Text(_enrollMessage!, style: TextStyle(color: context.colors.warning))),
                   const SizedBox(height: 12),
                   FilledButton(onPressed: _enroll, child: const Text('Obtener mi plan')),
                 ]),
