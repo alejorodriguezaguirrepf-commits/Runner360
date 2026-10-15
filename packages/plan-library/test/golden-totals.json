@@ -142,5 +142,29 @@
     "distanceKm": 4022.81,
     "durationMin": 23008,
     "raceWeek": 45
+  },
+  {
+    "id": "plan-19",
+    "weeks": 10,
+    "sessions": 30,
+    "distanceKm": 245.05,
+    "durationMin": 1708.3,
+    "raceWeek": 10
+  },
+  {
+    "id": "plan-20",
+    "weeks": 10,
+    "sessions": 40,
+    "distanceKm": 299.18,
+    "durationMin": 2126.3,
+    "raceWeek": 10
+  },
+  {
+    "id": "plan-21",
+    "weeks": 10,
+    "sessions": 50,
+    "distanceKm": 334.94,
+    "durationMin": 2416.3,
+    "raceWeek": 10
   }
 ]

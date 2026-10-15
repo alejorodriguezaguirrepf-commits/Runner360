@@ -24,7 +24,7 @@ const shapes = (id: string): DayShape[] =>
 const START = "2026-10-19";
 
 describe("mover días: regla de días exigentes", () => {
-  it("el mapeo original de los 18 planes es válido", () => {
+  it("el mapeo original de los 21 planes es válido", () => {
     for (const p of library.plans) expect(dayMapViolations(shapes(p.id), IDENTITY_DAY_MAP), p.id).toEqual([]);
   });
 
@@ -33,6 +33,29 @@ describe("mover días: regla de días exigentes", () => {
     expect(dayMapViolations(shapes("plan-01"), [0, 1, 2, 3, 4, 6, 5])).toContain("race_moved");
     expect(dayMapViolations(shapes("plan-01"), [1, 0, 2, 3, 4, 5, 6])).toEqual([]);
     expect(dayMapViolations(shapes("plan-01"), [0, 0, 2, 3, 4, 5, 6])).toEqual(["not_permutation"]);
+  });
+
+  it("planes 19–21 (5 km intermedio): misma regla, sin cambios", () => {
+    for (const id of ["plan-19", "plan-20", "plan-21"]) {
+      expect(dayMapViolations(shapes(id), [1, 0, 2, 3, 4, 5, 6]), id).toContain("consecutive_demanding");
+      // La competencia (5 km de control en la semana 8 y carrera en la 10) no se mueve de su día.
+      expect(dayMapViolations(shapes(id), [0, 1, 2, 3, 4, 6, 5]), id).toContain("race_moved");
+      expect(dayMapViolations(shapes(id), [0, 1, 2, 4, 3, 5, 6]), id).toEqual([]);
+    }
+    // plan-21: el intenso del jueves no puede quedar al lado del umbral.
+    expect(dayMapViolations(shapes("plan-21"), [0, 1, 3, 2, 4, 5, 6])).toContain("consecutive_demanding");
+  });
+
+  it("10 semanas: la competencia cae el domingo de la semana 10", () => {
+    const p = library.plans.find((x) => x.id === "plan-20")!;
+    const race = raceDateFromStart(START, 10);
+    expect(race).toBe("2026-12-27");
+    const segs = segmentsOf({ start_date: START, day_map: IDENTITY_DAY_MAP }, []);
+    const weeks = scheduledWeeks(segs, p.duration_weeks);
+    expect(weeks).toHaveLength(10);
+    expect(weeks.at(-1)!.weekStart).toBe("2026-12-21");
+    expect(projectedRaceDate(segs, p.duration_weeks, 10)).toBe(race);
+    expect(dateOfPlanDay({ start_date: START, day_map: IDENTITY_DAY_MAP }, weeks.at(-1)!.weekStart, 6)).toBe(race);
   });
 
   it("controla también el paso de domingo a lunes", () => {

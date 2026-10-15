@@ -19,6 +19,23 @@ export function libraryChecksum(raw: unknown): string {
   return createHash("sha256").update(JSON.stringify(raw)).digest("hex");
 }
 
+/** JSON canónico (claves ordenadas): la huella no depende del orden de las claves ni del formato. */
+function canonical(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(canonical).join(",")}]`;
+  if (v !== null && typeof v === "object") {
+    return `{${Object.keys(v as Record<string, unknown>)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonical((v as Record<string, unknown>)[k])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(v);
+}
+
+/** Huella de un plan (todo su contenido). Sirve para comprobar que un plan no cambió entre versiones. */
+export function planHash(plan: unknown): string {
+  return createHash("sha256").update(canonical(plan)).digest("hex");
+}
+
 /** Valida forma e invariantes. Lanza LibraryValidationError con todos los problemas encontrados. */
 export function parseLibrary(raw: unknown): { library: Library; checksum: string } {
   const parsed = librarySchema.safeParse(raw);
