@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-10-15 — Preguntas frecuentes
+
+- Textos nuevos de las preguntas frecuentes de la portada y nueva pregunta «¿Puedo cancelar cuando quiera?».
+- Los textos salen de un único archivo (`apps/web/src/i18n/es-AR/faq.ts`) que alimenta la pantalla y los datos estructurados para buscadores (FAQPage).
+- Acordeón accesible: botones con `aria-expanded`/`aria-controls`, teclado (Enter, Espacio, flechas, Inicio y Fin) y foco visible.
+
 ## 2026-10-15 — Biblioteca de planes 2026.10.1
 
 - Nuevo: plan de 5 km intermedio para bajar la marca (10 semanas, 3, 4 y 5 días por semana; planes 19–21).
