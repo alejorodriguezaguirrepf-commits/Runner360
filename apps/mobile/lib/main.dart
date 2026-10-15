@@ -28,19 +28,15 @@ class Runner360App extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeController,
       builder: (context, mode, _) => MaterialApp(
-      title: 'RUNNER 360',
-      debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(),
-      darkTheme: buildDarkTheme(),
-      themeMode: mode,
-      locale: const Locale('es', 'AR'),
-      supportedLocales: const [Locale('es', 'AR')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: AppConfig.isConfigured ? const AuthGate() : const ConfigMissingScreen(),
+        title: 'RUNNER 360',
+        debugShowCheckedModeBanner: false,
+        theme: buildLightTheme(),
+        darkTheme: buildDarkTheme(),
+        themeMode: mode,
+        locale: const Locale('es', 'AR'),
+        supportedLocales: const [Locale('es', 'AR')],
+        localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+        home: AppConfig.isConfigured ? const AuthGate() : const ConfigMissingScreen(),
       ),
     );
   }

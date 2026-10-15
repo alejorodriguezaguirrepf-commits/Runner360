@@ -27,20 +27,19 @@ class WorkoutInput {
   final String? calendarEntryId;
 
   Map<String, dynamic> toRow(String userId) => {
-        'user_id': userId,
-        'workout_date': _isoDate(date),
-        'status': status.name,
-        'distance_m': status == WorkoutStatus.skipped ? null : distanceM,
-        'duration_s': status == WorkoutStatus.skipped ? null : durationS,
-        'rpe': status == WorkoutStatus.skipped ? null : rpe,
-        'pain_reported': painReported,
-        'comments': (comments ?? '').trim().isEmpty ? null : comments!.trim(),
-        'calendar_entry_id': calendarEntryId,
-      };
+    'user_id': userId,
+    'workout_date': _isoDate(date),
+    'status': status.name,
+    'distance_m': status == WorkoutStatus.skipped ? null : distanceM,
+    'duration_s': status == WorkoutStatus.skipped ? null : durationS,
+    'rpe': status == WorkoutStatus.skipped ? null : rpe,
+    'pain_reported': painReported,
+    'comments': (comments ?? '').trim().isEmpty ? null : comments!.trim(),
+    'calendar_entry_id': calendarEntryId,
+  };
 }
 
-String _isoDate(DateTime d) =>
-    '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+String _isoDate(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 /// Resultado de validación: o un input válido, o errores por campo (mensajes en es-AR).
 class WorkoutValidation {

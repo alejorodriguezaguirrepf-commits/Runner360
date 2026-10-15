@@ -22,9 +22,12 @@ class R360Colors extends ThemeExtension<R360Colors> {
     required this.primaryInk,
     required this.nav,
     required this.navInk,
+    required this.navMuted,
     required this.warning,
     required this.warningBg,
     required this.danger,
+    required this.success,
+    required this.successBg,
   });
 
   final Color canvas;
@@ -34,14 +37,19 @@ class R360Colors extends ThemeExtension<R360Colors> {
   final Color muted;
   final Color line;
   final Color field;
+
   /// Texto turquesa con contraste AA sobre las superficies del tema.
   final Color primaryInk;
+
   /// Zona azul noche (tarjeta destacada) y su texto.
   final Color nav;
   final Color navInk;
+  final Color navMuted;
   final Color warning;
   final Color warningBg;
   final Color danger;
+  final Color success;
+  final Color successBg;
 
   static const light = R360Colors(
     canvas: Color(0xFFF5F7FA),
@@ -54,9 +62,12 @@ class R360Colors extends ThemeExtension<R360Colors> {
     primaryInk: Color(0xFF0A7266),
     nav: Color(0xFF101C2C),
     navInk: Color(0xFFF5F7FA),
+    navMuted: Color(0xFFB8C5D3),
     warning: Color(0xFF92400E),
     warningBg: Color(0xFFFFF7E6),
     danger: Color(0xFFB42318),
+    success: Color(0xFF166534),
+    successBg: Color(0xFFECFDF3),
   );
 
   static const dark = R360Colors(
@@ -70,9 +81,12 @@ class R360Colors extends ThemeExtension<R360Colors> {
     primaryInk: Color(0xFF3FD0BE),
     nav: Color(0xFF0B131B),
     navInk: Color(0xFFF5F7FA),
+    navMuted: Color(0xFFB8C5D3),
     warning: Color(0xFFFCD34D),
     warningBg: Color(0xFF3A2E0F),
     danger: Color(0xFFFCA5A5),
+    success: Color(0xFF86EFAC),
+    successBg: Color(0xFF123A2B),
   );
 
   @override
@@ -87,25 +101,30 @@ class R360Colors extends ThemeExtension<R360Colors> {
     Color? primaryInk,
     Color? nav,
     Color? navInk,
+    Color? navMuted,
     Color? warning,
     Color? warningBg,
     Color? danger,
-  }) =>
-      R360Colors(
-        canvas: canvas ?? this.canvas,
-        surface: surface ?? this.surface,
-        surface2: surface2 ?? this.surface2,
-        ink: ink ?? this.ink,
-        muted: muted ?? this.muted,
-        line: line ?? this.line,
-        field: field ?? this.field,
-        primaryInk: primaryInk ?? this.primaryInk,
-        nav: nav ?? this.nav,
-        navInk: navInk ?? this.navInk,
-        warning: warning ?? this.warning,
-        warningBg: warningBg ?? this.warningBg,
-        danger: danger ?? this.danger,
-      );
+    Color? success,
+    Color? successBg,
+  }) => R360Colors(
+    canvas: canvas ?? this.canvas,
+    surface: surface ?? this.surface,
+    surface2: surface2 ?? this.surface2,
+    ink: ink ?? this.ink,
+    muted: muted ?? this.muted,
+    line: line ?? this.line,
+    field: field ?? this.field,
+    primaryInk: primaryInk ?? this.primaryInk,
+    nav: nav ?? this.nav,
+    navInk: navInk ?? this.navInk,
+    navMuted: navMuted ?? this.navMuted,
+    warning: warning ?? this.warning,
+    warningBg: warningBg ?? this.warningBg,
+    danger: danger ?? this.danger,
+    success: success ?? this.success,
+    successBg: successBg ?? this.successBg,
+  );
 
   @override
   R360Colors lerp(R360Colors? other, double t) {
@@ -122,9 +141,12 @@ class R360Colors extends ThemeExtension<R360Colors> {
       primaryInk: l(primaryInk, other.primaryInk),
       nav: l(nav, other.nav),
       navInk: l(navInk, other.navInk),
+      navMuted: l(navMuted, other.navMuted),
       warning: l(warning, other.warning),
       warningBg: l(warningBg, other.warningBg),
       danger: l(danger, other.danger),
+      success: l(success, other.success),
+      successBg: l(successBg, other.successBg),
     );
   }
 }
@@ -167,7 +189,10 @@ ThemeData _build(R360Colors c, Brightness brightness) {
       color: c.surface,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: c.line)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: c.line),
+      ),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
@@ -190,9 +215,18 @@ ThemeData _build(R360Colors c, Brightness brightness) {
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: c.surface,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.field)),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.field)),
-      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: c.primaryInk, width: 2)),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: c.field),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: c.field),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: c.primaryInk, width: 2),
+      ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: SegmentedButton.styleFrom(

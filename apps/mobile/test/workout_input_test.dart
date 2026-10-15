@@ -15,7 +15,10 @@ void main() {
   });
 
   test('exige duración salvo si no se realizó', () {
-    expect(validateWorkout(date: today, today: today, status: WorkoutStatus.completed, distanceKm: '5', duration: '', rpe: '').errors.keys, contains('duration'));
+    expect(
+      validateWorkout(date: today, today: today, status: WorkoutStatus.completed, distanceKm: '5', duration: '', rpe: '').errors.keys,
+      contains('duration'),
+    );
     expect(validateWorkout(date: today, today: today, status: WorkoutStatus.skipped, distanceKm: '', duration: '', rpe: '').isValid, isTrue);
   });
 

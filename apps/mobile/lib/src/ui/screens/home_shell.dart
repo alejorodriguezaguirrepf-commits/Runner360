@@ -23,14 +23,16 @@ class _HomeShellState extends State<HomeShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      DashboardScreen(repo: repo, onRegister: () => setState(() => _index = 2)),
+      DashboardScreen(repo: repo, onRegister: () => setState(() => _index = 2), onOpenPlan: () => setState(() => _index = 1)),
       PlanScreen(repo: repo),
       RegisterWorkoutScreen(repo: repo, onSaved: () => setState(() => _index = 0)),
       ProgressScreen(repo: repo),
       ProfileScreen(repo: repo),
     ];
     return Scaffold(
-      body: SafeArea(child: IndexedStack(index: _index, children: pages)),
+      body: SafeArea(
+        child: IndexedStack(index: _index, children: pages),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

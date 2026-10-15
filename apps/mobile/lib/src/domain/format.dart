@@ -35,9 +35,4 @@ const sessionTypeLabels = {
   'test': 'Evaluación',
 };
 
-const calendarStatusLabels = {
-  'pending': 'Pendiente',
-  'completed': 'Completada',
-  'modified': 'Modificada',
-  'skipped': 'No realizada',
-};
+const calendarStatusLabels = {'pending': 'Pendiente', 'completed': 'Completada', 'modified': 'Modificada', 'skipped': 'No realizada'};

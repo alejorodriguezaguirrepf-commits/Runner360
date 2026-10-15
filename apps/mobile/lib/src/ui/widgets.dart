@@ -19,12 +19,22 @@ class SectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Expanded(child: Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: dark ? Brand.lime : color))),
-              ?trailing,
-            ]),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: dark ? Brand.lime : color),
+                  ),
+                ),
+                ?trailing,
+              ],
+            ),
             const SizedBox(height: 12),
-            DefaultTextStyle.merge(style: TextStyle(color: color), child: child),
+            DefaultTextStyle.merge(
+              style: TextStyle(color: color),
+              child: child,
+            ),
           ],
         ),
       ),
@@ -37,10 +47,13 @@ class DemoBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-        decoration: BoxDecoration(color: context.colors.warningBg, borderRadius: BorderRadius.circular(99)),
-        child: Text('DEMO / NO VALIDADO', style: TextStyle(color: context.colors.warning, fontSize: 12, fontWeight: FontWeight.w700)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+    decoration: BoxDecoration(color: context.colors.warningBg, borderRadius: BorderRadius.circular(99)),
+    child: Text(
+      'DEMO / NO VALIDADO',
+      style: TextStyle(color: context.colors.warning, fontSize: 12, fontWeight: FontWeight.w700),
+    ),
+  );
 }
 
 class StatTile extends StatelessWidget {
@@ -50,14 +63,20 @@ class StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: context.colors.surface2, borderRadius: BorderRadius.circular(12)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: TextStyle(fontSize: 12, color: context.colors.muted)),
-          const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: context.colors.ink)),
-        ]),
-      );
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(color: context.colors.surface2, borderRadius: BorderRadius.circular(12)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: context.colors.muted)),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: context.colors.ink),
+        ),
+      ],
+    ),
+  );
 }
 
 class ErrorView extends StatelessWidget {
@@ -67,15 +86,18 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.error_outline, color: context.colors.danger, size: 40),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 12),
-            OutlinedButton(onPressed: onRetry, child: const Text('Reintentar')),
-          ]),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, color: context.colors.danger, size: 40),
+          const SizedBox(height: 12),
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          OutlinedButton(onPressed: onRetry, child: const Text('Reintentar')),
+        ],
+      ),
+    ),
+  );
 }

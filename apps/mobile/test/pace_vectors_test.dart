@@ -47,10 +47,7 @@ void main() {
   group('parciales', () {
     for (final v in (vectors['splits'] as List).cast<Map<String, dynamic>>()) {
       test('${v['distanceM']} m / ${v['splitM']} m', () {
-        expect(
-          evenSplitsCumulative(v['distanceM'] as num, v['targetTimeS'] as num, v['splitM'] as num),
-          (v['cumulative'] as List).cast<int>(),
-        );
+        expect(evenSplitsCumulative(v['distanceM'] as num, v['targetTimeS'] as num, v['splitM'] as num), (v['cumulative'] as List).cast<int>());
       });
     }
   });

@@ -28,16 +28,16 @@ class ThemeController extends ValueNotifier<ThemeMode> {
   }
 
   static ThemeMode _fromName(String? name) => switch (name) {
-        'dark' => ThemeMode.dark,
-        'system' => ThemeMode.system,
-        _ => ThemeMode.light,
-      };
+    'dark' => ThemeMode.dark,
+    'system' => ThemeMode.system,
+    _ => ThemeMode.light,
+  };
 
   static String _toName(ThemeMode mode) => switch (mode) {
-        ThemeMode.dark => 'dark',
-        ThemeMode.system => 'system',
-        ThemeMode.light => 'light',
-      };
+    ThemeMode.dark => 'dark',
+    ThemeMode.system => 'system',
+    ThemeMode.light => 'light',
+  };
 }
 
 final themeController = ThemeController();

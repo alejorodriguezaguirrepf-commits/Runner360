@@ -18,37 +18,32 @@ class ProfileScreen extends StatelessWidget {
       builder: (context, snap) {
         final profile = snap.data?.$1;
         final premium = snap.data?.$2 ?? false;
-        return ListView(padding: const EdgeInsets.all(16), children: [
-          Text('Perfil', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink)),
-          const SizedBox(height: 16),
-          SectionCard(
-            title: profile?['display_name'] as String? ?? '—',
-            child: Text(premium ? 'Plan Premium' : 'Plan Free'),
-          ),
-          const SizedBox(height: 12),
-          const SectionCard(title: 'Apariencia', child: ThemeSelector()),
-          const SizedBox(height: 12),
-          const SectionCard(
-            title: 'Suscripción en la app',
-            child: Text('Las compras dentro de la app están pendientes de configuración.'),
-          ),
-          const SizedBox(height: 12),
-          const SectionCard(
-            title: 'Privacidad',
-            child: Text('Podés descargar o eliminar tus datos desde tu perfil en la versión web. No recopilamos tu ubicación.'),
-          ),
-          const SizedBox(height: 24),
-          OutlinedButton.icon(
-            onPressed: () => repo.client.auth.signOut(),
-            icon: const Icon(Icons.logout),
-            label: const Text('Cerrar sesión'),
-          ),
-        ]);
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(
+              'Perfil',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink),
+            ),
+            const SizedBox(height: 16),
+            SectionCard(title: profile?['display_name'] as String? ?? '—', child: Text(premium ? 'Plan Premium' : 'Plan Free')),
+            const SizedBox(height: 12),
+            const SectionCard(title: 'Apariencia', child: ThemeSelector()),
+            const SizedBox(height: 12),
+            const SectionCard(title: 'Suscripción en la app', child: Text('Las compras dentro de la app están pendientes de configuración.')),
+            const SizedBox(height: 12),
+            const SectionCard(
+              title: 'Privacidad',
+              child: Text('Podés descargar o eliminar tus datos desde tu perfil en la versión web. No recopilamos tu ubicación.'),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(onPressed: () => repo.client.auth.signOut(), icon: const Icon(Icons.logout), label: const Text('Cerrar sesión')),
+          ],
+        );
       },
     );
   }
 }
-
 
 /// Claro (predeterminado), Oscuro o Automático (según el sistema). Se recuerda en el dispositivo.
 class ThemeSelector extends StatelessWidget {

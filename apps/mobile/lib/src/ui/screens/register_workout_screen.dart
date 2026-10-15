@@ -70,55 +70,79 @@ class _RegisterWorkoutScreenState extends State<RegisterWorkoutScreen> {
     final seconds = parseDuration(_duration.text);
     final pace = meters != null && seconds != null ? paceSecondsPerKm(meters, seconds) : null;
     final speed = meters != null && seconds != null ? speedKmh(meters, seconds) : null;
-    return ListView(padding: const EdgeInsets.all(16), children: [
-      const Text('Registrar entrenamiento', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-      const SizedBox(height: 16),
-      SegmentedButton<WorkoutStatus>(
-        showSelectedIcon: false,
-        segments: const [
-          ButtonSegment(value: WorkoutStatus.completed, label: Text('Completada')),
-          ButtonSegment(value: WorkoutStatus.modified, label: Text('Modificada')),
-          ButtonSegment(value: WorkoutStatus.skipped, label: Text('No realizada')),
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Text('Registrar entrenamiento', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 16),
+        SegmentedButton<WorkoutStatus>(
+          showSelectedIcon: false,
+          segments: const [
+            ButtonSegment(value: WorkoutStatus.completed, label: Text('Completada')),
+            ButtonSegment(value: WorkoutStatus.modified, label: Text('Modificada')),
+            ButtonSegment(value: WorkoutStatus.skipped, label: Text('No realizada')),
+          ],
+          selected: {_status},
+          onSelectionChanged: (s) => setState(() => _status = s.first),
+        ),
+        const SizedBox(height: 12),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('Fecha'),
+          subtitle: Text(formatDateLong(_date)),
+          trailing: const Icon(Icons.edit_calendar_outlined),
+          onTap: () async {
+            final picked = await showDatePicker(context: context, initialDate: _date, firstDate: DateTime(2020), lastDate: DateTime.now());
+            if (picked != null) setState(() => _date = picked);
+          },
+        ),
+        if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: TextStyle(color: context.colors.danger)),
+        if (_status != WorkoutStatus.skipped) ...[
+          TextField(
+            controller: _km,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(labelText: 'Distancia (km)', errorText: _errors['distanceKm']),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _duration,
+            decoration: InputDecoration(labelText: 'Duración (mm:ss o h:mm:ss)', errorText: _errors['duration']),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: StatTile(label: 'Ritmo medio', value: pace == null ? '—' : '${formatPace(pace)} /km'),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: StatTile(label: 'Velocidad', value: speed == null ? '—' : '${speed.toStringAsFixed(1).replaceAll('.', ',')} km/h'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _rpe,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'RPE (1–10)', errorText: _errors['rpe']),
+          ),
         ],
-        selected: {_status},
-        onSelectionChanged: (s) => setState(() => _status = s.first),
-      ),
-      const SizedBox(height: 12),
-      ListTile(
-        contentPadding: EdgeInsets.zero,
-        title: const Text('Fecha'),
-        subtitle: Text(formatDateLong(_date)),
-        trailing: const Icon(Icons.edit_calendar_outlined),
-        onTap: () async {
-          final picked = await showDatePicker(context: context, initialDate: _date, firstDate: DateTime(2020), lastDate: DateTime.now());
-          if (picked != null) setState(() => _date = picked);
-        },
-      ),
-      if (_errors['workoutDate'] != null) Text(_errors['workoutDate']!, style: TextStyle(color: context.colors.danger)),
-      if (_status != WorkoutStatus.skipped) ...[
-        TextField(controller: _km, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: 'Distancia (km)', errorText: _errors['distanceKm'])),
         const SizedBox(height: 12),
-        TextField(controller: _duration, decoration: InputDecoration(labelText: 'Duración (mm:ss o h:mm:ss)', errorText: _errors['duration'])),
-        const SizedBox(height: 12),
-        Row(children: [
-          Expanded(child: StatTile(label: 'Ritmo medio', value: pace == null ? '—' : '${formatPace(pace)} /km')),
-          const SizedBox(width: 12),
-          Expanded(child: StatTile(label: 'Velocidad', value: speed == null ? '—' : '${speed.toStringAsFixed(1).replaceAll('.', ',')} km/h')),
-        ]),
-        const SizedBox(height: 12),
-        TextField(controller: _rpe, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'RPE (1–10)', errorText: _errors['rpe'])),
+        TextField(
+          controller: _comments,
+          maxLines: 3,
+          decoration: InputDecoration(labelText: 'Comentarios (opcional)', errorText: _errors['comments']),
+        ),
+        CheckboxListTile(
+          value: _pain,
+          onChanged: (v) => setState(() => _pain = v ?? false),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          title: const Text('Tuve dolor o una molestia fuera de lo habitual'),
+        ),
+        if (_message != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(_message!)),
+        FilledButton(onPressed: _saving ? null : _save, child: Text(_saving ? 'Guardando…' : 'Guardar entrenamiento')),
       ],
-      const SizedBox(height: 12),
-      TextField(controller: _comments, maxLines: 3, decoration: InputDecoration(labelText: 'Comentarios (opcional)', errorText: _errors['comments'])),
-      CheckboxListTile(
-        value: _pain,
-        onChanged: (v) => setState(() => _pain = v ?? false),
-        contentPadding: EdgeInsets.zero,
-        controlAffinity: ListTileControlAffinity.leading,
-        title: const Text('Tuve dolor o una molestia fuera de lo habitual'),
-      ),
-      if (_message != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(_message!)),
-      FilledButton(onPressed: _saving ? null : _save, child: Text(_saving ? 'Guardando…' : 'Guardar entrenamiento')),
-    ]);
+    );
   }
 }

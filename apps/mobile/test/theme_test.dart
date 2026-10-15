@@ -26,12 +26,16 @@ void main() {
   });
 
   testWidgets('las tarjetas toman los colores del tema oscuro', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      theme: buildLightTheme(),
-      darkTheme: buildDarkTheme(),
-      themeMode: ThemeMode.dark,
-      home: const Scaffold(body: SectionCard(title: 'Título', child: Text('Contenido'))),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildLightTheme(),
+        darkTheme: buildDarkTheme(),
+        themeMode: ThemeMode.dark,
+        home: const Scaffold(
+          body: SectionCard(title: 'Título', child: Text('Contenido')),
+        ),
+      ),
+    );
     final card = tester.widget<Card>(find.byType(Card));
     expect(card.color, R360Colors.dark.surface);
     final title = tester.widget<Text>(find.text('Título'));
@@ -40,7 +44,12 @@ void main() {
 
   testWidgets('el selector de Apariencia cambia el tema', (tester) async {
     await themeController.set(ThemeMode.light);
-    await tester.pumpWidget(MaterialApp(theme: buildLightTheme(), home: const Scaffold(body: ThemeSelector())));
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildLightTheme(),
+        home: const Scaffold(body: ThemeSelector()),
+      ),
+    );
     await tester.tap(find.text('Oscuro'));
     await tester.pumpAndSettle();
     expect(themeController.value, ThemeMode.dark);

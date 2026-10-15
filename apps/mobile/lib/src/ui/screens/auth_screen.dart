@@ -57,18 +57,34 @@ class _AuthScreenState extends State<AuthScreen> {
           padding: const EdgeInsets.all(24),
           children: [
             const SizedBox(height: 24),
-            Text('RUNNER 360', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: context.colors.ink)),
+            Text(
+              'RUNNER 360',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: context.colors.ink),
+            ),
             Text('Entrená. Medí. Progresá.', style: TextStyle(color: context.colors.muted)),
             const SizedBox(height: 32),
             Text(_register ? 'Creá tu cuenta gratis' : 'Ingresá a tu cuenta', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
             if (_register) ...[
-              TextField(controller: _name, decoration: const InputDecoration(labelText: 'Nombre visible'), textInputAction: TextInputAction.next),
+              TextField(
+                controller: _name,
+                decoration: const InputDecoration(labelText: 'Nombre visible'),
+                textInputAction: TextInputAction.next,
+              ),
               const SizedBox(height: 12),
             ],
-            TextField(controller: _email, decoration: const InputDecoration(labelText: 'Correo electrónico'), keyboardType: TextInputType.emailAddress, autofillHints: const [AutofillHints.email]),
+            TextField(
+              controller: _email,
+              decoration: const InputDecoration(labelText: 'Correo electrónico'),
+              keyboardType: TextInputType.emailAddress,
+              autofillHints: const [AutofillHints.email],
+            ),
             const SizedBox(height: 12),
-            TextField(controller: _password, decoration: const InputDecoration(labelText: 'Contraseña'), obscureText: true),
+            TextField(
+              controller: _password,
+              decoration: const InputDecoration(labelText: 'Contraseña'),
+              obscureText: true,
+            ),
             if (_register)
               CheckboxListTile(
                 value: _acceptTerms,
@@ -77,7 +93,11 @@ class _AuthScreenState extends State<AuthScreen> {
                 controlAffinity: ListTileControlAffinity.leading,
                 title: const Text('Acepto los términos y la política de privacidad (borradores de la beta).'),
               ),
-            if (_message != null) Padding(padding: EdgeInsets.only(top: 12), child: Text(_message!, style: TextStyle(color: context.colors.danger))),
+            if (_message != null)
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: Text(_message!, style: TextStyle(color: context.colors.danger)),
+              ),
             const SizedBox(height: 20),
             FilledButton(onPressed: _loading ? null : _submit, child: Text(_loading ? 'Procesando…' : (_register ? 'Comenzar gratis' : 'Ingresar'))),
             TextButton(

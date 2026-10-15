@@ -31,20 +31,32 @@ class _ProgressScreenState extends State<ProgressScreen> {
         final done = snap.data!.where((w) => w['status'] != 'skipped').toList();
         final distance = done.fold<int>(0, (a, w) => a + ((w['distance_m'] as int?) ?? 0));
         final duration = done.fold<int>(0, (a, w) => a + ((w['duration_s'] as int?) ?? 0));
-        return ListView(padding: const EdgeInsets.all(16), children: [
-          Text('Progreso', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink)),
-          Text('Últimas 4 semanas, a partir de tus registros.', style: TextStyle(color: context.colors.muted)),
-          const SizedBox(height: 16),
-          Row(children: [
-            Expanded(child: StatTile(label: 'Distancia', value: formatKm(distance))),
-            const SizedBox(width: 12),
-            Expanded(child: StatTile(label: 'Tiempo', value: formatMinutesLong(duration))),
-          ]),
-          const SizedBox(height: 12),
-          StatTile(label: 'Entrenamientos', value: '${done.length}'),
-          const SizedBox(height: 16),
-          Text('Los gráficos detallados están disponibles en la versión web.', style: TextStyle(color: context.colors.muted)),
-        ]);
+        return ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            Text(
+              'Progreso',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: context.colors.ink),
+            ),
+            Text('Últimas 4 semanas, a partir de tus registros.', style: TextStyle(color: context.colors.muted)),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: StatTile(label: 'Distancia', value: formatKm(distance)),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: StatTile(label: 'Tiempo', value: formatMinutesLong(duration)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            StatTile(label: 'Entrenamientos', value: '${done.length}'),
+            const SizedBox(height: 16),
+            Text('Los gráficos detallados están disponibles en la versión web.', style: TextStyle(color: context.colors.muted)),
+          ],
+        );
       },
     );
   }

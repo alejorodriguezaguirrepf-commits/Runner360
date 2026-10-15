@@ -86,6 +86,21 @@ Después del onboarding se llega a `/planes`; `/plan` e `/inicio` sin plan activ
 
 Textos de interfaz: `apps/web/src/i18n/es-AR/library.ts` (diccionario tipado; ningún texto de interfaz de la biblioteca está fijo en los componentes). El contenido de los planes no pasa por el diccionario.
 
+## App móvil (Flutter)
+
+La app muestra el mismo plan que la web, leyendo directo de Supabase con la sesión del usuario (RLS):
+`plan_enrollments`, `library_plans`, `library_days`, `weekly_checkins`, `workout_logs` y `session_ratings`.
+
+- `lib/src/domain/plan_schedule.dart`: el mismo cálculo de calendario que `schedule.ts` (tramos por
+  check-ins: repetir, retroceder, pausa y retomar; día movido con `day_map`) y los mismos formatos
+  (36', 1 h 05', 5,4 km). Pruebas en `test/plan_schedule_test.dart`.
+- **Inicio**: entrenamiento de hoy (duración, distancia, intensidad), progreso de la semana y próxima sesión.
+- **Plan**: tira de semanas (candado en las no liberadas), "Semana N de T", solo los días de
+  entrenamiento como **Día 1, Día 2…** con pasos e intensidad, "¿Cómo te fue?" en los días ya
+  ocurridos y el historial de valoraciones.
+- Sin plan: indica elegirlo en la web (`/planes`). Los planes DEMO viejos se muestran solo a quien
+  todavía tenga uno activo; la app ya no ofrece "Obtener mi plan".
+
 ## Valoración de entrenamientos ("¿Cómo te fue?")
 
 - En **Mi plan** y **Hoy**, cada entrenamiento ya ocurrido (hasta hoy) tiene "¿Cómo te fue?": Muy mal / Mal / Normal / Bien / Excelente (1–5) y una nota opcional (≤ 500 caracteres). Se puede cambiar; queda una por día.
