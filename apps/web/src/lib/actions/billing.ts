@@ -5,8 +5,11 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { requireOnboardedSession } from "@/lib/auth";
+import { arsEquivalent } from "@/lib/data/pricing";
 import { publicEnv } from "@/lib/env";
+import { isStale, latestRate, refreshRate } from "@/lib/fx/rates";
 import { logError } from "@/lib/log";
+import { readPaymentsConfig } from "@/lib/payments/config";
 import { getProvider } from "@/lib/payments/registry";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -22,10 +25,30 @@ export async function startCheckoutAction(_prev: ActionState, formData: FormData
   }
   const [{ data: product }, { data: prices }] = await Promise.all([
     supabase.from("subscription_products").select("*").eq("id", parsed.data.productId).eq("active", true).maybeSingle<ProductRow>(),
-    supabase.from("product_prices").select("*").eq("product_id", parsed.data.productId).eq("active", true).eq("provider", parsed.data.provider),
+    supabase.from("product_prices").select("*").eq("product_id", parsed.data.productId).eq("active", true),
   ]);
-  const price = ((prices ?? []) as PriceRow[])[0];
-  if (!product || product.tier !== "premium" || !price) return { ok: false, message: "Este producto todavía no tiene precio configurado para ese medio de pago." };
+  const active = (prices ?? []) as PriceRow[];
+  const own = active.find((pr) => pr.provider === parsed.data.provider);
+  const list = active.find((pr) => pr.provider === null) ?? null;
+  if (!product || product.tier !== "premium" || (!own && !list)) return { ok: false, message: "Este producto todavía no tiene precio configurado para ese medio de pago." };
+
+  let price: PriceRow;
+  if (parsed.data.provider === "mercadopago") {
+    // Mercado Pago Argentina cobra en pesos: el precio de lista se convierte con la cotización vigente.
+    let rate = await latestRate(supabase);
+    if (isStale(rate)) {
+      await refreshRate(5000);
+      rate = (await latestRate(supabase)) ?? rate;
+    }
+    const ars = arsEquivalent(list, rate);
+    if (!list || !ars) return { ok: false, message: "No pudimos calcular el precio en pesos. Probá de nuevo en unos minutos." };
+    price = { ...list, currency: "ARS", amount_minor: ars.amountMinor };
+  } else if (own) {
+    price = own;
+  } else {
+    return { ok: false, message: "Este producto todavía no tiene precio configurado para ese medio de pago." };
+  }
+  const base = readPaymentsConfig(process.env).appBaseUrl || publicEnv.siteUrl;
 
   let url: string;
   try {
@@ -34,8 +57,8 @@ export async function startCheckoutAction(_prev: ActionState, formData: FormData
       email: user.email ?? "",
       product,
       price,
-      successUrl: `${publicEnv.siteUrl}/suscripcion?estado=procesando`,
-      cancelUrl: `${publicEnv.siteUrl}/suscripcion`,
+      successUrl: `${base}/suscripcion?estado=procesando`,
+      cancelUrl: `${base}/suscripcion`,
     }));
   } catch (e) {
     logError("checkout", e);

@@ -1,9 +1,11 @@
 import { formatDate, SUBSCRIPTION_STATUS_LABELS, type SubscriptionRow } from "@runner360/shared";
 import type { Metadata } from "next";
+import { PriceTag } from "@/components/billing/price-tag";
 import { IconCheck } from "@/components/ui/icons";
+import { pricing } from "@/i18n/es-AR/pricing";
 import { Alert, Badge, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { hasPremium, requireOnboardedSession } from "@/lib/auth";
-import { getPricedProducts } from "@/lib/data/pricing";
+import { checkoutAvailable, getPricedProducts } from "@/lib/data/pricing";
 import { PROVIDERS } from "@/lib/payments/registry";
 import { CancelSubscriptionForm, CheckoutForm } from "./billing-forms";
 
@@ -68,11 +70,12 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
           {(products ?? []).filter((p) => p.tier === "premium" && p.billing_interval === "month").map((p) => (
             <Card key={p.id}>
               <CardTitle>{p.name}</CardTitle>
-              <p className="tabular text-2xl font-extrabold">{p.priceLabel ?? "Precio a definir"}{p.priceLabel ? <span className="text-sm font-medium text-muted"> / {p.billing_interval === "year" ? "año" : "mes"}</span> : null}</p>
+              <PriceTag product={p} size="md" />
+              <p className="mt-2 text-sm font-semibold">{p.billing_interval === "year" ? pricing.renewalYear : pricing.renewal}</p>
               <ul className="my-4 space-y-1.5 text-sm">
                 {p.features.map((f) => <li key={f} className="flex gap-2"><IconCheck className="mt-0.5 shrink-0 text-primary-ink" />{f}</li>)}
               </ul>
-              {!premium ? <CheckoutForm productId={p.id} providers={providers.filter((pr) => p.prices.some((price) => price.provider === pr.id))} /> : null}
+              {!premium ? <CheckoutForm productId={p.id} providers={providers.filter((pr) => checkoutAvailable(p, pr.id))} /> : null}
             </Card>
           ))}
         </div>

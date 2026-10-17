@@ -1,6 +1,6 @@
 # Requisitos del producto — RUNNER 360
 
-**Eslogan:** Entrená. Medí. Progresá. · **Idioma:** es-AR · **Moneda inicial:** ARS (con soporte multi-moneda; precio de referencia USD 7,99/mes).
+**Eslogan:** Entrená. Medí. Progresá. · **Idioma:** es-AR · **Moneda de cobro:** ARS (precio de lista USD 20/mes y USD 180/año; se cobra el equivalente en pesos con la cotización del día).
 
 ## Visión
 
@@ -57,6 +57,6 @@ Qué funciones son Premium se configura en `app_features` desde administración 
 
 ## Supuestos documentados
 
-- Precio de referencia USD 7,99/mes cargado como precio de lista; precio anual y en ARS quedan “a definir”.
+- Precio de lista USD 20/mes y USD 180/año (`product_prices`); el equivalente en pesos sale de `fx_rates` (ver docs/payments.md).
 - El onboarding se completa en la web en esta primera versión; la app móvil lo indica.
 - Edad mínima para asignación automática: 18 años (configurable por plan y en las reglas de evaluación).

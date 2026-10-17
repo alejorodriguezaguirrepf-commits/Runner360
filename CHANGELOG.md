@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-10-17 — Cobros: precio y cotización (PR 1 de 5)
+
+- Precio de lista USD 20/mes y USD 180/año, con el equivalente aproximado en pesos (cotización diaria) y la leyenda «Se cobra en pesos argentinos…».
+- Mercado Pago cobra el equivalente en pesos con la cotización vigente.
+- Variables `MP_ENV`, `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET`, `APP_BASE_URL`, `FX_SOURCE`, `FX_RATE_TYPE`, `CRON_SECRET`, validadas al arrancar.
+- Tabla `fx_rates` y tarea diaria `/api/cron/diario`.
+
 ## 2026-10-15 — Preguntas frecuentes
 
 - Textos nuevos de las preguntas frecuentes de la portada y nueva pregunta «¿Puedo cancelar cuando quiera?».

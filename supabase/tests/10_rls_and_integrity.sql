@@ -110,7 +110,7 @@ select pg_temp.expect_error($$insert into public.workout_logs (user_id, workout_
 reset request.jwt.claim.sub;
 set role anon;
 select pg_temp.expect_eq((select count(*) from public.subscription_products), 3, 'anónimo ve productos activos');
-select pg_temp.expect_eq((select count(*) from public.product_prices), 1, 'anónimo ve precios activos');
+select pg_temp.expect_eq((select count(*) from public.product_prices), 2, 'anónimo ve precios activos (mensual y anual)');
 select pg_temp.expect_eq((select count(*) from public.educational_contents), 3, 'anónimo ve contenido gratuito publicado');
 select pg_temp.expect_eq((select count(*) from public.training_sessions), 0, 'anónimo no ve sesiones');
 

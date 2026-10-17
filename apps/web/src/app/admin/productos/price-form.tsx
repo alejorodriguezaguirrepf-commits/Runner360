@@ -12,7 +12,7 @@ export function PriceForm({ productId }: { productId: string }) {
     <form action={action} className="grid gap-3 border-t border-line pt-4 sm:grid-cols-5 sm:items-end">
       <input type="hidden" name="productId" value={productId} />
       <TextField label="Moneda" name="currency" defaultValue="USD" maxLength={3} error={e.currency} />
-      <TextField label="Importe" name="amount" placeholder="7,99" inputMode="decimal" error={e.amount} />
+      <TextField label="Importe" name="amount" placeholder="20" inputMode="decimal" error={e.amount} />
       <SelectField label="Proveedor" name="provider" placeholder="Precio de lista" options={[{ value: "mercadopago", label: "Mercado Pago" }, { value: "stripe", label: "Stripe" }, { value: "apple", label: "App Store" }, { value: "google", label: "Google Play" }]} />
       <TextField label="ID en proveedor" name="providerPriceId" placeholder="opcional" error={e.providerPriceId} />
       <SubmitButton variant="secondary">Guardar precio</SubmitButton>
