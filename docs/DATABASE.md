@@ -53,7 +53,7 @@ PostgreSQL (Supabase). Migraciones en `supabase/migrations`, en orden:
 
 | Archivo | Tipo |
 |---|---|
-| `seed/10_products.sql` | configuración inicial (Free, Premium mensual con USD 7,99, Premium anual sin precio) |
+| `seed/10_products.sql` | configuración inicial (Free, Premium mensual USD 20 y Premium anual USD 180; Mercado Pago cobra el equivalente en pesos) |
 | `seed/20_demo_plans.sql` | **DEMO / NO VALIDADO**, generado con `pnpm seed:generate` — 15 planes, IDs deterministas, idempotente |
 | `seed/30_educational_content.sql` | 3 artículos orientativos sin revisión profesional |
 
