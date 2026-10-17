@@ -7,6 +7,7 @@ import "server-only";
 const REDACTIONS: [RegExp, string][] = [
   [/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[email]"],
   [/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[jwt]"],
+  [/\b(?:APP_USR|TEST)-[A-Za-z0-9-]{10,}/g, "[token]"],
   [/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/gi, "[uuid]"],
 ];
 

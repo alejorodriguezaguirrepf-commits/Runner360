@@ -59,17 +59,17 @@ test.describe("panel administrativo", () => {
     await adminSession(page);
     await page.goto("/admin/productos");
     const monthly = page.locator("section", { has: page.getByRole("heading", { name: /Premium mensual/ }) });
-    await monthly.getByLabel("Importe").fill("8,49");
+    await monthly.getByLabel("Importe").fill("25");
     await monthly.getByRole("button", { name: "Guardar precio" }).click();
     await expect(monthly.getByText("Precio actualizado.")).toBeVisible();
-    await expect(monthly.getByText("USD 8,49").first()).toBeVisible();
+    await expect(monthly.getByText("USD 25,00").first()).toBeVisible();
 
     const anon = await browser.newPage();
     await anon.goto("/");
-    await expect(anon.getByText("USD 8,49")).toBeVisible();
+    await expect(anon.getByText(/US\$ 25\b/).first()).toBeVisible();
 
-    // Restaura el precio de referencia para no afectar otras pruebas.
-    await monthly.getByLabel("Importe").fill("7,99");
+    // Restaura el precio de lista para no afectar otras pruebas.
+    await monthly.getByLabel("Importe").fill("20");
     await monthly.getByRole("button", { name: "Guardar precio" }).click();
     await expect(monthly.getByText("Precio actualizado.")).toBeVisible();
 

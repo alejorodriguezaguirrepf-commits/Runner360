@@ -11,6 +11,7 @@ import {
   IconShield,
   IconTimer,
 } from "@/components/ui/icons";
+import { PriceTag } from "@/components/billing/price-tag";
 import { FaqAccordion } from "@/components/marketing/faq-accordion";
 import { Badge, ButtonLink } from "@/components/ui/primitives";
 import { faq } from "@/i18n/es-AR/faq";
@@ -178,12 +179,9 @@ export default async function LandingPage() {
             {products.map((p) => (
               <div key={p.id} className={`flex flex-col rounded-2xl p-6 ring-1 ${p.tier === "premium" ? "bg-nav text-nav-ink ring-primary" : "bg-surface ring-line"}`}>
                 <p className="text-sm font-semibold uppercase tracking-wide">{p.name}</p>
-                <p className="tabular mt-3 text-3xl font-extrabold">
-                  {p.tier === "free" ? "Gratis" : (p.priceLabel ?? "Precio a definir")}
-                  {p.tier !== "free" && p.priceLabel ? (
-                    <span className="text-base font-medium opacity-70"> / {p.billing_interval === "year" ? "año" : "mes"}</span>
-                  ) : null}
-                </p>
+                <div className="mt-3">
+                  {p.tier === "free" ? <p className="tabular text-3xl font-extrabold">Gratis</p> : <PriceTag product={p} inverse={p.tier === "premium"} />}
+                </div>
                 <p className={`mt-2 text-sm ${p.tier === "premium" ? "text-nav-muted" : "text-muted"}`}>{p.description}</p>
                 <ul className="mt-5 flex-1 space-y-2 text-sm">
                   {p.features.map((f) => (

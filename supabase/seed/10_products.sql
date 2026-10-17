@@ -1,7 +1,7 @@
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
--- Precio de referencia inicial: USD 7,99/mes. El precio anual y en ARS quedan pendientes de definición
--- (sin precio activo, la interfaz muestra "a definir").
+-- Precio de lista: USD 20/mes y USD 180/año. Mercado Pago Argentina cobra el equivalente en pesos
+-- (cotización en public.fx_rates).
 begin;
 
 insert into public.subscription_products (id, code, name, description, tier, billing_interval, features, sort_order)
@@ -15,7 +15,8 @@ values
 on conflict (id) do nothing;
 
 insert into public.product_prices (id, product_id, currency, amount_minor, provider, active)
-values ('00000000-0000-4000-8000-000000000101', '00000000-0000-4000-8000-000000000002', 'USD', 799, null, true)
+values ('00000000-0000-4000-8000-000000000111', '00000000-0000-4000-8000-000000000002', 'USD', 2000, null, true),
+       ('00000000-0000-4000-8000-000000000112', '00000000-0000-4000-8000-000000000003', 'USD', 18000, null, true)
 on conflict (id) do nothing;
 
 commit;
