@@ -2,9 +2,12 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/primitives";
 import { requireAdmin } from "@/lib/auth";
+import { stopViewAsAction } from "@/lib/actions/view-as";
+
+export const metadata = { robots: { index: false, follow: false } };
 
 const TABS = [
-  { href: "/admin", label: "Resumen" },
+  { href: "/admin", label: "Panel" },
   { href: "/admin/usuarios", label: "Usuarios" },
   { href: "/admin/planes", label: "Planes" },
   { href: "/admin/productos", label: "Productos y precios" },
@@ -15,7 +18,7 @@ const TABS = [
 
 /** Área exclusiva de administradores: control en servidor (requireAdmin) y en RLS. */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  await requireAdmin();
+  const { viewAs } = await requireAdmin();
   return (
     <div className="min-h-dvh bg-canvas">
       <header className="nav-zone bg-nav text-nav-ink">
@@ -29,7 +32,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           ))}
         </nav>
       </header>
-      <main id="contenido" className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+      <main id="contenido" className="mx-auto max-w-6xl px-4 py-8">
+        {viewAs ? (
+          // En "ver como usuario" la base no da permisos de admin: primero hay que volver.
+          <div role="status" className="rounded-2xl border border-primary bg-surface p-6">
+            <p className="font-bold">Estás viendo la app como usuario {viewAs === "premium" ? "con suscripción" : "sin suscripción"}.</p>
+            <p className="mt-1 text-sm text-muted">Para usar el panel, volvé a la vista de administrador.</p>
+            <form action={stopViewAsAction} className="mt-4">
+              <button type="submit" className="min-h-11 rounded-xl bg-primary px-4 font-semibold text-on-primary">Volver a administrador</button>
+            </form>
+          </div>
+        ) : (
+          children
+        )}
+      </main>
     </div>
   );
 }

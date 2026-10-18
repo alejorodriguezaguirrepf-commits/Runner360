@@ -43,8 +43,14 @@ test.describe("flujo vertical con backend", () => {
   test("un usuario común no accede a administración ni a módulos Premium", async ({ page }) => {
     await signUp(page, uniqueEmail("comun"));
     await completeOnboarding(page);
-    await page.goto("/admin");
-    await expect(page).toHaveURL(/\/inicio/);
+    // El panel "no existe" para un usuario común (404), tampoco sus secciones.
+    for (const path of ["/admin", "/admin/usuarios", "/admin/productos"]) {
+      const res = await page.goto(path);
+      expect(res?.status()).toBe(404);
+      await expect(page.getByRole("heading", { name: "No encontramos esta página" })).toBeVisible();
+    }
+    await page.goto("/inicio");
+    await expect(page.getByRole("link", { name: "Administración" })).toHaveCount(0);
     await page.goto("/hidratacion");
     await expect(page.getByText("Hidratación está incluido en Premium")).toBeVisible();
     await expect(page.getByText("No existe una cantidad de agua universal", { exact: false })).toBeVisible();

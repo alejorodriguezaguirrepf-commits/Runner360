@@ -27,7 +27,7 @@ test.describe("panel administrativo", () => {
   test("versionado de planes: clonar, revisar y publicar sin alterar la versión anterior", async ({ page }) => {
     await adminSession(page);
     await page.goto("/admin");
-    await expect(page.getByRole("heading", { name: "Resumen del negocio" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
     await expect(page.getByText("Pendiente de configuración").first()).toBeVisible();
 
     await page.goto("/admin/planes");
@@ -79,8 +79,9 @@ test.describe("panel administrativo", () => {
     await signUp(userPage, uniqueEmail("premium"), userName);
     await completeOnboarding(userPage);
     await page.goto(`/admin/usuarios?q=${encodeURIComponent(userName)}`);
-    await page.getByRole("button", { name: "Otorgar 30 días" }).click();
-    await expect(page.getByText("Premium · manual")).toBeVisible();
+    await page.getByText("Acciones").click();
+    await page.getByRole("button", { name: "Otorgar 30 días de Premium" }).click();
+    await expect(page.getByText("Premium mensual · activa")).toBeVisible();
 
     await userPage.goto("/hidratacion");
     await userPage.getByRole("button", { name: "500 ml" }).click();
@@ -122,5 +123,50 @@ test.describe("panel administrativo", () => {
       await page.getByRole("button", { name: "Guardar", exact: true }).click();
       await expect(page.getByLabel("Semanas gratis por plan")).toHaveValue("1");
     }
+  });
+
+  test("panel: métricas, usuarios con correo, acceso total y ver como usuario", async ({ page }) => {
+    const email = uniqueEmail("dueno");
+    const name = `Dueño ${Date.now()}`;
+    await signUp(page, email, name);
+    await completeOnboarding(page);
+    await promoteToAdmin(name);
+
+    await page.goto("/admin");
+    await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
+    for (const h of ["Usuarios", "Suscripciones", "Ingresos"]) await expect(page.getByRole("heading", { name: h, exact: true })).toBeVisible();
+    await expect(page.getByText("Registrados")).toBeVisible();
+    await expect(page.getByText("Distancias objetivo más elegidas")).toBeVisible();
+
+    // Listado con correo y búsqueda.
+    await page.goto(`/admin/usuarios?q=${encodeURIComponent(email)}`);
+    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByText("Tu cuenta: acceso total sin suscripción.")).toBeVisible();
+
+    // Acceso total sin pagar: módulos Premium habilitados y ninguna suscripción creada.
+    await page.goto("/hidratacion");
+    await expect(page.getByText("Hidratación está incluido en Premium")).toHaveCount(0);
+
+    // Ver como usuario sin suscripción: aviso arriba, sin enlace al panel y con los límites gratis.
+    await page.goto("/admin");
+    await page.getByRole("button", { name: "Sin suscripción" }).click();
+    await expect(page).toHaveURL(/\/inicio/);
+    await expect(page.getByText("Vista de usuario sin suscripción.")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Administración" })).toHaveCount(0);
+    await page.goto("/hidratacion");
+    await expect(page.getByText("Hidratación está incluido en Premium")).toBeVisible();
+    // El panel no responde en esta vista: hay que volver.
+    await page.goto("/admin");
+    await expect(page.getByText("Para usar el panel, volvé a la vista de administrador.")).toBeVisible();
+    await page.getByRole("button", { name: "Volver a administrador" }).click();
+    await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
+
+    // Ver como usuario con suscripción.
+    await page.getByRole("button", { name: "Con suscripción" }).click();
+    await expect(page.getByText("Vista de usuario con suscripción.")).toBeVisible();
+    await page.goto("/hidratacion");
+    await expect(page.getByText("Hidratación está incluido en Premium")).toHaveCount(0);
+    await page.getByRole("button", { name: "Volver a administrador" }).click();
+    await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
   });
 });

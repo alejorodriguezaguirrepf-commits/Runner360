@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient as createPlainClient, type SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { isSupabaseConfigured, publicEnv } from "@/lib/env";
+import { parseViewAs, VIEW_AS_COOKIE, VIEW_AS_HEADER } from "@/lib/view-as";
 
 export class SupabaseNotConfiguredError extends Error {
   constructor() {
@@ -14,7 +15,10 @@ export class SupabaseNotConfiguredError extends Error {
 export async function createClient(): Promise<SupabaseClient> {
   const cookieStore = await cookies();
   if (!isSupabaseConfigured()) throw new SupabaseNotConfiguredError();
+  // "Ver como usuario": la base solo usa este encabezado para quitarle permisos a un admin.
+  const viewAs = parseViewAs(cookieStore.get(VIEW_AS_COOKIE)?.value);
   return createServerClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
+    ...(viewAs ? { global: { headers: { [VIEW_AS_HEADER]: viewAs } } } : {}),
     cookies: {
       getAll() {
         return cookieStore.getAll();

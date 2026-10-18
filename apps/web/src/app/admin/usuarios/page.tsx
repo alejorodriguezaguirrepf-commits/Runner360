@@ -1,82 +1,95 @@
-import { formatDate, ROLE_LABELS, type ProfileRow } from "@runner360/shared";
+import { DISTANCE_LABELS, formatDate, ROLE_LABELS, type ProfileRow } from "@runner360/shared";
 import type { Metadata } from "next";
-import { Badge, Card, PageHeader } from "@/components/ui/primitives";
-import { requireAdmin } from "@/lib/auth";
+import { Alert, Badge, Card, PageHeader } from "@/components/ui/primitives";
 import { grantManualPremiumAction, revokeManualPremiumAction } from "@/lib/actions/admin";
+import { requireAdmin } from "@/lib/auth";
 import { RoleForm } from "./role-form";
 
-export const metadata: Metadata = { title: "Usuarios" };
+export const metadata: Metadata = { title: "Usuarios", robots: { index: false, follow: false } };
 
-export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string; rol?: string; pagina?: string }> }) {
+type AdminUser = {
+  id: string;
+  email: string;
+  display_name: string | null;
+  role: ProfileRow["role"];
+  created_at: string;
+  target_distance: string | null;
+  plan: string;
+  subscription_status: string | null;
+  total_count: number;
+};
+
+const SIZE = 25;
+
+export default async function UsersPage({ searchParams }: { searchParams: Promise<{ q?: string; pagina?: string }> }) {
   const { supabase, user } = await requireAdmin();
-  const { q = "", rol = "", pagina = "1" } = await searchParams;
+  const { q = "", pagina = "1" } = await searchParams;
   const page = Math.max(1, Number(pagina) || 1);
-  const size = 25;
-  let query = supabase
-    .from("profiles")
-    .select("id, display_name, role, can_validate_plans, onboarding_completed_at, deletion_requested_at, created_at", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range((page - 1) * size, page * size - 1);
-  if (q.trim()) query = query.ilike("display_name", `%${q.trim().replace(/[%_]/g, "")}%`);
-  if (rol === "user" || rol === "coach" || rol === "admin") query = query.eq("role", rol);
-  const { data, count } = await query;
-  const users = (data ?? []) as (ProfileRow & { deletion_requested_at: string | null })[];
-  const { data: subs } = await supabase.from("subscriptions").select("user_id, status, provider, current_period_end").in("user_id", users.map((u) => u.id)).in("status", ["active", "trialing", "past_due"]);
-  const subByUser = new Map(((subs ?? []) as { user_id: string; status: string; provider: string; current_period_end: string | null }[]).map((s) => [s.user_id, s]));
+  const { data, error } = await supabase.rpc("admin_users", { p_query: q.trim().slice(0, 100), p_limit: SIZE, p_offset: (page - 1) * SIZE });
+  const users = (data ?? []) as AdminUser[];
+  const total = users[0]?.total_count ?? 0;
+  const ids = users.map((u) => u.id);
+  const [{ data: perms }, { data: subs }] = await Promise.all([
+    supabase.from("profiles").select("id, can_validate_plans").in("id", ids),
+    supabase.from("subscriptions").select("user_id, provider").in("user_id", ids).in("status", ["active", "trialing", "past_due"]),
+  ]);
+  const canValidate = new Map(((perms ?? []) as { id: string; can_validate_plans: boolean }[]).map((p) => [p.id, p.can_validate_plans]));
+  const manual = new Set(((subs ?? []) as { user_id: string; provider: string }[]).filter((s) => s.provider === "manual").map((s) => s.user_id));
+  const hasSub = new Set(((subs ?? []) as { user_id: string }[]).map((s) => s.user_id));
 
   return (
     <>
-      <PageHeader title="Usuarios" subtitle={`${count ?? 0} en total. Los correos solo son visibles en Supabase Auth (minimización de datos).`} />
-      <form className="mb-4 flex flex-wrap gap-2" role="search">
-        <label className="sr-only" htmlFor="q">Buscar por nombre</label>
-        <input id="q" name="q" defaultValue={q} placeholder="Buscar por nombre" className="min-h-11 rounded-xl border border-line bg-surface px-3 text-sm" />
-        <label className="sr-only" htmlFor="rol">Rol</label>
-        <select id="rol" name="rol" defaultValue={rol} className="min-h-11 rounded-xl border border-line bg-surface px-3 text-sm">
-          <option value="">Todos los roles</option>
-          <option value="user">Usuarios</option>
-          <option value="coach">Entrenadores</option>
-          <option value="admin">Administradores</option>
-        </select>
-        <button className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">Filtrar</button>
+      <PageHeader title="Usuarios" subtitle={`${total} ${q.trim() ? "encontrados" : "registrados"}.`} />
+      <form className="mb-4 flex gap-2" role="search">
+        <label className="sr-only" htmlFor="q">Buscar por correo o nombre</label>
+        <input id="q" name="q" type="search" defaultValue={q} placeholder="Buscar por correo o nombre" className="min-h-11 min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-base sm:text-sm" />
+        <button className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">Buscar</button>
       </form>
-      <Card flush className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="border-b border-line text-muted"><tr><th className="p-3">Usuario</th><th className="p-3">Alta</th><th className="p-3">Suscripción</th><th className="p-3">Rol y permisos</th></tr></thead>
-          <tbody className="divide-y divide-line">
-            {users.map((u) => {
-              const sub = subByUser.get(u.id);
-              return (
-                <tr key={u.id} className="align-top">
-                  <td className="p-3">
-                    <p className="font-semibold">{u.display_name ?? "Sin nombre"}</p>
-                    <p className="font-mono text-xs text-muted">{u.id}</p>
-                    {!u.onboarding_completed_at ? <Badge tone="warning">Sin onboarding</Badge> : null}
-                    {u.deletion_requested_at ? <Badge tone="danger">Pidió eliminar cuenta</Badge> : null}
-                  </td>
-                  <td className="p-3">{formatDate(u.created_at.slice(0, 10))}</td>
-                  <td className="p-3">
-                    {sub ? <Badge tone="lime">Premium · {sub.provider}</Badge> : <Badge>Free</Badge>}
-                    <div className="mt-2 flex gap-1">
-                      {!sub ? (
-                        <form action={grantManualPremiumAction}><input type="hidden" name="userId" value={u.id} /><input type="hidden" name="days" value="30" /><button className="min-h-9 rounded-lg border border-line px-2 text-xs font-semibold">Otorgar 30 días</button></form>
-                      ) : sub.provider === "manual" ? (
-                        <form action={revokeManualPremiumAction}><input type="hidden" name="userId" value={u.id} /><button className="min-h-9 rounded-lg border border-line px-2 text-xs font-semibold text-danger">Revocar</button></form>
-                      ) : null}
-                    </div>
-                  </td>
-                  <td className="p-3">
-                    <p className="mb-1 text-xs text-muted">{ROLE_LABELS[u.role]}{u.can_validate_plans ? " · valida planes" : ""}</p>
-                    {u.id !== user.id ? <RoleForm userId={u.id} role={u.role} canValidate={u.can_validate_plans} /> : <span className="text-xs text-muted">(vos)</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </Card>
-      <div className="mt-4 flex gap-2 text-sm">
-        {page > 1 ? <a className="font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page - 1}`}>← Anterior</a> : null}
-        {(count ?? 0) > page * size ? <a className="font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&rol=${rol}&pagina=${page + 1}`}>Siguiente →</a> : null}
+      {error ? <Alert tone="danger">No se pudo cargar el listado.</Alert> : null}
+      {!error && users.length === 0 ? <p className="text-sm text-muted">No hay usuarios que coincidan.</p> : null}
+      <ul className="space-y-3">
+        {users.map((u) => (
+          <li key={u.id}>
+            <Card>
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="truncate font-bold">{u.email}</p>
+                  <p className="text-sm text-muted">{u.display_name ?? "Sin nombre"} · alta {formatDate(u.created_at.slice(0, 10))}</p>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {u.role === "admin" ? <Badge tone="lime">Administrador</Badge> : null}
+                  <Badge tone={u.subscription_status === "activa" ? "success" : "neutral"}>
+                    {u.plan}
+                    {u.subscription_status ? ` · ${u.subscription_status}` : ""}
+                  </Badge>
+                </div>
+              </div>
+              <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                <div><dt className="text-xs text-muted">Distancia objetivo</dt><dd>{u.target_distance ? (DISTANCE_LABELS[u.target_distance as keyof typeof DISTANCE_LABELS] ?? u.target_distance) : "—"}</dd></div>
+                <div><dt className="text-xs text-muted">Rol</dt><dd>{ROLE_LABELS[u.role]}</dd></div>
+              </dl>
+              {u.id !== user.id ? (
+                <details className="mt-3">
+                  <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-primary-ink">Acciones</summary>
+                  <div className="mt-2 space-y-3">
+                    {!hasSub.has(u.id) ? (
+                      <form action={grantManualPremiumAction}><input type="hidden" name="userId" value={u.id} /><input type="hidden" name="days" value="30" /><button className="min-h-11 rounded-lg border border-line px-3 text-sm font-semibold">Otorgar 30 días de Premium</button></form>
+                    ) : manual.has(u.id) ? (
+                      <form action={revokeManualPremiumAction}><input type="hidden" name="userId" value={u.id} /><button className="min-h-11 rounded-lg border border-line px-3 text-sm font-semibold text-danger">Revocar Premium otorgado</button></form>
+                    ) : null}
+                    <RoleForm userId={u.id} role={u.role} canValidate={canValidate.get(u.id) ?? false} />
+                  </div>
+                </details>
+              ) : (
+                <p className="mt-3 text-xs text-muted">Tu cuenta: acceso total sin suscripción.</p>
+              )}
+            </Card>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-4 flex gap-4 text-sm">
+        {page > 1 ? <a className="min-h-11 py-2 font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&pagina=${page - 1}`}>← Anterior</a> : null}
+        {total > page * SIZE ? <a className="min-h-11 py-2 font-semibold text-primary-ink" href={`?q=${encodeURIComponent(q)}&pagina=${page + 1}`}>Siguiente →</a> : null}
       </div>
     </>
   );

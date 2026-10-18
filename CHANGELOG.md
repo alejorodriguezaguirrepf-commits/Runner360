@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-10-18 — Rol de administrador y panel
+
+- La cuenta del dueño tiene rol **admin** (asignado en la base; si la cuenta se vuelve a crear, lo recibe al confirmar el correo).
+- El admin tiene acceso total sin suscripción ni cobros.
+- Panel en `/admin`: usuarios (totales y nuevos por semana/mes), suscripciones (activas, canceladas, vencidas y por plan), ingresos por mes y moneda, listado de usuarios con correo y búsqueda, distancias objetivo y uso de la calculadora.
+- «Ver como usuario» (sin o con suscripción) desde el panel; la base aplica los permisos de esa vista.
+- Para cualquier otra cuenta el panel no existe (404); la base lo vuelve a verificar en cada consulta.
+
 ## 2026-10-18 — Calculadora de ritmos, planes en km y sin 15 km
 
 - Nueva **Calculadora** en el menú: test (km + tiempo), tabla de ritmos del 100 % al 50 % para las distancias que elijas y calculadora de pasadas. Guarda el último test.

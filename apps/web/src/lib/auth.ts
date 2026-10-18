@@ -2,21 +2,26 @@ import "server-only";
 import type { ProfileRow } from "@runner360/shared";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
+import { parseViewAs, VIEW_AS_COOKIE, type ViewAs } from "@/lib/view-as";
 
 export interface Session {
   supabase: SupabaseClient;
   user: User;
   profile: ProfileRow;
+  /** Vista activa de "ver como usuario" (solo cuenta para administradores). */
+  viewAs: ViewAs | null;
+  /** Administrador con permisos en este momento (no está viendo la app como usuario). */
+  isAdmin: boolean;
 }
 
 /** Usuario autenticado validado contra Supabase Auth, o null. Cacheado por request. */
 export const getSession = cache(async (): Promise<Session | null> => {
   // Marca la ruta como dinámica (depende de cookies) incluso sin Supabase configurado.
-  await cookies();
+  const cookieStore = await cookies();
   if (!isSupabaseConfigured()) return null;
   const supabase = await createClient();
   const {
@@ -29,7 +34,8 @@ export const getSession = cache(async (): Promise<Session | null> => {
     .eq("id", user.id)
     .single<ProfileRow>();
   if (!profile) return null;
-  return { supabase, user, profile };
+  const viewAs = profile.role === "admin" ? parseViewAs(cookieStore.get(VIEW_AS_COOKIE)?.value) : null;
+  return { supabase, user, profile, viewAs, isAdmin: profile.role === "admin" && !viewAs };
 });
 
 export async function requireSession(nextPath?: string): Promise<Session> {
@@ -45,9 +51,13 @@ export async function requireOnboardedSession(): Promise<Session> {
   return session;
 }
 
+/**
+ * Área de administración: si la cuenta no es admin, la página "no existe" (404) para no revelar el
+ * panel. La base vuelve a verificarlo en cada consulta (is_admin() y RLS).
+ */
 export async function requireAdmin(): Promise<Session> {
   const session = await requireSession("/admin");
-  if (session.profile.role !== "admin") redirect("/inicio");
+  if (session.profile.role !== "admin") notFound();
   return session;
 }
 
