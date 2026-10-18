@@ -41,6 +41,18 @@ export function parseDistance(input: string): number | null {
   return meters >= 50 && meters <= 100_000 ? meters : null;
 }
 
+/**
+ * Máscara del campo Tiempo: la persona escribe solo números y los dos puntos se ponen solos.
+ * Los dos últimos dígitos son los segundos: "1200" → "12:00", "945" → "9:45", "13030" → "1:30:30".
+ * Se ignora todo lo que no sea número (también los ":" pegados) y se aceptan hasta 6 dígitos.
+ */
+export function maskClock(input: string): string {
+  const d = input.replace(/\D/g, "").replace(/^0+(?=\d{3})/, "").slice(0, 6);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, -2)}:${d.slice(-2)}`;
+  return `${d.slice(0, -4)}:${d.slice(-4, -2)}:${d.slice(-2)}`;
+}
+
 /** Tiempo (s) para recorrer `meters` al `pct` % de la velocidad del test. */
 export function timeAt(test: { meters: number; seconds: number }, meters: number, pct: number): number {
   if (!(test.meters > 0) || !(test.seconds > 0) || !(pct > 0)) throw new Error("Datos inválidos");

@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState, useTransition } from "reac
 import { INPUT } from "@/components/ui/form";
 import { Button, Card, CardTitle, cx } from "@/components/ui/primitives";
 import { savePaceTestAction } from "@/lib/actions/pace-test";
-import { formatClock, formatDistance, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
+import { formatClock, formatDistance, maskClock, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
 
 type Test = { meters: number; seconds: number };
 type Rep = { id: number; reps: string; meters: string; pct: string };
@@ -32,7 +32,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
   const timeValue = parseClock(time);
   const test: Test | null = kmValue && timeValue ? { meters: Math.round(kmValue * 1000), seconds: timeValue } : null;
   const kmError = km.trim() && !kmValue ? "Escribí los km con coma o punto (por ejemplo, 2,4)." : undefined;
-  const timeError = time.trim() && !timeValue ? "Usá mm:ss o hh:mm:ss (por ejemplo, 12:30)." : undefined;
+  const timeError = time.trim() && !timeValue ? "Revisá el tiempo: los segundos (y los minutos, si hay horas) van de 00 a 59." : undefined;
   const implausible = test && ((test.seconds * 1000) / test.meters < 90 || (test.seconds * 1000) / test.meters > 1800);
 
   // Guarda el test unos segundos después del último cambio (solo si es válido y distinto del guardado).
@@ -96,7 +96,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
               autoComplete="off"
               placeholder="12:00"
               value={time}
-              onChange={(e) => setTime(e.target.value)}
+              onChange={(e) => setTime(maskClock(e.target.value))}
               aria-invalid={timeError ? true : undefined}
               aria-describedby={timeError ? `${timeId}-e` : `${timeId}-h`}
               className={INPUT}
@@ -104,7 +104,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
             {timeError ? (
               <p id={`${timeId}-e`} className="text-xs font-medium text-danger">{timeError}</p>
             ) : (
-              <p id={`${timeId}-h`} className="text-xs text-muted">mm:ss o hh:mm:ss</p>
+              <p id={`${timeId}-h`} className="text-xs text-muted">Escribí solo los números: 1200 = 12:00</p>
             )}
           </div>
         </div>

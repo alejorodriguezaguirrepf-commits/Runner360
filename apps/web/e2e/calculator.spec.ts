@@ -12,7 +12,9 @@ test.describe("calculadora de ritmos", () => {
 
     // a) Test: 2,4 km en 12:00 → 5:00/km.
     await page.getByLabel("Km del test").fill("2,4");
-    await page.getByLabel("Tiempo").fill("12:00");
+    // Solo se escriben números: los dos puntos se ponen solos.
+    await page.getByLabel("Tiempo").pressSequentially("1200");
+    await expect(page.getByLabel("Tiempo")).toHaveValue("12:00");
     await expect(page.getByText("Ritmo del test: 5:00 /km.")).toBeVisible();
 
     // b) Tabla: 400 m al 100 % = 2:00, al 80 % = 2:30, al 50 % = 4:00.

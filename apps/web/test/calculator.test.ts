@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatClock, formatDistance, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
+import { formatClock, formatDistance, maskClock, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
 
 describe("entradas", () => {
   it("km del test con coma o punto", () => {
@@ -15,6 +15,25 @@ describe("entradas", () => {
     expect(parseClock("1:05:30")).toBe(3930);
     expect(parseClock("75:00")).toBe(4500);
     for (const bad of ["", "12", "12:60", "1:60:00", "a:bc", "0:00", "1:2:3:4"]) expect(parseClock(bad)).toBeNull();
+  });
+
+  it("tiempo: los dos puntos se ponen solos mientras se escribe", () => {
+    // Escritura dígito por dígito: 1 → 12 → 1:20 → 12:00
+    expect(["1", "12", "120", "1200"].map(maskClock)).toEqual(["1", "12", "1:20", "12:00"]);
+    expect(maskClock("945")).toBe("9:45");
+    expect(maskClock("13030")).toBe("1:30:30");
+    expect(maskClock("013030")).toBe("1:30:30");
+    expect(maskClock("0945")).toBe("9:45");
+    // Pegar un tiempo con ":" o caracteres sueltos también funciona; máximo 6 dígitos.
+    expect(maskClock("12:00")).toBe("12:00");
+    expect(maskClock("1h 05m 30s")).toBe("1:05:30");
+    expect(maskClock("1234567")).toBe("12:34:56");
+    expect(maskClock("")).toBe("");
+    // Al borrar el último dígito, se reacomoda: 12:00 → 1:20
+    expect(maskClock("12:0")).toBe("1:20");
+    // El resultado se puede leer como tiempo.
+    expect(parseClock(maskClock("1200"))).toBe(720);
+    expect(parseClock(maskClock("13030"))).toBe(5430);
   });
 
   it("distancias en metros o km", () => {
