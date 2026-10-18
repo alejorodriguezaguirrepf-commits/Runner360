@@ -5,7 +5,6 @@ import type { DistanceCode, Experience, Goal, HealthFlag, Intensity, Level, Sess
 export const DISTANCE_LABELS: Record<DistanceCode, string> = {
   "5K": "5 km",
   "10K": "10 km",
-  "15K": "15 km",
   "21K": "21 km (media maratón)",
   "42K": "42 km (maratón)",
 };

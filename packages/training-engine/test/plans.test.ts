@@ -12,8 +12,9 @@ const rules = {
 
 describe("planes DEMO", () => {
   const plans = buildAllDemoPlans();
-  it("cubre las 15 combinaciones de distancia y nivel", () => {
-    expect(new Set(plans.map((p) => `${p.distance}-${p.level}`)).size).toBe(15);
+  it("cubre las 12 combinaciones de distancia y nivel (sin 15 km)", () => {
+    expect(new Set(plans.map((p) => `${p.distance}-${p.level}`)).size).toBe(12);
+    expect(plans.some((p) => (p.distance as string) === "15K")).toBe(false);
   });
   it("todos están marcados como DEMO y sin validación", () => {
     for (const p of plans) {

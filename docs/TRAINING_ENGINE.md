@@ -17,7 +17,7 @@ Lógica de negocio pura, determinista y sin dependencias de UI ni base de datos.
 | `validation.ts` | Criterios de publicación (errores bloqueantes y advertencias) |
 | `versioning.ts` | Transiciones de estado y numeración de versiones |
 | `ai.ts` | Interfaz para proveedores de IA: solo propuestas sobre borradores, validadas y pendientes de aprobación humana |
-| `demo/` | Generador de los 15 planes **DEMO / NO VALIDADOS** |
+| `demo/` | Generador de los 12 planes **DEMO / NO VALIDADOS** |
 
 ## Asignación (`assignPlan`)
 

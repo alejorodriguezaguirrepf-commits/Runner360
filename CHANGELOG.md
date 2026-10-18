@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-10-18 — Calculadora de ritmos, planes en km y sin 15 km
+
+- Nueva **Calculadora** en el menú: test (km + tiempo), tabla de ritmos del 100 % al 50 % para las distancias que elijas y calculadora de pasadas. Guarda el último test.
+- La parte principal de los entrenamientos se muestra en **km** (con el ritmo del test o el estimado del nivel del plan), en la web y en la app.
+- Se quitó la distancia de **15 km** (objetivo, onboarding, planes DEMO y textos). En producción no había usuarios con 15 km.
+- La «Vista de ejemplo» de la portada pasó al final de la página.
+
 ## 2026-10-17 — Cobros: precio y cotización (PR 1 de 5)
 
 - Precio de lista USD 20/mes y USD 180/año, con el equivalente aproximado en pesos (cotización diaria) y la leyenda «Se cobra en pesos argentinos…».

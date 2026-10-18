@@ -1,8 +1,10 @@
+import { todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SafetyNotices } from "@/components/library/notices";
-import { WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
+import { KmNote, WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
+import { planPaces } from "@/lib/data/paces";
 import { IconChevronLeft, IconLock } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
@@ -21,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 /** Plan como lista de tareas: semana elegida (tira S1…SN) y sus días numerados, sin explicaciones. */
 export default async function PlanDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ semana?: string }> }) {
-  const { supabase } = await requireOnboardedSession();
+  const { supabase, user, profile } = await requireOnboardedSession();
   const { id } = await params;
   const library = await getLibrary();
   if (!library) {
@@ -41,9 +43,10 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
   const week = Number.isInteger(requestedWeek) && requestedWeek >= 1 && requestedWeek <= plan.duration_weeks ? requestedWeek : 1;
 
   // Semanas con acceso (las que trae la base: muestra gratis o meses liberados) y la semana elegida.
-  const [overview, days] = await Promise.all([
+  const [overview, days, paces] = await Promise.all([
     getOverviewDays(supabase, v.content_version, plan.id),
     getWeekDays(supabase, v.content_version, plan.id, week),
+    planPaces(supabase, user.id, v.model_runner_assumptions, plan.chapter, todayIn(profile.timezone)),
   ]);
   const openWeeks = new Set(overview.map((d) => d.week));
   const weekHref = (n: number) => `/planes/${plan.id}?semana=${n}`;
@@ -78,12 +81,13 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
           <h2 id="semana" className="text-2xl font-extrabold">{fmt(w.weekOf, { n: week, total: plan.duration_weeks })}</h2>
           {days.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(days)}</p> : null}
         </div>
+        {paces.speeds && days.length === 7 ? <KmNote testDate={paces.testDate} /> : null}
         {days.length === 7 ? (
           <ol className="space-y-2.5">
             {days
               .filter((d) => !d.is_rest)
               .map((d, i) => (
-                <WorkoutDay key={d.day_index} day={d} n={i + 1} legend={v.category_legend} open={d.day_index === firstSession} />
+                <WorkoutDay key={d.day_index} day={d} n={i + 1} legend={v.category_legend} speeds={paces.speeds} open={d.day_index === firstSession} />
               ))}
           </ol>
         ) : (

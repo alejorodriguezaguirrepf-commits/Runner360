@@ -1,3 +1,4 @@
+import { DISTANCE_CODES } from "@runner360/training-engine";
 import { DISTANCE_LABELS, LEVEL_LABELS, PLAN_STATUS_LABELS, type PlanRow, type PlanVersionRow } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -17,7 +18,8 @@ export default async function PlansAdminPage() {
     <>
       <PageHeader title="Planes de entrenamiento" subtitle="Solo se publican versiones que cumplen los criterios de validación. Una versión publicada no se edita: se crea una nueva." />
       <div className="space-y-4">
-        {((plans ?? []) as PlanRow[]).map((p) => (
+        {/* Los planes DEMO de distancias que ya no se ofrecen (15 km) quedan en la base pero no se listan. */}
+        {((plans ?? []) as PlanRow[]).filter((p) => (DISTANCE_CODES as readonly string[]).includes(p.distance)).map((p) => (
           <Card key={p.id}>
             <CardTitle action={<span className="text-xs text-muted">{DISTANCE_LABELS[p.distance]} · {LEVEL_LABELS[p.level]} · {p.is_premium ? "Premium" : "Gratis"}</span>}>{p.name}</CardTitle>
             <ul className="divide-y divide-line text-sm">

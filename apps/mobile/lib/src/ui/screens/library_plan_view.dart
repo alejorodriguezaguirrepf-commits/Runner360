@@ -139,6 +139,15 @@ class _LibraryPlanViewState extends State<LibraryPlanView> {
                   '${sessions.length} ${sessions.length == 1 ? 'entrenamiento' : 'entrenamientos'} · ${formatPlanMinutes(totalMin, round: true)}',
                   style: TextStyle(fontWeight: FontWeight.w700, color: c.muted),
                 ),
+                if (p.speeds != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    p.testDate != null
+                        ? 'Distancias calculadas con tu test del ${shortDate(p.testDate!)}.'
+                        : 'Distancias estimadas para el nivel del plan. Cargá tu test en la Calculadora (web) para ajustarlas a tu ritmo.',
+                    style: TextStyle(fontSize: 12, color: c.muted),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 for (var i = 0; i < sessions.length; i++) ...[
                   WorkoutCard(
@@ -151,6 +160,7 @@ class _LibraryPlanViewState extends State<LibraryPlanView> {
                     rating: ratingByDate[sessions[i].date]?['rating'] as int?,
                     note: ratingByDate[sessions[i].date]?['note'] as String?,
                     initiallyExpanded: identical(sessions[i], firstOpen),
+                    speeds: p.speeds,
                     onRate: sessions[i].date.compareTo(_today) <= 0
                         ? (rating, note) async {
                             await widget.repo.saveRating(

@@ -1,4 +1,5 @@
-import { formatKmValue, formatMinutes, type Category } from "@runner360/plan-library";
+import { formatKmValue, formatMinutes, mainSetInKm, type Category, type Speeds } from "@runner360/plan-library";
+import { formatDate } from "@runner360/shared";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { IconLock } from "@/components/ui/icons";
@@ -34,6 +35,7 @@ export function WorkoutDay({
   tips = false,
   rating = null,
   footer,
+  speeds = null,
 }: {
   day: DayRow;
   /** Número de día dentro de la semana (1–7). */
@@ -49,6 +51,8 @@ export function WorkoutDay({
   rating?: number | null;
   /** Contenido extra al final del detalle (por ejemplo, "¿Cómo te fue?"). */
   footer?: ReactNode;
+  /** Velocidades del corredor: la parte principal se muestra en km en lugar de minutos. */
+  speeds?: Speeds | null;
 }) {
   const c = categoryOf(day);
   const badge = (
@@ -82,7 +86,7 @@ export function WorkoutDay({
 
   const steps: { label: string; text: string | null }[] = [
     { label: m.warmup, text: day.warmup },
-    { label: m.main, text: day.main_set },
+    { label: m.main, text: mainSetInKm(day.main_set, speeds) ?? null },
     { label: m.cooldown, text: day.cooldown },
   ];
   if (day.strength_after) steps.push({ label: m.strength, text: m.strengthText });
@@ -168,5 +172,21 @@ export function WeekStrip({ pills }: { pills: WeekPill[] }) {
         ))}
       </ul>
     </nav>
+  );
+}
+
+/** De dónde salen los km de la parte principal: el test del corredor o el nivel del plan. */
+export function KmNote({ testDate }: { testDate: string | null }) {
+  return (
+    <p className="text-xs text-muted">
+      {testDate ? (
+        fmt(m.kmFromTest, { date: formatDate(testDate, "long") })
+      ) : (
+        <>
+          {m.kmFromModel}{" "}
+          <Link href="/calculadora" className="font-semibold underline">{m.kmCalculator}</Link> {m.kmFromModelEnd}
+        </>
+      )}
+    </p>
   );
 }

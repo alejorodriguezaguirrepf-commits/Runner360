@@ -14,6 +14,7 @@ const TABLES = [
   "plan_enrollments",
   "weekly_checkins",
   "session_ratings",
+  "user_pace_tests",
   "workout_splits",
   "hydration_logs",
   "hydration_reminders",

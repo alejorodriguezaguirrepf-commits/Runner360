@@ -43,11 +43,6 @@ const CONFIG: Record<DistanceCode, Record<Level, DemoConfig>> = {
     intermediate: { durationWeeks: 10, longPeakMin: 70, easyPeakMin: 45, minWeeklyKm: 15, minExperienceMonths: 6 },
     advanced: { durationWeeks: 10, longPeakMin: 80, easyPeakMin: 50, minWeeklyKm: 30, minExperienceMonths: 12 },
   },
-  "15K": {
-    beginner: { durationWeeks: 12, longPeakMin: 80, easyPeakMin: 40, minWeeklyKm: 10, minExperienceMonths: 6 },
-    intermediate: { durationWeeks: 12, longPeakMin: 90, easyPeakMin: 45, minWeeklyKm: 20, minExperienceMonths: 12 },
-    advanced: { durationWeeks: 12, longPeakMin: 100, easyPeakMin: 55, minWeeklyKm: 35, minExperienceMonths: 36 },
-  },
   "21K": {
     beginner: { durationWeeks: 16, longPeakMin: 110, easyPeakMin: 45, minWeeklyKm: 15, minExperienceMonths: 6 },
     intermediate: { durationWeeks: 14, longPeakMin: 120, easyPeakMin: 50, minWeeklyKm: 25, minExperienceMonths: 12 },

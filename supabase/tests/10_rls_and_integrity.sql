@@ -60,7 +60,7 @@ insert into public.user_consents (user_id, consent_type, document_version, grant
 insert into public.health_screenings (user_id, flags) values ('aaaaaaaa-0000-4000-8000-000000000001', '{recent_injury}');
 
 -- Catálogo y contenido
-select pg_temp.expect_eq((select count(*) from public.training_plans), 15, 'A ve el catálogo de 15 planes');
+select pg_temp.expect_eq((select count(*) from public.training_plans), 12, 'A ve el catálogo DEMO de 12 planes (sin 15 km)');
 select pg_temp.expect_eq((select count(*) from public.training_sessions where version_id = (select free_version from ref)), 24, 'A ve sesiones del plan gratuito');
 select pg_temp.expect_eq((select count(*) from public.training_sessions where version_id = (select premium_version from ref)), 0, 'A no ve sesiones Premium');
 select pg_temp.expect_eq((select count(*) from public.payment_events), 0, 'A no ve eventos de pago');

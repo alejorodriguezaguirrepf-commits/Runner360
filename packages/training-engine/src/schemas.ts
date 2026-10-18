@@ -10,7 +10,7 @@ import { z } from "zod";
  *  - Días de la semana ISO: 1 = lunes ... 7 = domingo.
  */
 
-export const DISTANCE_CODES = ["5K", "10K", "15K", "21K", "42K"] as const;
+export const DISTANCE_CODES = ["5K", "10K", "21K", "42K"] as const;
 export const distanceCodeSchema = z.enum(DISTANCE_CODES);
 export type DistanceCode = z.infer<typeof distanceCodeSchema>;
 
@@ -18,7 +18,6 @@ export type DistanceCode = z.infer<typeof distanceCodeSchema>;
 export const DISTANCE_METERS: Record<DistanceCode, number> = {
   "5K": 5000,
   "10K": 10000,
-  "15K": 15000,
   "21K": 21097.5,
   "42K": 42195,
 };

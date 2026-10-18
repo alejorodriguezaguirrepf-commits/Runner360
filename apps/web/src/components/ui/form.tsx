@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/lib/action-state";
 import { Alert, Button, cx } from "./primitives";
 
-const INPUT =
+export const INPUT =
   "block min-h-11 w-full rounded-xl border border-field bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-muted focus:border-primary-ink focus:outline-none focus:ring-3 focus:ring-primary/25 aria-[invalid=true]:border-danger sm:text-sm";
 
 interface FieldBase {

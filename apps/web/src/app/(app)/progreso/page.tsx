@@ -96,7 +96,7 @@ export default async function ProgressPage() {
             {(prs ?? []).length === 0 ? <p className="text-sm text-muted">Cargá resultados en Competencias para ver tus marcas.</p> : (
               <ul className="divide-y divide-line text-sm">
                 {(prs as { distance_code: keyof typeof DISTANCE_LABELS; finish_time_s: number; event_date: string; competition_name: string }[]).map((p) => (
-                  <li key={p.distance_code} className="flex justify-between py-2"><span>{DISTANCE_LABELS[p.distance_code]} · {p.competition_name}</span><span className="tabular font-semibold">{formatDuration(p.finish_time_s)}</span></li>
+                  <li key={p.distance_code} className="flex justify-between py-2"><span>{DISTANCE_LABELS[p.distance_code] ?? p.distance_code} · {p.competition_name}</span><span className="tabular font-semibold">{formatDuration(p.finish_time_s)}</span></li>
                 ))}
               </ul>
             )}

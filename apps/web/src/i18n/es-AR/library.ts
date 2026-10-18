@@ -94,6 +94,10 @@ export const library = {
     },
   },
   workout: {
+    kmFromTest: "Distancias calculadas con tu test del {date}.",
+    kmFromModel: "Distancias estimadas para el nivel del plan. Cargá tu test en la",
+    kmCalculator: "Calculadora",
+    kmFromModelEnd: "para ajustarlas a tu ritmo.",
     day: "Día",
     dayN: "Día {n}",
     today: "hoy",

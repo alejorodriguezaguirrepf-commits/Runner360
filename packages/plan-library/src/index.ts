@@ -7,5 +7,6 @@ export * from "./catalog";
 export * from "./format";
 export * from "./schedule";
 export * from "./riegel";
+export * from "./distance";
 export * from "./rules";
 export * from "./progress";

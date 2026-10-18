@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { IntensityScale, SafetyNotices } from "@/components/library/notices";
 import { RatingForm } from "@/components/library/rating-form";
-import { WorkoutDay } from "@/components/library/workout";
+import { KmNote, WorkoutDay } from "@/components/library/workout";
+import { planPaces } from "@/lib/data/paces";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
 import { IconLock } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, cx, EmptyState, PageHeader } from "@/components/ui/primitives";
@@ -35,6 +36,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   }
   const { enrollment, plan, library } = open;
   const v = library.version;
+  const paces = await planPaces(supabase, user.id, v.model_runner_assumptions, plan.chapter, today);
   const header = <PageHeader title={T.title} subtitle={`${formatDate(today, "weekday")} · ${plan.title}`} actions={<ButtonLink href="/plan" variant="ghost">{t.library.nav.myPlan}</ButtonLink>} />;
   const notices = (
     <div className="mb-6 space-y-3">
@@ -121,6 +123,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             day={todayDay}
             n={(week?.dated.filter((x) => !x.day.is_rest).findIndex((x) => x.date === today) ?? 0) + 1}
             legend={v.category_legend}
+            speeds={paces.speeds}
             today
             open
             tips

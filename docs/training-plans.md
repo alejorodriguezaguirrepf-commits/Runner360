@@ -227,6 +227,25 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 - El plan nuevo aparece en el catálogo como una opción más, con el mismo acceso que los demás (sin asistente ni requisitos bloqueantes: los requisitos de entrada se muestran como información).
 - **Reversión:** revertir el JSON en `main` y volver a marcar `2026.10` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10';`). Las inscripciones hechas en `2026.10.1` siguen funcionando porque su versión no se borra.
 
+## Parte principal en km
+
+La parte principal de cada entrenamiento se muestra en distancia en lugar de tiempo (web: `WorkoutDay`; app: `WorkoutCard`). El contenido de la base no cambia: la conversión se hace al mostrar (`packages/plan-library/src/distance.ts` y su copia en `apps/mobile/lib/src/domain/distance_text.dart`).
+
+- **Ritmo:** el último test de la Calculadora (`user_pace_tests`) si es de las últimas 8 semanas, normalizado a un esfuerzo de ~30 minutos con Riegel y aplicado con las proporciones entre intensidades del corredor modelo del capítulo. Sin test, las velocidades del corredor modelo del capítulo (`model_runner_assumptions.chapterN_kmh`), que corresponden al nivel del plan.
+- **Redondeo:** carrera continua a 0,5 km; pasadas de menos de 2 km a 100 m (desde 2 km, a 0,5 km).
+- **Quedan en minutos:** calentamiento, vuelta a la calma, pausas y recuperaciones, progresivos y cuestas cortas, caminata/trote de principiantes, cambios de ritmo dentro de un rodaje y los tests (se hacen por tiempo). Lo que ya está en km o no se reconoce queda igual.
+- Debajo de la semana se aclara de dónde salen los km (test o nivel del plan).
+
+| Antes | Después (corredor modelo) |
+|---|---|
+| 55' continuos en Suave | 8,5 km continuos en Suave |
+| 1h00' continuos en Suave | 9,5 km continuos en Suave |
+| 3 × 8' en Umbral, pausa 2' de trote suave | 3 × 1,5 km en Umbral, pausa 2' de trote suave |
+| 5 × 2' a ritmo de 10 km (Intenso), pausa 2' | 5 × 400 m a ritmo de 10 km (Intenso), pausa 2' |
+| 1h20': primeros 1h10' en Suave y últimos 10' en Moderado | 13 km: primeros 11 km en Suave y últimos 2 km en Moderado |
+| 35' de trote muy suave (21 km) | 6 km de trote muy suave |
+| Test de 30' a la máxima intensidad sostenible | (igual) |
+
 ## Decisiones
 
 | Decisión | Motivo |

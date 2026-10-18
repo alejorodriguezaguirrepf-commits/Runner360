@@ -19,11 +19,11 @@ const day = {
 };
 
 Widget _app(Widget child, {ThemeMode mode = ThemeMode.light}) => MaterialApp(
-      theme: buildLightTheme(),
-      darkTheme: buildDarkTheme(),
-      themeMode: mode,
-      home: Scaffold(body: SingleChildScrollView(child: child)),
-    );
+  theme: buildLightTheme(),
+  darkTheme: buildDarkTheme(),
+  themeMode: mode,
+  home: Scaffold(body: SingleChildScrollView(child: child)),
+);
 
 void main() {
   testWidgets('tarjeta del entrenamiento: Día N, métricas y pasos', (tester) async {
@@ -44,20 +44,22 @@ void main() {
   testWidgets('¿Cómo te fue?: exige elegir y guarda la valoración', (tester) async {
     int? saved;
     String? savedNote;
-    await tester.pumpWidget(_app(
-      WorkoutCard(
-        day: day,
-        n: 1,
-        date: '2026-10-06',
-        today: true,
-        initiallyExpanded: true,
-        onRate: (r, note) async {
-          saved = r;
-          savedNote = note;
-        },
+    await tester.pumpWidget(
+      _app(
+        WorkoutCard(
+          day: day,
+          n: 1,
+          date: '2026-10-06',
+          today: true,
+          initiallyExpanded: true,
+          onRate: (r, note) async {
+            saved = r;
+            savedNote = note;
+          },
+        ),
+        mode: ThemeMode.dark,
       ),
-      mode: ThemeMode.dark,
-    ));
+    );
     expect(find.text('Hoy · ${shortDate('2026-10-06')}'), findsOneWidget);
     await tester.ensureVisible(find.text('Guardar valoración'));
     await tester.tap(find.text('Guardar valoración'));
@@ -76,13 +78,9 @@ void main() {
   testWidgets('tira de semanas: elegida, bloqueadas y selección', (tester) async {
     String? picked;
     final weeks = [const ScheduledWeek('2026-10-05', 1), const ScheduledWeek('2026-10-12', 2), const ScheduledWeek('2026-10-19', 3)];
-    await tester.pumpWidget(_app(WeekStrip(
-      weeks: weeks,
-      selected: '2026-10-05',
-      current: '2026-10-12',
-      isLocked: (w) => w.planWeek == 3,
-      onSelect: (w) => picked = w,
-    )));
+    await tester.pumpWidget(
+      _app(WeekStrip(weeks: weeks, selected: '2026-10-05', current: '2026-10-12', isLocked: (w) => w.planWeek == 3, onSelect: (w) => picked = w)),
+    );
     expect(find.byIcon(Icons.lock_outline), findsOneWidget);
     await tester.tap(find.text('2'));
     expect(picked, '2026-10-12');

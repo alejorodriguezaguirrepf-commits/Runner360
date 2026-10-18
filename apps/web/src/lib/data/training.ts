@@ -100,7 +100,7 @@ export async function loadCatalog(supabase: SupabaseClient): Promise<CatalogEntr
     .select("id, plan_id, name, duration_weeks, sessions_per_week, is_demo, objective, plan:training_plans(distance, level, is_premium)")
     .eq("status", "published");
   type Row = { id: string; plan_id: string; name: string; duration_weeks: number; sessions_per_week: number; is_demo: boolean; objective: string; plan: Pick<PlanRow, "distance" | "level" | "is_premium"> };
-  const order = ["5K", "10K", "15K", "21K", "42K"];
+  const order = ["5K", "10K", "21K", "42K"];
   const levels = ["beginner", "intermediate", "advanced"];
   return ((data ?? []) as unknown as Row[])
     .map((r) => ({

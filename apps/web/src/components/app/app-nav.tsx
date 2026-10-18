@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  IconBolt,
   IconBook,
   IconCalendar,
   IconChart,
@@ -30,6 +31,7 @@ const PRIMARY = [
 const SECONDARY = [
   { href: "/hoy", label: t.library.today.title, icon: IconTimer },
   { href: "/planes", label: t.library.nav.catalog, icon: IconList },
+  { href: "/calculadora", label: "Calculadora", icon: IconBolt },
   { href: "/entrenamientos", label: "Historial", icon: IconTimer },
   { href: "/hidratacion", label: "Hidratación", icon: IconDrop },
   { href: "/competencias", label: "Competencias", icon: IconFlag },

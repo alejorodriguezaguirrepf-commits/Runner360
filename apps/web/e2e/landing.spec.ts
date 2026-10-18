@@ -12,6 +12,10 @@ test.describe("landing", () => {
       await expect(page.locator(`#${id}`)).toBeAttached();
     }
     await expect(page.getByRole("link", { name: "Política de privacidad" })).toBeVisible();
+    // La vista de ejemplo es el último bloque de la página y ya no hay 15 km.
+    await expect(page.locator("#contenido > section").last()).toHaveAttribute("aria-labelledby", "vista-ejemplo");
+    await expect(page.getByRole("heading", { name: "Vista de ejemplo" })).toBeVisible();
+    await expect(page.locator("#distancias").getByText("15K")).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
   });
 

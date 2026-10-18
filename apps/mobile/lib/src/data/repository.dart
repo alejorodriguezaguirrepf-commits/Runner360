@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../domain/distance_text.dart';
 import '../domain/plan_schedule.dart';
 import '../domain/workout_input.dart';
 
@@ -60,7 +61,7 @@ class Repository {
     final results = await Future.wait([
       client
           .from('library_plans')
-          .select('title, distance_label, level, duration_label, duration_weeks, days_per_week, strength_routine')
+          .select('title, chapter, distance_label, level, duration_label, duration_weeks, days_per_week, strength_routine')
           .eq('content_version', version)
           .eq('id', planId)
           .single(),
@@ -71,6 +72,8 @@ class Repository {
           .order('week_start')
           .order('created_at'),
       client.from('library_days').select('week, day_index, is_rest').eq('content_version', version).eq('plan_id', planId),
+      client.from('library_versions').select('model_runner_assumptions').eq('content_version', version).maybeSingle(),
+      client.from('user_pace_tests').select('distance_m, time_s, updated_at').eq('user_id', userId).maybeSingle(),
     ]);
     final plan = results[0] as Map<String, dynamic>;
     final checkins = (results[1] as List).cast<Map<String, dynamic>>();
@@ -79,7 +82,25 @@ class Repository {
       final list = training.putIfAbsent(r['week'] as int, () => []);
       if (r['is_rest'] != true) list.add(r['day_index'] as int);
     }
-    return EnrolledPlan(enrollment: e, plan: plan, segments: segmentsOf(e['start_date'] as String, checkins), trainingDays: training);
+    // Ritmo para mostrar la parte principal en km: test de la calculadora (≤ 8 semanas) o corredor modelo.
+    final assumptions = (results[3] as Map<String, dynamic>?)?['model_runner_assumptions'] as Map<String, dynamic>?;
+    final model = modelSpeeds(assumptions, (plan['chapter'] as num?)?.toInt() ?? 0);
+    final test = results[4] as Map<String, dynamic>?;
+    final testDate = (test?['updated_at'] as String?)?.substring(0, 10);
+    final recent = testDate != null && daysBetween(testDate, isoDate(DateTime.now())) <= 56;
+    final speeds = model == null
+        ? null
+        : recent
+        ? runnerSpeeds(model, testKm: (test!['distance_m'] as num) / 1000, testS: (test['time_s'] as num).toInt())
+        : model;
+    return EnrolledPlan(
+      enrollment: e,
+      plan: plan,
+      segments: segmentsOf(e['start_date'] as String, checkins),
+      trainingDays: training,
+      speeds: speeds,
+      testDate: recent ? testDate : null,
+    );
   }
 
   /// Los 7 días de una semana del plan ([] si la semana no está liberada).
@@ -130,13 +151,19 @@ class Repository {
 
 /// Inscripción a un plan de la biblioteca con su calendario.
 class EnrolledPlan {
-  EnrolledPlan({required this.enrollment, required this.plan, required this.segments, required this.trainingDays});
+  EnrolledPlan({required this.enrollment, required this.plan, required this.segments, required this.trainingDays, this.speeds, this.testDate});
   final Map<String, dynamic> enrollment;
   final Map<String, dynamic> plan;
   final List<Segment> segments;
 
   /// Días de entrenamiento (day_index) de cada semana liberada (muestra gratis o meses pagos).
   final Map<int, List<int>> trainingDays;
+
+  /// Velocidad por intensidad para mostrar la parte principal en km (null = queda en minutos).
+  final Speeds? speeds;
+
+  /// Fecha del test de la calculadora usado para los km (null = ritmo estimado del nivel del plan).
+  final String? testDate;
 
   Set<int> get openWeeks => trainingDays.keys.toSet();
 

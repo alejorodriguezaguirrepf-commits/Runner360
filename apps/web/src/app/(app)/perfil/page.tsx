@@ -55,7 +55,7 @@ export default async function ProfilePage() {
             <CardTitle>Perfil de corredor</CardTitle>
             <DefinitionList
               items={[
-                { term: "Distancia objetivo", value: DISTANCE_LABELS[tp.profile.targetDistance] },
+                { term: "Distancia objetivo", value: DISTANCE_LABELS[tp.profile.targetDistance] ?? tp.profile.targetDistance },
                 { term: "Nivel", value: LEVEL_LABELS[tp.profile.level] },
                 { term: "Experiencia", value: EXPERIENCE_LABELS[tp.profile.experience] },
                 { term: "Km semanales", value: `${String(tp.profile.weeklyKm).replace(".", ",")} km` },

@@ -62,7 +62,7 @@ Sin credenciales, la app lo indica explícitamente (“pendiente de configuraci�
 ## Base de datos: migraciones y seeds
 
 - Migraciones versionadas: `supabase/migrations/*.sql`.
-- Seeds separados de datos reales: `supabase/seed/` (catálogo de productos, **15 planes DEMO / NO VALIDADOS**, contenido educativo pendiente de revisión).
+- Seeds separados de datos reales: `supabase/seed/` (catálogo de productos, **12 planes DEMO / NO VALIDADOS**, contenido educativo pendiente de revisión).
 - **Biblioteca de planes** (21 planes): `content/training-plans/running_plans_library.json` es la fuente de verdad; el seed `supabase/seed/40_plan_library.sql` se genera desde ahí. Ver [`docs/training-plans.md`](docs/training-plans.md).
 - Seeds generados (planes DEMO, biblioteca y archivos de `supabase/nube/`): `pnpm seed:generate`.
 - Actualizar una base existente (local o en la nube): `DATABASE_URL=postgresql://… pnpm db:migrate`. En producción lo hace solo el workflow **Actualizar base de datos** al llegar a `main` (requiere el secreto `SUPABASE_DB_URL` en GitHub).

@@ -37,7 +37,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
       <>
         <PageHeader
           title={version.name}
-          subtitle={`${DISTANCE_LABELS[version.distance]} · ${LEVEL_LABELS[version.level]} · ${version.durationWeeks} semanas · versión ${version.versionNumber}`}
+          subtitle={`${DISTANCE_LABELS[version.distance] ?? version.distance} · ${LEVEL_LABELS[version.level]} · ${version.durationWeeks} semanas · versión ${version.versionNumber}`}
           actions={<CancelPlanButton />}
         />
         {inscripto ? <div className="mb-4"><Alert tone="success" title="¡Listo! Tu calendario está armado.">Empezás el {formatDate(userPlan.start_date, "long")}.</Alert></div> : null}

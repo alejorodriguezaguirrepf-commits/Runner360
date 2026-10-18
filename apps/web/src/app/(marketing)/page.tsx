@@ -24,7 +24,6 @@ export const dynamic = "force-dynamic";
 const DISTANCE_COPY: Record<(typeof DISTANCE_CODES)[number], string> = {
   "5K": "Tu primera carrera o tu mejor marca en la distancia más popular.",
   "10K": "El paso natural para sumar resistencia y velocidad.",
-  "15K": "Un desafío intermedio para consolidar el fondo.",
   "21K": "La media maratón, con progresión gradual y semanas de descarga.",
   "42K": "La maratón: preparación larga, ordenada y con criterios de seguridad.",
 };
@@ -45,7 +44,7 @@ export default async function LandingPage() {
     <>
       {/* 1. Hero */}
       <section className="nav-zone relative overflow-hidden bg-nav text-nav-ink">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.2fr_1fr] md:py-24">
+        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-24">
           <div className="space-y-6">
             <Badge tone="lime">Beta en desarrollo</Badge>
             <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
@@ -60,27 +59,6 @@ export default async function LandingPage() {
                 Conocer los planes
               </ButtonLink>
             </div>
-          </div>
-          <div aria-hidden="true" className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl">
-            <p className="text-xs font-semibold uppercase tracking-wider text-accent">Vista de ejemplo</p>
-            <p className="mt-3 text-sm text-nav-muted">Sesión de hoy</p>
-            <p className="text-2xl font-bold">Rodaje fácil</p>
-            <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-              {[
-                ["Duración", "40 min"],
-                ["Intensidad", "Baja"],
-                ["RPE", "3–4"],
-              ].map(([k, v]) => (
-                <div key={k} className="rounded-xl bg-nav p-3">
-                  <p className="text-xs text-nav-muted">{k}</p>
-                  <p className="font-bold">{v}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-5 h-2 rounded-full bg-nav">
-              <div className="h-2 w-2/3 rounded-full bg-primary" />
-            </div>
-            <p className="mt-2 text-xs text-nav-muted">Progreso de la semana (ilustrativo)</p>
           </div>
         </div>
       </section>
@@ -127,7 +105,7 @@ export default async function LandingPage() {
       <section id="distancias" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
         <h2 className="text-3xl font-extrabold tracking-tight">Distancias disponibles</h2>
         <p className="mt-2 text-muted">Cada distancia contempla niveles principiante, intermedio y avanzado.</p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {DISTANCE_CODES.map((d) => (
             <div key={d} className="rounded-2xl bg-nav p-5 text-nav-ink">
               <p className="text-3xl font-extrabold text-accent">{d}</p>
@@ -221,6 +199,31 @@ export default async function LandingPage() {
             <ButtonLink href="/registro" className="px-6 text-base">Comenzar gratis</ButtonLink>
             <ButtonLink href="/ingresar" variant="inverse" className="px-6 text-base">Ya tengo cuenta</ButtonLink>
           </div>
+        </div>
+      </section>
+
+      {/* 10. Vista de ejemplo (último bloque de la página) */}
+      <section aria-labelledby="vista-ejemplo" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="nav-zone mx-auto max-w-xl rounded-3xl bg-nav p-6 text-nav-ink shadow-2xl sm:p-8">
+          <h2 id="vista-ejemplo" className="text-xs font-semibold uppercase tracking-wider text-accent">Vista de ejemplo</h2>
+          <p className="mt-3 text-sm text-nav-muted">Sesión de hoy</p>
+          <p className="text-2xl font-bold">Rodaje fácil</p>
+          <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
+            {[
+              ["Distancia", "7 km"],
+              ["Intensidad", "Baja"],
+              ["RPE", "3–4"],
+            ].map(([k, v]) => (
+              <div key={k} className="rounded-xl bg-white/5 p-3">
+                <dt className="text-xs text-nav-muted">{k}</dt>
+                <dd className="font-bold">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-5 h-2 rounded-full bg-white/10" aria-hidden="true">
+            <div className="h-2 w-2/3 rounded-full bg-primary" />
+          </div>
+          <p className="mt-2 text-xs text-nav-muted">Progreso de la semana (ilustrativo)</p>
         </div>
       </section>
     </>

@@ -14,7 +14,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { SafetyNotices } from "@/components/library/notices";
 import { RatingForm } from "@/components/library/rating-form";
-import { WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
+import { KmNote, WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
+import { planPaces } from "@/lib/data/paces";
 import { IconLock } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
@@ -52,6 +53,7 @@ export async function EnrollmentView({
 }) {
   const { enrollment, plan, library, segments } = open;
   const v = library.version;
+  const kmPaces = await planPaces(supabase, enrollment.user_id, v.model_runner_assumptions, plan.chapter, today);
   const weeks = scheduledWeeks(segments, plan.duration_weeks);
   const thisMonday = mondayOf(today);
 
@@ -187,6 +189,7 @@ export async function EnrollmentView({
           </div>
           {ordered.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(ordered.map((o) => o.day))}</p> : null}
         </div>
+        {kmPaces.speeds && ordered.length === 7 ? <KmNote testDate={kmPaces.testDate} /> : null}
         {typeof selectedPlanWeek === "number" ? (
           ordered.length === 7 ? (
             <ol className="space-y-2.5">
@@ -196,6 +199,7 @@ export async function EnrollmentView({
                   day={day}
                   n={i + 1}
                   legend={v.category_legend}
+                  speeds={kmPaces.speeds}
                   today={date === today}
                   done={doneDates.has(date)}
                   open={firstOpen?.date === date}

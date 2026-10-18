@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../domain/distance_text.dart';
 import '../domain/plan_schedule.dart';
 import '../theme.dart';
 
@@ -59,7 +60,10 @@ class Chip2 extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: 2)],
-        Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: fg)),
+        Text(
+          text,
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: fg),
+        ),
       ],
     ),
   );
@@ -162,6 +166,7 @@ class WorkoutCard extends StatefulWidget {
     this.note,
     this.initiallyExpanded = false,
     this.onRate,
+    this.speeds,
   });
   final Map<String, dynamic> day;
   final int n;
@@ -171,6 +176,9 @@ class WorkoutCard extends StatefulWidget {
   final int? rating;
   final String? note;
   final bool initiallyExpanded;
+
+  /// Velocidades del corredor: la parte principal se muestra en km.
+  final Speeds? speeds;
 
   /// Guarda la valoración; null = no se puede valorar (día futuro).
   final Future<void> Function(int rating, String? note)? onRate;
@@ -189,7 +197,7 @@ class _WorkoutCardState extends State<WorkoutCard> {
     final (catFg, catBg) = categoryColors(context, d['category'] as String?);
     final steps = <(String, String)>[
       ('CALENTAMIENTO', d['warmup'] as String? ?? '—'),
-      ('PRINCIPAL', d['main_set'] as String? ?? '—'),
+      ('PRINCIPAL', mainSetInKm(d['main_set'] as String?, widget.speeds) ?? '—'),
       ('VUELTA A LA CALMA', d['cooldown'] as String? ?? '—'),
       if (d['strength_after'] == true) ('DESPUÉS', 'Rutina de fuerza'),
     ];
