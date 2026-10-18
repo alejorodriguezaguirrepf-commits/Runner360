@@ -41,6 +41,45 @@ Solo servidor: ninguna empieza con `NEXT_PUBLIC_`. Nunca se suben al repositorio
 
 Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET`. Sin `MP_ENV` la app funciona como antes y deja un aviso en el registro.
 
+## Conectar Mercado Pago paso a paso
+
+**Antes:** cuenta de Mercado Pago (vendedor) con la actividad validada. Se trabaja sobre el dominio de producción (`https://runner360.vercel.app`) porque Mercado Pago tiene que poder llegar al webhook (las vistas previas de Vercel están protegidas). Después de cada cambio de variables en Vercel hay que **volver a publicar** (Deployments → último → ⋯ → *Redeploy*).
+
+### 1. Crear la aplicación
+1. Entrá a https://www.mercadopago.com.ar/developers/panel → **Tus integraciones** → **Crear aplicación**.
+2. Nombre: `RUNNER 360`. Tipo de solución: **Pagos online** → **Suscripciones**. ¿Plataforma de e-commerce? **No**.
+
+### 2. Modo prueba
+1. En la aplicación → **Cuentas de prueba** → creá dos: un **vendedor** y un **comprador** (país Argentina). Anotá usuario y contraseña de cada una.
+2. Abrí una ventana de incógnito, iniciá sesión en Mercado Pago **con el vendedor de prueba**, entrá a *Tus integraciones* y creá ahí también una aplicación de Suscripciones. En **Credenciales de producción** de esa cuenta copiá el **Access Token** (`APP_USR-…`). Para suscripciones, la cuenta vendedora de prueba se usa con sus credenciales "de producción".
+3. **Webhooks** (en la aplicación de la cuenta vendedora de prueba) → **Configurar notificaciones**:
+   - URL: `https://runner360.vercel.app/api/webhooks/mercadopago`
+   - Eventos: **Planes y suscripciones** (marcá *Suscripciones* y *Pagos recurrentes/autorizados*).
+   - Guardá y copiá la **Clave secreta** que se genera.
+4. En Vercel → Project → Settings → **Environment Variables** (entorno *Production*):
+   | Variable | Valor |
+   |---|---|
+   | `MP_ENV` | `test` |
+   | `MP_ACCESS_TOKEN` | Access Token del vendedor de prueba (`APP_USR-…`) |
+   | `MP_WEBHOOK_SECRET` | Clave secreta del webhook |
+   | `APP_BASE_URL` | `https://runner360.vercel.app` |
+   | `CRON_SECRET` | una clave larga al azar (`openssl rand -hex 32`) |
+   Borrá las variables viejas `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET` si existen. **Redeploy.**
+5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado*.
+
+### 3. Prueba completa (modo prueba)
+1. En la app, creá una cuenta con **el correo del comprador de prueba** (Mercado Pago exige que quien paga sea una cuenta de prueba).
+2. **Suscripción** → *Pagar con Mercado Pago*. En Mercado Pago iniciá sesión con el comprador de prueba y pagá con una tarjeta de prueba (Mastercard `5031 7557 3453 0604`, CVV `123`, vencimiento `11/30`, titular `APRO`).
+3. Volvés a la app con «Estamos confirmando tu pago». En unos minutos la suscripción aparece activa y en el panel: **Suscripciones → Activas: 1** y el cobro en **Ingresos**.
+4. Probá la baja: **Suscripción → Cancelar renovación**. Mantiene el acceso hasta el fin del período.
+5. Si algo no llega: en Mercado Pago → Webhooks → *Historial de notificaciones*. Un **401** = la clave secreta no coincide. La "simulación" de notificaciones usa un id inventado y puede responder **500**: es esperable; la prueba válida es una suscripción real de prueba.
+
+### 4. Pasar a producción
+1. Con tu cuenta real de Mercado Pago: aplicación → **Credenciales de producción** → completá los datos que pide y copiá el **Access Token** (`APP_USR-…`).
+2. En la aplicación real → **Webhooks** → misma URL y mismos eventos → copiá la **nueva clave secreta**.
+3. En Vercel: `MP_ENV` = `prod`, `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` con los valores reales. **Redeploy.** (Si `prod` se combina con un token `TEST-`, la app no arranca a propósito.)
+4. Hacé una suscripción real con tu tarjeta desde una cuenta común de la app (no la de administrador, que no paga). Verificá el cobro en Mercado Pago y en el panel, cancelá y devolvé el pago desde Mercado Pago (Actividad → el cobro → *Devolver dinero*).
+
 ## Pendiente en los próximos PR
 
 - *(PR 2)* Script del plan (`preapproval_plan`), alta, verificación de credenciales contra la API (`pnpm payments:check`).

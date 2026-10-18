@@ -12,8 +12,8 @@ import {
 
 /**
  * Adaptador Mercado Pago Suscripciones (preapproval), vía API REST sin SDK.
- * NO PROBADO contra la cuenta real: requiere MERCADOPAGO_ACCESS_TOKEN, MERCADOPAGO_WEBHOOK_SECRET
- * y un precio activo en ARS con provider = 'mercadopago'.
+ * Requiere MP_ACCESS_TOKEN y MP_WEBHOOK_SECRET (ver docs/payments.md). El importe se cobra en pesos:
+ * precio de lista en USD × cotización del día (lib/actions/billing.ts).
  * El webhook solo trae el id: el estado real se consulta a la API (nunca se confía en el cuerpo).
  * Eventos: "subscription_preapproval" (alta, pausa, baja) y "subscription_authorized_payment"
  * (cada débito automático mensual: si se aprueba, libera el mes siguiente del plan).
