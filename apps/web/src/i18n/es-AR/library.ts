@@ -68,6 +68,8 @@ export const library = {
     lockedTotals: "Ver los totales de las semanas {from}–{to}",
     lockedText: "La muestra del plan es gratis. Con la suscripción mensual, cada débito automático libera el mes siguiente del plan (4 semanas).",
     seePremium: "Ver suscripción",
+    lockedSubscribed: "Se libera al empezar el plan",
+    lockedSubscribedText: "Con tu suscripción, las semanas se liberan mes a mes desde que empezás el plan. Empezalo para verlas en tu calendario.",
     start: "Empezar este plan",
     raceWeek: "Semana de competencia: {n}",
   },

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/icons";
 import { Badge } from "@/components/ui/primitives";
 import { requireAdmin } from "@/lib/auth";
-import { stopViewAsAction } from "@/lib/actions/view-as";
+import { ViewAsBanner } from "@/components/app/view-as-banner";
 
 export const metadata = { robots: { index: false, follow: false } };
 
@@ -21,6 +21,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const { viewAs } = await requireAdmin();
   return (
     <div className="min-h-dvh bg-canvas">
+      {viewAs ? <ViewAsBanner viewAs={viewAs} /> : null}
       <header className="nav-zone bg-nav text-nav-ink">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3"><Logo inverted /><Badge tone="lime">Administración</Badge></div>
@@ -37,10 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           // En "ver como usuario" la base no da permisos de admin: primero hay que volver.
           <div role="status" className="rounded-2xl border border-primary bg-surface p-6">
             <p className="font-bold">Estás viendo la app como usuario {viewAs === "premium" ? "con suscripción" : "sin suscripción"}.</p>
-            <p className="mt-1 text-sm text-muted">Para usar el panel, volvé a la vista de administrador.</p>
-            <form action={stopViewAsAction} className="mt-4">
-              <button type="submit" className="min-h-11 rounded-xl bg-primary px-4 font-semibold text-on-primary">Volver a administrador</button>
-            </form>
+            <p className="mt-1 text-sm text-muted">Para usar el panel, volvé a la vista de administrador con el botón del aviso de arriba.</p>
           </div>
         ) : (
           children

@@ -17,7 +17,11 @@ Iniciá sesión con la cuenta del dueño y entrá a **Administración** en el me
 
 ## Ver como usuario
 
-Desde el panel: **Sin suscripción** o **Con suscripción**. El servidor guarda la elección en una cookie y manda el encabezado `x-r360-view-as` a la base, que con ese encabezado **le quita** al admin sus permisos (no puede dar permisos a nadie). Arriba aparece un aviso con **Volver a administrador**. La vista dura hasta 12 horas.
+Desde el panel: **Sin suscripción** o **Con suscripción**. El servidor guarda la elección en una cookie y manda el encabezado `x-r360-view-as` a la base, que con ese encabezado **le quita** al admin sus permisos (no puede dar permisos a nadie). Arriba de todo queda fijo un aviso con **Volver a administrador** (también en el panel). La vista dura como máximo 1 hora.
+
+- **Sin suscripción:** solo la muestra gratis de cada plan.
+- **Con suscripción:** como un suscriptor real: en el catálogo ve la muestra gratis y las demás semanas se liberan mes a mes **al empezar un plan**.
+- **Fuera de la vista (administrador):** todas las semanas de todos los planes, inscripto o no (prueba SQL `95_admin_owner.sql` y E2E en `admin.spec.ts`).
 
 ## Datos del panel
 

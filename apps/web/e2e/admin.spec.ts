@@ -151,22 +151,50 @@ test.describe("panel administrativo", () => {
     await page.goto("/admin");
     await page.getByRole("button", { name: "Sin suscripción" }).click();
     await expect(page).toHaveURL(/\/inicio/);
-    await expect(page.getByText("Vista de usuario sin suscripción.")).toBeVisible();
+    await expect(page.getByText("Estás viendo la app como usuario sin suscripción.")).toBeVisible();
     await expect(page.getByRole("link", { name: "Administración" })).toHaveCount(0);
     await page.goto("/hidratacion");
     await expect(page.getByText("Hidratación está incluido en Premium")).toBeVisible();
     // El panel no responde en esta vista: hay que volver.
     await page.goto("/admin");
-    await expect(page.getByText("Para usar el panel, volvé a la vista de administrador.")).toBeVisible();
+    await expect(page.getByText(/Para usar el panel, volvé a la vista de administrador/)).toBeVisible();
     await page.getByRole("button", { name: "Volver a administrador" }).click();
     await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
 
     // Ver como usuario con suscripción.
     await page.getByRole("button", { name: "Con suscripción" }).click();
-    await expect(page.getByText("Vista de usuario con suscripción.")).toBeVisible();
+    await expect(page.getByText("Estás viendo la app como usuario con suscripción.")).toBeVisible();
     await page.goto("/hidratacion");
     await expect(page.getByText("Hidratación está incluido en Premium")).toHaveCount(0);
     await page.getByRole("button", { name: "Volver a administrador" }).click();
     await expect(page.getByRole("heading", { name: "Panel de administración" })).toBeVisible();
+  });
+
+  test("admin: todas las semanas de todos los planes, en el catálogo y en Mi plan, sin candados", async ({ page }) => {
+    await adminSession(page);
+    const locked = page.getByRole("link", { name: /se libera con la suscripción/ });
+
+    // Catálogo: la última semana de un plan de 12 semanas, completa y sin candados.
+    await page.goto("/planes/plan-07?semana=12");
+    await expect(page.getByRole("heading", { name: "Semana 12 de 12" })).toBeVisible();
+    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 }).first()).toBeVisible();
+    await expect(locked).toHaveCount(0);
+    await expect(page.getByText("Se libera con la suscripción")).toHaveCount(0);
+    // Un plan largo (48 semanas): también la última.
+    await page.goto("/planes/plan-15?semana=48");
+    await expect(page.getByRole("heading", { name: "Semana 48 de 48" })).toBeVisible();
+    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 }).first()).toBeVisible();
+    await expect(locked).toHaveCount(0);
+
+    // Mi plan: inscripto, la tira de semanas no tiene candados y la semana 12 se ve completa.
+    await page.goto("/planes?plan=plan-07");
+    await page.getByLabel(/Leí los avisos de seguridad/).check();
+    await page.getByRole("button", { name: /Empezar/ }).click();
+    await expect(page).toHaveURL(/\/plan\?inscripto=1/);
+    await expect(locked).toHaveCount(0);
+    await page.getByRole("link", { name: /^Semana 12\b/ }).click();
+    await expect(page.getByRole("heading", { name: "Semana 12 de 12" })).toBeVisible();
+    await expect(page.locator("section[aria-labelledby=semana]").getByRole("heading", { level: 3 }).first()).toBeVisible();
+    await expect(page.getByText("Se libera con la suscripción")).toHaveCount(0);
   });
 });

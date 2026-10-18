@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-10-18 — Administrador: todas las semanas y vista de usuario más clara
+
+- Causa: la vista «ver como usuario» quedaba activa (hasta 12 h) con un aviso poco visible; en esa vista se ve lo mismo que un usuario (con suscripción, las semanas se liberan al empezar un plan). Como administrador la base ya devolvía todas las semanas.
+- Aviso fijo arriba de todo en la app y en el panel, con botón para volver; la vista dura como máximo 1 hora.
+- Catálogo para suscriptores: «Se libera al empezar el plan» en lugar de «Se libera con la suscripción».
+- Pruebas: el admin ve todas las semanas de todos los planes (SQL y E2E en catálogo y Mi plan) y la tira de semanas de la app sin candados.
+
 ## 2026-10-18 — Rol de administrador y panel
 
 - La cuenta del dueño tiene rol **admin** (asignado en la base; si la cuenta se vuelve a crear, lo recibe al confirmar el correo).

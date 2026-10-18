@@ -12,7 +12,7 @@ export async function startViewAsAction(formData: FormData): Promise<void> {
   if (!session || session.profile.role !== "admin") notFound();
   const mode = parseViewAs(String(formData.get("mode") ?? ""));
   if (!mode) return;
-  (await cookies()).set(VIEW_AS_COOKIE, mode, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 * 12 });
+  (await cookies()).set(VIEW_AS_COOKIE, mode, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 * 60 });
   redirect("/inicio");
 }
 

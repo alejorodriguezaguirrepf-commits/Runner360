@@ -8,7 +8,7 @@ import { planPaces } from "@/lib/data/paces";
 import { IconChevronLeft, IconLock } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
-import { requireOnboardedSession } from "@/lib/auth";
+import { hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { findPlan, getLibrary, getOverviewDays, getWeekDays } from "@/lib/data/library";
 
 const m = t.library;
@@ -23,7 +23,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 /** Plan como lista de tareas: semana elegida (tira S1…SN) y sus días numerados, sin explicaciones. */
 export default async function PlanDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ semana?: string }> }) {
-  const { supabase, user, profile } = await requireOnboardedSession();
+  const session = await requireOnboardedSession();
+  const { supabase, user, profile } = session;
   const { id } = await params;
   const library = await getLibrary();
   if (!library) {
@@ -43,10 +44,11 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
   const week = Number.isInteger(requestedWeek) && requestedWeek >= 1 && requestedWeek <= plan.duration_weeks ? requestedWeek : 1;
 
   // Semanas con acceso (las que trae la base: muestra gratis o meses liberados) y la semana elegida.
-  const [overview, days, paces] = await Promise.all([
+  const [overview, days, paces, premium] = await Promise.all([
     getOverviewDays(supabase, v.content_version, plan.id),
     getWeekDays(supabase, v.content_version, plan.id, week),
     planPaces(supabase, user.id, v.model_runner_assumptions, plan.chapter, todayIn(profile.timezone)),
+    hasPremium(session),
   ]);
   const openWeeks = new Set(overview.map((d) => d.week));
   const weekHref = (n: number) => `/planes/${plan.id}?semana=${n}`;
@@ -92,9 +94,13 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
           </ol>
         ) : (
           <Card className="flex flex-col items-start gap-3">
-            <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {m.detail.locked}</p>
-            <p className="text-sm text-muted">{m.detail.lockedText}</p>
-            <ButtonLink href="/suscripcion" variant="secondary">{m.detail.seePremium}</ButtonLink>
+            <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {premium ? m.detail.lockedSubscribed : m.detail.locked}</p>
+            <p className="text-sm text-muted">{premium ? m.detail.lockedSubscribedText : m.detail.lockedText}</p>
+            {premium ? (
+              <ButtonLink href={`/planes?plan=${plan.id}#empezar`} variant="secondary">{m.detail.start}</ButtonLink>
+            ) : (
+              <ButtonLink href="/suscripcion" variant="secondary">{m.detail.seePremium}</ButtonLink>
+            )}
           </Card>
         )}
       </section>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:runner360/src/data/repository.dart';
 import 'package:runner360/src/domain/plan_schedule.dart';
 import 'package:runner360/src/theme.dart';
 import 'package:runner360/src/ui/plan_widgets.dart';
@@ -84,5 +85,28 @@ void main() {
     expect(find.byIcon(Icons.lock_outline), findsOneWidget);
     await tester.tap(find.text('2'));
     expect(picked, '2026-10-12');
+  });
+
+  testWidgets('admin: con todas las semanas liberadas por la base, la tira no muestra candados', (tester) async {
+    // La base (RLS) le devuelve al admin los días de las 12 semanas: así arma la app las semanas abiertas.
+    final plan = EnrolledPlan(
+      enrollment: {'id': 'e', 'content_version': '2026.10.1', 'plan_id': 'plan-07', 'start_date': '2026-10-05', 'status': 'active', 'day_map': [0, 1, 2, 3, 4, 5, 6]},
+      plan: {'duration_weeks': 12},
+      segments: segmentsOf('2026-10-05', []),
+      trainingDays: {for (var w = 1; w <= 12; w++) w: [1, 3, 6]},
+    );
+    expect(plan.openWeeks.length, 12);
+    await tester.pumpWidget(
+      _app(
+        WeekStrip(
+          weeks: plan.weeks,
+          selected: '2026-10-05',
+          current: '2026-10-05',
+          isLocked: (w) => w.planWeek != null && !plan.openWeeks.contains(w.planWeek),
+          onSelect: (_) {},
+        ),
+      ),
+    );
+    expect(find.byIcon(Icons.lock_outline), findsNothing);
   });
 }
