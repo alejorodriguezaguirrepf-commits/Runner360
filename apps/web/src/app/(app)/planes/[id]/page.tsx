@@ -83,7 +83,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
           <h2 id="semana" className="text-2xl font-extrabold">{fmt(w.weekOf, { n: week, total: plan.duration_weeks })}</h2>
           {days.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(days)}</p> : null}
         </div>
-        {paces.speeds && days.length === 7 ? <KmNote testDate={paces.testDate} /> : null}
+        {paces.speeds && days.length === 7 ? <KmNote testDate={paces.testDate} days={days} speeds={paces.speeds} /> : null}
         {days.length === 7 ? (
           <ol className="space-y-2.5">
             {days

@@ -51,9 +51,9 @@ test.describe("calculadora de ritmos", () => {
     await expect(page.getByLabel("Km del test")).toHaveValue("2,4");
     await expect(page.getByLabel("Tiempo")).toHaveValue("12:00");
 
-    // Los planes usan el test como ritmo de referencia.
+    // Desde 2026.11 los planes ya vienen en km con porcentajes: la nota manda a la Calculadora.
     await page.goto("/planes/plan-07");
-    await expect(page.getByText(/Distancias calculadas con tu test del/)).toBeVisible();
-    await expect(page.getByText("3 × 1,5 km en Umbral, pausa 2' de trote suave").filter({ visible: true })).toBeVisible();
+    await expect(page.getByText(/Las distancias son las del plan/)).toBeVisible();
+    await expect(page.getByText("4 × 1500 m en Umbral (100 %), pausa 2' de trote suave").filter({ visible: true })).toBeVisible();
   });
 });

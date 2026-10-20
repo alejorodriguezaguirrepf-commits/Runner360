@@ -175,8 +175,18 @@ export function WeekStrip({ pills }: { pills: WeekPill[] }) {
   );
 }
 
-/** De dónde salen los km de la parte principal: el test del corredor o el nivel del plan. */
-export function KmNote({ testDate }: { testDate: string | null }) {
+/**
+ * De dónde salen los km de la parte principal. Si el contenido ya viene en km (desde la versión
+ * 2026.11) no hay conversión: se explica el porcentaje y se manda a la Calculadora.
+ */
+export function KmNote({ testDate, days, speeds }: { testDate: string | null; days: DayRow[]; speeds: Speeds | null }) {
+  const converted = days.some((d) => !d.is_rest && d.main_set && mainSetInKm(d.main_set, speeds) !== d.main_set);
+  if (!converted)
+    return (
+      <p className="text-xs text-muted">
+        {m.kmFromPlan} <Link href="/calculadora" className="font-semibold underline">{m.kmCalculator}</Link> {m.kmFromPlanEnd}
+      </p>
+    );
   return (
     <p className="text-xs text-muted">
       {testDate ? (

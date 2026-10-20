@@ -189,7 +189,7 @@ export async function EnrollmentView({
           </div>
           {ordered.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(ordered.map((o) => o.day))}</p> : null}
         </div>
-        {kmPaces.speeds && ordered.length === 7 ? <KmNote testDate={kmPaces.testDate} /> : null}
+        {kmPaces.speeds && ordered.length === 7 ? <KmNote testDate={kmPaces.testDate} days={ordered.map((o) => o.day)} speeds={kmPaces.speeds} /> : null}
         {typeof selectedPlanWeek === "number" ? (
           ordered.length === 7 ? (
             <ol className="space-y-2.5">

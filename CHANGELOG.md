@@ -1,5 +1,21 @@
 # Cambios
 
+## 2026-10-20 — Revisión completa de los planes (contenido 2026.11)
+
+- **Auditoría** de los 21 planes: sesiones repetidas, pasadas con distancias raras, velocidad en segundos y volumen por nivel (`docs/plan-audit/`).
+- **Todos los planes:**
+  - las sesiones principales están en km y cada intensidad tiene su porcentaje, igual que en la Calculadora;
+  - las pasadas son solo de 100 a 5000 m (lista fija);
+  - los progresivos y las cuestas van en metros;
+  - el test es de 5 km;
+  - ninguna sesión de calidad se repite igual en semanas seguidas.
+- **Intermedio más exigente:**
+  - alrededor de 22 % más km por semana;
+  - 2 sesiones de calidad por semana (3 en las semanas pico, con tirada larga con tramos a ritmo);
+  - más volumen de pasadas.
+- **Validador automático en los tests:** falla si alguna regla se rompe.
+- Las inscripciones en curso conservan su versión (hoy no hay ninguna activa).
+
 ## 2026-10-18 — Administrador: todas las semanas y vista de usuario más clara
 
 - Causa: la vista «ver como usuario» quedaba activa (hasta 12 h) con un aviso poco visible; en esa vista se ve lo mismo que un usuario (con suscripción, las semanas se liberan al empezar un plan). Como administrador la base ya devolvía todas las semanas.

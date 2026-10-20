@@ -29,4 +29,18 @@ void main() {
     expect(modelSpeeds({'chapter2_kmh': ch2}, 2)!['umb'], 11.0);
     expect(modelSpeeds({'note': 'x'}, 2), isNull);
   });
+
+  test('contenido ya en km (2026.11): no se convierte y la nota explica el porcentaje', () {
+    const km = "4 × 1500 m en Umbral (100 %), pausa 2' de trote suave";
+    expect(mainSetInKm(km, ch2), km);
+    expect(mainSetInKm('11 km continuos en Suave (85 %)', ch2), '11 km continuos en Suave (85 %)');
+    final week = [
+      {'is_rest': true},
+      {'is_rest': false, 'main_set': km},
+    ];
+    expect(weekConverted(week, ch2), isFalse);
+    expect(kmNoteText(converted: false), contains('test de 5 km (100 %)'));
+    expect(weekConverted([{'is_rest': false, 'main_set': "55' continuos en Suave"}], ch2), isTrue);
+    expect(kmNoteText(converted: true, testDateLabel: '6 oct'), 'Distancias calculadas con tu test del 6 oct.');
+  });
 }

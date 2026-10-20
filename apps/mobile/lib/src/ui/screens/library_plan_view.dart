@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../data/repository.dart';
+import '../../domain/distance_text.dart';
 import '../../domain/plan_schedule.dart';
 import '../../theme.dart';
 import '../plan_widgets.dart';
@@ -142,9 +143,7 @@ class _LibraryPlanViewState extends State<LibraryPlanView> {
                 if (p.speeds != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    p.testDate != null
-                        ? 'Distancias calculadas con tu test del ${shortDate(p.testDate!)}.'
-                        : 'Distancias estimadas para el nivel del plan. Cargá tu test en la Calculadora (web) para ajustarlas a tu ritmo.',
+                    kmNoteText(converted: weekConverted(data.days, p.speeds), testDateLabel: p.testDate == null ? null : shortDate(p.testDate!)),
                     style: TextStyle(fontSize: 12, color: c.muted),
                   ),
                 ],

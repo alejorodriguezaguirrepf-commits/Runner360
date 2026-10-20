@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { IntensityScale, SafetyNotices } from "@/components/library/notices";
 import { RatingForm } from "@/components/library/rating-form";
-import { KmNote, WorkoutDay } from "@/components/library/workout";
+import { WorkoutDay } from "@/components/library/workout";
 import { planPaces } from "@/lib/data/paces";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
 import { IconLock } from "@/components/ui/icons";

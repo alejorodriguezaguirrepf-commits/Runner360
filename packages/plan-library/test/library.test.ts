@@ -1,10 +1,9 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { readLibraryJson, renderSeed, SEED_FILE } from "../scripts/paths";
-import { buildImportSql, libraryChecksum, LibraryValidationError, parseLibrary, planHash } from "../src/import-sql";
+import { buildImportSql, libraryChecksum, LibraryValidationError, parseLibrary } from "../src/import-sql";
 import { checkInvariants, EXPECTED_PLAN_COUNT, isDemanding, planTotals, raceWeekOf } from "../src/invariants";
 import { librarySchema, type Library } from "../src/schema";
-import previousHashes from "./fixtures/plan-hashes-2026.10.json";
 import golden from "./golden-totals.json";
 
 const raw = readLibraryJson() as Record<string, unknown>;
@@ -114,21 +113,12 @@ describe("golden: totales de los 21 planes", () => {
   });
 });
 
-describe("versión 2026.10.1", () => {
+describe("versión 2026.11", () => {
   const lib = clone();
 
-  it("content_version 2026.10.1 sin cambio de esquema", () => {
-    expect(lib.content_version).toBe("2026.10.1");
+  it("content_version 2026.11 sin cambio de esquema", () => {
+    expect(lib.content_version).toBe("2026.11");
     expect(lib.schema_version).toBe("1.0.0");
-  });
-
-  it("los planes 01–18 son idénticos a los de 2026.10 (huella por plan)", () => {
-    expect(previousHashes.content_version).toBe("2026.10");
-    const changed = Object.entries(previousHashes.plans)
-      .filter(([id, hash]) => planHash(lib.plans.find((p) => p.id === id)) !== hash)
-      .map(([id]) => id);
-    expect(changed).toEqual([]);
-    expect(Object.keys(previousHashes.plans)).toHaveLength(18);
   });
 
   it("capítulo 5: planes 19–21, 5 km Intermedio de 10 semanas con 3, 4 y 5 días", () => {
@@ -142,7 +132,7 @@ describe("versión 2026.10.1", () => {
       expect(p.strength_routine).toBe("B");
     }
     expect(ch5.map((p) => p.days_per_week)).toEqual([3, 4, 5]);
-    expect(ch5.map((p) => p.min_weekly_km)).toEqual([21, 25, 28]);
+    expect(ch5.map((p) => p.min_weekly_km)).toEqual([25, 31, 35]);
   });
 
   it("5 km tiene dos niveles (Principiante 1–6 e Intermedio 19–21)", () => {

@@ -1,6 +1,6 @@
 # Biblioteca de planes de running
 
-21 planes (5 km, 10 km, 21,1 km y 42,195 km), 354 semanas y 1.752 sesiones de carrera programadas día por día. Versión de contenido vigente: `2026.10.1`.
+21 planes (5 km, 10 km, 21,1 km y 42,195 km), 354 semanas y 1.752 sesiones de carrera programadas día por día. Versión de contenido vigente: `2026.11`.
 
 | Capítulo | Distancia | Nivel | Duración | Días/semana | Planes |
 |---|---|---|---|---|---|
@@ -15,9 +15,16 @@ Los capítulos no se asumen consecutivos ni fijos: distancias, niveles y duracio
 ## Fuente de verdad
 
 - `content/training-plans/running_plans_library.json` es la **única** fuente del contenido. El PDF de 244 páginas es una referencia editorial y no se parsea.
-- **El contenido no se reescribe.** Sesiones, textos, intensidades, criterios y referencias se guardan y se muestran tal como vienen. Si se detecta un error, se reporta al líder técnico de entrenamiento y se corrige en el JSON con una `content_version` nueva.
-- Las duraciones y distancias son **estimadas para un corredor modelo** (`model_runner_assumptions`). La interfaz siempre lo aclara: el corredor se guía por los minutos y la intensidad, no por los km.
-- No hay ritmos absolutos: la intensidad se prescribe por RPE y prueba del habla.
+- Sesiones, textos, intensidades, criterios y referencias se guardan y se muestran tal como están en el JSON. Para cambiarlos se publica una `content_version` nueva. La `2026.11` es una revisión completa generada por script desde la `2026.10.1` (ver [plan-audit](plan-audit/README.md)).
+- **Reglas de calidad:** además de los invariantes, el validador de `quality-rules.ts` exige:
+  - ninguna sesión de calidad igual a la de la semana anterior;
+  - pasadas de distancias permitidas;
+  - nada de trabajo en segundos o por minutos;
+  - un intermedio entre principiante y avanzado en volumen.
+
+  Corre en los tests.
+- Desde `2026.11` la parte principal se prescribe en **km** y cada intensidad lleva su **porcentaje** sobre el ritmo del test de 5 km (100 %), como en la Calculadora. Las duraciones son **estimadas para un corredor modelo** (`model_runner_assumptions`).
+- No hay ritmos absolutos: el porcentaje se aplica al test de cada persona y la intensidad se sigue controlando por RPE y prueba del habla.
 
 ## Código
 
@@ -227,9 +234,28 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 - El plan nuevo aparece en el catálogo como una opción más, con el mismo acceso que los demás (sin asistente ni requisitos bloqueantes: los requisitos de entrada se muestran como información).
 - **Reversión:** revertir el JSON en `main` y volver a marcar `2026.10` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10';`). Las inscripciones hechas en `2026.10.1` siguen funcionando porque su versión no se borra.
 
+## Versión 2026.11 (revisión completa de planes)
+
+- **Origen:** la generó `packages/plan-library/scripts/rebuild-plans.ts` desde la `2026.10.1`. Auditoría, reglas, informe antes/después y propuesta para usuarios en curso: [docs/plan-audit](plan-audit/README.md).
+- **Todos los planes:**
+  - parte principal en km con porcentaje;
+  - pasadas de distancias permitidas;
+  - progresivos y cuestas en metros;
+  - test de 5 km en lugar del test de 30';
+  - ninguna sesión de calidad repetida en semanas seguidas.
+- **Intermedio (planes 7–12 y 19–21):**
+  - alrededor de +22 % de km semanales;
+  - 2 sesiones de calidad por semana de carga;
+  - 3 en las semanas pico, con la tirada larga con tramos a ritmo de 10 km;
+  - más volumen de pasadas;
+  - descargas y puesta a punto como antes.
+- **Principiante y avanzado:** mismo volumen (±3 %), solo cambia la forma de escribir las sesiones.
+- **Inscripciones:** las existentes conservan su versión; las nuevas usan `2026.11`. Sin migraciones de estructura: el contenido llega solo en la publicación de Vercel.
+- **Reversión:** marcar `2026.10.1` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10.1';`) y revertir el JSON en `main`.
+
 ## Parte principal en km
 
-La parte principal de cada entrenamiento se muestra en distancia en lugar de tiempo (web: `WorkoutDay`; app: `WorkoutCard`). El contenido de la base no cambia: la conversión se hace al mostrar (`packages/plan-library/src/distance.ts` y su copia en `apps/mobile/lib/src/domain/distance_text.dart`).
+Desde `2026.11` el contenido ya viene en km y con porcentajes: no se convierte nada y la nota debajo de la semana explica el porcentaje y manda a la Calculadora. Para las inscripciones en versiones anteriores (`2026.10`, `2026.10.1`) la parte principal se sigue convirtiendo al mostrar (web: `WorkoutDay`; app: `WorkoutCard`). El contenido de la base no cambia: la conversión se hace al mostrar (`packages/plan-library/src/distance.ts` y su copia en `apps/mobile/lib/src/domain/distance_text.dart`).
 
 - **Ritmo:** el último test de la Calculadora (`user_pace_tests`) si es de las últimas 8 semanas, normalizado a un esfuerzo de ~30 minutos con Riegel y aplicado con las proporciones entre intensidades del corredor modelo del capítulo. Sin test, las velocidades del corredor modelo del capítulo (`model_runner_assumptions.chapterN_kmh`), que corresponden al nivel del plan.
 - **Redondeo:** carrera continua a 0,5 km; pasadas de menos de 2 km a 100 m (desde 2 km, a 0,5 km).

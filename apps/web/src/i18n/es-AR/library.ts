@@ -100,6 +100,8 @@ export const library = {
     kmFromModel: "Distancias estimadas para el nivel del plan. Cargá tu test en la",
     kmCalculator: "Calculadora",
     kmFromModelEnd: "para ajustarlas a tu ritmo.",
+    kmFromPlan: "Las distancias son las del plan. Los porcentajes son sobre el ritmo de tu test de 5 km (100 %): en la",
+    kmFromPlanEnd: "ves el tiempo de cada pasada y de cada tramo.",
     day: "Día",
     dayN: "Día {n}",
     today: "hoy",

@@ -16,7 +16,10 @@
     "typecheck": "tsc --noEmit",
     "import": "tsx scripts/import.ts",
     "seed:generate": "tsx scripts/generate-seed.ts",
-    "sync": "tsx scripts/sync-rest.ts"
+    "sync": "tsx scripts/sync-rest.ts",
+    "audit": "tsx scripts/audit-plans.ts",
+    "rebuild": "tsx scripts/rebuild-plans.ts",
+    "compare": "tsx scripts/compare-plans.ts"
   },
   "dependencies": {
     "zod": "^4.6.5"

@@ -15,7 +15,7 @@ insert into auth.users (id, email) values
   ('f6f6f6f6-0000-4000-8000-0000000000f6', 'sr-a@test.local'),
   ('a7a7a7a7-0000-4000-8000-0000000000a7', 'sr-b@test.local');
 insert into public.plan_enrollments (id, user_id, content_version, plan_id, start_date, race_date)
-values ('e6e6e6e6-0000-4000-8000-0000000000e6', 'f6f6f6f6-0000-4000-8000-0000000000f6', '2026.10.1', 'plan-01', '2026-10-19', '2026-11-15');
+values ('e6e6e6e6-0000-4000-8000-0000000000e6', 'f6f6f6f6-0000-4000-8000-0000000000f6', '2026.11', 'plan-01', '2026-10-19', '2026-11-15');
 
 set role authenticated;
 set request.jwt.claim.sub = 'f6f6f6f6-0000-4000-8000-0000000000f6';
