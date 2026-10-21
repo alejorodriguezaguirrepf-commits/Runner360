@@ -1,17 +1,25 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { isSupabaseConfigured, publicEnv } from "@/lib/env";
+import { isSupabaseConfigured, publicEnv, readEnv } from "@/lib/env";
+import { canonicalRedirect, canonicalSiteUrl } from "@/lib/site-url";
 
 /**
  * Proxy (ex middleware): refresca la sesión de Supabase y hace una primera barrera de rutas.
  * La protección real se repite en cada layout/acción del servidor y en RLS.
  */
 
-const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin", "/planes", "/hoy", "/calculadora"];
+const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin", "/planes", "/hoy", "/calculadora", "/instalar"];
 const AUTH_PAGES = ["/ingresar", "/registro"];
 
 export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const canonical = canonicalRedirect({
+    url: request.url,
+    host: request.headers.get("x-forwarded-host") ?? request.headers.get("host"),
+    vercelEnv: readEnv("VERCEL_ENV"),
+    canonical: canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }),
+  });
+  if (canonical) return NextResponse.redirect(canonical, 308);
   const isPrivate = PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 
   if (!isSupabaseConfigured()) {

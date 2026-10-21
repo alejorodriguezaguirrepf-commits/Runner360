@@ -66,6 +66,12 @@ export async function hasPremium(session: Session): Promise<boolean> {
   return data === true;
 }
 
+/** Fin del plan anual vigente (ISO) o null. Se calcula en la base (annual_access_until). */
+export async function annualAccessUntil(session: Session): Promise<string | null> {
+  const { data, error } = await session.supabase.rpc("annual_access_until", { p_user: session.user.id });
+  return error || typeof data !== "string" ? null : data;
+}
+
 export async function canUseFeature(session: Session, feature: string): Promise<boolean> {
   const { data } = await session.supabase.rpc("can_use_feature", { p_feature: feature });
   return data === true;

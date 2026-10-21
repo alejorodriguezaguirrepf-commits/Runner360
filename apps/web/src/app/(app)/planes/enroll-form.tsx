@@ -14,11 +14,13 @@ export function EnrollForm({
   planId,
   starts,
   premium,
+  annual = false,
   hasDemoPlan,
 }: {
   planId: string;
   starts: string[];
   premium: boolean;
+  annual?: boolean;
   hasDemoPlan: boolean;
 }) {
   const { state, pending, onSubmit } = useFormAction(enrollLibraryPlanAction, { ok: false });
@@ -37,7 +39,7 @@ export function EnrollForm({
           error={state.errors?.startDate}
         />
         <CheckboxField name="safety" label={em.safety} error={state.errors?.safety} />
-        <p className="text-xs text-muted">{premium ? em.paidNote : em.freeNote}</p>
+        <p className="text-xs text-muted">{annual ? em.annualNote : premium ? em.paidNote : em.freeNote}</p>
         {hasDemoPlan ? <p className="text-xs text-warning">{em.demoWarning}</p> : null}
         {state.ok ? null : <FormMessage state={state} />}
         <SubmitButton pending={pending} pendingText={em.pending}>{premium ? em.submit : em.submitFree}</SubmitButton>

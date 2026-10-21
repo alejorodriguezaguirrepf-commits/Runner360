@@ -120,3 +120,17 @@ export function Logo({ className = "", inverted = false }: { className?: string;
     </span>
   );
 }
+export const IconPhone = (p: IconProps) => (
+  <Svg {...p}><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" /><path d="M10.5 18.5h3" /></Svg>
+);
+/** Botón Compartir de Safari (cuadrado con flecha hacia arriba). */
+export const IconShare = (p: IconProps) => (
+  <Svg {...p}><path d="M12 3v12" /><path d="m8 7 4-4 4 4" /><path d="M8.5 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2.5" /></Svg>
+);
+/** "Agregar a inicio" de Safari (cuadrado con un +). */
+export const IconAddSquare = (p: IconProps) => (
+  <Svg {...p}><rect x="4" y="4" width="16" height="16" rx="3" /><path d="M12 8.5v7M8.5 12h7" /></Svg>
+);
+export const IconDots = (p: IconProps) => (
+  <Svg {...p}><circle cx="12" cy="5" r="1.3" fill="currentColor" /><circle cx="12" cy="12" r="1.3" fill="currentColor" /><circle cx="12" cy="19" r="1.3" fill="currentColor" /></Svg>
+);

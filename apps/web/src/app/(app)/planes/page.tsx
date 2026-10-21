@@ -6,8 +6,8 @@ import { SafetyNotices } from "@/components/library/notices";
 import { IconChevronRight } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, cx, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
-import { hasPremium, requireOnboardedSession } from "@/lib/auth";
-import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { annualAccessUntil, hasPremium, requireOnboardedSession } from "@/lib/auth";
+import { enrollmentOver, getOpenEnrollment } from "@/lib/data/enrollment";
 import { findPlan, getLibrary } from "@/lib/data/library";
 import { startMondays } from "@/lib/library/start";
 import { EnrollForm } from "./enroll-form";
@@ -91,9 +91,10 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
     ? { distanceKm: fromPlan.distance_km, daysPerWeek: fromPlan.days_per_week, durationWeeks: fromPlan.duration_weeks, level: fromPlan.level }
     : parseFilter(sp);
 
-  const [premium, open, { data: tp }, { count: demoActive }] = await Promise.all([
+  const [premium, openEnrollment, annualUntil, { data: tp }, { count: demoActive }] = await Promise.all([
     hasPremium(session),
     getOpenEnrollment(supabase, user.id),
+    annualAccessUntil(session),
     supabase.from("training_profiles").select("target_distance").eq("user_id", user.id).maybeSingle<{ target_distance: string }>(),
     supabase.from("user_training_plans").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "active"),
   ]);
@@ -102,7 +103,10 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
   const { filter, options, plan, durationLevel } = catalogSteps(library.plans, requested);
   const durationLabel = (w: number) => library.plans.find((p) => p.duration_weeks === w)?.duration_label ?? fmt(m.catalog.weeks, { n: w });
   const freeWeeks = library.freePreviewWeeks;
-  const mondays = startMondays(todayIn(profile.timezone));
+  const today = todayIn(profile.timezone);
+  const mondays = startMondays(today);
+  // Un plan ya terminado no impide elegir otro (se cierra al empezar el nuevo).
+  const open = openEnrollment && !enrollmentOver(openEnrollment, today) ? openEnrollment : null;
 
   return (
     <>
@@ -198,6 +202,7 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
               planId={plan.id}
               starts={mondays}
               premium={premium}
+              annual={Boolean(annualUntil)}
               hasDemoPlan={(demoActive ?? 0) > 0}
             />
           )}

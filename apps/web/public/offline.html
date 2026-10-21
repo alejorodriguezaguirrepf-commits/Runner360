@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sin conexión · RUNNER 360</title>
+<style>
+  :root { --bg: #f5f7fa; --surface: #ffffff; --ink: #101c2c; --muted: #4b5563; --primary: #18a999; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b1220; --surface: #111a2b; --ink: #e8eef6; --muted: #a3afc2; } }
+  body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; padding: 16px; box-sizing: border-box; }
+  main { max-width: 26rem; background: var(--surface); border-radius: 16px; padding: 24px; text-align: center; }
+  img { width: 64px; height: 64px; }
+  p { color: var(--muted); }
+  button { min-height: 44px; border: 0; border-radius: 12px; padding: 0 20px; background: var(--primary); color: #101c2c; font-weight: 700; font-size: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <img src="/icons/icon-192.png" alt="">
+  <h1>Estás sin conexión</h1>
+  <p>RUNNER 360 necesita internet para mostrar tu plan y guardar tus entrenamientos. Cuando vuelva la señal, probá de nuevo.</p>
+  <button type="button" onclick="location.reload()">Reintentar</button>
+</main>
+</body>
+</html>

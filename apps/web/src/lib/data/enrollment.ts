@@ -1,5 +1,5 @@
 import "server-only";
-import { segmentsOf, type CheckinLike, type ScheduleDecision, type Segment } from "@runner360/plan-library";
+import { addDays, scheduledWeeks, segmentsOf, type CheckinLike, type ScheduleDecision, type Segment } from "@runner360/plan-library";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logError } from "@/lib/log";
 import { findPlan, getLibrary, type Library, type PlanRow } from "./library";
@@ -79,4 +79,10 @@ export async function getOpenEnrollment(supabase: SupabaseClient, userId: string
     .order("created_at");
   const rows = (checkins ?? []) as CheckinRow[];
   return { enrollment: data, plan, library, checkins: rows, segments: segmentsOf(data, rows) };
+}
+
+/** El plan ya terminó: pasó la última semana del calendario (incluye semanas repetidas por check-in). */
+export function enrollmentOver(open: Pick<OpenEnrollment, "segments" | "plan">, today: string): boolean {
+  const last = scheduledWeeks(open.segments, open.plan.duration_weeks).at(-1);
+  return last ? addDays(last.weekStart, 6) < today : false;
 }

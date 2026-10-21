@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { BottomNav, MobileMoreLinks, SideNav } from "@/components/app/app-nav";
 import { IconLogout, Logo } from "@/components/ui/icons";
-import { requireOnboardedSession } from "@/lib/auth";
+import { annualAccessUntil, requireOnboardedSession } from "@/lib/auth";
+import { AnnualExpiryNotice } from "@/components/app/annual-notice";
 import { signOutAction } from "@/lib/actions/auth";
 import { ViewAsBanner } from "@/components/app/view-as-banner";
+import { InstallBanner } from "@/components/pwa/install";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const { isAdmin, viewAs } = await requireOnboardedSession();
+  const session = await requireOnboardedSession();
+  const { isAdmin, viewAs } = session;
+  const annualUntil = await annualAccessUntil(session);
   return (
     <>
     {viewAs ? <ViewAsBanner viewAs={viewAs} /> : null}
@@ -35,6 +39,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </form>
         </header>
         <main id="contenido" className="mx-auto max-w-5xl px-4 pb-28 pt-6 sm:px-6 lg:pb-12 lg:pt-10">
+          <AnnualExpiryNotice until={annualUntil} />
+          <InstallBanner />
           <MobileMoreLinks isAdmin={isAdmin} />
           {children}
         </main>

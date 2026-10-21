@@ -6,7 +6,8 @@ import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { requireOnboardedSession } from "@/lib/auth";
 import { arsEquivalent } from "@/lib/data/pricing";
-import { publicEnv } from "@/lib/env";
+import { publicEnv, readEnv } from "@/lib/env";
+import { canonicalSiteUrl } from "@/lib/site-url";
 import { isStale, latestRate, refreshRate } from "@/lib/fx/rates";
 import { logError } from "@/lib/log";
 import { readPaymentsConfig } from "@/lib/payments/config";
@@ -31,6 +32,17 @@ export async function startCheckoutAction(_prev: ActionState, formData: FormData
   const own = active.find((pr) => pr.provider === parsed.data.provider);
   const list = active.find((pr) => pr.provider === null) ?? null;
   if (!product || product.tier !== "premium" || (!own && !list)) return { ok: false, message: "Este producto todavía no tiene precio configurado para ese medio de pago." };
+  // Reglas de compra (también se validan acá, no solo en la pantalla).
+  const [{ data: premium }, { data: annualUntil }] = await Promise.all([
+    supabase.rpc("has_premium", { p_user: user.id }),
+    supabase.rpc("annual_access_until", { p_user: user.id }),
+  ]);
+  if (product.billing_interval === "year") {
+    if (parsed.data.provider !== "mercadopago") return { ok: false, message: "El plan anual se paga con Mercado Pago." };
+    if (premium === true && !annualUntil) return { ok: false, message: "Para pasar al anual, primero cancelá la renovación mensual y esperá a que termine el mes pago." };
+  } else if (premium === true) {
+    return { ok: false, message: "Ya tenés una suscripción activa." };
+  }
 
   let price: PriceRow;
   if (parsed.data.provider === "mercadopago") {
@@ -48,7 +60,7 @@ export async function startCheckoutAction(_prev: ActionState, formData: FormData
   } else {
     return { ok: false, message: "Este producto todavía no tiene precio configurado para ese medio de pago." };
   }
-  const base = readPaymentsConfig(process.env).appBaseUrl || publicEnv.siteUrl;
+  const base = readPaymentsConfig(process.env).appBaseUrl || canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }) || publicEnv.siteUrl;
 
   let url: string;
   try {

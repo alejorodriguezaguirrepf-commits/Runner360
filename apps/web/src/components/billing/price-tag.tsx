@@ -17,6 +17,11 @@ export function PriceTag({ product, inverse = false, size = "lg" }: { product: P
         {product.priceLabel}
         <span className={cx("text-base font-medium", muted)}> {yearly ? m.perYear : m.perMonth}</span>
       </p>
+      {product.savings ? (
+        <p className={cx("mt-2 inline-block rounded-lg px-2.5 py-1 text-sm font-bold", inverse ? "bg-accent text-on-accent" : "bg-primary text-on-primary")}>
+          {fmt(m.savings, { amount: product.savings.label, pct: product.savings.pct })}
+        </p>
+      ) : null}
       {product.ars ? (
         <>
           <p className="tabular mt-1 font-semibold">

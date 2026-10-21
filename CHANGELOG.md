@@ -1,5 +1,22 @@
 # Cambios
 
+## 2026-10-21 — Acceso desde el link, app instalable y plan anual
+
+- **Acceso desde el link:**
+  - Los correos de confirmación y recuperación y la vuelta de Mercado Pago usan siempre el dominio de producción, nunca un link de vista previa.
+  - Si alguien entra por otra dirección del deploy de producción, la app lo redirige a runner360.vercel.app.
+- **App instalable (PWA):**
+  - Ícono en el celular, con íconos para Android e iPhone.
+  - Sección «Instalar app» en el menú: botón directo en Android y Chrome, instrucciones con dibujos en iPhone.
+  - Aviso la primera vez que se entra desde el celular. Se puede cerrar y no vuelve; si la app ya está instalada, no aparece.
+- **Plan anual (USD 180):**
+  - Pago único en pesos por 12 meses, sin renovación automática, con el ahorro frente a la mensual (USD 60, 25 %).
+  - Mientras está vigente, cualquier plan se ve completo desde el inicio, y al terminarlo se renueva o se elige otro sin pagar.
+  - Aviso desde 15 días antes del vencimiento.
+  - Al vencer, se conserva el historial.
+  - En el panel, los anuales aparecen separados, con sus ingresos.
+- La mensual no cambia.
+
 ## 2026-10-20 — Revisión completa de los planes (contenido 2026.11)
 
 - **Auditoría** de los 21 planes: sesiones repetidas, pasadas con distancias raras, velocidad en segundos y volumen por nivel (`docs/plan-audit/`).

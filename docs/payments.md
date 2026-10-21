@@ -54,7 +54,7 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 2. Abrí una ventana de incógnito, iniciá sesión en Mercado Pago **con el vendedor de prueba**, entrá a *Tus integraciones* y creá ahí también una aplicación de Suscripciones. En **Credenciales de producción** de esa cuenta copiá el **Access Token** (`APP_USR-…`). Para suscripciones, la cuenta vendedora de prueba se usa con sus credenciales "de producción".
 3. **Webhooks** (en la aplicación de la cuenta vendedora de prueba) → **Configurar notificaciones**:
    - URL: `https://runner360.vercel.app/api/webhooks/mercadopago`
-   - Eventos: **Planes y suscripciones** (marcá *Suscripciones* y *Pagos recurrentes/autorizados*).
+   - Eventos: **Planes y suscripciones** (marcá *Suscripciones* y *Pagos recurrentes/autorizados*) y **Pagos** (para el plan anual, que es un pago único).
    - Guardá y copiá la **Clave secreta** que se genera.
 4. En Vercel → Project → Settings → **Environment Variables** (entorno *Production*):
    | Variable | Valor |
@@ -79,6 +79,23 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 2. En la aplicación real → **Webhooks** → misma URL y mismos eventos → copiá la **nueva clave secreta**.
 3. En Vercel: `MP_ENV` = `prod`, `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` con los valores reales. **Redeploy.** (Si `prod` se combina con un token `TEST-`, la app no arranca a propósito.)
 4. Hacé una suscripción real con tu tarjeta desde una cuenta común de la app (no la de administrador, que no paga). Verificá el cobro en Mercado Pago y en el panel, cancelá y devolvé el pago desde Mercado Pago (Actividad → el cobro → *Devolver dinero*).
+
+## Plan anual (pago único por 12 meses)
+
+- Se cobra con **Checkout Pro** (un pago, con cuotas si la persona quiere), en pesos: USD 180 × la cotización del día. **No se renueva solo.**
+- El webhook recibe el evento **Pagos** (`payment`), consulta el pago a la API y, si está aprobado, registra un acceso anual de 12 meses. Si la persona renueva antes de que venza, el nuevo año empieza cuando termina el actual. Una devolución o contracargo corta el acceso en ese momento.
+- Mientras el anual está vigente, cualquier plan se ve completo desde el inicio, y al terminarlo se puede renovar o elegir otro sin pagar (`enrollment_open_weeks`, migración `20261021000100_annual_plan.sql`). Al vencer, los planes nuevos vuelven a la muestra gratuita; el historial y el plan hecho con el anual se conservan.
+- Aviso en la app desde 15 días antes del vencimiento.
+- Para pasar del mensual al anual, primero se cancela la renovación mensual (la app no deja tener los dos a la vez).
+- En el panel de administración, los suscriptores anuales y sus ingresos aparecen separados de los mensuales.
+
+## Links siempre al dominio de producción
+
+- Correos de confirmación y recuperación, y la vuelta de Mercado Pago, usan siempre `NEXT_PUBLIC_SITE_URL` / `APP_BASE_URL` o, si faltan, el dominio de producción que informa Vercel. Nunca un link de vista previa.
+- Si alguien entra por otra dirección del deploy de producción, la app lo redirige a `https://runner360.vercel.app`.
+- `https://runner360.vercel.app/api/health` muestra `dominioDeLosEnlaces` y `dominioDeMercadoPago`: los dos tienen que ser `https://runner360.vercel.app`.
+- **Vercel → Settings → Deployment Protection:** "Vercel Authentication" en **Standard Protection** (protege solo las vistas previas). Compartí siempre `https://runner360.vercel.app`.
+- **Supabase → Authentication → URL Configuration:** *Site URL* = `https://runner360.vercel.app` y en *Redirect URLs* `https://runner360.vercel.app/**`.
 
 ## Pendiente en los próximos PR
 

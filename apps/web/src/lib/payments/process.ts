@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logError } from "@/lib/log";
+import { prepaidPeriod } from "./annual";
 import type { NormalizedPayment, NormalizedSubscriptionEvent, PaymentProvider, WebhookInput } from "./types";
 
 export type WebhookOutcome =
@@ -55,8 +56,8 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
   }
 
   try {
-    const subscription = await applySubscriptionEvent(admin, provider.id, event);
-    if (event.payment) await recordPayment(admin, provider.id, subscription, event.payment);
+    const subscription = event.prepaid ? await applyPrepaidEvent(admin, provider.id, event) : await applySubscriptionEvent(admin, provider.id, event);
+    if (subscription && event.payment) await recordPayment(admin, provider.id, subscription, event.payment);
     await admin.from("payment_events").update({ processed_at: new Date().toISOString() }).eq("id", eventRowId);
   } catch (e) {
     logError(`webhook:${provider.id}:apply`, e);
@@ -103,6 +104,71 @@ async function applySubscriptionEvent(admin: SupabaseClient, provider: string, e
     .select("id, user_id")
     .single<SubscriptionRef>();
   if (error || !created) throw new Error(error?.message ?? "No se pudo crear la suscripción");
+  return created;
+}
+
+type PrepaidRow = SubscriptionRef & { status: string; current_period_start: string | null; current_period_end: string | null };
+
+/**
+ * Pago único del plan anual (un registro de suscripción por pago, sin renovación automática).
+ * Al aprobarse: 12 meses desde el pago, o desde que termina el anual vigente (renovación anticipada).
+ * Devolución o contracargo: el acceso termina en ese momento. Solo productos anuales.
+ */
+async function applyPrepaidEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<SubscriptionRef | null> {
+  if (!event.userId || !event.productCode) throw new Error("Pago sin referencia de usuario o producto");
+  const { data: product } = await admin
+    .from("subscription_products")
+    .select("id, billing_interval")
+    .eq("code", event.productCode)
+    .maybeSingle<{ id: string; billing_interval: string | null }>();
+  if (!product) throw new Error("Producto desconocido");
+  if (product.billing_interval !== "year") return null;
+
+  const { data: existing } = await admin
+    .from("subscriptions")
+    .select("id, user_id, status, current_period_start, current_period_end")
+    .eq("provider", provider)
+    .eq("provider_subscription_id", event.providerSubscriptionId)
+    .maybeSingle<PrepaidRow>();
+  const now = new Date();
+  const changes: Record<string, unknown> = { status: event.status, cancel_at_period_end: true };
+
+  if (event.status === "active" && !existing?.current_period_end) {
+    const { data: others } = await admin
+      .from("subscriptions")
+      .select("current_period_end, subscription_products!inner(billing_interval)")
+      .eq("user_id", event.userId)
+      .eq("subscription_products.billing_interval", "year")
+      .in("status", ["active", "cancelled"])
+      .gt("current_period_end", now.toISOString())
+      .neq("provider_subscription_id", event.providerSubscriptionId ?? "");
+    const ends = ((others ?? []) as { current_period_end: string }[]).map((o) => new Date(o.current_period_end));
+    const paidAt = event.payment ? new Date(event.payment.paidAt) : now;
+    const { start, end } = prepaidPeriod(paidAt, ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : null);
+    Object.assign(changes, { started_at: paidAt.toISOString(), current_period_start: start.toISOString(), current_period_end: end.toISOString() });
+  }
+  if (event.status === "cancelled") {
+    const start = existing?.current_period_start ? new Date(existing.current_period_start) : null;
+    Object.assign(changes, {
+      cancelled_at: now.toISOString(),
+      current_period_start: new Date(Math.min(start?.getTime() ?? now.getTime(), now.getTime() - 1000)).toISOString(),
+      current_period_end: now.toISOString(),
+    });
+  }
+
+  if (existing) {
+    // Un pago ya aprobado no vuelve a "pendiente" por un aviso que llega tarde.
+    if (existing.status === "active" && event.status === "pending") return existing;
+    const { error } = await admin.from("subscriptions").update(changes).eq("id", existing.id);
+    if (error) throw new Error(error.message);
+    return existing;
+  }
+  const { data: created, error } = await admin
+    .from("subscriptions")
+    .insert({ user_id: event.userId, product_id: product.id, provider, provider_subscription_id: event.providerSubscriptionId, ...changes })
+    .select("id, user_id")
+    .single<SubscriptionRef>();
+  if (error || !created) throw new Error(error?.message ?? "No se pudo registrar el plan anual");
   return created;
 }
 

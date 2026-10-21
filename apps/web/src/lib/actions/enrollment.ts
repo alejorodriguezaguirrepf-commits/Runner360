@@ -8,7 +8,7 @@ import { z } from "zod";
 import { fmt, t } from "@/i18n";
 import type { ActionState } from "@/lib/action-state";
 import { requireOnboardedSession } from "@/lib/auth";
-import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { enrollmentOver, getOpenEnrollment } from "@/lib/data/enrollment";
 import { findPlan, getLibrary } from "@/lib/data/library";
 import { startMondays } from "@/lib/library/start";
 import { logError } from "@/lib/log";
@@ -46,7 +46,12 @@ export async function enrollLibraryPlanAction(_prev: ActionState, formData: Form
   }
   const raceDate = raceDateFromStart(startDate, plan.race_week);
 
-  if (await getOpenEnrollment(supabase, user.id)) return { ok: false, message: e.alreadyEnrolled };
+  const open = await getOpenEnrollment(supabase, user.id);
+  if (open) {
+    // Un plan ya terminado se cierra solo al elegir otro.
+    if (!enrollmentOver(open, today)) return { ok: false, message: e.alreadyEnrolled };
+    await supabase.from("plan_enrollments").update({ status: "completed", ended_at: new Date().toISOString() }).eq("id", open.enrollment.id);
+  }
 
   const { error } = await supabase.from("plan_enrollments").insert({
     user_id: user.id,
@@ -62,6 +67,57 @@ export async function enrollLibraryPlanAction(_prev: ActionState, formData: Form
   // Un plan DEMO activo (sistema anterior) se cierra: no puede haber dos planes en curso.
   await supabase.from("user_training_plans").update({ status: "cancelled", ended_at: new Date().toISOString() }).eq("user_id", user.id).eq("status", "active");
 
+  revalidatePath("/", "layout");
+  redirect("/plan?inscripto=1");
+}
+
+const renewSchema = z.object({
+  enrollment: z.uuid(),
+  safety: z.literal("on", { error: () => ({ message: e.safety }) }),
+});
+
+/**
+ * Renovar un plan terminado: el mismo plan, en la versión vigente de la biblioteca, desde el próximo
+ * lunes. Con el plan anual vigente queda completo sin pagar (lo decide la base, enrollment_open_weeks).
+ */
+export async function renewEnrollmentAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase, user, profile } = await requireOnboardedSession();
+  const parsed = renewSchema.safeParse(formDataToObject(formData));
+  if (!parsed.success) {
+    const safety = parsed.error.issues.some((i) => i.path[0] === "safety");
+    return safety ? { ok: false, errors: { safety: e.safety }, message: e.safety } : { ok: false, message: e.generic };
+  }
+  const today = todayIn(profile.timezone);
+  const { data: row } = await supabase
+    .from("plan_enrollments")
+    .select("id, plan_id, status")
+    .eq("id", parsed.data.enrollment)
+    .eq("user_id", user.id)
+    .maybeSingle<{ id: string; plan_id: string; status: string }>();
+  if (!row) return { ok: false, message: e.generic };
+  const open = await getOpenEnrollment(supabase, user.id);
+  if (open) {
+    if (open.enrollment.id !== row.id || !enrollmentOver(open, today)) return { ok: false, message: e.alreadyEnrolled };
+    await supabase.from("plan_enrollments").update({ status: "completed", ended_at: new Date().toISOString() }).eq("id", row.id);
+  } else if (row.status !== "completed") {
+    return { ok: false, message: e.generic };
+  }
+
+  const library = await getLibrary();
+  const plan = library ? findPlan(library, row.plan_id) : null;
+  if (!plan) return { ok: false, message: e.generic };
+  const startDate = startMondays(today)[0]!;
+  const { error } = await supabase.from("plan_enrollments").insert({
+    user_id: user.id,
+    content_version: plan.content_version,
+    plan_id: plan.id,
+    start_date: startDate,
+    race_date: raceDateFromStart(startDate, plan.race_week),
+  });
+  if (error) {
+    logError("enrollment:renew", error);
+    return { ok: false, message: error.code === "23505" ? e.alreadyEnrolled : e.generic };
+  }
   revalidatePath("/", "layout");
   redirect("/plan?inscripto=1");
 }

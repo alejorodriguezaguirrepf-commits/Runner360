@@ -6,11 +6,12 @@ import { sessionVolumeLabel, StatusBadge } from "@/components/app/session-summar
 import { IconChevronRight } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, EmptyState, PageHeader } from "@/components/ui/primitives";
 import { t } from "@/i18n";
-import { requireOnboardedSession } from "@/lib/auth";
+import { annualAccessUntil, requireOnboardedSession } from "@/lib/auth";
+import { findPlan, getLibrary } from "@/lib/data/library";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan } from "@/lib/data/training";
 import { EnrollmentView } from "./enrollment-view";
-import { CancelPlanButton } from "./plan-actions";
+import { CancelPlanButton, PlanFinishedCard } from "./plan-actions";
 
 export const metadata: Metadata = { title: "Mi plan" };
 
@@ -19,10 +20,20 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const { inscripto } = await searchParams;
-  const openEnrollment = await getOpenEnrollment(supabase, user.id);
+  const [openEnrollment, annualUntil] = await Promise.all([getOpenEnrollment(supabase, user.id), annualAccessUntil(session)]);
   if (openEnrollment) {
     const { semana, checkin } = await searchParams;
-    return <EnrollmentView open={openEnrollment} supabase={supabase} today={today} requestedWeek={semana} enrolled={Boolean(inscripto)} checkinDone={checkin} />;
+    return (
+      <EnrollmentView
+        open={openEnrollment}
+        supabase={supabase}
+        today={today}
+        requestedWeek={semana}
+        enrolled={Boolean(inscripto)}
+        checkinDone={checkin}
+        annual={Boolean(annualUntil)}
+      />
+    );
   }
   const active = await loadActivePlan(supabase, user.id);
 
@@ -92,9 +103,22 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   }
 
   // Sin plan activo: los planes se eligen de la biblioteca (catálogo o asistente).
+  // Último plan terminado: renovarlo o elegir otro.
+  const { data: last } = await supabase
+    .from("plan_enrollments")
+    .select("id, plan_id")
+    .eq("user_id", user.id)
+    .eq("status", "completed")
+    .order("ended_at", { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle<{ id: string; plan_id: string }>();
+  const library = last ? await getLibrary() : null;
+  const lastPlan = last && library ? findPlan(library, last.plan_id) : null;
+
   return (
     <>
       <PageHeader title="Tu plan" subtitle={t.library.catalog.subtitle} />
+      {last && lastPlan ? <PlanFinishedCard enrollmentId={last.id} planTitle={lastPlan.title} annual={Boolean(annualUntil)} /> : null}
       <Card>
         <EmptyState
           title="Todavía no tenés un plan activo"

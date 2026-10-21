@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { authErrorMessage } from "@/lib/auth-errors";
 import { isSupabaseConfigured, missingSupabaseConfig, normalizeBaseUrl, publicEnv, readEnv } from "@/lib/env";
-import { pickSiteUrl } from "@/lib/site-url";
+import { canonicalRedirect, canonicalSiteUrl, pickSiteUrl } from "@/lib/site-url";
 
 const KEY = "sb_publishable_abcdefghijklmnopqrstuvwxyz";
 
@@ -42,7 +42,12 @@ describe("variables de entorno", () => {
 });
 
 describe("dirección de retorno de los correos", () => {
-  it("usa el dominio de la solicitud en producción", () => {
+  it("en producción usa siempre el dominio de producción, aunque el registro venga de un preview", () => {
+    const fromPreview = { forwardedHost: "runner360-git-rama-equipo.vercel.app", forwardedProto: "https", production: true };
+    expect(pickSiteUrl({ ...fromPreview, vercelProductionUrl: "runner360.vercel.app" })).toBe("https://runner360.vercel.app");
+    expect(pickSiteUrl({ ...fromPreview, configured: "https://runner360.vercel.app" })).toBe("https://runner360.vercel.app");
+  });
+  it("sin dominio configurado usa el de la solicitud", () => {
     expect(pickSiteUrl({ forwardedHost: "runner360.vercel.app", forwardedProto: "https", configured: "http://localhost:3000", production: true })).toBe(
       "https://runner360.vercel.app",
     );
@@ -57,6 +62,26 @@ describe("dirección de retorno de los correos", () => {
   });
   it("ignora encabezados inválidos y usa la configurada", () => {
     expect(pickSiteUrl({ host: "evil.com/<script>", configured: "https://runner360.vercel.app", production: true })).toBe("https://runner360.vercel.app");
+  });
+  it("dominio de producción: la configurada o la de Vercel, nunca localhost", () => {
+    expect(canonicalSiteUrl({ configured: "https://runner360.vercel.app/" })).toBe("https://runner360.vercel.app");
+    expect(canonicalSiteUrl({ configured: "http://localhost:3000", vercelProductionUrl: "runner360.vercel.app" })).toBe("https://runner360.vercel.app");
+    expect(canonicalSiteUrl({})).toBe("");
+  });
+});
+
+describe("redirección al dominio de producción", () => {
+  const base = { canonical: "https://runner360.vercel.app", vercelEnv: "production" };
+  it("otra dirección del deploy de producción va al dominio de producción", () => {
+    expect(canonicalRedirect({ ...base, url: "https://runner360-abc123.vercel.app/registro?x=1", host: "runner360-abc123.vercel.app" })).toBe(
+      "https://runner360.vercel.app/registro?x=1",
+    );
+  });
+  it("no redirige el dominio de producción, las API, los previews ni el desarrollo", () => {
+    expect(canonicalRedirect({ ...base, url: "https://runner360.vercel.app/", host: "runner360.vercel.app" })).toBeNull();
+    expect(canonicalRedirect({ ...base, url: "https://otro.vercel.app/api/webhooks/mercadopago", host: "otro.vercel.app" })).toBeNull();
+    expect(canonicalRedirect({ ...base, vercelEnv: "preview", url: "https://p.vercel.app/", host: "p.vercel.app" })).toBeNull();
+    expect(canonicalRedirect({ ...base, vercelEnv: undefined, url: "http://localhost:3000/", host: "localhost:3000" })).toBeNull();
   });
 });
 

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { PwaRegister } from "@/components/pwa/pwa-register";
 import { THEME_SCRIPT } from "@/components/theme/theme";
 import { publicEnv } from "@/lib/env";
 import "./globals.css";
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
   description:
     "Plataforma de entrenamiento para corredores: planes de 5K a maratón, registro de entrenamientos, hidratación, competencias y evolución. Versión beta en desarrollo.",
   applicationName: "RUNNER 360",
+  // iPhone: al agregarla a inicio se abre como app, con su nombre y el ícono apple-icon.png.
+  appleWebApp: { capable: true, title: "RUNNER 360", statusBarStyle: "default" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
@@ -39,6 +43,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Saltar al contenido
         </a>
         {children}
+        <PwaRegister />
       </body>
     </html>
   );

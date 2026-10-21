@@ -6,6 +6,7 @@ import { fmt } from "@/i18n";
 import { pricing as m } from "@/i18n/es-AR/pricing";
 import { isStale, latestRate, refreshRate, type StoredRate } from "@/lib/fx/rates";
 import { arsMinorFromUsd, formatArs, formatListPrice } from "@/lib/money";
+import { annualSavings } from "@/lib/payments/annual";
 
 export interface PricedProduct extends ProductRow {
   prices: PriceRow[];
@@ -15,6 +16,8 @@ export interface PricedProduct extends ProductRow {
   priceLabel: string | null;
   /** Equivalente aproximado en pesos, o null si no hay cotización válida (se oculta). */
   ars: { amountMinor: number; label: string; rateNote: string } | null;
+  /** Anual: ahorro frente a 12 meses de la mensual ("US$ 60", 25 %), o null. */
+  savings: { label: string; pct: number } | null;
 }
 
 /** Equivalente en pesos de un precio de lista con la cotización guardada (null si no aplica). */
@@ -40,10 +43,21 @@ export async function getPricedProducts(supabase: SupabaseClient | null): Promis
   ]);
   if (e1 || e2 || !products) return null;
   if (isStale(rate)) after(() => refreshRate().then(() => undefined));
+  const listOf = (p: ProductRow) => ((prices ?? []) as PriceRow[]).find((pr) => pr.product_id === p.id && pr.provider === null) ?? null;
+  const monthly = (products as ProductRow[]).find((p) => p.tier === "premium" && p.billing_interval === "month");
+  const monthlyList = monthly ? listOf(monthly) : null;
   return (products as ProductRow[]).map((p) => {
     const own = ((prices ?? []) as PriceRow[]).filter((pr) => pr.product_id === p.id);
-    const list = own.find((pr) => pr.provider === null) ?? null;
-    return { ...p, prices: own, listPrice: list, priceLabel: list ? formatListPrice(list.amount_minor, list.currency) : null, ars: arsEquivalent(list, rate) };
+    const list = listOf(p);
+    const save = p.billing_interval === "year" && list && monthlyList?.currency === list.currency ? annualSavings(monthlyList.amount_minor, list.amount_minor) : null;
+    return {
+      ...p,
+      prices: own,
+      listPrice: list,
+      priceLabel: list ? formatListPrice(list.amount_minor, list.currency) : null,
+      ars: arsEquivalent(list, rate),
+      savings: save && list ? { label: formatListPrice(save.amountMinor, list.currency), pct: save.pct } : null,
+    };
   });
 }
 

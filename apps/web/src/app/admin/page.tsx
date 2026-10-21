@@ -18,6 +18,8 @@ type Dashboard = {
   users_by_month: { month: string; count: number }[];
   subs: { active: number; cancelled: number; expired: number; pending: number };
   subs_by_plan: { plan: string; active: number }[];
+  subs_by_interval?: Partial<Record<"month" | "year", { active: number; expiring_15d: number; ended: number }>>;
+  revenue_by_interval?: { interval: "month" | "year"; currency: string; amount_minor: number; payments: number }[];
   revenue_by_month: { month: string; currency: string; amount_minor: number }[];
   payments_count: number;
   payment_events_count: number;
@@ -107,6 +109,26 @@ export default async function AdminHome() {
               <Stat label="Activas" value={String(d.subs.active)} />
               <Stat label="Canceladas" value={String(d.subs.cancelled)} />
               <Stat label="Vencidas" value={String(d.subs.expired)} />
+            </div>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {(["month", "year"] as const).map((interval) => {
+                const x = d.subs_by_interval?.[interval];
+                const income = (d.revenue_by_interval ?? []).filter((r) => r.interval === interval);
+                return (
+                  <Card key={interval}>
+                    <CardTitle>{interval === "year" ? "Suscriptores anuales" : "Suscriptores mensuales"}</CardTitle>
+                    <div className="grid grid-cols-3 gap-3">
+                      <Stat label="Activos" value={String(x?.active ?? 0)} />
+                      {interval === "year" ? <Stat label="Vencen en 15 días" value={String(x?.expiring_15d ?? 0)} /> : <Stat label="Pagos" value={String(income.reduce((a, r) => a + r.payments, 0))} />}
+                      <Stat label={interval === "year" ? "Vencidos" : "Terminados"} value={String(x?.ended ?? 0)} />
+                    </div>
+                    <p className="mt-3 text-sm">
+                      <span className="text-muted">Ingresos acumulados: </span>
+                      <span className="tabular font-semibold">{income.length ? income.map((r) => formatListPrice(Number(r.amount_minor), r.currency)).join(" · ") : "—"}</span>
+                    </p>
+                  </Card>
+                );
+              })}
             </div>
             <Card>
               <CardTitle>Activas por plan</CardTitle>

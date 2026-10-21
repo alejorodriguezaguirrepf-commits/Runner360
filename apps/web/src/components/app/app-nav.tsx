@@ -11,6 +11,7 @@ import {
   IconFlag,
   IconHome,
   IconList,
+  IconPhone,
   IconPlus,
   IconSettings,
   IconStar,
@@ -37,6 +38,7 @@ const SECONDARY = [
   { href: "/competencias", label: "Competencias", icon: IconFlag },
   { href: "/aprender", label: "Aprender", icon: IconBook },
   { href: "/suscripcion", label: "Suscripción", icon: IconStar },
+  { href: "/instalar", label: "Instalar app", icon: IconPhone },
 ];
 
 function isActive(pathname: string, href: string) {

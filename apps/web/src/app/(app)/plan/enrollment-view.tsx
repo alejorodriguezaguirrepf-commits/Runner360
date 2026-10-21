@@ -23,7 +23,8 @@ import type { OpenEnrollment } from "@/lib/data/enrollment";
 import { getOverviewDays } from "@/lib/data/library";
 import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
 import { CheckinCard } from "@/components/library/checkin-card";
-import { CancelEnrollmentButton } from "./plan-actions";
+import { enrollmentOver } from "@/lib/data/enrollment";
+import { CancelEnrollmentButton, PlanFinishedCard } from "./plan-actions";
 
 const m = t.library;
 const c = m.calendar;
@@ -43,8 +44,10 @@ export async function EnrollmentView({
   requestedWeek,
   enrolled,
   checkinDone,
+  annual = false,
 }: {
   checkinDone?: string;
+  annual?: boolean;
   open: OpenEnrollment;
   supabase: SupabaseClient;
   today: string;
@@ -111,6 +114,7 @@ export async function EnrollmentView({
         }
       />
       {enrolled ? <div className="mb-4"><Alert tone="success" title={c.enrolled} /></div> : null}
+      {enrollmentOver(open, today) ? <PlanFinishedCard enrollmentId={enrollment.id} planTitle={plan.title} annual={annual} /> : null}
       {checkinDone ? <div className="mb-4"><Alert tone="success">{checkinDone === "fin" ? m.checkin.completed : m.checkin.saved}</Alert></div> : null}
       {enrollment.status === "paused" ? (
         <div className="mb-4">

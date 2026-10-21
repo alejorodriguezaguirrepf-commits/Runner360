@@ -17,6 +17,9 @@ import {
  * El webhook solo trae el id: el estado real se consulta a la API (nunca se confía en el cuerpo).
  * Eventos: "subscription_preapproval" (alta, pausa, baja) y "subscription_authorized_payment"
  * (cada débito automático mensual: si se aprueba, libera el mes siguiente del plan).
+ *
+ * Plan anual: pago único (Checkout Pro, /checkout/preferences) por 12 meses, sin renovación
+ * automática y con cuotas. Llega como evento "payment"; el período lo calcula lib/payments/process.ts.
  */
 
 const API = "https://api.mercadopago.com";
@@ -49,6 +52,40 @@ export function mapMercadoPagoPayment(ap: Record<string, unknown>, now = new Dat
     amountMinor: amount,
     currency: typeof ap.currency_id === "string" ? ap.currency_id : null,
     paidAt: when ?? now,
+  };
+}
+
+/**
+ * Pago único del plan anual. Aprobado → acceso activo; en proceso → pendiente; devuelto o
+ * contracargo → se corta el acceso; rechazado → se ignora (no crea nada).
+ */
+export function mapMercadoPagoOneOff(p: Record<string, unknown>, now = new Date().toISOString()): { status: SubscriptionStatus | null; payment: NormalizedPayment | null } {
+  const s = String(p.status ?? "");
+  const status: SubscriptionStatus | null =
+    s === "approved" ? "active" : s === "pending" || s === "in_process" || s === "authorized" ? "pending" : s === "refunded" || s === "charged_back" ? "cancelled" : null;
+  if (p.id === undefined || p.id === null || status === null || status === "pending") return { status, payment: null };
+  const when = [p.date_approved, p.date_last_updated, p.date_created].find((d): d is string => typeof d === "string" && !Number.isNaN(Date.parse(d)));
+  return {
+    status,
+    payment: {
+      providerPaymentId: String(p.id),
+      status: status === "active" ? "approved" : "refunded",
+      amountMinor: typeof p.transaction_amount === "number" ? Math.round(p.transaction_amount * 100) : null,
+      currency: typeof p.currency_id === "string" ? p.currency_id : null,
+      paidAt: when ?? now,
+    },
+  };
+}
+
+/** Preferencia de Checkout Pro para el plan anual (pura, testeable). */
+export function annualPreference(req: { userId: string; email: string; productCode: string; productName: string; amount: number; currency: string; successUrl: string; cancelUrl: string }) {
+  return {
+    items: [{ id: req.productCode, title: `RUNNER 360 · ${req.productName} (12 meses)`, quantity: 1, unit_price: req.amount, currency_id: req.currency }],
+    external_reference: `${req.userId}:${req.productCode}`,
+    payer: { email: req.email },
+    back_urls: { success: req.successUrl, pending: req.successUrl, failure: req.cancelUrl },
+    auto_return: "approved",
+    statement_descriptor: "RUNNER360",
   };
 }
 
@@ -93,6 +130,21 @@ export const mercadoPagoProvider: PaymentProvider = {
     if (!this.isConfigured()) throw new ProviderNotConfiguredError("Mercado Pago");
     // Importe decimal derivado de unidades menores con aritmética entera.
     const amount = `${Math.trunc(req.price.amount_minor / 100)}.${String(req.price.amount_minor % 100).padStart(2, "0")}`;
+    if (req.product.billing_interval === "year") {
+      const pref = annualPreference({
+        userId: req.userId,
+        email: req.email,
+        productCode: req.product.code,
+        productName: req.product.name,
+        amount: Number(amount),
+        currency: req.price.currency,
+        successUrl: req.successUrl,
+        cancelUrl: req.cancelUrl,
+      });
+      const res = await mpFetch("/checkout/preferences", { method: "POST", body: JSON.stringify(pref) });
+      if (typeof res.init_point !== "string") throw new Error("Mercado Pago no devolvió URL de pago");
+      return { url: res.init_point };
+    }
     const body = {
       reason: `RUNNER 360 · ${req.product.name}`,
       external_reference: `${req.userId}:${req.product.code}`,
@@ -100,7 +152,7 @@ export const mercadoPagoProvider: PaymentProvider = {
       back_url: req.successUrl,
       status: "pending",
       auto_recurring: {
-        frequency: req.product.billing_interval === "year" ? 12 : 1,
+        frequency: 1,
         frequency_type: "months",
         transaction_amount: Number(amount),
         currency_id: req.price.currency,
@@ -129,12 +181,22 @@ export const mercadoPagoProvider: PaymentProvider = {
   },
 
   async parseWebhook({ rawBody, headers }: WebhookInput): Promise<NormalizedSubscriptionEvent | null> {
-    const body = JSON.parse(rawBody) as { id?: unknown; type?: string; action?: string; data?: { id?: unknown } };
+    const body = JSON.parse(rawBody) as { id?: unknown; type?: string; topic?: string; action?: string; data?: { id?: unknown } };
     const dataId = body.data?.id ? String(body.data.id) : null;
     const eventId = body.id ? String(body.id) : `${body.type}:${dataId}:${headers.get("x-request-id") ?? ""}`;
     const base: NormalizedSubscriptionEvent = { providerEventId: eventId, eventType: body.type ?? body.action ?? "unknown", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
     if (!dataId) return base;
     if (body.type === "subscription_preapproval") return preapprovalEvent(base, dataId);
+    if (body.type === "payment" || body.topic === "payment") {
+      const p = await mpFetch(`/v1/payments/${encodeURIComponent(dataId)}`);
+      // Los débitos de la suscripción mensual también son "payment": esos llegan por authorized_payment.
+      const meta = (p.metadata ?? {}) as Record<string, unknown>;
+      if (p.operation_type === "recurring_payment" || meta.preapproval_id) return base;
+      const ref = parseExternalReference(p.external_reference);
+      if (!ref.userId || !ref.productCode) return base;
+      const { status, payment } = mapMercadoPagoOneOff(p);
+      return { ...base, prepaid: true, providerSubscriptionId: `payment:${dataId}`, userId: ref.userId, productCode: ref.productCode, status, payment };
+    }
     if (body.type === "subscription_authorized_payment") {
       const ap = await mpFetch(`/authorized_payments/${encodeURIComponent(dataId)}`);
       const preId = typeof ap.preapproval_id === "string" ? ap.preapproval_id : null;

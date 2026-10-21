@@ -25,6 +25,8 @@ export interface NormalizedSubscriptionEvent {
   cancelAtPeriodEnd: boolean | null;
   /** Débito automático informado en este evento (libera un mes del plan si está aprobado). */
   payment?: NormalizedPayment | null;
+  /** Pago único (plan anual): el período lo calcula el servidor al aprobarse el pago. */
+  prepaid?: boolean;
 }
 
 export type PaymentStatus = "approved" | "pending" | "rejected" | "refunded";

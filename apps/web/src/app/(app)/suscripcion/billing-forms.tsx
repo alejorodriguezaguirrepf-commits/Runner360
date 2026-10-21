@@ -5,7 +5,7 @@ import { FormMessage, SubmitButton } from "@/components/ui/form";
 import { initialActionState } from "@/lib/action-state";
 import { cancelSubscriptionAction, startCheckoutAction } from "@/lib/actions/billing";
 
-export function CheckoutForm({ productId, providers }: { productId: string; providers: { id: string; label: string; configured: boolean }[] }) {
+export function CheckoutForm({ productId, providers, label }: { productId: string; providers: { id: string; label: string; configured: boolean }[]; label?: string }) {
   const [state, action] = useActionState(startCheckoutAction, initialActionState);
   const available = providers.filter((p) => p.configured);
   if (available.length === 0) return <p className="text-sm text-muted">Medios de pago pendientes de configuración para este producto.</p>;
@@ -16,7 +16,7 @@ export function CheckoutForm({ productId, providers }: { productId: string; prov
           <form key={p.id} action={action}>
             <input type="hidden" name="productId" value={productId} />
             <input type="hidden" name="provider" value={p.id} />
-            <SubmitButton pendingText="Redirigiendo…">{`Pagar con ${p.label}`}</SubmitButton>
+            <SubmitButton pendingText="Redirigiendo…">{label ?? `Pagar con ${p.label}`}</SubmitButton>
           </form>
         ))}
       </div>
