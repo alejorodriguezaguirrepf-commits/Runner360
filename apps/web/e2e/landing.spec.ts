@@ -16,6 +16,7 @@ test.describe("landing", () => {
     await expect(page.locator("#contenido > section").last()).toHaveAttribute("aria-labelledby", "vista-ejemplo");
     await expect(page.getByRole("heading", { name: "Vista de ejemplo" })).toBeVisible();
     await expect(page.locator("#distancias").getByText("15K")).toHaveCount(0);
+    await expect(page.getByText("Criterio profesional")).toHaveCount(0);
     await expect(page.locator("html")).toHaveAttribute("lang", "es-AR");
   });
 
@@ -35,13 +36,19 @@ test.describe("landing", () => {
     for (const [i, q] of questions.entries()) await expect(buttons.nth(i)).toHaveAccessibleName(q);
     const first = buttons.first();
     const answer = page.locator(`#${await first.getAttribute("aria-controls")}`);
-    await expect(first).toHaveAttribute("aria-expanded", "false");
-    await expect(answer).toBeHidden();
-    // Mouse: abre y cierra.
-    await first.click();
+    // «¿Quién diseña los planes?» viene abierta, con foto, nombre y respuesta.
     await expect(first).toHaveAttribute("aria-expanded", "true");
     await expect(answer).toBeVisible();
-    await expect(page.getByRole("region", { name: "¿Quién diseña los planes?" })).toContainText("Alejo Rodríguez Aguirre");
+    const designer = page.getByRole("region", { name: "¿Quién diseña los planes?" });
+    await expect(designer).toContainText("Alejo Rodríguez Aguirre");
+    await expect(designer.getByRole("img", { name: /^Retrato de Alejo Rodríguez Aguirre/ })).toBeVisible();
+    await expect(designer.getByRole("img", { name: /corriendo en una pista/ })).toBeVisible();
+    // Mouse: cierra y abre.
+    await first.click();
+    await expect(first).toHaveAttribute("aria-expanded", "false");
+    await expect(answer).toBeHidden();
+    await first.click();
+    await expect(answer).toBeVisible();
     await first.click();
     await expect(answer).toBeHidden();
     // Teclado: Enter y Espacio abren y cierran; las flechas mueven el foco.
@@ -60,7 +67,7 @@ test.describe("landing", () => {
     // JSON-LD: mismas preguntas y respuestas que en pantalla.
     for (let i = 0; i < 6; i++) await buttons.nth(i).click();
     const visible = await section.locator("[data-faq-id]").evaluateAll((els) =>
-      els.map((el) => [el.querySelector("button span:not([aria-hidden])")!.textContent!.trim(), el.querySelector("[role=region] p")!.textContent!.trim()]),
+      els.map((el) => [el.querySelector("button span:not([aria-hidden])")!.textContent!.trim(), el.querySelector("[data-faq-answer]")!.textContent!.trim()]),
     );
     const ld = JSON.parse((await section.locator('script[type="application/ld+json"]').textContent())!);
     expect(ld["@type"]).toBe("FAQPage");

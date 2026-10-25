@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-10-25 — Página principal: quién diseña los planes
+
+- Se quitó la tarjeta «Criterio profesional»; las otras dos ocupan el ancho completo.
+- «¿Quién diseña los planes?» viene abierta, con el retrato de Alejo Rodríguez Aguirre, su nombre y una foto chica entrenando en la pista (WebP optimizado).
+- Nueva respuesta de «¿Necesito experiencia previa?», en primera persona.
+
 ## 2026-10-25 — Aprender e Hidratación sin carteles de revisión
 
 - Se quitaron los carteles «Pendiente de revisión profesional» de Aprender, de cada artículo y de las recomendaciones de Hidratación.

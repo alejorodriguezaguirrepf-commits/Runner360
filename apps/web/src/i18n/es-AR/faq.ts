@@ -18,7 +18,8 @@ export const faq = {
       id: "experiencia-previa",
       order: 2,
       question: "¿Necesito experiencia previa?",
-      answer: "No necesitás experiencia previa. Elegís el plan según tu nivel, y hay planes pensados para quienes empiezan desde cero.",
+      answer:
+        "No, no necesitás experiencia previa. Armé planes para distintos niveles, y algunos están pensados para quienes arrancan desde cero. Elegís el que corresponde a tu nivel de hoy y empezás desde ahí.",
     },
     {
       id: "reemplaza-entrenador",

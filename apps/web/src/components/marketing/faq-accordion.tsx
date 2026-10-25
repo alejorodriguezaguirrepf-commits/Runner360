@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import type { FaqItem } from "@/i18n/es-AR/faq";
 import { cx } from "@/components/ui/primitives";
 
@@ -8,10 +8,20 @@ import { cx } from "@/components/ui/primitives";
  * Acordeón accesible (patrón WAI-ARIA): cada pregunta es un botón con aria-expanded y
  * aria-controls; la respuesta es una región rotulada por su pregunta. Enter y Espacio abren y
  * cierran (botones nativos); ↑ ↓ Inicio y Fin mueven el foco entre preguntas.
+ * `answers` reemplaza el texto de una respuesta por contenido propio (por ejemplo, con foto);
+ * `defaultOpen` deja abiertas esas preguntas al cargar.
  */
-export function FaqAccordion({ items }: { items: readonly FaqItem[] }) {
+export function FaqAccordion({
+  items,
+  answers = {},
+  defaultOpen = [],
+}: {
+  items: readonly FaqItem[];
+  answers?: Partial<Record<string, ReactNode>>;
+  defaultOpen?: readonly string[];
+}) {
   const base = useId();
-  const [open, setOpen] = useState<Set<string>>(() => new Set());
+  const [open, setOpen] = useState<Set<string>>(() => new Set(defaultOpen));
   const toggle = (id: string) =>
     setOpen((prev) => {
       const next = new Set(prev);
@@ -58,7 +68,7 @@ export function FaqAccordion({ items }: { items: readonly FaqItem[] }) {
               </button>
             </h3>
             <div id={aId} role="region" aria-labelledby={qId} hidden={!expanded} className="px-5 pb-5">
-              <p className="text-sm text-muted">{item.answer}</p>
+              {answers[item.id] ?? <p data-faq-answer className="text-sm text-muted">{item.answer}</p>}
             </div>
           </div>
         );

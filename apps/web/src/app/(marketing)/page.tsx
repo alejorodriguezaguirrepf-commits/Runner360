@@ -12,6 +12,7 @@ import {
   IconTimer,
 } from "@/components/ui/icons";
 import { PriceTag } from "@/components/billing/price-tag";
+import { DesignerAnswer } from "@/components/marketing/designer-answer";
 import { FaqAccordion } from "@/components/marketing/faq-accordion";
 import { Badge, ButtonLink } from "@/components/ui/primitives";
 import { faq } from "@/i18n/es-AR/faq";
@@ -65,10 +66,9 @@ export default async function LandingPage() {
 
       {/* 2. Propuesta de valor */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           {[
             { icon: IconRoute, t: "Un plan para tu objetivo", d: "Distancia, nivel y días disponibles definen tu calendario, sin sesiones inventadas para rellenar." },
-            { icon: IconShield, t: "Criterio profesional", d: "Los planes se publican solo cuando cumplen criterios de validación definidos por el profesional a cargo." },
             { icon: IconBolt, t: "Datos que te sirven", d: "Ritmos, volumen y cumplimiento calculados con precisión a partir de lo que registrás." },
           ].map(({ icon: Icon, t, d }) => (
             <div key={t} className="rounded-2xl bg-surface p-6 shadow-sm ring-1 ring-line">
@@ -185,7 +185,11 @@ export default async function LandingPage() {
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <h2 className="text-3xl font-extrabold tracking-tight">{faq.title}</h2>
           <div className="mt-8">
-            <FaqAccordion items={sortedFaq(faq.items)} />
+            <FaqAccordion
+              items={sortedFaq(faq.items)}
+              answers={{ "quien-disena": <DesignerAnswer answer={faq.items.find((i) => i.id === "quien-disena")!.answer} /> }}
+              defaultOpen={["quien-disena"]}
+            />
           </div>
         </div>
       </section>
