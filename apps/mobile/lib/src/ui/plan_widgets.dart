@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../domain/distance_text.dart';
+import '../domain/effort.dart';
+import '../domain/pace.dart';
 import '../domain/plan_schedule.dart';
+import '../domain/session_blocks.dart';
 import '../theme.dart';
 
 /// Componentes del plan de la biblioteca (mismo diseño que la web: Día N, pasos, valoración).
 
-const categoryLabels = {
-  'rest': 'Descanso',
-  'rec': 'Recuperación',
-  'easy': 'Suave',
-  'mod': 'Moderado',
-  'thr': 'Umbral',
-  'hard': 'Intenso',
-  'race': 'Competencia',
-};
-
-/// Colores de cada tipo de sesión (texto/fondo ≥ 4,5:1), iguales a la web en cada tema.
+/// Colores de cada nivel de intensidad (texto/fondo ≥ 4,5:1), iguales a la web en cada tema.
 (Color, Color) categoryColors(BuildContext context, String? category) {
   final dark = Theme.of(context).brightness == Brightness.dark;
   const light = {
@@ -153,7 +146,8 @@ class WeekStrip extends StatelessWidget {
   }
 }
 
-/// Un entrenamiento del plan: "Día N", qué hacer y los pasos; con "¿Cómo te fue?" si ya ocurrió.
+/// Un entrenamiento del plan. Encabezado: día, km totales y duración. Adentro, la sesión en tres
+/// franjas (entrada en calor, parte principal y vuelta a la calma) con porcentaje, RPE y ritmo.
 class WorkoutCard extends StatefulWidget {
   const WorkoutCard({
     super.key,
@@ -167,6 +161,7 @@ class WorkoutCard extends StatefulWidget {
     this.initiallyExpanded = false,
     this.onRate,
     this.speeds,
+    this.test,
   });
   final Map<String, dynamic> day;
   final int n;
@@ -177,8 +172,11 @@ class WorkoutCard extends StatefulWidget {
   final String? note;
   final bool initiallyExpanded;
 
-  /// Velocidades del corredor: la parte principal se muestra en km.
+  /// Velocidades del corredor (contenido anterior a 2026.12: la parte principal se pasa a km).
   final Speeds? speeds;
+
+  /// Test de la Calculadora: muestra el ritmo de cada porcentaje.
+  final PaceTest? test;
 
   /// Guarda la valoración; null = no se puede valorar (día futuro).
   final Future<void> Function(int rating, String? note)? onRate;
@@ -194,13 +192,8 @@ class _WorkoutCardState extends State<WorkoutCard> {
   Widget build(BuildContext context) {
     final c = context.colors;
     final d = widget.day;
-    final (catFg, catBg) = categoryColors(context, d['category'] as String?);
-    final steps = <(String, String)>[
-      ('CALENTAMIENTO', d['warmup'] as String? ?? '—'),
-      ('PRINCIPAL', mainSetInKm(d['main_set'] as String?, widget.speeds) ?? '—'),
-      ('VUELTA A LA CALMA', d['cooldown'] as String? ?? '—'),
-      if (d['strength_after'] == true) ('DESPUÉS', 'Rutina de fuerza'),
-    ];
+    final blocks = sessionBlocks(d).where((b) => b.lines.isNotEmpty).toList();
+    final km = d['distance_km_est'] as num?;
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -239,29 +232,30 @@ class _WorkoutCardState extends State<WorkoutCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          d['session_type'] as String? ?? '',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: c.ink),
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              if (km != null) TextSpan(text: formatKm1(km)),
+                              TextSpan(
+                                text: '${km != null ? ' · ' : ''}${formatPlanMinutes(d['duration_min_est'] as num?, round: true)}',
+                                style: TextStyle(fontWeight: FontWeight.w600, color: c.muted),
+                              ),
+                            ],
+                          ),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: c.ink),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Wrap(
                           spacing: 6,
                           runSpacing: 4,
                           crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Text(
-                              formatPlanMinutes(d['duration_min_est'] as num?),
-                              style: TextStyle(fontWeight: FontWeight.w700, color: c.ink),
-                            ),
-                            if (d['distance_km_est'] != null) Text('· ${formatKm1(d['distance_km_est'] as num)}', style: TextStyle(color: c.muted)),
-                            Chip2(text: categoryLabels[d['category']] ?? '', fg: catFg, bg: catBg),
+                            Text(widget.today ? 'Hoy · ${shortDate(widget.date)}' : shortDate(widget.date), style: TextStyle(fontSize: 12, color: c.muted)),
                             if (widget.done) Chip2(text: 'Hecho', icon: Icons.check, fg: c.success, bg: c.successBg),
                             if (widget.rating != null)
                               Chip2(text: '${ratingEmoji[widget.rating]} ${ratingLabels[widget.rating]}', fg: c.ink, bg: c.surface2, border: c.line),
                           ],
                         ),
-                        const SizedBox(height: 2),
-                        Text(widget.today ? 'Hoy · ${shortDate(widget.date)}' : shortDate(widget.date), style: TextStyle(fontSize: 12, color: c.muted)),
                       ],
                     ),
                   ),
@@ -275,58 +269,31 @@ class _WorkoutCardState extends State<WorkoutCard> {
               decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: c.line)),
               ),
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
+              padding: const EdgeInsets.fromLTRB(12, 4, 12, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (var i = 0; i < steps.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(top: 2, right: 10),
-                            width: 14,
-                            height: 14,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: i == 1 ? Brand.teal : c.surface,
-                              border: Border.all(color: Brand.teal, width: 2),
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  steps[i].$1,
-                                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: c.muted, letterSpacing: 0.6),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  steps[i].$2,
-                                  style: TextStyle(fontSize: i == 1 ? 16 : 14, fontWeight: i == 1 ? FontWeight.w700 : FontWeight.w400, color: c.ink),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (d['intensity'] != null)
+                  const RpeHelp(),
+                  for (var i = 0; i < blocks.length; i++) ...[
+                    SessionBlockView(block: blocks[i], n: i + 1, test: widget.test, speeds: widget.speeds),
+                    const SizedBox(height: 8),
+                  ],
+                  if (d['strength_after'] == true)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(color: c.surface2, borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: c.line),
+                      ),
                       child: Text.rich(
                         TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Intensidad: ',
-                              style: TextStyle(fontWeight: FontWeight.w700, color: c.muted),
+                              text: 'Después: ',
+                              style: TextStyle(fontWeight: FontWeight.w700, color: c.ink),
                             ),
                             TextSpan(
-                              text: d['intensity'] as String,
+                              text: 'rutina de fuerza',
                               style: TextStyle(color: c.ink),
                             ),
                           ],
@@ -343,6 +310,178 @@ class _WorkoutCardState extends State<WorkoutCard> {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Clave de color de cada nivel de intensidad (1 = más suave … 6 = más intenso; 0 = sin porcentaje).
+const _levelKeys = ['rest', 'rec', 'easy', 'mod', 'thr', 'hard', 'race'];
+
+/// Colores (texto, fondo) de un porcentaje; legibles en ambos temas.
+(Color, Color) effortColors(BuildContext context, int? pct) => categoryColors(context, _levelKeys[pct == null ? 0 : effortLevel(pct)]);
+
+/// Una franja de la sesión: nombre, total y sus líneas (qué, porcentaje · RPE, ritmo, pausa).
+class SessionBlockView extends StatelessWidget {
+  const SessionBlockView({super.key, required this.block, required this.n, this.test, this.speeds});
+  final SessionBlock block;
+  final int n;
+  final PaceTest? test;
+  final Speeds? speeds;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final (fg, bg) = effortColors(context, block.colorPct);
+    // Contenido anterior a 2026.12 (sin porcentajes): la parte principal se muestra en km.
+    final legacy = block.kind == BlockKind.main && block.lines.length == 1 && block.lines.first.pct == null;
+    final lines = legacy ? [SessionLine(what: mainSetInKm(block.lines.first.what, speeds) ?? block.lines.first.what)] : block.lines;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: bg,
+          border: Border(left: BorderSide(color: fg, width: 4)),
+        ),
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Expanded(
+                  child: Text(
+                    '$n. ${blockNames[block.kind]}'.toUpperCase(),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: c.ink, letterSpacing: 0.6),
+                  ),
+                ),
+                if (block.total != null)
+                  Text(
+                    '${block.total} en total',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: c.ink),
+                  ),
+              ],
+            ),
+            for (var i = 0; i < lines.length; i++)
+              Container(
+                margin: const EdgeInsets.only(top: 6),
+                padding: EdgeInsets.only(top: i > 0 ? 6 : 0),
+                decoration: i > 0
+                    ? BoxDecoration(
+                        border: Border(top: BorderSide(color: c.line)),
+                      )
+                    : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lines[i].what,
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: c.ink, height: 1.3),
+                    ),
+                    if (lines[i].pct != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 2,
+                          children: [
+                            Semantics(
+                              label: 'Intensidad: ${effortLabel(lines[i].pct!)}',
+                              excludeSemantics: true,
+                              child: Text(
+                                effortLabel(lines[i].pct!),
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: effortColors(context, lines[i].pct).$1),
+                              ),
+                            ),
+                            if (test != null) Text('Ritmo ${formatPace(paceForPct(test!, lines[i].pct!))} /km', style: TextStyle(fontSize: 14, color: c.ink)),
+                          ],
+                        ),
+                      ),
+                    if (lines[i].recovery != null) Text(lines[i].recovery!, style: TextStyle(fontSize: 14, color: c.muted)),
+                    if (lines[i].note != null) Text(lines[i].note!, style: TextStyle(fontSize: 14, color: c.muted)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Explicación del RPE a un toque: no ocupa lugar hasta que se abre.
+class RpeHelp extends StatefulWidget {
+  const RpeHelp({super.key});
+
+  @override
+  State<RpeHelp> createState() => _RpeHelpState();
+}
+
+class _RpeHelpState extends State<RpeHelp> {
+  bool _open = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          expanded: _open,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: () => setState(() => _open = !_open),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.help_outline, size: 20, color: c.primaryInk),
+                  const SizedBox(width: 6),
+                  Text(
+                    '¿Qué es el RPE?',
+                    style: TextStyle(fontWeight: FontWeight.w700, color: c.primaryInk),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (_open)
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: c.surface2,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: c.line),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(rpeHelpText, style: TextStyle(color: c.ink)),
+                const SizedBox(height: 8),
+                for (final r in rpeTable())
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(r.range, style: TextStyle(color: c.ink)),
+                        ),
+                        Text(
+                          'RPE ${r.rpe}',
+                          style: TextStyle(fontWeight: FontWeight.w700, color: c.ink),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

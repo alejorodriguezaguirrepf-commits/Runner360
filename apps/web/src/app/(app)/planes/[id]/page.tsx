@@ -89,7 +89,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
             {days
               .filter((d) => !d.is_rest)
               .map((d, i) => (
-                <WorkoutDay key={d.day_index} day={d} n={i + 1} legend={v.category_legend} speeds={paces.speeds} open={d.day_index === firstSession} />
+                <WorkoutDay key={d.day_index} day={d} n={i + 1} speeds={paces.speeds} test={paces.test} open={d.day_index === firstSession} />
               ))}
           </ol>
         ) : (

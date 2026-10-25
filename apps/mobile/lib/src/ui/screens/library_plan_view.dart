@@ -160,6 +160,7 @@ class _LibraryPlanViewState extends State<LibraryPlanView> {
                     note: ratingByDate[sessions[i].date]?['note'] as String?,
                     initiallyExpanded: identical(sessions[i], firstOpen),
                     speeds: p.speeds,
+                    test: p.paceTest,
                     onRate: sessions[i].date.compareTo(_today) <= 0
                         ? (rating, note) async {
                             await widget.repo.saveRating(

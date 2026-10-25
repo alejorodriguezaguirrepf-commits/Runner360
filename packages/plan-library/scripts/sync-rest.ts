@@ -6,6 +6,8 @@
 // - Si la versión existe con OTRA huella, no toca nada y avisa (hay que subir content_version).
 // - Solo inserta (ON CONFLICT DO NOTHING): nunca modifica ni borra contenido ni datos de usuarios.
 // - Nunca hace fallar el build: ante un error avisa en el log (sin claves) y sigue.
+// - Solo en producción: en las vistas previas de Vercel (VERCEL_ENV=preview) no corre, para que
+//   una rama de prueba no publique contenido en la base real.
 //
 // Requiere que las migraciones de la biblioteca ya estén aplicadas (pnpm db:migrate).
 import { libraryTables, parseLibrary, rowObject } from "../src/import-sql";
@@ -21,6 +23,10 @@ function env(name: string): string {
 const log = (m: string) => console.log(`[biblioteca] ${m}`);
 
 async function main() {
+  if (env("VERCEL_ENV") === "preview") {
+    log("sincronización omitida: es una vista previa de Vercel (solo se publica desde producción).");
+    return;
+  }
   const rawUrl = env("NEXT_PUBLIC_SUPABASE_URL") || env("SUPABASE_URL");
   const key = env("SUPABASE_SERVICE_ROLE_KEY");
   const origin = /^(https?:\/\/[^/\s?#]+)/i.exec(rawUrl)?.[1];

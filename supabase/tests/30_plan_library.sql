@@ -13,7 +13,7 @@ grant execute on all functions in schema pg_temp to anon, authenticated;
 
 -- Importación completa (y reimportación idempotente: db-test.sh aplica el seed dos veces).
 select pg_temp.check((select count(*) from public.library_versions) = 1, 'una sola versión importada');
-select pg_temp.check((select content_version from public.library_versions where is_current) = '2026.11', 'versión vigente');
+select pg_temp.check((select content_version from public.library_versions where is_current) = '2026.12', 'versión vigente');
 select pg_temp.check((select count(*) from public.library_plans) = 21, '21 planes');
 select pg_temp.check((select count(*) from public.library_weeks) = 354, '354 semanas');
 select pg_temp.check((select count(*) from public.library_days) = 354 * 7, '7 días por semana');
@@ -29,13 +29,13 @@ select pg_temp.check(not exists (
 -- Inmutabilidad del contenido (aun para el dueño de la base).
 select pg_temp.expect_error($$update public.library_days set main_set = 'x' where plan_id = 'plan-01' and week = 1 and day_index = 1$$, 'día inmutable');
 select pg_temp.expect_error($$update public.library_plans set title = 'x' where id = 'plan-01'$$, 'plan inmutable');
-update public.library_versions set is_current = true where content_version = '2026.11';
+update public.library_versions set is_current = true where content_version = '2026.12';
 
 -- Mapeo de días: regla de días exigentes y competencia fija.
-select pg_temp.check(public.library_day_map_violations('2026.11', 'plan-13', '{0,1,2,3,4,5,6}') = '{}', 'mapeo original válido');
-select pg_temp.check('consecutive_demanding' = any (public.library_day_map_violations('2026.11', 'plan-13', '{0,2,1,3,4,5,6}')), 'dos exigentes seguidas');
-select pg_temp.check('race_moved' = any (public.library_day_map_violations('2026.11', 'plan-01', '{0,1,2,3,4,6,5}')), 'competencia movida');
-select pg_temp.check(public.library_day_map_violations('2026.11', 'plan-01', '{1,0,2,3,4,5,6}') = '{}', 'mover martes a lunes en plan 1');
+select pg_temp.check(public.library_day_map_violations('2026.12', 'plan-13', '{0,1,2,3,4,5,6}') = '{}', 'mapeo original válido');
+select pg_temp.check('consecutive_demanding' = any (public.library_day_map_violations('2026.12', 'plan-13', '{0,2,1,3,4,5,6}')), 'dos exigentes seguidas');
+select pg_temp.check('race_moved' = any (public.library_day_map_violations('2026.12', 'plan-01', '{0,1,2,3,4,6,5}')), 'competencia movida');
+select pg_temp.check(public.library_day_map_violations('2026.12', 'plan-01', '{1,0,2,3,4,5,6}') = '{}', 'mover martes a lunes en plan 1');
 
 insert into auth.users (id, email) values
   ('a1a1a1a1-0000-4000-8000-0000000000a1', 'lib-free@test.local'),
@@ -60,15 +60,15 @@ select pg_temp.check((select count(*) from public.library_plans) = 21, 'free no 
 
 -- Inscripción: fecha de competencia coherente, una abierta por persona, mapeo válido.
 select pg_temp.expect_error($$insert into public.plan_enrollments (user_id, content_version, plan_id, start_date, race_date)
-  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.11', 'plan-01', '2026-10-19', '2026-11-22')$$, 'fecha de competencia incoherente');
+  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.12', 'plan-01', '2026-10-19', '2026-11-22')$$, 'fecha de competencia incoherente');
 select pg_temp.expect_error($$insert into public.plan_enrollments (user_id, content_version, plan_id, start_date, race_date, day_map)
-  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.11', 'plan-01', '2026-10-19', '2026-11-15', '{0,0,2,3,4,5,6}')$$, 'mapeo que no es permutación');
+  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.12', 'plan-01', '2026-10-19', '2026-11-15', '{0,0,2,3,4,5,6}')$$, 'mapeo que no es permutación');
 select pg_temp.expect_error($$insert into public.plan_enrollments (user_id, content_version, plan_id, start_date, race_date)
-  values ('b2b2b2b2-0000-4000-8000-0000000000b2', '2026.11', 'plan-01', '2026-10-19', '2026-11-15')$$, 'inscribir a otra persona');
+  values ('b2b2b2b2-0000-4000-8000-0000000000b2', '2026.12', 'plan-01', '2026-10-19', '2026-11-15')$$, 'inscribir a otra persona');
 insert into public.plan_enrollments (id, user_id, content_version, plan_id, start_date, race_date, day_map)
-values ('e1e1e1e1-0000-4000-8000-0000000000e1', 'a1a1a1a1-0000-4000-8000-0000000000a1', '2026.11', 'plan-01', '2026-10-19', '2026-11-15', '{1,0,2,3,4,5,6}');
+values ('e1e1e1e1-0000-4000-8000-0000000000e1', 'a1a1a1a1-0000-4000-8000-0000000000a1', '2026.12', 'plan-01', '2026-10-19', '2026-11-15', '{1,0,2,3,4,5,6}');
 select pg_temp.expect_error($$insert into public.plan_enrollments (user_id, content_version, plan_id, start_date, race_date)
-  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.11', 'plan-04', '2026-10-19', '2027-01-10')$$, 'segunda inscripción abierta');
+  values ('a1a1a1a1-0000-4000-8000-0000000000a1', '2026.12', 'plan-04', '2026-10-19', '2027-01-10')$$, 'segunda inscripción abierta');
 select pg_temp.expect_error($$update public.plan_enrollments set day_map = '{0,1,2,3,4,6,5}' where id = 'e1e1e1e1-0000-4000-8000-0000000000e1'$$, 'mover la competencia');
 select pg_temp.expect_error($$update public.plan_enrollments set plan_id = 'plan-02' where id = 'e1e1e1e1-0000-4000-8000-0000000000e1'$$, 'cambiar de plan');
 update public.plan_enrollments set day_map = '{0,1,2,3,4,5,6}' where id = 'e1e1e1e1-0000-4000-8000-0000000000e1';
@@ -107,6 +107,6 @@ select pg_temp.check((select count(*) from public.library_days where plan_id = '
 reset role;
 
 -- Una versión usada por inscripciones no se puede borrar.
-select pg_temp.expect_error($$delete from public.library_versions where content_version = '2026.11'$$, 'borrar versión en uso');
+select pg_temp.expect_error($$delete from public.library_versions where content_version = '2026.12'$$, 'borrar versión en uso');
 
 rollback;

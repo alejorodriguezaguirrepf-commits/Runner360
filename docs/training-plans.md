@@ -1,6 +1,6 @@
 # Biblioteca de planes de running
 
-21 planes (5 km, 10 km, 21,1 km y 42,195 km), 354 semanas y 1.752 sesiones de carrera programadas día por día. Versión de contenido vigente: `2026.11`.
+21 planes (5 km, 10 km, 21,1 km y 42,195 km), 354 semanas y 1.752 sesiones de carrera programadas día por día. Versión de contenido vigente: `2026.12`.
 
 | Capítulo | Distancia | Nivel | Duración | Días/semana | Planes |
 |---|---|---|---|---|---|
@@ -20,7 +20,8 @@ Los capítulos no se asumen consecutivos ni fijos: distancias, niveles y duracio
   - ninguna sesión de calidad igual a la de la semana anterior;
   - pasadas de distancias permitidas;
   - nada de trabajo en segundos o por minutos;
-  - un intermedio entre principiante y avanzado en volumen.
+  - un intermedio entre principiante y avanzado en volumen;
+  - desde `2026.12`, cada tramo con su porcentaje y ningún nombre de esfuerzo visible (umbral, rodaje, suave, tempo, regenerativo, fondo, VO2máx y similares) en sesiones, notas, criterios ni reglas.
 
   Corre en los tests.
 - Desde `2026.11` la parte principal se prescribe en **km** y cada intensidad lleva su **porcentaje** sobre el ritmo del test de 5 km (100 %), como en la Calculadora. Las duraciones son **estimadas para un corredor modelo** (`model_runner_assumptions`).
@@ -252,6 +253,47 @@ Importación manual en una base (por ejemplo, para probar): `DATABASE_URL=postgr
 - **Principiante y avanzado:** mismo volumen (±3 %), solo cambia la forma de escribir las sesiones.
 - **Inscripciones:** las existentes conservan su versión; las nuevas usan `2026.11`. Sin migraciones de estructura: el contenido llega solo en la publicación de Vercel.
 - **Reversión:** marcar `2026.10.1` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.10.1';`) y revertir el JSON en `main`.
+
+## Versión 2026.12 (solo porcentaje y RPE)
+
+- **Origen:** la misma estructura y los mismos km que `2026.11`, regenerada por `rebuild-plans.ts` con otra forma de escribir cada sesión.
+- **Cada tramo muestra solo su intensidad:** porcentaje de la velocidad del test (el mismo de la Calculadora) y su RPE, por ejemplo «75 % · RPE 5». No se muestran nombres de esfuerzo.
+- **Equivalencia porcentaje → RPE** en un solo lugar: `packages/plan-library/src/rpe-scale.json` (la app la copia en `apps/mobile/lib/src/domain/effort.dart` y un test verifica que sean iguales).
+
+  | Porcentaje | RPE |
+  |---|---|
+  | 50–57 % | 2 |
+  | 58–65 % | 3 |
+  | 66–70 % | 4 |
+  | 71–75 % | 5 |
+  | 76–80 % | 6 |
+  | 81–85 % | 7 |
+  | 86–95 % | 8 |
+  | 96–100 % | 9 |
+  | más de 100 % | 10 |
+
+- **Porcentajes de cada tramo** (decisión del dueño, recalibrados a la tabla):
+
+  | Tramo | Porcentaje |
+  |---|---|
+  | Caminata (entrada en calor, vuelta a la calma, principiantes) | 50 % |
+  | Trote de entrada en calor y de vuelta a la calma, trote de recuperación | 60–70 % |
+  | Carrera continua y carrera larga | 70 % |
+  | Cambios moderados | 80 % |
+  | Pasadas largas y ritmo de 21 km | 90 % |
+  | Ritmo de maratón | 85 % |
+  | Ritmo de 10 km | 95 % |
+  | Test de 5 km, ritmo de 5 km, intervalos y cuestas | 100 % |
+  | Ritmo de 3 km | 105 % |
+  | Progresivos de 100 m | 115 % |
+  | Competencia | 5 km 100 %, 10 km 95 %, 21,1 km 90 %, 42,195 km 85 %; controles al 85 % |
+
+  Antes no tenían porcentaje y ahora sí: entrada en calor y vuelta a la calma (trote y caminata), progresivos, cuestas, caminatas de principiantes, tests, competencias y controles. Movilidad y estiramientos no llevan porcentaje.
+- **Gramática del texto** (la lee `src/session-blocks.ts` y su copia `apps/mobile/lib/src/domain/session_blocks.dart`): `[TOTAL km: ]tramo + tramo…`, con `tramo = qué[ al P %][ (aclaración)][, pausa …]`. Ejemplos: «4 × 1500 m al 90 %, pausa 2 min trotando»; «15,5 km: 6,5 km al 70 % + 3 × 1000 m al 95 %, pausa 2 min trotando + 6 km al 70 %».
+- **Pantalla de cada sesión** (web `SessionDetail`, app `WorkoutCard`): encabezado con día, km totales y duración; tres bloques (Entrada en calor, Parte principal, Vuelta a la calma) con color según la intensidad; cada línea con distancia o repeticiones, «% · RPE», el ritmo por km si hay test cargado (ritmo = ritmo del test ÷ porcentaje) y la pausa. La explicación del RPE se abre con un ícono «?».
+- **Reglas del check-in:** la señal «RPE de los rodajes Suaves» pasa a «RPE de las carreras al 70 %» (`EASY_SIGNAL`; `ruleText` reconoce el nombre anterior para las versiones viejas).
+- **Inscripciones:** las existentes conservan su versión (en producción no había inscripciones activas en versiones anteriores al publicar). Contenido anterior sin porcentajes: se muestra en un solo bloque, como antes.
+- **Reversión:** marcar `2026.11` como vigente (`update public.library_versions set is_current = false where is_current;` y luego `update public.library_versions set is_current = true where content_version = '2026.11';`) y revertir el JSON en `main`.
 
 ## Parte principal en km
 

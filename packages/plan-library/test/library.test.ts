@@ -113,11 +113,11 @@ describe("golden: totales de los 21 planes", () => {
   });
 });
 
-describe("versión 2026.11", () => {
+describe("versión 2026.12", () => {
   const lib = clone();
 
-  it("content_version 2026.11 sin cambio de esquema", () => {
-    expect(lib.content_version).toBe("2026.11");
+  it("content_version 2026.12 sin cambio de esquema", () => {
+    expect(lib.content_version).toBe("2026.12");
     expect(lib.schema_version).toBe("1.0.0");
   });
 

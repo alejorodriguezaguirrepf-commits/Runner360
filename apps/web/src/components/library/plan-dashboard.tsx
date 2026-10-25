@@ -1,4 +1,4 @@
-import { addDays, formatKmValue, formatMinutes, mondayOf, planDayAt, type Category } from "@runner360/plan-library";
+import { addDays, effortLabel, formatKmValue, formatMinutes, mondayOf, parseBlock, planDayAt } from "@runner360/plan-library";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { IconChevronRight } from "@/components/ui/icons";
@@ -13,7 +13,11 @@ const W = t.library.workout;
 
 const shortDate = (iso: string) =>
   new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`));
-const category = (d: DayRow): Category => (d.is_rest ? "rest" : (d.category ?? "rest"));
+/** Intensidad de la parte principal ("90 % · RPE 8"), o "—" en contenido sin porcentajes. */
+const mainEffort = (d: DayRow) => {
+  const pct = parseBlock(d.main_set, "main").maxPct;
+  return pct === null ? "—" : effortLabel(pct);
+};
 
 /** Métrica grande y legible (valor con cifras tabulares + etiqueta). */
 function Metric({ label, value }: { label: string; value: string }) {
@@ -62,12 +66,12 @@ export async function PlanDashboard({ open, supabase, today }: { open: OpenEnrol
         <p className="text-sm font-semibold text-accent">{D.today}</p>
         {isSession ? (
           <>
-            <h2 className="mt-1 text-2xl font-extrabold leading-tight sm:text-[28px]">{todayDay.session_type}</h2>
+            <h2 className="mt-1 text-2xl font-extrabold leading-tight sm:text-[28px]">{todayDay.short_label ?? todayDay.session_type}</h2>
             <p className="mt-1 text-nav-muted">{fmt(D.dayOfWeek, { n: todayN, w: slot!.planWeek, total: plan.duration_weeks })}</p>
             <div className="mt-5 grid grid-cols-3 gap-4">
               <Metric label={D.duration} value={formatMinutes(todayDay.duration_min_est)} />
               <Metric label={D.distance} value={todayDay.distance_km_est ? formatKmValue(todayDay.distance_km_est, { oneDecimal: true }) : "—"} />
-              <Metric label={D.intensity} value={W.category[category(todayDay)]} />
+              <Metric label={D.intensity} value={mainEffort(todayDay)} />
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
               <ButtonLink href="/hoy">{D.viewWorkout}</ButtonLink>
@@ -107,7 +111,7 @@ export async function PlanDashboard({ open, supabase, today }: { open: OpenEnrol
                   <span className="tabular text-lg font-extrabold">{nextN}</span>
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold">{next.day.session_type}</span>
+                  <span className="block truncate font-bold">{next.day.short_label ?? next.day.session_type}</span>
                   <span className="tabular block text-sm text-muted">
                     {shortDate(next.date)} · {formatMinutes(next.day.duration_min_est)}
                     {next.day.distance_km_est ? ` · ${formatKmValue(next.day.distance_km_est, { oneDecimal: true })}` : ""}

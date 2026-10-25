@@ -6,7 +6,9 @@ import {
   ALLOWED_REP_METERS,
   averageWeeklyKm,
   checkQualityRules,
+  effortLabelsShown,
   levelVolumeProblems,
+  missingIntensity,
   repDistances,
   repeatedQuality,
   timedReps,
@@ -52,6 +54,21 @@ describe("validador de reglas de calidad", () => {
     expect(errors).toContain("parte principal en tiempo (8') en lugar de km");
   });
 
+  it("falla con un tramo sin porcentaje", () => {
+    const lib = clone();
+    firstQuality(lib, 6, 0).main_set = "5 km al 70 % + 3 × 1000 m, pausa 2 min trotando";
+    expect(checkQualityRules(lib).join("\n")).toContain("tramo sin porcentaje («3 × 1000 m»)");
+  });
+
+  it("falla con un nombre de esfuerzo visible (también en notas y en el criterio de la semana)", () => {
+    const lib = clone();
+    firstQuality(lib, 6, 0).technical_notes = "Hacelo en umbral.";
+    lib.plans[6]!.weeks[0]!.progression_criterion = "Sumá un rodaje.";
+    const errors = checkQualityRules(lib).join("\n");
+    expect(errors).toContain("nombre de esfuerzo en technical_notes: «Hacelo en umbral.»");
+    expect(errors).toContain("plan-07 semana 1: nombre de esfuerzo en el criterio");
+  });
+
   it("falla si el intermedio no supera al principiante o supera al avanzado", () => {
     const lib = clone();
     const scale = (i: number, f: number) => {
@@ -83,10 +100,14 @@ describe("reglas aplicadas al contenido", () => {
     }
   });
 
-  it("las partes principales llevan su porcentaje (100 % = test de 5 km)", () => {
-    const withIntensity = sessions(lib).filter((d) => /en (Suave|Umbral|Moderado)|a ritmo|muy suave/.test(d.main_set) && d.code !== "COMP" && !/^\d+(,\d+)? km \(/.test(d.main_set));
-    expect(withIntensity.length).toBeGreaterThan(1000);
-    for (const d of withIntensity) expect(d.main_set).toMatch(/\d+ %/);
+  it("cada tramo lleva su porcentaje y no se muestran nombres de esfuerzo", () => {
+    const all = sessions(lib);
+    expect(all.length).toBeGreaterThan(1000);
+    for (const d of all) {
+      expect(missingIntensity(d), d.main_set).toEqual([]);
+      expect(effortLabelsShown(d)).toEqual([]);
+      expect(d.main_set).toMatch(/ al \d{2,3} %/);
+    }
   });
 
   it("intermedio: entre principiante y avanzado en km semanales", () => {
@@ -106,7 +127,7 @@ describe("reglas aplicadas al contenido", () => {
     for (const p of lib.plans.filter((x) => x.level === "Intermedio")) {
       const tramos = p.weeks.flatMap((w) => w.days.filter((d): d is LibrarySessionDay => isSession(d) && d.code === "TL" && d.is_quality));
       expect(tramos.length, p.id).toBeGreaterThanOrEqual(3);
-      for (const d of tramos) expect(d.main_set).toMatch(/× \d+ m a ritmo (objetivo )?de 10 km/);
+      for (const d of tramos) expect(d.main_set).toMatch(/\+ \d+ × \d+ m al 95 %, pausa/);
     }
   });
 });

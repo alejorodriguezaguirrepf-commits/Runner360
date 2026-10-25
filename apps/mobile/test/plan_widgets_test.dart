@@ -8,14 +8,15 @@ import 'package:runner360/src/ui/plan_widgets.dart';
 const day = {
   'day_index': 1,
   'is_rest': false,
-  'session_type': 'Umbral fraccionado',
+  'session_type': 'Pasadas',
+  'short_label': '4 × 1500 m',
   'category': 'thr',
-  'warmup': "12' Suave",
-  'main_set': "3 × 8' en Umbral",
-  'cooldown': "8' trote muy suave",
+  'warmup': '12 min al 70 % + 3 min de movilidad + 3 × 100 m al 115 %, pausa 40 s',
+  'main_set': '4 × 1500 m al 90 %, pausa 2 min trotando',
+  'cooldown': '8 min al 60 % + 4 min de estiramientos',
   'duration_min_est': 58,
   'distance_km_est': 8.5,
-  'intensity': 'Umbral (RPE 6–7)',
+  'intensity': '60–115 %',
   'strength_after': true,
 };
 
@@ -27,19 +28,52 @@ Widget _app(Widget child, {ThemeMode mode = ThemeMode.light}) => MaterialApp(
 );
 
 void main() {
-  testWidgets('tarjeta del entrenamiento: Día N, métricas y pasos', (tester) async {
+  testWidgets('tarjeta del entrenamiento: día, km y duración; tres bloques con porcentaje y RPE', (tester) async {
     await tester.pumpWidget(_app(const WorkoutCard(day: day, n: 2, date: '2026-10-06', today: false, initiallyExpanded: true)));
     expect(find.text('DÍA'), findsOneWidget);
     expect(find.text('2'), findsOneWidget);
-    expect(find.text('Umbral fraccionado'), findsOneWidget);
-    expect(find.text("58'"), findsOneWidget);
-    expect(find.text('· 8,5 km'), findsOneWidget);
-    expect(find.text('Umbral'), findsOneWidget);
-    for (final s in ['CALENTAMIENTO', 'PRINCIPAL', 'VUELTA A LA CALMA', 'DESPUÉS']) {
+    expect(find.text("8,5 km · 58'"), findsOneWidget);
+    for (final s in ['1. ENTRADA EN CALOR', '2. PARTE PRINCIPAL', '3. VUELTA A LA CALMA']) {
       expect(find.text(s), findsOneWidget);
     }
+    expect(find.text('4 × 1500 m'), findsOneWidget);
+    expect(find.text('90 % · RPE 8'), findsOneWidget);
+    expect(find.text('Pausa 2 min trotando'), findsOneWidget);
+    expect(find.text('3 × 100 m'), findsOneWidget);
+    expect(find.text('115 % · RPE 10'), findsOneWidget);
+    expect(find.text('Pausa 40 s'), findsOneWidget);
+    expect(find.text('4 min de estiramientos'), findsOneWidget);
+    // Sin test cargado no hay ritmo; sin nombres de esfuerzo ni el tipo de sesión.
+    expect(find.textContaining('Ritmo'), findsNothing);
+    expect(find.textContaining('Umbral'), findsNothing);
+    expect(find.text('Pasadas'), findsNothing);
+    expect(find.text('Después: rutina de fuerza', findRichText: true), findsOneWidget);
     // Sin onRate (día futuro) no se puede valorar todavía.
     expect(find.text('Vas a poder valorarlo el día del entrenamiento.'), findsOneWidget);
+  });
+
+  testWidgets('con test cargado: ritmo por km de cada tramo', (tester) async {
+    await tester.pumpWidget(
+      _app(const WorkoutCard(day: day, n: 1, date: '2026-10-06', today: false, initiallyExpanded: true, test: (meters: 5000, seconds: 1500))),
+    );
+    expect(find.text('Ritmo 5:33 /km'), findsOneWidget); // 300 s / 0,90
+    expect(find.text('Ritmo 4:21 /km'), findsOneWidget); // 300 s / 1,15
+  });
+
+  testWidgets('ayuda del RPE: cerrada no ocupa lugar y se abre con un toque', (tester) async {
+    await tester.pumpWidget(_app(const WorkoutCard(day: day, n: 1, date: '2026-10-06', today: false, initiallyExpanded: true), mode: ThemeMode.dark));
+    expect(find.textContaining('esfuerzo que sentís'), findsNothing);
+    await tester.tap(find.text('¿Qué es el RPE?'));
+    await tester.pump();
+    expect(find.textContaining('esfuerzo que sentís'), findsOneWidget);
+    expect(find.text('más de 100 %'), findsOneWidget);
+  });
+
+  testWidgets('contenido anterior (sin porcentajes): la parte principal se muestra tal cual', (tester) async {
+    final old = <String, dynamic>{...day, 'warmup': null, 'cooldown': null}..['main_set'] = '8 km continuos';
+    await tester.pumpWidget(_app(WorkoutCard(day: old, n: 1, date: '2026-10-06', today: false, initiallyExpanded: true)));
+    expect(find.text('1. PARTE PRINCIPAL'), findsOneWidget);
+    expect(find.text('8 km continuos'), findsOneWidget);
   });
 
   testWidgets('¿Cómo te fue?: exige elegir y guarda la valoración', (tester) async {

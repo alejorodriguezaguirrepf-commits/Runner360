@@ -51,9 +51,14 @@ test.describe("calculadora de ritmos", () => {
     await expect(page.getByLabel("Km del test")).toHaveValue("2,4");
     await expect(page.getByLabel("Tiempo")).toHaveValue("12:00");
 
-    // Desde 2026.11 los planes ya vienen en km con porcentajes: la nota manda a la Calculadora.
+    // En los planes, cada tramo muestra porcentaje y RPE y, con el test cargado, su ritmo por km.
     await page.goto("/planes/plan-07");
-    await expect(page.getByText(/Las distancias son las del plan/)).toBeVisible();
-    await expect(page.getByText("4 × 1500 m en Umbral (100 %), pausa 2' de trote suave").filter({ visible: true })).toBeVisible();
+    await expect(page.getByText(/Ritmos calculados con tu test del/)).toBeVisible();
+    const session = page.locator("details[open]").first();
+    await expect(session.getByText("4 × 1500 m", { exact: true })).toBeVisible();
+    await expect(session.getByText("90 % · RPE 8")).toBeVisible();
+    await expect(session.getByText("Ritmo 5:33 /km")).toBeVisible(); // 300 s / 0,90 = 333 s
+    await expect(session.getByText("Pausa 2 min trotando")).toBeVisible();
+    await expect(page.getByText(/umbral|rodaje|tempo/i)).toHaveCount(0);
   });
 });

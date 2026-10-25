@@ -122,8 +122,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
           <WorkoutDay
             day={todayDay}
             n={(week?.dated.filter((x) => !x.day.is_rest).findIndex((x) => x.date === today) ?? 0) + 1}
-            legend={v.category_legend}
             speeds={paces.speeds}
+            test={paces.test}
             today
             open
             tips
@@ -131,7 +131,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             footer={todayDay.is_rest ? null : <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} />}
           />
         </ol>
-        <IntensityScale items={library.intensities} />
+        <IntensityScale />
         {todayDay.is_rest ? (
           <Card>
             <p className="font-semibold">{todayDay.strength_only ? fmt(T.strengthOnly, { r: plan.strength_routine }) : T.rest}</p>

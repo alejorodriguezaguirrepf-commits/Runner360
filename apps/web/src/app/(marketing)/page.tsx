@@ -207,12 +207,12 @@ export default async function LandingPage() {
         <div className="nav-zone mx-auto max-w-xl rounded-3xl bg-nav p-6 text-nav-ink shadow-2xl sm:p-8">
           <h2 id="vista-ejemplo" className="text-xs font-semibold uppercase tracking-wider text-accent">Vista de ejemplo</h2>
           <p className="mt-3 text-sm text-nav-muted">Sesión de hoy</p>
-          <p className="text-2xl font-bold">Rodaje fácil</p>
+          <p className="text-2xl font-bold">7 km · 45 min</p>
           <dl className="mt-4 grid grid-cols-3 gap-3 text-center">
             {[
               ["Distancia", "7 km"],
-              ["Intensidad", "Baja"],
-              ["RPE", "3–4"],
+              ["Intensidad", "70 %"],
+              ["RPE", "4"],
             ].map(([k, v]) => (
               <div key={k} className="rounded-xl bg-white/5 p-3">
                 <dt className="text-xs text-nav-muted">{k}</dt>

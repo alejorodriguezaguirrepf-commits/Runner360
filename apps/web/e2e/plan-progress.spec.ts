@@ -35,7 +35,7 @@ async function enrollStartedLastWeek(page: Page, name: string) {
     headers: { ...headers, Prefer: "return=minimal" },
     body: JSON.stringify({
       user_id: id,
-      content_version: "2026.11",
+      content_version: "2026.12",
       plan_id: "plan-05",
       start_date: start,
       race_date: addDays(start, 11 * 7 + 6),
@@ -76,7 +76,7 @@ test.describe("Hoy, registro, reglas y check-in", () => {
 
     // Registro post-sesión (con consentimiento para datos de salud).
     await page.goto("/hoy");
-    await expect(page.getByText("Calentamiento").first()).toBeVisible();
+    await expect(page.getByText("Entrada en calor").first()).toBeVisible();
     await page.getByLabel("Duración real (mm:ss o h:mm:ss)").fill("35:00");
     await page.getByLabel("Esfuerzo percibido (RPE 1–10)").fill("4");
     await page.getByLabel("Dolor (0–10)").fill("1");

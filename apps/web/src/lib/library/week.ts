@@ -175,5 +175,5 @@ export async function todaySummary(supabase: SupabaseClient, open: OpenEnrollmen
   if (!slot) return today < open.enrollment.start_date ? fmt(T.notStarted, { date: formatDate(open.enrollment.start_date, "long") }) : T.finished;
   const day = (await getWeekDays(supabase, open.enrollment.content_version, open.plan.id, slot.planWeek)).find((d) => d.day_index === slot.dayIndex);
   if (!day) return T.locked;
-  return day.is_rest ? (day.strength_only ? fmt(T.strengthOnly, { r: open.plan.strength_routine }) : T.rest) : `${day.session_type} · ${day.short_label}`;
+  return day.is_rest ? (day.strength_only ? fmt(T.strengthOnly, { r: open.plan.strength_routine }) : T.rest) : (day.short_label ?? day.session_type ?? "");
 }

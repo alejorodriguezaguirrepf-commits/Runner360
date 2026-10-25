@@ -202,8 +202,8 @@ export async function EnrollmentView({
                   key={day.day_index}
                   day={day}
                   n={i + 1}
-                  legend={v.category_legend}
                   speeds={kmPaces.speeds}
+                  test={kmPaces.test}
                   today={date === today}
                   done={doneDates.has(date)}
                   open={firstOpen?.date === date}

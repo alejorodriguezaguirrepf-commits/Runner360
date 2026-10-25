@@ -1,6 +1,6 @@
 import { IconShield } from "@/components/ui/icons";
 import { t } from "@/i18n";
-import type { Intensity } from "@runner360/plan-library";
+import { rpeTable } from "@runner360/plan-library";
 
 const m = t.library;
 
@@ -21,37 +21,29 @@ export function SafetyNotices({ items, defaultOpen = false }: { items: string[];
   );
 }
 
-/** Escala de intensidad (RPE y prueba del habla), a un toque desde cualquier sesión. */
-export function IntensityScale({ items, defaultOpen = false }: { items: Intensity[]; defaultOpen?: boolean }) {
+/** Escala de intensidad: porcentaje del ritmo del test y su RPE (la misma tabla de cada sesión). */
+export function IntensityScale({ defaultOpen = false }: { defaultOpen?: boolean }) {
+  const w = t.library.workout;
   return (
     <details open={defaultOpen} className="rounded-xl border border-line bg-surface p-3 text-sm">
-      <summary className="min-h-11 cursor-pointer content-center font-semibold text-ink">{m.intensity.title}</summary>
-      <div className="mt-2 overflow-x-auto">
-        <table className="w-full min-w-[36rem] text-left text-xs">
-          <thead className="text-muted">
-            <tr>
-              <th scope="col" className="py-1 pr-3">{m.day.intensity}</th>
-              <th scope="col" className="py-1 pr-3">{m.intensity.zone}</th>
-              <th scope="col" className="py-1 pr-3">{m.intensity.rpe}</th>
-              <th scope="col" className="py-1 pr-3">{m.intensity.talk}</th>
-              <th scope="col" className="py-1 pr-3">{m.intensity.feel}</th>
-              <th scope="col" className="py-1">{m.intensity.use}</th>
+      <summary className="min-h-11 cursor-pointer content-center font-semibold text-ink">{w.rpeTable}</summary>
+      <p className="mt-2">{w.rpeText}</p>
+      <table className="mt-2 w-full text-left text-sm">
+        <thead className="text-muted">
+          <tr>
+            <th scope="col" className="py-1 pr-3">%</th>
+            <th scope="col" className="py-1">RPE</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-line">
+          {rpeTable().map((r) => (
+            <tr key={r.range}>
+              <th scope="row" className="py-1.5 pr-3 font-medium tabular">{r.range}</th>
+              <td className="py-1.5 font-semibold tabular">{r.rpe}</td>
             </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {items.map((i) => (
-              <tr key={i.name}>
-                <th scope="row" className="py-1.5 pr-3 font-semibold">{i.name}</th>
-                <td className="py-1.5 pr-3">{i.zone}</td>
-                <td className="py-1.5 pr-3 tabular">{i.rpe}</td>
-                <td className="py-1.5 pr-3">{i.talk_test}</td>
-                <td className="py-1.5 pr-3">{i.feel}</td>
-                <td className="py-1.5">{i.use}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </details>
   );
 }

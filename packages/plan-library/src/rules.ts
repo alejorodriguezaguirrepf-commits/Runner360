@@ -26,7 +26,7 @@ export type SessionLog = {
   pain: number | null;
   redFlags: RedFlag[];
   sleep: "good" | "fair" | "poor" | null;
-  /** Categoría del día del plan registrado (para "RPE de los rodajes Suaves"). */
+  /** Categoría del día del plan registrado (para la señal de RPE de las carreras tranquilas). */
   category: SessionCategory | null;
 };
 
@@ -90,6 +90,10 @@ function consecutivePoorNights(logs: SessionLog[]): boolean {
   return sorted.some((l, i) => i > 0 && l.sleep === "poor" && sorted[i - 1]!.sleep === "poor" && daysBetween(sorted[i - 1]!.date, l.date) <= 1);
 }
 
+/** Señal de RPE en las carreras tranquilas (hasta 2026.11 se llamaba "RPE de los rodajes Suaves"). */
+export const EASY_SIGNAL = "RPE de las carreras al 70 %";
+export const LEGACY_EASY_SIGNAL = "RPE de los rodajes Suaves";
+
 export const RULES: readonly Rule[] = [
   {
     id: "pain_stop",
@@ -103,8 +107,8 @@ export const RULES: readonly Rule[] = [
   },
   {
     id: "easy_rpe_high",
-    source: { kind: "load_monitoring", signal: "RPE de los rodajes Suaves", field: "reduce_or_repeat" },
-    // "De forma habitual": al menos dos rodajes Suaves (o de recuperación) de la semana con RPE ≥ 5.
+    source: { kind: "load_monitoring", signal: EASY_SIGNAL, field: "reduce_or_repeat" },
+    // "De forma habitual": al menos dos carreras tranquilas (o de recuperación) de la semana con RPE ≥ 5.
     when: (c) => (c.logs.filter((l) => l.category && EASY.includes(l.category) && l.status !== "skipped" && (l.rpe ?? 0) >= 5).length >= 2 ? { recommendation: "repeat" } : null),
   },
   {
@@ -200,7 +204,7 @@ export function evaluateLog(log: SessionLog): RuleHit[] {
 /** Texto del contenido que respalda una regla (o null si el contenido cambió y ya no está). */
 export function ruleText(source: RuleSource, content: { load_monitoring: LoadSignal[]; practical_rules: string[] }): string | null {
   if (source.kind === "load_monitoring") {
-    const row = content.load_monitoring.find((s) => s.signal === source.signal);
+    const row = content.load_monitoring.find((s) => s.signal === source.signal || (source.signal === EASY_SIGNAL && s.signal === LEGACY_EASY_SIGNAL));
     if (!row) return null;
     return `${row.signal}: ${row[source.field]}`;
   }

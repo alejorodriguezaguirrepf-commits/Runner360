@@ -140,11 +140,13 @@ bool weekConverted(Iterable<Map<String, dynamic>> days, Speeds? speeds) =>
     days.any((d) => d['is_rest'] != true && d['main_set'] is String && mainSetInKm(d['main_set'] as String, speeds) != d['main_set']);
 
 /// Aclaración debajo de la semana: de dónde salen los km convertidos o, si el plan ya viene en km,
-/// qué significan los porcentajes.
+/// qué significan el porcentaje y el RPE de cada tramo.
 String kmNoteText({required bool converted, String? testDateLabel}) {
   if (!converted) {
-    return 'Las distancias son las del plan. Los porcentajes son sobre el ritmo de tu test de 5 km (100 %): '
-        'en la Calculadora (web) ves el tiempo de cada pasada y de cada tramo.';
+    return testDateLabel != null
+        ? 'Ritmos calculados con tu test del $testDateLabel (100 %).'
+        : 'Cada tramo indica su porcentaje del ritmo de tu test (100 %) y su RPE. '
+              'Cargá tu test en la Calculadora (web) para ver el ritmo por km de cada tramo.';
   }
   return testDateLabel != null
       ? 'Distancias calculadas con tu test del $testDateLabel.'

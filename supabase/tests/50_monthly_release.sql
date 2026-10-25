@@ -20,10 +20,10 @@ insert into public.subscriptions (id, user_id, product_id, provider, provider_su
 values ('5b5b5b5b-0000-4000-8000-00000000005b', 'c3c3c3c3-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-000000000002',
         'mercadopago', 'pre-1', 'active', now() - interval '5 days', now() + interval '25 days');
 insert into public.plan_enrollments (id, user_id, content_version, plan_id, start_date, race_date, created_at)
-values ('e3e3e3e3-0000-4000-8000-0000000000e3', 'c3c3c3c3-0000-4000-8000-0000000000c3', '2026.11', 'plan-10',
+values ('e3e3e3e3-0000-4000-8000-0000000000e3', 'c3c3c3c3-0000-4000-8000-0000000000c3', '2026.12', 'plan-10',
         date_trunc('week', current_date)::date - 35, date_trunc('week', current_date)::date - 35 + 23 * 7 + 6, now() - interval '36 days');
 insert into public.plan_enrollments (id, user_id, content_version, plan_id, start_date, race_date)
-values ('e4e4e4e4-0000-4000-8000-0000000000e4', 'd4d4d4d4-0000-4000-8000-0000000000d4', '2026.11', 'plan-10',
+values ('e4e4e4e4-0000-4000-8000-0000000000e4', 'd4d4d4d4-0000-4000-8000-0000000000d4', '2026.12', 'plan-10',
         date_trunc('week', current_date)::date + 7, date_trunc('week', current_date)::date + 7 + 23 * 7 + 6);
 
 set role authenticated;

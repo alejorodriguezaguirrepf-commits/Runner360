@@ -11,3 +11,5 @@ export * from "./distance";
 export * from "./rules";
 export * from "./progress";
 export * from "./quality-rules";
+export * from "./effort";
+export * from "./session-blocks";

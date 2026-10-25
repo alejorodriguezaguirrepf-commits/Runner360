@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../data/repository.dart';
+import '../../domain/effort.dart';
 import '../../domain/format.dart';
 import '../../domain/plan_schedule.dart';
+import '../../domain/session_blocks.dart';
 import '../../theme.dart';
-import '../plan_widgets.dart';
 import '../widgets.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -118,7 +119,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    todaySession.day['session_type'] as String,
+                    (todaySession.day['short_label'] ?? todaySession.day['session_type'] ?? '') as String,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: c.navInk),
                   ),
                   Text('Día $n · Semana ${t.planWeek!.week} de ${p.durationWeeks}', style: TextStyle(color: c.navMuted)),
@@ -127,7 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       _metric(context, 'Duración', formatPlanMinutes(todaySession.day['duration_min_est'] as num?)),
                       _metric(context, 'Distancia', formatKm1(todaySession.day['distance_km_est'] as num?)),
-                      _metric(context, 'Intensidad', categoryLabels[todaySession.day['category']] ?? '—'),
+                      _metric(context, 'Intensidad', mainPct(todaySession.day) == null ? '—' : effortLabel(mainPct(todaySession.day)!)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -228,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.next!.day['session_type'] as String,
+                          (t.next!.day['short_label'] ?? t.next!.day['session_type'] ?? '') as String,
                           style: TextStyle(fontWeight: FontWeight.w700, color: c.ink),
                         ),
                         Text(

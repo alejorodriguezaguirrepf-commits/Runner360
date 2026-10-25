@@ -77,7 +77,7 @@ test.describe("biblioteca de planes", () => {
     await expect(week.getByRole("heading", { name: /^Día 4:/ })).toHaveCount(0);
     await expect(week.getByText("Descanso", { exact: true })).toHaveCount(0);
     await expect(week.getByText(/Lun|Mar ·|Dom/)).toHaveCount(0);
-    await expect(week.getByText("Calentamiento").first()).toBeVisible();
+    await expect(week.getByText("Entrada en calor").first()).toBeVisible();
     await expect(week.getByText("Vuelta a la calma").first()).toBeVisible();
 
     await strip.getByRole("link", { name: "Semana 2, se libera con la suscripción" }).click();

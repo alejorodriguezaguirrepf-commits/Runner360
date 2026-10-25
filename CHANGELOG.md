@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-10-25 — Sesiones con porcentaje y RPE (contenido 2026.12)
+
+- **Solo porcentaje y RPE:** cada tramo muestra su intensidad como «75 % · RPE 5», sin nombres como umbral, rodaje, suave o tempo, en todos los planes y distancias. Con el test de la Calculadora cargado, también el ritmo por km.
+- **Tramos que no tenían porcentaje** ahora lo tienen: entrada en calor y vuelta a la calma, progresivos, cuestas, caminatas, tests y competencias.
+- **Nueva forma de ver cada sesión** (web y app): encabezado con día, km y duración; tres bloques (Entrada en calor, Parte principal, Vuelta a la calma) con color por intensidad, una línea por tramo y su pausa.
+- **Ayuda del RPE** a un toque, con la tabla de equivalencias.
+- El validador de los planes controla que cada tramo tenga porcentaje y que no aparezcan nombres de esfuerzo.
+- Las vistas previas de Vercel ya no actualizan la biblioteca de planes de producción.
+
 ## 2026-10-21 — Acceso desde el link, app instalable y plan anual
 
 - **Acceso desde el link:**

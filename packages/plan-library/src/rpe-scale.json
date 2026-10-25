@@ -1,0 +1,14 @@
+{
+  "note": "Equivalencia entre el porcentaje (de la velocidad del test, como en la Calculadora) y el RPE (esfuerzo percibido de 1 a 10). Se ajusta solo acá: la web la importa y la app la copia (un test verifica que sean iguales).",
+  "bands": [
+    { "maxPct": 57, "rpe": 2, "level": 1 },
+    { "maxPct": 65, "rpe": 3, "level": 1 },
+    { "maxPct": 70, "rpe": 4, "level": 2 },
+    { "maxPct": 75, "rpe": 5, "level": 2 },
+    { "maxPct": 80, "rpe": 6, "level": 3 },
+    { "maxPct": 85, "rpe": 7, "level": 3 },
+    { "maxPct": 95, "rpe": 8, "level": 4 },
+    { "maxPct": 100, "rpe": 9, "level": 5 },
+    { "maxPct": 1000, "rpe": 10, "level": 6 }
+  ]
+}

@@ -1,4 +1,4 @@
-import { formatKmValue, formatMinutes, mainSetInKm, type Category, type Speeds } from "@runner360/plan-library";
+import { formatKmValue, formatMinutes, mainSetInKm, type Speeds } from "@runner360/plan-library";
 import { formatDate } from "@runner360/shared";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -6,12 +6,11 @@ import { IconLock } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { DayRow } from "@/lib/data/library";
-import { CATEGORY_CLASSES } from "./category";
+import { RpeHelp, SessionDetail, type PaceTest } from "./session-detail";
 
 const m = t.library.workout;
 const R = t.library.rating;
 
-const categoryOf = (d: Pick<DayRow, "is_rest" | "category">): Category => (d.is_rest ? "rest" : (d.category ?? "rest"));
 
 /** Resumen de tareas de la semana: cantidad de entrenamientos y tiempo total. */
 export function weekSummary(days: DayRow[]): string {
@@ -21,13 +20,13 @@ export function weekSummary(days: DayRow[]): string {
 }
 
 /**
- * Un día del plan como tarea: "Día N", qué hacer y los pasos (calentamiento → principal → vuelta
- * a la calma). Sin explicaciones del plan. Los descansos se muestran compactos.
+ * Un día del plan como tarea. Encabezado: día, km totales y duración estimada. Adentro, la sesión en
+ * tres franjas (entrada en calor, parte principal y vuelta a la calma) con su porcentaje y RPE.
+ * Los descansos se muestran compactos.
  */
 export function WorkoutDay({
   day,
   n,
-  legend,
   open = false,
   today = false,
   done = false,
@@ -36,11 +35,11 @@ export function WorkoutDay({
   rating = null,
   footer,
   speeds = null,
+  test = null,
 }: {
   day: DayRow;
   /** Número de día dentro de la semana (1–7). */
   n: number;
-  legend: Record<Category, string>;
   open?: boolean;
   today?: boolean;
   done?: boolean;
@@ -51,10 +50,11 @@ export function WorkoutDay({
   rating?: number | null;
   /** Contenido extra al final del detalle (por ejemplo, "¿Cómo te fue?"). */
   footer?: ReactNode;
-  /** Velocidades del corredor: la parte principal se muestra en km en lugar de minutos. */
+  /** Velocidades del corredor (contenido anterior a 2026.12: la parte principal se pasa a km). */
   speeds?: Speeds | null;
+  /** Test de la Calculadora: muestra el ritmo de cada porcentaje. */
+  test?: PaceTest | null;
 }) {
-  const c = categoryOf(day);
   const badge = (
     <span
       className={cx(
@@ -84,60 +84,42 @@ export function WorkoutDay({
     );
   }
 
-  const steps: { label: string; text: string | null }[] = [
-    { label: m.warmup, text: day.warmup },
-    { label: m.main, text: mainSetInKm(day.main_set, speeds) ?? null },
-    { label: m.cooldown, text: day.cooldown },
-  ];
-  if (day.strength_after) steps.push({ label: m.strength, text: m.strengthText });
-
   return (
     <li>
       <details open={open} className={cx("group rounded-2xl border bg-surface", today ? "border-primary" : "border-line")}>
         <summary className="flex cursor-pointer list-none items-center gap-3 p-3 [&::-webkit-details-marker]:hidden">
           {badge}
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-bold text-ink">
+            <h3 className="tabular text-lg font-extrabold leading-tight text-ink">
               <span className="sr-only">{label}: </span>
-              {day.session_type}
+              {day.distance_km_est ? formatKmValue(day.distance_km_est, { oneDecimal: true }) : null}
+              <span className="font-semibold text-muted"> · {formatMinutes(day.duration_min_est, { round: true })}</span>
             </h3>
-            <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
-              <span className="tabular font-semibold text-ink">{formatMinutes(day.duration_min_est)}</span>
-              {day.distance_km_est ? <span className="tabular">· {formatKmValue(day.distance_km_est, { oneDecimal: true })}</span> : null}
-              <span className={cx("rounded-md px-1.5 py-0.5 text-xs font-bold", CATEGORY_CLASSES[c])} title={legend[c]}>{m.category[c]}</span>
-              {done ? <span className="rounded-md bg-success-bg px-1.5 py-0.5 text-xs font-bold text-success">✓ {m.done}</span> : null}
-              {rating ? (
-                <span className="rounded-md border border-line bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-ink">
-                  <span aria-hidden="true">{R.emoji[rating as 1]} </span>
-                  {R.options[rating as 1]}
-                </span>
-              ) : null}
-            </p>
-            {dateHint ? <p className="mt-0.5 text-xs text-muted">{dateHint}</p> : null}
+            {done || rating || dateHint ? (
+              <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+                {dateHint ? <span>{dateHint}</span> : null}
+                {done ? <span className="rounded-md bg-success-bg px-1.5 py-0.5 text-xs font-bold text-success">✓ {m.done}</span> : null}
+                {rating ? (
+                  <span className="rounded-md border border-line bg-surface-2 px-1.5 py-0.5 text-xs font-bold text-ink">
+                    <span aria-hidden="true">{R.emoji[rating as 1]} </span>
+                    {R.options[rating as 1]}
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
           <span aria-hidden="true" className="text-muted transition group-open:rotate-180">⌄</span>
         </summary>
-        <div className="border-t border-line px-3 pb-4 pt-3">
-          <ol className="relative space-y-4 pl-6">
-            <span aria-hidden="true" className="absolute bottom-2 left-[7px] top-2 w-0.5 rounded bg-line" />
-            {steps.map((s, i) => (
-              <li key={s.label} className="relative">
-                <span
-                  aria-hidden="true"
-                  className={cx("absolute -left-6 top-1 size-4 rounded-full border-2", i === 1 ? "border-primary bg-primary" : "border-primary bg-surface")}
-                />
-                <p className="text-xs font-bold uppercase tracking-wider text-muted">{s.label}</p>
-                <p className={cx("mt-0.5 text-ink", i === 1 ? "text-base font-semibold" : "text-sm")}>{s.text}</p>
-              </li>
-            ))}
-          </ol>
-          {day.intensity ? (
-            <p className="mt-4 rounded-xl bg-surface-2 px-3 py-2 text-sm">
-              <span className="font-semibold text-muted">{m.intensity}: </span>
-              {day.intensity}
+        <div className="border-t border-line px-3 pb-4 pt-2">
+          <RpeHelp />
+          <SessionDetail day={day} test={test} speeds={speeds} />
+          {day.strength_after ? (
+            <p className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
+              <span className="font-semibold">{m.strength}: </span>
+              {m.strengthText}
             </p>
           ) : null}
-          {tips && day.technical_notes ? <p className="mt-2 text-sm text-muted">💡 {day.technical_notes}</p> : null}
+          {tips && day.technical_notes ? <p className="mt-3 text-sm text-muted">💡 {day.technical_notes}</p> : null}
           {footer}
         </div>
       </details>
@@ -184,7 +166,13 @@ export function KmNote({ testDate, days, speeds }: { testDate: string | null; da
   if (!converted)
     return (
       <p className="text-xs text-muted">
-        {m.kmFromPlan} <Link href="/calculadora" className="font-semibold underline">{m.kmCalculator}</Link> {m.kmFromPlanEnd}
+        {testDate ? (
+          fmt(m.paceFromTest, { date: formatDate(testDate, "long") })
+        ) : (
+          <>
+            {m.kmFromPlan} <Link href="/calculadora" className="font-semibold underline">{m.kmCalculator}</Link> {m.kmFromPlanEnd}
+          </>
+        )}
       </p>
     );
   return (

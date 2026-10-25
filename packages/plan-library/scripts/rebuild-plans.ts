@@ -23,16 +23,25 @@ import { intensityOf, modelSpeeds, parseContentTime, type Speeds } from "../src/
 import { formatMinutes } from "../src/format";
 import { checkInvariants, isDemanding, isSession, raceWeekOf } from "../src/invariants";
 import { ALLOWED_REP_METERS, averageWeeklyKm, checkQualityRules } from "../src/quality-rules";
+import { EASY_SIGNAL, LEGACY_EASY_SIGNAL } from "../src/rules";
+import { parseBlock } from "../src/session-blocks";
 import { librarySchema, type Library, type LibraryDay, type LibraryPlan, type LibrarySessionDay, type LibraryWeek } from "../src/schema";
 import { LIBRARY_JSON } from "./paths";
 
-export const NEW_VERSION = "2026.11";
+export const NEW_VERSION = "2026.12";
 const SOURCE_VERSION = "2026.10.1";
 
 // ---------------------------------------------------------------- Velocidades e intensidades
 
 /** Proporciones del capítulo 2: se usan para los porcentajes del capítulo 1 (sin test máximo). */
-const REFERENCE: Speeds = { walk: 6, rec: 8.5, suave: 9.5, mod: 10.5, umb: 11, r10: 11.3, int: 11.8, vel: 13, test: 11.2, r5: 11.8, r3: 12.3 };
+/**
+ * Porcentaje de la velocidad del test por intensidad (decisión del dueño, 2026.12): ritmos
+ * coherentes con la Calculadora y con la tabla de RPE. Caminata 50 · trote muy liviano 60 ·
+ * carrera continua 70 · cambios y tramos finales 80 · ritmo de maratón 85 · media maratón y
+ * pasadas largas 90 · ritmo de 10 km 95 · ritmo de 5 km, test y cuestas 100 · ritmo de 3 km 105 ·
+ * aceleraciones de 100 m 115.
+ */
+export const PCT: Record<string, number> = { walk: 50, rec: 60, suave: 70, mod: 80, umb: 90, h21: 90, r10: 95, test: 100, r5: 100, int: 100, hills: 100, r3: 105, vel: 115 };
 const FALLBACK: Record<string, string[]> = { r3: ["int", "vel"], r5: ["int"], r10: ["int", "umb"], h21: ["rp", "umb"], rp: ["mod", "umb"] };
 
 class Ctx {
@@ -47,10 +56,11 @@ class Ctx {
     for (const k of [key, ...(FALLBACK[key] ?? [])]) if (table[k]) return table[k]!;
     throw new Error(`capítulo ${this.chapter}: sin velocidad para "${key}"`);
   }
-  /** Porcentaje sobre la velocidad del test (redondeado a 5 %). */
+  /** Porcentaje de la velocidad del test (PCT, calibrado a la tabla de RPE de src/rpe-scale.json). */
   pct(key: string): number {
-    const table = this.sp.test ? this.sp : REFERENCE;
-    return Math.round(((this.speed(key, table) / table.test!) * 100) / 5) * 5;
+    if (key === "rp") return this.chapter === 4 ? 85 : 90;
+    for (const k of [key, ...(FALLBACK[key] ?? [])]) if (PCT[k] !== undefined) return PCT[k]!;
+    throw new Error(`sin porcentaje para "${key}"`);
   }
   nameOf(key: string): string {
     if (key === "walk" || key === "rec") return "Recuperación";
@@ -88,10 +98,16 @@ const sec = (t: string) => {
   return s;
 };
 
-/** "en Umbral" → "en Umbral (100 %)"; "a ritmo de 3–5 km (Intenso)" → "… (Intenso, 105 %)". */
-function withPct(ctx: Ctx, work: string, key: string, extra = ""): string {
-  const p = `${ctx.pct(key)} %${extra ? `, ${extra}` : ""}`;
-  return work.endsWith(")") ? `${work.slice(0, -1)}, ${p})` : `${work} (${p})`;
+/** " al 90 %": la intensidad de un tramo (gramática de src/session-blocks.ts). */
+const at = (ctx: Ctx, key: string) => ` al ${ctx.pct(key)} %`;
+
+/** Tiempo del contenido → texto: "2'" → "2 min", "1'40\"" → "1 min 40 s", "40\"" → "40 s". */
+export function fmtTime(t: string): string {
+  const total = sec(t);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return [h ? `${h} h` : "", m ? `${m} min` : "", s ? `${s} s` : ""].filter(Boolean).join(" ");
 }
 
 // ---------------------------------------------------------------- Pasadas
@@ -198,34 +214,49 @@ export function parseMain(ctx: Ctx, d: LibrarySessionDay): Main {
 }
 
 export function renderMain(ctx: Ctx, x: Main): string {
+  const suave = at(ctx, "suave");
   switch (x.t) {
     case "cont":
-      return `${fmtKm(x.km)} ${withPct(ctx, x.phrase, x.key)}`;
+      return `${fmtKm(x.km)}${at(ctx, x.key)}`;
     case "strides":
-      return `${fmtKm(x.km)} en Suave (${ctx.pct("suave")} %); al final, ${x.n} × 100 m progresivos (Velocidad, ${ctx.pct("vel")} %) con ${x.rec} de trote suave`;
+      return `${fmtKm(x.km)}${suave} + al final: ${x.n} × 100 m${at(ctx, "vel")}, pausa ${fmtTime(x.rec)} trotando`;
     case "two":
-      return `${fmtKm(x.km1 + x.km2)}: primeros ${fmtKm(x.km1)} ${withPct(ctx, x.w1, x.k1)} y últimos ${fmtKm(x.km2)} ${withPct(ctx, x.w2, x.k2)}`;
+      return `${fmtKm(x.km1 + x.km2)}: ${fmtKm(x.km1)}${at(ctx, x.k1)} + ${fmtKm(x.km2)}${at(ctx, x.k2)}`;
     case "tramos":
-      return `${fmtKm(x.a + (x.n * x.m) / 1000 + x.c)}: ${fmtKm(x.a)} en Suave (${ctx.pct("suave")} %) + ${x.n} × ${fmtRep(x.m)} ${withPct(ctx, x.work, x.key, `pausa ${x.pause} de trote suave`)} + ${fmtKm(x.c)} en Suave`;
+      return `${fmtKm(x.a + (x.n * x.m) / 1000 + x.c)}: ${fmtKm(x.a)}${suave} + ${x.n} × ${fmtRep(x.m)}${at(ctx, x.key)}, pausa ${fmtTime(x.pause)} trotando + ${fmtKm(x.c)}${suave}`;
     case "reps":
-      return `${x.n} × ${fmtRep(x.m)} ${withPct(ctx, x.work, x.key)}, pausa ${x.pause} de trote suave`;
+      return `${x.n} × ${fmtRep(x.m)}${at(ctx, x.key)}, pausa ${fmtTime(x.pause)} trotando`;
     case "hills":
-      return `${x.n} × ${x.m} m en subida (pendiente ${x.slope}), vuelta caminando o trotando al punto de partida`;
+      return `${x.n} × ${x.m} m en subida (pendiente ${x.slope.replace(/%$/, " %")})${at(ctx, "hills")}, vuelta caminando al punto de partida`;
     case "cr":
-      return `${fmtKm(x.km)} de trote Suave (${ctx.pct("suave")} %); desde el km ${dec.format(x.from)}, ${x.n} × ${x.m} m ${withPct(ctx, x.work, "mod")} con ${x.rec} de trote Suave entre cada uno`;
+      return `${fmtKm(x.km)}${suave} + desde el km ${dec.format(x.from)}: ${x.n} × ${x.m} m${at(ctx, "mod")}, pausa ${fmtTime(x.rec)} trotando`;
     case "walkrun":
-      return `${x.n} × (${x.m} m trote + ${x.walk} caminata)`;
+      return `${x.n} × ${x.m} m${suave}, pausa ${fmtTime(x.walk)} caminando`;
     case "rwr":
-      return `${fmtKm(x.km1)} trote + ${x.walk} caminata + ${fmtKm(x.km2)} trote`;
+      return `${fmtKm(x.km1)}${suave} + ${fmtTime(x.walk)} caminando${at(ctx, "walk")} + ${fmtKm(x.km2)}${suave}`;
     case "walk":
-      return `${fmtKm(x.km)} de caminata a paso vivo`;
+      return `${fmtKm(x.km)} caminando${at(ctx, "walk")}`;
     case "test1":
-      return `Test: ${fmtKm(x.km)} de trote continuo Suave, sin pausas`;
+      return `Test: ${fmtKm(x.km)}${suave}, sin pausas`;
     case "testmax":
-      return `Test de ${fmtKm(x.km)} a la máxima intensidad sostenible (ritmo parejo)`;
+      return `Test: ${fmtKm(x.km)}${at(ctx, "test")}, a la máxima intensidad sostenible y con ritmo parejo`;
     case "race":
-      return x.text;
+      return renderRace(x);
   }
+}
+
+/** Distancia de la competencia tal cual el contenido ("42,195 km"). */
+const raceDistance = (x: Extract<Main, { t: "race" }>) => /^\d+(?:,\d+)? km/.exec(x.text)![0];
+
+/** Competencias y controles por distancia: "Competencia: 10 km al 95 %". */
+function renderRace(x: Extract<Main, { t: "race" }>): string {
+  if (/^5 km: primeros/.test(x.text)) return "Competencia: 5 km al 75 %, los primeros 2 km más tranquilos y el último según sensaciones";
+  const m = /^\d+(?:,\d+)? km \((objetivo|intermedia|control): (.+)\)$/.exec(x.text);
+  if (!m) throw new Error(`competencia no reconocida: "${x.text}"`);
+  const label = m[1] === "objetivo" ? "Competencia" : m[1] === "intermedia" ? "Competencia intermedia" : "Control";
+  const controlled = /controlada|Moderado–Umbral/.test(m[2]!);
+  const pct = controlled ? 85 : x.km <= 5 ? 100 : x.km <= 10 ? 95 : x.km <= 21.1 ? 90 : 85;
+  return `${label}: ${raceDistance(x)} al ${pct} %${controlled ? ", sin ir al máximo" : ""}`;
 }
 
 function mainSegs(ctx: Ctx, x: Main): Seg[] {
@@ -287,31 +318,77 @@ export function mainKm(x: Main): number {
   }
 }
 
-function shortLabel(code: string, x: Main, previous: string): string {
+/** Etiqueta corta (lista de la semana): solo distancias o repeticiones, sin nombres de esfuerzo. */
+function shortLabel(x: Main): string {
   switch (x.t) {
     case "reps":
-      return `${code} ${x.n} × ${fmtRep(x.m)}`;
+      return `${x.n} × ${fmtRep(x.m)}`;
     case "hills":
-      return `${code} ${x.n} × ${x.m} m`;
+      return `${x.n} × ${x.m} m en subida`;
     case "walkrun":
-      return `${code} ${x.n}×(${x.m} m+${x.walk})`;
-    case "two":
-      return x.k2 === "rp" ? `${code} ${fmtKm(mainKm(x))} (${dec.format(x.km2)} a ritmo M)` : `${code} ${fmtKm(mainKm(x))} (final Mod.)`;
+      return `${x.n} × ${x.m} m + caminata`;
+    case "strides":
+      return `${fmtKm(x.km)} + ${x.n} × 100 m`;
     case "tramos":
-      return x.key === "rp" ? `${code} ${fmtKm(mainKm(x))} (${x.n} × ${dec.format(x.m / 1000)} km a ritmo M)` : `${code} ${fmtKm(mainKm(x))} (${x.n} × ${fmtRep(x.m)} a ritmo)`;
+      return `${fmtKm(mainKm(x))} con ${x.n} × ${fmtRep(x.m)}`;
+    case "cr":
+      return `${fmtKm(x.km)} con cambios`;
+    case "walk":
+      return `${fmtKm(x.km)} caminando`;
     case "test1":
     case "testmax":
-      return `${code} test ${fmtKm(x.km)}`;
+      return `Test ${fmtKm(x.km)}`;
     case "race":
-      return previous;
+      return `${/^Control/.test(renderRace(x)) ? "Control" : "Competencia"} ${raceDistance(x)}`;
     default:
-      return `${code} ${fmtKm(mainKm(x))}`;
+      return fmtKm(mainKm(x));
   }
 }
 
+/** Nombre de la sesión según su estructura (sin nombres de esfuerzo). */
+function sessionType(code: string, x: Main): string {
+  if (x.t === "race") return /^Control/.test(renderRace(x)) ? "Control" : "Competencia";
+  if (x.t === "test1" || x.t === "testmax") return "Test";
+  if (x.t === "hills") return "Cuestas";
+  if (x.t === "walk") return "Caminata";
+  if (x.t === "walkrun" || x.t === "rwr") return "Caminar y trotar";
+  if (x.t === "cr") return "Carrera con cambios";
+  if (x.t === "reps") return "Pasadas";
+  if (x.t === "tramos" || x.t === "two") return "Carrera larga con tramos";
+  return code === "TL" || code === "RM" ? "Carrera larga" : "Carrera continua";
+}
+
+/** Notas y criterios sin nombres de esfuerzo (la intensidad va en porcentaje y RPE). */
+const PLAIN_TEXT: [RegExp, string][] = [
+  [/ El Umbral queda cerca de ese ritmo\./g, ""],
+  [/a fondo controlado/g, "con esfuerzo alto y controlado"],
+  [/carrera a fondo/g, "carrera al máximo"],
+  [/sin salir a fondo/g, "sin salir al máximo"],
+  [/terminar(lo)? en Suave/g, "terminar$1 al 70 %"],
+  [/terminar la tirada en Suave/g, "terminar al 70 %"],
+  [/ en esta tirada/g, ""],
+  [/Tirada larga:/g, "Carrera larga:"],
+  [/Tirada larga terminada/g, "Carrera larga terminada"],
+  [/Primera tirada/g, "Primera carrera"],
+  [/(la|una) tirada larga/g, "$1 carrera larga"],
+  [/la tirada de/g, "la carrera de"],
+  [/bicicleta suave/g, "bicicleta tranquila"],
+  [/suave, sin cansarse/g, "cómoda, sin cansarse"],
+  [/Los progresivos son rápidos pero relajados; técnica antes que velocidad\./g, "Los 100 m son rápidos pero relajados: primero la técnica."],
+  [/Más lento que el rodaje\./g, "Más lento que una carrera continua normal."],
+  [/a ritmo de maratón/g, "al 85 %"],
+  [/supera 75'/g, "dura más de 75 min"],
+  [/rodajes en RPE ≤4/g, "carreras continuas en RPE ≤4"],
+  [/Rodajes cómodos/g, "Carreras continuas cómodas"],
+  [/quitar el rodaje más largo/g, "quitar la carrera continua más larga"],
+  [/solo con Suave o descanso/g, "solo con carreras al 70 % o descanso"],
+  [/alargar la recuperación/g, "alargar el descanso"],
+];
+export const plainText = (t: string) => PLAIN_TEXT.reduce((a, [re, to]) => a.replace(re, to), t);
+
 // ---------------------------------------------------------------- Entrada en calor / vuelta a la calma
 
-/** Partes "N' …" separadas por " + ". Los progresivos de 20" pasan a 100 m. */
+/** Partes "N' …" separadas por " + ", con su porcentaje. Los progresivos de 20" pasan a 100 m. */
 export function convertWarm(ctx: Ctx, text: string): { text: string; segs: Seg[] } {
   const parts = text.split(" + ");
   const segs: Seg[] = [];
@@ -321,17 +398,32 @@ export function convertWarm(ctx: Ctx, text: string): { text: string; segs: Seg[]
       const n = Number(m[1]);
       segs.push(seg(ctx, "vel", { km: n * 0.1 }));
       if (m[3]) segs.push(seg(ctx, "rec", { min: (n * sec(m[3])) / 60 }));
-      return `${n} × 100 m progresivos${m[2] ?? ""}`;
+      return `${n} × 100 m${at(ctx, "vel")}${m[3] ? `, pausa ${fmtTime(m[3])}` : ""}`;
     }
     if (!(m = /^(\d+)' (.+)$/.exec(p))) throw new Error(`entrada en calor no reconocida: "${text}"`);
     const min = Number(m[1]);
     const what = m[2]!;
-    if (/^(en )?Recuperación$|^trote muy suave( o caminata)?$/.test(what)) segs.push(seg(ctx, "rec", { min }));
-    else if (/^Suave$/.test(what)) segs.push(seg(ctx, "suave", { min }));
-    else if (/^caminata( suave)?$/.test(what)) segs.push(seg(ctx, "walk", { min }));
-    else if (/^(movilidad( y técnica)?|estiramientos)$/.test(what)) segs.push(other(min));
-    else throw new Error(`parte no reconocida: "${p}"`);
-    return p;
+    if (/^(en )?Recuperación$|^trote muy suave$/.test(what)) {
+      segs.push(seg(ctx, "rec", { min }));
+      return `${min} min${at(ctx, "rec")}`;
+    }
+    if (what === "trote muy suave o caminata") {
+      segs.push(seg(ctx, "rec", { min }));
+      return `${min} min${at(ctx, "rec")} (trote o caminata)`;
+    }
+    if (what === "Suave") {
+      segs.push(seg(ctx, "suave", { min }));
+      return `${min} min${at(ctx, "suave")}`;
+    }
+    if (/^caminata( suave)?$/.test(what)) {
+      segs.push(seg(ctx, "walk", { min }));
+      return `${min} min caminando${at(ctx, "walk")}`;
+    }
+    if (/^(movilidad( y técnica)?|estiramientos)$/.test(what)) {
+      segs.push(other(min));
+      return `${min} min de ${what}`;
+    }
+    throw new Error(`parte no reconocida: "${p}"`);
   });
   return { text: out.join(" + "), segs };
 }
@@ -462,8 +554,7 @@ function boostIntermediate(lib: Library, wp: WPlan, f: number): void {
           category: "mod",
           is_quality: true,
           physiological_goal: "Sostener el ritmo de competencia con fatiga acumulada",
-          intensity: "Suave (RPE 3–4); tramos a ritmo de 10 km (RPE 7–8)",
-          technical_notes: "Tramos parejos al ritmo indicado. Si el ritmo cae más de un 5 % o el RPE pasa de 8, terminar la tirada en Suave. Practicar hidratación y alimentación de carrera.",
+          technical_notes: "Tramos parejos al ritmo indicado. Si el ritmo cae más de un 5 % o el RPE pasa de 8, terminar al 70 %. Practicar hidratación y alimentación de carrera.",
         });
         wd.changed = true;
       }
@@ -529,20 +620,25 @@ function finishDay(wp: WPlan, wd: WDay): LibrarySessionDay {
   for (const k of Object.keys(minutes)) minutes[k] = round(minutes[k]!, 1);
   const main = renderMain(ctx, wd.main);
   let notes = d.technical_notes;
-  if (wd.main.t === "testmax") notes = "Anotá el tiempo y el RPE, y cargá el resultado en la Calculadora: ese ritmo es tu 100 %. El Umbral queda cerca de ese ritmo.";
+  if (wd.main.t === "testmax") notes = "Anotá el tiempo y el RPE, y cargá el resultado en la Calculadora: ese ritmo es tu 100 %.";
   if (wd.main.t === "test1") notes = notes.replace(/completa (\d+)' sin caminar/, `completa los ${fmtKm(wd.main.km)} sin caminar`);
   if (wd.main.t === "cr") {
     const m = wd.main.m;
     notes = notes.replace(/^(Ensayo de ritmo(?: de carrera)?): (?:\d+'|\d+") a/, `$1: ${m} m a`);
   }
   if (ctx.chapter === 1) notes = textMinutesToKm(ctx, notes);
+  const pcts = parseBlock(main, "main").lines.map((l) => l.pct).filter((p): p is number => p !== null);
+  const lo = Math.min(...pcts);
+  const hi = Math.max(...pcts);
   return {
     ...d,
+    type: sessionType(d.code, wd.main),
     warmup: warm.text,
     cooldown: cool.text,
     main_set: main,
-    short_label: shortLabel(d.code, wd.main, d.short_label),
-    technical_notes: notes,
+    short_label: shortLabel(wd.main),
+    intensity: lo === hi ? `${lo} %` : `${lo}–${hi} %`,
+    technical_notes: plainText(notes),
     duration_min_est: round(segs.reduce((a, s) => a + s.min, 0), 1),
     distance_km_est: round(segs.reduce((a, s) => a + s.km, 0), 2),
     minutes_by_intensity: minutes,
@@ -624,7 +720,7 @@ function rebuildPlanTexts(wp: WPlan, plan: LibraryPlan, days: Map<string, Librar
       if (isSession(d) && now && w.weekly_goal.includes(d.main_set)) w.weekly_goal = w.weekly_goal.replace(d.main_set, now.main_set);
     });
     w.weekly_goal = textMinutesToKm(ctx, w.weekly_goal);
-    w.progression_criterion = textMinutesToKm(ctx, w.progression_criterion);
+    w.progression_criterion = plainText(textMinutesToKm(ctx, w.progression_criterion));
   });
 }
 
@@ -822,6 +918,15 @@ export function rebuildLibrary(source: Library): Library {
       return { ...a, adaptation: "Mantener los km y los porcentajes: cada sesión lleva menos tiempo que el estimado. No agregar km ni sesiones." };
     return a;
   });
+  // Reglas que se muestran después de entrenar (check-in): sin nombres de esfuerzo.
+  lib.load_monitoring = lib.load_monitoring.map((r) => ({
+    ...r,
+    signal: r.signal === LEGACY_EASY_SIGNAL ? EASY_SIGNAL : r.signal,
+    reduce_or_repeat: r.reduce_or_repeat
+      .replace("cambiar la calidad por un rodaje Suave", "cambiar la sesión exigente por una carrera continua al 70 %")
+      .replace("solo Suave y más corto", "solo carreras al 70 % y más cortas"),
+  }));
+  lib.practical_rules = lib.practical_rules.map((r) => r.replace("si se agrega un día, ese día es Suave.", "si se agrega un día, ese día va al 70 %."));
   lib.plans = source.plans.map((p) => (p.level === "Intermedio" ? rebuildIntermediate(source, p) : rebuildPlan(source, p, 1)));
   return librarySchema.parse(lib);
 }

@@ -9,14 +9,17 @@
  *     del avanzado.
  *  5. La parte principal se expresa en distancia: sin tramos de carrera en minutos (las pausas de
  *     recuperación sí pueden ir en tiempo).
+ *  6. Cada tramo de movimiento lleva su porcentaje (salvo movilidad y estiramientos).
+ *  7. Lo que ve el usuario no usa nombres de esfuerzo ("umbral", "rodaje", "suave"…): solo % y RPE.
  */
 import { isSession } from "./invariants";
+import { needsIntensity, sessionBlocks } from "./session-blocks";
 import type { Library, LibraryPlan, LibrarySessionDay } from "./schema";
 
 export const ALLOWED_REP_METERS = [100, 200, 300, 400, 500, 600, 800, 1000, 1500, 2000, 3000, 4000, 5000] as const;
 
 const NUM = String.raw`(\d+(?:[.,]\d+)?)`;
-const TIME = String.raw`(?:\d+h\d{2}'|\d+'(?:\d{2}")?|\d+")`;
+const TIME = String.raw`(?:\d+h\d{2}'|\d+'(?:\d{2}")?|\d+"|\d+ h(?: \d+ min)?|\d+ min(?: \d+ s)?|\d+ s\b)`;
 
 const toNumber = (s: string) => Number(s.replace(",", "."));
 
@@ -42,6 +45,7 @@ const RECOVERY = [
   new RegExp(String.raw`con\s+${TIME}\s+de\s+(trote|caminata)[^,;)]*`, "g"),
   new RegExp(String.raw`\+\s*${TIME}\s+(de\s+)?caminata[^,;)]*`, "g"),
   new RegExp(String.raw`${TIME}\s+de\s+(trote|caminata)\s+suave\s+entre[^,;)]*`, "g"),
+  new RegExp(String.raw`${TIME}\s+caminando(\s+al\s+\d+\s+%)?`, "g"),
 ];
 
 /** Tramos de carrera expresados en tiempo dentro de la parte principal (debería ir en km). */
@@ -62,6 +66,20 @@ export function repeatedQuality(plan: LibraryPlan): { week: number; mainSet: str
     for (const d of qualities(plan, i)) if (prev.has(d.main_set)) out.push({ week: plan.weeks[i]!.week, mainSet: d.main_set });
   }
   return out;
+}
+
+/** Nombres de esfuerzo que no se muestran (la intensidad va en porcentaje y RPE). */
+export const EFFORT_LABELS = /\b(umbral|rodajes?|suaves?|tempo|regenerativ[oa]s?|fondo|vo2|moderad[oa]s?|intens[oa]s?|velocidad|recuperaci[oó]n|tiradas?|polarizad[oa]|hiit|aer[oó]bic[oa])\b/i;
+
+/** Tramos de movimiento sin porcentaje en una sesión. */
+export function missingIntensity(day: Pick<LibrarySessionDay, "warmup" | "main_set" | "cooldown">): string[] {
+  return sessionBlocks(day).flatMap((b) => b.lines.filter((l) => l.pct === null && needsIntensity(l)).map((l) => l.what));
+}
+
+/** Campos que ve el usuario con nombres de esfuerzo. */
+export function effortLabelsShown(day: LibrarySessionDay): string[] {
+  const fields = ["type", "short_label", "warmup", "main_set", "cooldown", "intensity", "technical_notes"] as const;
+  return fields.filter((f) => EFFORT_LABELS.test(day[f])).map((f) => `${f}: «${day[f]}»`);
 }
 
 /** Km semanales promedio de un plan. */
@@ -106,8 +124,17 @@ export function checkQualityRules(lib: Library): string[] {
           for (const r of timedReps(d[field])) errors.push(`${where}: ${r.seconds ? "velocidad en segundos" : "repeticiones por tiempo"} («${r.raw}»)`);
         }
         for (const t of timedRunning(d.main_set)) errors.push(`${where}: parte principal en tiempo (${t}) en lugar de km`);
+        for (const t of missingIntensity(d)) errors.push(`${where}: tramo sin porcentaje («${t}»)`);
+        for (const t of effortLabelsShown(d)) errors.push(`${where}: nombre de esfuerzo en ${t}`);
       }
+    for (const week of plan.weeks)
+      if (EFFORT_LABELS.test(week.progression_criterion)) errors.push(`${plan.id} semana ${week.week}: nombre de esfuerzo en el criterio («${week.progression_criterion}»)`);
   }
+  // Reglas que se muestran después de entrenar.
+  for (const r of lib.load_monitoring)
+    for (const f of ["signal", "continue", "reduce_or_repeat", "stop_and_consult"] as const)
+      if (EFFORT_LABELS.test(r[f])) errors.push(`regla «${r.signal}»: nombre de esfuerzo en ${f} («${r[f]}»)`);
+  for (const r of lib.practical_rules) if (EFFORT_LABELS.test(r)) errors.push(`regla práctica con nombre de esfuerzo («${r}»)`);
   errors.push(...levelVolumeProblems(lib.plans));
   return errors;
 }

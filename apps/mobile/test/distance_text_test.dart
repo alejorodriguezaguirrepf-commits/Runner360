@@ -39,7 +39,8 @@ void main() {
       {'is_rest': false, 'main_set': km},
     ];
     expect(weekConverted(week, ch2), isFalse);
-    expect(kmNoteText(converted: false), contains('test de 5 km (100 %)'));
+    expect(kmNoteText(converted: false), contains('porcentaje del ritmo de tu test (100 %) y su RPE'));
+    expect(kmNoteText(converted: false, testDateLabel: '6 oct'), 'Ritmos calculados con tu test del 6 oct (100 %).');
     expect(weekConverted([{'is_rest': false, 'main_set': "55' continuos en Suave"}], ch2), isTrue);
     expect(kmNoteText(converted: true, testDateLabel: '6 oct'), 'Distancias calculadas con tu test del 6 oct.');
   });

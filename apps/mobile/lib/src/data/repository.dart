@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../domain/distance_text.dart';
+import '../domain/effort.dart';
 import '../domain/plan_schedule.dart';
 import '../domain/workout_input.dart';
 
@@ -100,6 +101,7 @@ class Repository {
       trainingDays: training,
       speeds: speeds,
       testDate: recent ? testDate : null,
+      paceTest: recent ? (meters: test!['distance_m'] as num, seconds: test['time_s'] as num) : null,
     );
   }
 
@@ -151,7 +153,7 @@ class Repository {
 
 /// Inscripción a un plan de la biblioteca con su calendario.
 class EnrolledPlan {
-  EnrolledPlan({required this.enrollment, required this.plan, required this.segments, required this.trainingDays, this.speeds, this.testDate});
+  EnrolledPlan({required this.enrollment, required this.plan, required this.segments, required this.trainingDays, this.speeds, this.testDate, this.paceTest});
   final Map<String, dynamic> enrollment;
   final Map<String, dynamic> plan;
   final List<Segment> segments;
@@ -164,6 +166,9 @@ class EnrolledPlan {
 
   /// Fecha del test de la calculadora usado para los km (null = ritmo estimado del nivel del plan).
   final String? testDate;
+
+  /// Test de la calculadora (≤ 8 semanas): con él se muestra el ritmo de cada porcentaje.
+  final PaceTest? paceTest;
 
   Set<int> get openWeeks => trainingDays.keys.toSet();
 

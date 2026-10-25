@@ -52,7 +52,7 @@ select pg_temp.check((select plan from public.admin_users('comun@') limit 1) = '
 select pg_temp.check(
   (select count(*) from (select distinct content_version, plan_id, week from public.library_days) x)
   = (select count(*) from public.library_weeks), 'admin: todas las semanas de todos los planes');
-select pg_temp.check((select count(*) from public.library_days where content_version = '2026.11' and plan_id = 'plan-07' and week = 12) = 7, 'admin: semana 12 de plan-07');
+select pg_temp.check((select count(*) from public.library_days where content_version = '2026.12' and plan_id = 'plan-07' and week = 12) = 7, 'admin: semana 12 de plan-07');
 
 -- Ver como usuario sin suscripción: deja de ser admin y de tener Premium.
 select set_config('request.headers', '{"x-r360-view-as": "free"}', true);

@@ -33,6 +33,8 @@ Revisión completa de los 21 planes en tres fases: auditoría, corrección y reg
    - **Tirada larga:** en las semanas pico es más larga y lleva tramos a ritmo de 10 km.
    - **Se mantienen** las descargas cada 3–4 semanas y la puesta a punto.
    - **Límites:** el validador exige más volumen que el principiante y no más que el avanzado.
+> **Desde 2026.12** los porcentajes se recalibraron a la tabla de RPE del dueño (carrera continua 70 %, pasadas largas 90 %, ritmo de 10 km 95 %, test y ritmo de 5 km 100 %, progresivos 115 %) y no se muestran nombres de esfuerzo: ver [training-plans.md](../training-plans.md#versión-202612-solo-porcentaje-y-rpe). Vista previa en el celular: [vista-previa-2026.12](vista-previa-2026.12/).
+
 5. **Consistencia:** la parte principal va en km y cada intensidad lleva su porcentaje, igual que la Calculadora.
    - El 100 % es el ritmo del test de 5 km.
    - Suave 75–85 %, Umbral 95–100 %, Intenso 105–110 % y progresivos 115 % (el porcentaje sale del corredor modelo de cada capítulo).
