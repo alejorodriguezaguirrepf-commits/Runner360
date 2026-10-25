@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../config.dart';
 import '../../theme.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -12,7 +13,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 /// Registro en la web: allá se verifica que no sea un robot y se entra directo, sin correo de confirmación.
-final signUpUrl = Uri.parse('https://runner360.vercel.app/registro');
+final signUpUrl = Uri.parse('${AppConfig.siteUrl}/registro');
 
 class _AuthScreenState extends State<AuthScreen> {
   final _email = TextEditingController();
@@ -41,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future<void> _openSignUp() async {
     final ok = await launchUrl(signUpUrl, mode: LaunchMode.externalApplication);
-    if (!ok && mounted) setState(() => _message = 'Abrí runner360.vercel.app/registro en el navegador para crear tu cuenta.');
+    if (!ok && mounted) setState(() => _message = 'Abrí ${AppConfig.siteHost}/registro en el navegador para crear tu cuenta.');
   }
 
   @override

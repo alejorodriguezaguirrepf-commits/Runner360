@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config.dart';
 import '../../data/repository.dart';
 import '../../domain/effort.dart';
 import '../../domain/format.dart';
@@ -310,7 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       Text('Elegí la distancia, los días por semana y la duración en la web. Tu plan aparece acá automáticamente.'),
                       SizedBox(height: 8),
-                      SelectableText('runner360.vercel.app/planes', style: TextStyle(fontWeight: FontWeight.w700)),
+                      SelectableText('${AppConfig.siteHost}/planes', style: TextStyle(fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),

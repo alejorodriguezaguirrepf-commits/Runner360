@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config.dart';
 import '../../data/repository.dart';
 import '../../domain/format.dart';
 import '../../theme.dart';
@@ -47,7 +48,7 @@ class _PlanScreenState extends State<PlanScreen> {
             child: Padding(
               padding: EdgeInsets.all(24),
               child: Text(
-                'Todavía no tenés un plan. Elegilo en la web (runner360.vercel.app/planes) y aparece acá automáticamente.',
+                'Todavía no tenés un plan. Elegilo en la web (${AppConfig.siteHost}/planes) y aparece acá automáticamente.',
                 textAlign: TextAlign.center,
               ),
             ),

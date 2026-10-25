@@ -21,7 +21,7 @@ describe("configuración de cobros", () => {
     const { errors } = paymentsConfigProblems({ MP_ENV: "test" });
     expect(errors.join("\n")).toMatch(/MP_ACCESS_TOKEN/);
     expect(errors.join("\n")).toMatch(/MP_WEBHOOK_SECRET/);
-    expect(errors.join("\n")).toMatch(/APP_BASE_URL/);
+    expect(errors.join("\n")).toMatch(/NEXT_PUBLIC_SITE_URL/);
     const withSecret = paymentsConfigProblems({ ...ok, MP_ACCESS_TOKEN: "APP_USR-secreto-que-no-debe-aparecer", APP_BASE_URL: "http://x" });
     expect(withSecret.errors.join()).not.toContain("secreto-que-no-debe-aparecer");
     expect(withSecret.errors.join()).toMatch(/https/);

@@ -35,7 +35,7 @@ Solo servidor: ninguna empieza con `NEXT_PUBLIC_`. Nunca se suben al repositorio
 | `MP_ENV` | `test` o `prod`. Con esta variable definida la app valida todo al arrancar y **no inicia** si falta algo o si las credenciales no coinciden (por ejemplo, `prod` con un token `TEST-`). |
 | `MP_ACCESS_TOKEN` | Access Token de la aplicación de Mercado Pago (*Tus integraciones → Credenciales*). |
 | `MP_WEBHOOK_SECRET` | Clave secreta de *Tus integraciones → Webhooks*. |
-| `APP_BASE_URL` | `https://runner360.vercel.app` (adonde vuelve Mercado Pago). Si falta, se usa `NEXT_PUBLIC_SITE_URL`. |
+| `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` (la URL pública de toda la app; también adonde vuelve Mercado Pago). `APP_BASE_URL` se acepta como nombre anterior. |
 | `FX_SOURCE`, `FX_RATE_TYPE` | Ver arriba. |
 | `CRON_SECRET` | Secreto de las tareas programadas. Generalo con `openssl rand -hex 32`. Sin él, la tarea diaria no corre (la cotización igual se actualiza con las visitas). |
 
@@ -62,7 +62,7 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
    | `MP_ENV` | `test` |
    | `MP_ACCESS_TOKEN` | Access Token del vendedor de prueba (`APP_USR-…`) |
    | `MP_WEBHOOK_SECRET` | Clave secreta del webhook |
-   | `APP_BASE_URL` | `https://runner360.vercel.app` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` |
    | `CRON_SECRET` | una clave larga al azar (`openssl rand -hex 32`) |
    Borrá las variables viejas `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET` si existen. **Redeploy.**
 5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado*.
