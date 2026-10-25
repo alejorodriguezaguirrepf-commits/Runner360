@@ -28,11 +28,15 @@ Cualquier hosting compatible con Next.js 16 (Node.js ≥ 20.9). Variables en el 
   | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API Keys → Publishable key (`sb_publishable_…`) |
   | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API Keys → Secret key (`sb_secret_…`). Secreta: solo servidor |
   | `NEXT_PUBLIC_SITE_URL` | El dominio de producción, p. ej. `https://runner360.vercel.app` |
+  | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare → Turnstile → widget de Runner360 → Site Key (ver abajo) |
+  | `TURNSTILE_SECRET_KEY` | Cloudflare → Turnstile → widget de Runner360 → Secret Key. Secreta: solo servidor |
 
 - Después de crear o cambiar variables: **Deployments → ⋯ → Redeploy** (Vercel solo aplica variables a despliegues nuevos).
 - Verificación: abrir `https://DOMINIO/api/health` → `"ok": true` y `"faltan": []`.
 - En Supabase → Authentication → URL Configuration: **Site URL** = dominio de producción; **Redirect URLs** = `https://DOMINIO/auth/confirm` (y, para previews, `https://*-TU-EQUIPO.vercel.app/auth/confirm`).
-- El correo de confirmación por defecto de Supabase solo se envía a miembros del proyecto y con límite por hora: para usuarios externos configurá un SMTP propio (Authentication → Emails → SMTP Settings) o desactivá “Confirm email” durante las pruebas.
+- **Registro en un paso** (sin correo de confirmación). Las cuentas las crea el servidor de la web con `SUPABASE_SERVICE_ROLE_KEY`, después de verificar el captcha, y la sesión queda iniciada. En Supabase → Authentication → Sign In / Providers → Email: **Confirm email** apagado y **Allow new users to sign up** apagado (así nadie crea cuentas salteándose el formulario). Antes de apagar el registro, `/api/health` tiene que mostrar `SUPABASE_SERVICE_ROLE_KEY: true`. Los correos de recuperación de contraseña siguen activos.
+- El correo por defecto de Supabase (recuperación de contraseña) solo se envía a miembros del proyecto y con límite por hora: para usuarios externos configurá un SMTP propio (Authentication → Emails → SMTP Settings).
+- **Captcha (Cloudflare Turnstile):** dash.cloudflare.com → Turnstile → Add widget → nombre `Runner360`, hostname `runner360.vercel.app`, Widget mode **Invisible**. Cargar la Site Key y la Secret Key en Vercel (tabla de arriba) y hacer Redeploy. `/api/health` muestra si están cargadas. Sin las dos claves, el registro funciona sin captcha.
 
 ```bash
 pnpm install --frozen-lockfile

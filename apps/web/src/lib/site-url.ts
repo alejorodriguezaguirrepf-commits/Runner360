@@ -15,8 +15,8 @@ export function canonicalSiteUrl(input: { configured?: string; vercelProductionU
 }
 
 /**
- * Dirección pública a la que deben volver los enlaces de los correos (confirmación de cuenta y
- * recuperación de contraseña). Función pura para poder probarla.
+ * Dirección pública a la que deben volver los enlaces de los correos (recuperación de contraseña).
+ * Función pura para poder probarla.
  *
  * Prioridad:
  *  1. En producción, el dominio de producción (canonicalSiteUrl). Así un registro hecho desde un

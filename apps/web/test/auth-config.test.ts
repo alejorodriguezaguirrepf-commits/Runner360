@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, isEmailTaken } from "@/lib/auth-errors";
 import { isSupabaseConfigured, missingSupabaseConfig, normalizeBaseUrl, publicEnv, readEnv } from "@/lib/env";
 import { canonicalRedirect, canonicalSiteUrl, pickSiteUrl } from "@/lib/site-url";
 
@@ -89,7 +89,10 @@ describe("mensajes de error para el usuario", () => {
   const sinTecnicismos = (m: string) => expect(m).not.toMatch(/supabase|readme|variable|env/i);
   it("registro", () => {
     const m1 = authErrorMessage({ code: "user_already_exists", status: 422 }, "signup");
-    expect(m1).toContain("Ya existe una cuenta");
+    expect(m1).toContain("Ya tenés una cuenta con este correo");
+    expect(isEmailTaken({ code: "email_exists", status: 422 })).toBe(true);
+    expect(isEmailTaken({ message: "A user with this email address has already been registered" })).toBe(true);
+    expect(isEmailTaken({ code: "weak_password" })).toBe(false);
     expect(authErrorMessage({ code: "weak_password" }, "signup")).toContain("10 caracteres");
     expect(authErrorMessage({ code: "over_email_send_rate_limit", status: 429 }, "signup")).toContain("demasiados correos");
     expect(authErrorMessage({ code: "signup_disabled" }, "signup")).toContain("no estamos aceptando");
@@ -98,7 +101,8 @@ describe("mensajes de error para el usuario", () => {
   });
   it("ingreso", () => {
     expect(authErrorMessage({ code: "invalid_credentials", status: 400 }, "signin")).toBe("Correo o contraseña incorrectos.");
-    expect(authErrorMessage({ code: "email_not_confirmed" }, "signin")).toContain("confirmaste tu correo");
+    // Registro en un paso: ningún mensaje pide confirmar el correo.
+    expect(authErrorMessage({ code: "email_not_confirmed", status: 400 }, "signin")).not.toMatch(/confirm/i);
     expect(authErrorMessage({ name: "AuthRetryableFetchError", status: 0 }, "signin")).toContain("No pudimos conectarnos");
   });
   it("cambio de contraseña", () => {

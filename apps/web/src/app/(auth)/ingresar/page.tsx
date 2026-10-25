@@ -4,11 +4,6 @@ import { SignInForm, type SignInNotice } from "./sign-in-form";
 export const metadata: Metadata = { title: "Ingresar" };
 
 const NOTICES: Record<string, SignInNotice> = {
-  confirmado: {
-    tone: "success",
-    title: "Tu correo quedó confirmado",
-    text: "Ya podés ingresar con tu correo y tu contraseña.",
-  },
   enlace: { tone: "danger", text: "El enlace no es válido o ya se usó. Si lo necesitás, pedí uno nuevo." },
   vencido: { tone: "danger", text: "El enlace venció. Ingresá con tu correo y contraseña o pedí uno nuevo." },
   recuperacion: {
@@ -18,9 +13,9 @@ const NOTICES: Record<string, SignInNotice> = {
   },
 };
 
-export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; confirmado?: string }> }) {
-  const { next, error, confirmado } = await searchParams;
-  const notice = confirmado ? NOTICES.confirmado! : error ? (NOTICES[error] ?? NOTICES.enlace!) : null;
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
+  const { next, error } = await searchParams;
+  const notice = error ? (NOTICES[error] ?? NOTICES.enlace!) : null;
   return (
     <>
       <h1 className="text-2xl font-extrabold">Ingresá a tu cuenta</h1>

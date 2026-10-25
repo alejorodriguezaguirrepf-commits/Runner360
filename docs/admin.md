@@ -7,8 +7,8 @@ Iniciá sesión con la cuenta del dueño y entrá a **Administración** en el me
 ## Rol de administrador
 
 - Columna `profiles.role` (`user` por defecto, `coach`, `admin`). Ningún usuario puede cambiar su propio rol: lo impide el trigger `guard_profile_privileges` (prueba en `supabase/tests/95_admin_owner.sql`).
-- Los correos con derecho a admin están en `public.admin_emails` (sin acceso desde la API). El rol se otorga cuando el correo está **confirmado** (trigger `on_auth_user_owner_admin`), nunca con el alta sola. La migración `20261018000200` se lo asignó a la cuenta existente.
-- Para sumar otro admin: insertar su correo en `admin_emails` desde Supabase (SQL), o cambiar su rol en **Administración → Usuarios → Acciones**.
+- El rol admin **solo se cambia directamente en la base** (SQL Editor de Supabase): `update public.profiles set role = 'admin' where id = '…';`. Ni el registro (aunque sea con el correo del dueño), ni el panel, ni la API con la clave de servicio pueden dar o quitar el rol admin: lo impide `guard_profile_privileges` (migración `20261025000100`). La cuenta del dueño ya es admin.
+- Desde **Administración → Usuarios → Acciones** solo se cambia entre usuario y entrenador; a una cuenta admin no se le muestra el cambio de rol.
 - Toda verificación es del lado del servidor: `requireAdmin()` en cada página del panel y `is_admin()` en la base (RLS y funciones `admin_dashboard()` / `admin_users()`).
 
 ## Acceso sin suscripción

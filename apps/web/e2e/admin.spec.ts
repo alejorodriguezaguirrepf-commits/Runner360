@@ -1,16 +1,15 @@
+import { execFileSync } from "node:child_process";
 import { expect, test, type Page } from "@playwright/test";
 import { backendConfigured, completeOnboarding, signUp, uniqueEmail } from "./helpers";
 
-/** Promueve un usuario a administrador usando la clave de servicio (solo entorno local de pruebas). */
+/**
+ * Promueve un usuario a administrador directamente en la base (como en producción: el rol admin no
+ * se puede dar desde la app ni desde la API). Solo entorno local de pruebas.
+ */
 async function promoteToAdmin(displayName: string): Promise<void> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
-  const key = process.env.E2E_SERVICE_ROLE_KEY ?? "";
-  const res = await fetch(`${url}/rest/v1/profiles?display_name=eq.${encodeURIComponent(displayName)}`, {
-    method: "PATCH",
-    headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "return=minimal" },
-    body: JSON.stringify({ role: "admin", can_validate_plans: true }),
-  });
-  expect(res.ok).toBeTruthy();
+  const db = process.env.E2E_DATABASE_URL ?? "postgres://postgres@127.0.0.1:54322/postgres";
+  const name = displayName.replace(/'/g, "''");
+  execFileSync("psql", [db, "-v", "ON_ERROR_STOP=1", "-q", "-c", `update public.profiles set role = 'admin', can_validate_plans = true where display_name = '${name}'`]);
 }
 
 async function adminSession(page: Page): Promise<string> {

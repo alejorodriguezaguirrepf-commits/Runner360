@@ -13,13 +13,12 @@ void main() {
     expect(find.text('Configuración pendiente'), findsOneWidget);
   });
 
-  testWidgets('pantalla de ingreso en español con alta de cuenta', (tester) async {
+  testWidgets('pantalla de ingreso en español; la cuenta se crea en la web (sin correo de confirmación)', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: AuthScreen()));
     expect(find.text('Ingresá a tu cuenta'), findsOneWidget);
-    await tester.tap(find.text('Crear cuenta'));
-    await tester.pump();
-    expect(find.text('Creá tu cuenta gratis'), findsOneWidget);
-    expect(find.textContaining('Acepto los términos'), findsOneWidget);
+    expect(find.text('Crear cuenta gratis'), findsOneWidget);
+    expect(signUpUrl.toString(), 'https://runner360.vercel.app/registro');
+    expect(find.textContaining('confirm'), findsNothing);
   });
 
   test('las compras en la app no están disponibles hasta configurarlas', () async {

@@ -1,5 +1,6 @@
+import { execFileSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
-import { backendConfigured, signUp, uniqueEmail } from "./helpers";
+import { backendConfigured, completeOnboarding, signUp, uniqueEmail } from "./helpers";
 
 test.describe("registro e ingreso: casos de error", () => {
   test.skip(!backendConfigured, "Requiere backend Supabase (E2E_WITH_BACKEND=1)");
@@ -28,7 +29,9 @@ test.describe("registro e ingreso: casos de error", () => {
     await other.getByLabel("Contraseña").fill("claveSegura123");
     await other.getByLabel(/Acepto los/).check();
     await other.getByRole("button", { name: "Comenzar gratis" }).click();
-    await expect(other.getByText("Ya existe una cuenta con ese correo")).toBeVisible();
+    await expect(other.getByText("Ya tenés una cuenta con este correo.")).toBeVisible();
+    await expect(other.getByRole("link", { name: "Ingresá", exact: true }).first()).toHaveAttribute("href", "/ingresar");
+    await expect(other.getByRole("link", { name: "recuperá tu contraseña" })).toHaveAttribute("href", "/recuperar");
 
     await other.goto("/ingresar");
     await other.getByLabel("Correo electrónico").fill(email);
@@ -68,11 +71,88 @@ test.describe("registro e ingreso: casos de error", () => {
   });
 });
 
+const SUPABASE = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321";
+const SERVICE_KEY = process.env.E2E_SERVICE_ROLE_KEY ?? "";
+const DB = process.env.E2E_DATABASE_URL ?? "postgres://postgres@127.0.0.1:54322/postgres";
+const sql = (q: string) => execFileSync("psql", [DB, "-v", "ON_ERROR_STOP=1", "-q", "-A", "-t", "-c", q]).toString().trim();
+
+test.describe("registro en un paso", () => {
+  test.skip(!backendConfigured || !SERVICE_KEY, "Requiere backend local y E2E_SERVICE_ROLE_KEY");
+
+  test("registro, entrada directa, cierre de sesión, nuevo ingreso y recuperación de contraseña", async ({ page }) => {
+    const email = uniqueEmail("unpaso");
+    // Registro: sin correo de confirmación, entra directo a las preguntas del plan.
+    await signUp(page, email, "Un Paso");
+    await expect(page.getByText(/confirm|revisá tu correo/i)).toHaveCount(0);
+    expect(sql(`select email_confirmed_at is not null from auth.users where email = '${email}'`)).toBe("t");
+
+    await completeOnboarding(page);
+
+    // Cierre de sesión y nuevo ingreso con la contraseña.
+    await page.goto("/inicio");
+    await page.getByRole("button", { name: "Cerrar sesión" }).first().click();
+    await expect(page).toHaveURL("/");
+    await page.goto("/ingresar");
+    await page.getByLabel("Correo electrónico").fill(email);
+    await page.getByLabel("Contraseña").fill("claveSegura123");
+    await page.getByRole("button", { name: "Ingresar" }).click();
+    await expect(page).toHaveURL(/\/inicio/);
+
+    // Recuperación: se pide desde "Olvidé mi contraseña" y se abre el enlace del correo.
+    await page.context().clearCookies();
+    await page.goto("/recuperar");
+    await page.getByLabel("Correo electrónico").fill(email);
+    await page.getByRole("button", { name: /Enviar/ }).click();
+    await expect(page.getByText("Si el correo está registrado")).toBeVisible();
+    const link = await fetch(`${SUPABASE}/auth/v1/admin/generate_link`, {
+      method: "POST",
+      headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "recovery", email }),
+    });
+    expect(link.ok, await link.clone().text()).toBeTruthy();
+    const { hashed_token } = (await link.json()) as { hashed_token: string };
+    await page.goto(`/auth/confirm?token_hash=${hashed_token}&type=recovery&next=/restablecer`);
+    await expect(page.getByRole("heading", { name: "Nueva contraseña" })).toBeVisible();
+    await page.getByLabel("Contraseña nueva").fill("otraClave456");
+    await page.getByLabel("Repetí la contraseña").fill("otraClave456");
+    await page.getByRole("button", { name: "Guardar contraseña" }).click();
+    await expect(page.getByRole("link", { name: "Ir al inicio" })).toBeVisible();
+    await page.context().clearCookies();
+    await page.goto("/ingresar");
+    await page.getByLabel("Correo electrónico").fill(email);
+    await page.getByLabel("Contraseña").fill("otraClave456");
+    await page.getByRole("button", { name: "Ingresar" }).click();
+    await expect(page).toHaveURL(/\/inicio/);
+  });
+
+  test("sugiere el dominio correcto si hay un error de tipeo", async ({ page }) => {
+    await page.goto("/registro");
+    const field = page.getByLabel("Correo electrónico");
+    await field.fill("corredora@gmial.com");
+    await page.getByLabel("Contraseña").focus();
+    await page.getByRole("button", { name: "corredora@gmail.com" }).click();
+    await expect(field).toHaveValue("corredora@gmail.com");
+  });
+
+  test("registrarse con el correo del dueño no da el rol de administrador", async ({ page }) => {
+    const owner = "alejorodriguezaguirrepf@gmail.com";
+    sql(`delete from auth.users where lower(email) = '${owner}'`);
+    try {
+      await signUp(page, owner, "Dueño E2E");
+      expect(sql(`select p.role from public.profiles p join auth.users u on u.id = p.id where lower(u.email) = '${owner}'`)).toBe("user");
+      const res = await page.goto("/admin");
+      expect(res?.status()).toBe(404);
+    } finally {
+      sql(`delete from auth.users where lower(email) = '${owner}'`);
+    }
+  });
+});
+
 test.describe("enlaces de los correos", () => {
-  test("enlace de confirmación abierto en otro navegador: invita a ingresar", async ({ page }) => {
+  test("un enlace sin sesión que no es de recuperación avisa que no es válido", async ({ page }) => {
     await page.goto("/auth/confirm?code=codigo-de-otro-navegador&next=/onboarding");
-    await expect(page).toHaveURL(/\/ingresar\?confirmado=1/);
-    await expect(page.getByText("Tu correo quedó confirmado")).toBeVisible();
+    await expect(page).toHaveURL(/\/ingresar\?error=enlace/);
+    await expect(page.getByText("El enlace no es válido o ya se usó.")).toBeVisible();
   });
   test("enlace de recuperación abierto en otro navegador", async ({ page }) => {
     await page.goto("/auth/confirm?code=codigo-de-otro-navegador&next=/restablecer");

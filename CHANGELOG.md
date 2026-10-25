@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-10-25 — Registro en un paso
+
+- **Sin correo de confirmación:** al tocar «Comenzar gratis» se crea la cuenta, la sesión queda iniciada y se pasa a las preguntas del plan. Se quitaron los textos de «revisá tu correo» y «confirmá tu cuenta».
+- Si el correo ya tiene cuenta, el aviso ofrece «Ingresá» y «Recuperá tu contraseña».
+- **Sugerencia de correo:** si se escribe «gmial.com» (u otro error común), se ofrece corregirlo con un toque.
+- **Captcha invisible** (Cloudflare Turnstile) en el registro; las cuentas las crea el servidor después de verificarlo.
+- **Rol admin solo desde la base:** se quitó la regla que lo daba por correo y la lista de correos de administrador; ni el panel ni la API pueden darlo.
+- App móvil: «Crear cuenta gratis» abre el registro web; el ingreso no cambia.
+
 ## 2026-10-25 — Página principal: quién diseña los planes
 
 - Se quitó la tarjeta «Criterio profesional»; las otras dos ocupan el ancho completo.

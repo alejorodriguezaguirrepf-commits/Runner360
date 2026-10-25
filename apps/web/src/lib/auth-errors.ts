@@ -15,6 +15,12 @@ interface ErrorLike {
 const CONNECTION =
   "No pudimos conectarnos con el servicio de cuentas. Revisá tu conexión e intentá de nuevo en unos minutos.";
 
+/** El correo ya tiene una cuenta (alta directa o creada desde el servidor). */
+export function isEmailTaken(error: unknown): boolean {
+  const e = (typeof error === "object" && error ? error : {}) as ErrorLike;
+  return e.code === "user_already_exists" || e.code === "email_exists" || /already (been )?registered/.test((e.message ?? "").toLowerCase());
+}
+
 export function authErrorMessage(error: unknown, context: AuthContext): string {
   const e = (typeof error === "object" && error ? error : {}) as ErrorLike;
   const code = e.code ?? "";
@@ -32,9 +38,7 @@ export function authErrorMessage(error: unknown, context: AuthContext): string {
 
   switch (context) {
     case "signup":
-      if (code === "user_already_exists" || code === "email_exists" || /already registered/.test(msg)) {
-        return "Ya existe una cuenta con ese correo. Ingresá o recuperá tu contraseña.";
-      }
+      if (isEmailTaken(e)) return "Ya tenés una cuenta con este correo. Ingresá o recuperá tu contraseña.";
       if (code === "weak_password") return "La contraseña es demasiado débil. Usá al menos 10 caracteres, con letras y números.";
       if (code === "email_address_invalid" || code === "validation_failed") return "Revisá el correo electrónico: no parece válido.";
       if (code === "signup_disabled" || code === "email_provider_disabled") {
@@ -42,9 +46,6 @@ export function authErrorMessage(error: unknown, context: AuthContext): string {
       }
       return "No pudimos crear la cuenta. Intentá de nuevo en unos minutos.";
     case "signin":
-      if (code === "email_not_confirmed") {
-        return "Todavía no confirmaste tu correo. Abrí el enlace que te enviamos (revisá también el correo no deseado).";
-      }
       if (code === "invalid_credentials" || e.status === 400) return "Correo o contraseña incorrectos.";
       return "No pudimos iniciar sesión. Intentá de nuevo en unos minutos.";
     case "update":

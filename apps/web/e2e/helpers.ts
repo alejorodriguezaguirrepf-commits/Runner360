@@ -13,7 +13,7 @@ export async function signUp(page: Page, email: string, name = "Corredora E2E"):
   await page.getByLabel("Contraseña").fill("claveSegura123");
   await page.getByLabel(/Acepto los/).check();
   await page.getByRole("button", { name: "Comenzar gratis" }).click();
-  // Con confirmación de correo desactivada (entorno local) se ingresa directo al onboarding.
+  // Registro en un paso: sin correo de confirmación, se entra directo al onboarding.
   await expect(page).toHaveURL(/\/onboarding/);
 }
 

@@ -33,6 +33,8 @@ export async function changeRoleAction(_prev: ActionState, formData: FormData): 
   const { supabase } = await requireAdmin();
   const parsed = roleChangeSchema.safeParse(formDataToObject(formData));
   if (!parsed.success) return { ok: false, message: "Datos inválidos." };
+  const { data: current } = await supabase.from("profiles").select("role").eq("id", parsed.data.userId).maybeSingle<{ role: string }>();
+  if (current?.role === "admin") return { ok: false, message: "El rol de administrador solo se cambia directamente en la base." };
   const { error } = await supabase
     .from("profiles")
     .update({ role: parsed.data.role, can_validate_plans: parsed.data.role !== "user" && parsed.data.canValidatePlans })

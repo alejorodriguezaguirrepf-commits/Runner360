@@ -4,13 +4,9 @@ import { logError } from "@/lib/log";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * Destino de los enlaces de los correos (confirmación de cuenta y recuperación de contraseña).
- * Soporta el flujo con token_hash (plantillas personalizadas) y el flujo PKCE con `code`
- * (plantillas por defecto).
- *
- * En el flujo PKCE, cuando llega `code` el correo YA fue verificado. Si el enlace se abre en otro
- * navegador o dispositivo no se puede crear la sesión acá, pero la cuenta igual queda confirmada:
- * en ese caso se invita a ingresar en lugar de mostrar un error.
+ * Destino de los enlaces de los correos (recuperación de contraseña; el registro ya no manda
+ * correo de confirmación). Soporta el flujo con token_hash (plantillas personalizadas) y el flujo
+ * PKCE con `code` (plantillas por defecto).
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -38,7 +34,7 @@ export async function GET(request: NextRequest) {
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (!error) return to(next);
       logError("confirm:exchange", error);
-      return to(isRecovery ? "/ingresar?error=recuperacion" : "/ingresar?confirmado=1");
+      return to(isRecovery ? "/ingresar?error=recuperacion" : "/ingresar?error=enlace");
     }
   } catch (e) {
     logError("confirm", e);

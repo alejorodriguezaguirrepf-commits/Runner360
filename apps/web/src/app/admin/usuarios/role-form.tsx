@@ -13,7 +13,6 @@ export function RoleForm({ userId, role, canValidate }: { userId: string; role: 
       <select id={`role-${userId}`} name="role" defaultValue={role} className="min-h-9 rounded-lg border border-line px-2 text-xs">
         <option value="user">Usuario</option>
         <option value="coach">Entrenador</option>
-        <option value="admin">Administrador</option>
       </select>
       <label className="flex items-center gap-1 text-xs"><input type="checkbox" name="canValidatePlans" defaultChecked={canValidate} /> Valida planes</label>
       <button disabled={pending} className="min-h-9 rounded-lg bg-primary px-2 text-xs font-semibold text-on-primary">Guardar</button>

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../theme.dart';
 
@@ -10,43 +11,37 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
+/// Registro en la web: allá se verifica que no sea un robot y se entra directo, sin correo de confirmación.
+final signUpUrl = Uri.parse('https://runner360.vercel.app/registro');
+
 class _AuthScreenState extends State<AuthScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _name = TextEditingController();
-  bool _register = false;
-  bool _acceptTerms = false;
   bool _loading = false;
   String? _message;
 
   Future<void> _submit() async {
-    final auth = Supabase.instance.client.auth;
     setState(() {
       _loading = true;
       _message = null;
     });
     try {
-      if (_register) {
-        if (!_acceptTerms) throw const AuthException('Tenés que aceptar los términos y la política de privacidad');
-        final pwd = _password.text;
-        if (pwd.length < 10 || !RegExp(r'[A-Za-z]').hasMatch(pwd) || !RegExp(r'\d').hasMatch(pwd)) {
-          throw const AuthException('La contraseña debe tener al menos 10 caracteres, con letras y números');
-        }
-        final res = await auth.signUp(email: _email.text.trim(), password: pwd, data: {'display_name': _name.text.trim()});
-        if (res.session == null) setState(() => _message = 'Te enviamos un correo para confirmar tu cuenta.');
-      } else {
-        await auth.signInWithPassword(email: _email.text.trim(), password: _password.text);
-      }
+      await Supabase.instance.client.auth.signInWithPassword(email: _email.text.trim(), password: _password.text);
     } on AuthRetryableFetchException {
       // Sin conexión o servidor inaccesible: no es un problema de credenciales.
       setState(() => _message = 'No pudimos conectarnos. Revisá tu conexión.');
-    } on AuthException catch (e) {
-      setState(() => _message = _register ? e.message : 'Correo o contraseña incorrectos.');
+    } on AuthException {
+      setState(() => _message = 'Correo o contraseña incorrectos.');
     } catch (_) {
       setState(() => _message = 'No pudimos conectarnos. Revisá tu conexión.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _openSignUp() async {
+    final ok = await launchUrl(signUpUrl, mode: LaunchMode.externalApplication);
+    if (!ok && mounted) setState(() => _message = 'Abrí runner360.vercel.app/registro en el navegador para crear tu cuenta.');
   }
 
   @override
@@ -63,16 +58,8 @@ class _AuthScreenState extends State<AuthScreen> {
             ),
             Text('Entrená. Medí. Progresá.', style: TextStyle(color: context.colors.muted)),
             const SizedBox(height: 32),
-            Text(_register ? 'Creá tu cuenta gratis' : 'Ingresá a tu cuenta', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+            const Text('Ingresá a tu cuenta', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
-            if (_register) ...[
-              TextField(
-                controller: _name,
-                decoration: const InputDecoration(labelText: 'Nombre visible'),
-                textInputAction: TextInputAction.next,
-              ),
-              const SizedBox(height: 12),
-            ],
             TextField(
               controller: _email,
               decoration: const InputDecoration(labelText: 'Correo electrónico'),
@@ -85,27 +72,18 @@ class _AuthScreenState extends State<AuthScreen> {
               decoration: const InputDecoration(labelText: 'Contraseña'),
               obscureText: true,
             ),
-            if (_register)
-              CheckboxListTile(
-                value: _acceptTerms,
-                onChanged: (v) => setState(() => _acceptTerms = v ?? false),
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: const Text('Acepto los términos y la política de privacidad (borradores de la beta).'),
-              ),
             if (_message != null)
               Padding(
                 padding: EdgeInsets.only(top: 12),
                 child: Text(_message!, style: TextStyle(color: context.colors.danger)),
               ),
             const SizedBox(height: 20),
-            FilledButton(onPressed: _loading ? null : _submit, child: Text(_loading ? 'Procesando…' : (_register ? 'Comenzar gratis' : 'Ingresar'))),
-            TextButton(
-              onPressed: () => setState(() {
-                _register = !_register;
-                _message = null;
-              }),
-              child: Text(_register ? 'Ya tengo cuenta' : 'Crear cuenta'),
+            FilledButton(onPressed: _loading ? null : _submit, child: Text(_loading ? 'Procesando…' : 'Ingresar')),
+            TextButton(onPressed: _openSignUp, child: const Text('Crear cuenta gratis')),
+            Text(
+              'La cuenta se crea en la web en un minuto; después ingresás acá con tu correo y tu contraseña.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: context.colors.muted),
             ),
           ],
         ),

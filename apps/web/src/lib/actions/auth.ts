@@ -4,13 +4,15 @@ import { emailOnlySchema, fieldErrors, formDataToObject, newPasswordSchema, sign
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { ActionState } from "@/lib/action-state";
-import { authErrorMessage } from "@/lib/auth-errors";
+import { authErrorMessage, isEmailTaken } from "@/lib/auth-errors";
 import { AUTH_UNAVAILABLE_MESSAGE, isSupabaseConfigured, missingSupabaseConfig, publicEnv, readEnv } from "@/lib/env";
 import { LEGAL_VERSIONS } from "@/lib/legal";
 import { logError } from "@/lib/log";
 import { clientKey, rateLimit } from "@/lib/rate-limit";
 import { pickSiteUrl } from "@/lib/site-url";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { turnstileSecret, turnstileSiteKey, verifyTurnstile } from "@/lib/turnstile";
 
 /** Si falta configuración: mensaje claro al usuario y detalle técnico (sin valores) en los logs. */
 function unavailable(context: string): ActionState {
@@ -49,37 +51,50 @@ export async function signUpAction(_prev: ActionState, formData: FormData): Prom
   const blocked = await limited("signup", 5);
   if (blocked) return blocked;
 
-  let session = false;
+  // Captcha invisible: lo verifica el servidor antes de crear la cuenta.
+  // Se exige solo con las dos claves cargadas (sin la pública el formulario no muestra el widget).
+  const captcha = await verifyTurnstile(formData.get("cf-turnstile-response"), clientKey(await headers()), {
+    secret: turnstileSiteKey() ? turnstileSecret() : "",
+  });
+  if (!captcha.ok) {
+    if (captcha.reason !== "missing") logError("signUp:captcha", captcha.reason);
+    return { ok: false, code: "captcha", message: "No pudimos verificar que no sos un robot. Esperá unos segundos y tocá de nuevo «Comenzar gratis»." };
+  }
+
+  const { email, password, displayName } = parsed.data;
+  const metadata = { display_name: displayName, accepted_terms_version: LEGAL_VERSIONS.terms, accepted_privacy_version: LEGAL_VERSIONS.privacy };
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
-      options: {
-        emailRedirectTo: `${await siteUrl()}/auth/confirm?next=/onboarding`,
-        data: {
-          display_name: parsed.data.displayName,
-          accepted_terms_version: LEGAL_VERSIONS.terms,
-          accepted_privacy_version: LEGAL_VERSIONS.privacy,
-        },
-      },
-    });
-    if (error) {
-      logError("signUp", error);
-      return { ok: false, message: authErrorMessage(error, "signup") };
+    const admin = createAdminClient();
+    if (admin) {
+      // Registro en un paso: la cuenta se crea ya habilitada (sin correo de confirmación) desde el
+      // servidor; el registro directo contra el servicio de cuentas queda apagado.
+      const { error } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: metadata });
+      if (error) return signUpFailure(error);
+    } else {
+      // Sin la clave de servicio (entorno local): alta directa; con la confirmación apagada crea la sesión.
+      const { error } = await supabase.auth.signUp({ email, password, options: { data: metadata } });
+      if (error) return signUpFailure(error);
     }
-    session = Boolean(data.session);
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        logError("signUp:signIn", error);
+        return { ok: false, message: "Tu cuenta quedó creada, pero no pudimos iniciar la sesión. Ingresá con tu correo y tu contraseña." };
+      }
+    }
   } catch (e) {
     logError("signUp:exception", e);
     return { ok: false, message: authErrorMessage(e, "signup") };
   }
-  // Con la confirmación por correo desactivada, la sesión se crea en el acto.
-  if (session) redirect("/onboarding");
-  // Mensaje genérico: no revela si el correo ya estaba registrado.
-  return {
-    ok: true,
-    message: "¡Listo! Te enviamos un correo para confirmar tu cuenta. Abrí el enlace desde este mismo navegador (revisá también el correo no deseado).",
-  };
+  redirect("/onboarding");
+}
+
+function signUpFailure(error: { code?: string; status?: number; message?: string }): ActionState {
+  if (isEmailTaken(error)) return { ok: false, code: "email_exists", message: "Ya tenés una cuenta con este correo." };
+  logError("signUp", error);
+  return { ok: false, message: authErrorMessage(error, "signup") };
 }
 
 export async function signInAction(_prev: ActionState, formData: FormData): Promise<ActionState> {

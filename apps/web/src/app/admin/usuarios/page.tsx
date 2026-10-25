@@ -77,7 +77,8 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     ) : manual.has(u.id) ? (
                       <form action={revokeManualPremiumAction}><input type="hidden" name="userId" value={u.id} /><button className="min-h-11 rounded-lg border border-line px-3 text-sm font-semibold text-danger">Revocar Premium otorgado</button></form>
                     ) : null}
-                    <RoleForm userId={u.id} role={u.role} canValidate={canValidate.get(u.id) ?? false} />
+                    {/* El rol admin solo se cambia directamente en la base: a un admin no se le cambia el rol desde acá. */}
+                    {u.role !== "admin" ? <RoleForm userId={u.id} role={u.role} canValidate={canValidate.get(u.id) ?? false} /> : null}
                   </div>
                 </details>
               ) : (

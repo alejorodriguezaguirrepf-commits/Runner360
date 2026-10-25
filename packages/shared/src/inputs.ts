@@ -286,9 +286,10 @@ export const priceSchema = z.object({
   providerPriceId: optionalText(120),
 });
 
+/** Desde el panel solo se cambia entre usuario y entrenador: el rol admin se cambia en la base. */
 export const roleChangeSchema = z.object({
   userId: z.uuid(),
-  role: z.enum(["user", "coach", "admin"]),
+  role: z.enum(["user", "coach"]),
   canValidatePlans: checkbox,
 });
 

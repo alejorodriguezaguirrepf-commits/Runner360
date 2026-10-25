@@ -3,6 +3,7 @@ import { isSupabaseConfigured, missingSupabaseConfig, publicEnv, readEnv } from 
 import { isServiceRoleConfigured } from "@/lib/env.server";
 import { readPaymentsConfig } from "@/lib/payments/config";
 import { canonicalSiteUrl } from "@/lib/site-url";
+import { turnstileSecret, turnstileSiteKey } from "@/lib/turnstile";
 
 /**
  * Diagnóstico de configuración para quien administra el despliegue.
@@ -35,6 +36,8 @@ export async function GET() {
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: publicEnv.supabaseAnonKey.length > 20,
         SUPABASE_SERVICE_ROLE_KEY: isServiceRoleConfigured(),
         NEXT_PUBLIC_SITE_URL: Boolean(publicEnv.configuredSiteUrl),
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: Boolean(turnstileSiteKey()),
+        TURNSTILE_SECRET_KEY: Boolean(turnstileSecret()),
       },
       faltan: missingSupabaseConfig(),
       servicioDeCuentas: authService,

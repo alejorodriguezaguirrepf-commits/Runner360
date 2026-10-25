@@ -51,7 +51,9 @@ export GOTRUE_API_HOST=127.0.0.1 PORT=9999 GOTRUE_SITE_URL="${SITE_URL:-http://l
 export GOTRUE_URI_ALLOW_LIST="http://localhost:3000/**,http://127.0.0.1:3000/**"
 export GOTRUE_JWT_SECRET="$JWT_SECRET" GOTRUE_JWT_EXP=3600 GOTRUE_JWT_AUD=authenticated
 export GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated GOTRUE_JWT_ADMIN_ROLES=service_role
-export GOTRUE_EXTERNAL_EMAIL_ENABLED=true GOTRUE_MAILER_AUTOCONFIRM=true GOTRUE_DISABLE_SIGNUP=false
+# Como producción: sin correo de confirmación y sin registro directo (las cuentas las crea el servidor
+# de la web con la clave de servicio, después de verificar el captcha).
+export GOTRUE_EXTERNAL_EMAIL_ENABLED=true GOTRUE_MAILER_AUTOCONFIRM=true GOTRUE_DISABLE_SIGNUP=true
 export GOTRUE_DB_MIGRATIONS_PATH="$DIR/bin/migrations"
 export GOTRUE_PASSWORD_MIN_LENGTH=10 GOTRUE_LOG_LEVEL=warn GOTRUE_RATE_LIMIT_EMAIL_SENT=1000
 "$DIR/bin/auth" migrate > "$DIR/logs/auth-migrate.log" 2>&1

@@ -11,12 +11,16 @@ begin
 end; $$;
 grant execute on all functions in schema pg_temp to anon, authenticated;
 
--- Correo del dueño: el alta sin confirmar NO da admin; al confirmar, sí.
+-- Registrarse con el correo del dueño (cuenta ya habilitada, sin confirmación por correo) NO da admin.
 delete from auth.users where lower(email) = 'alejorodriguezaguirrepf@gmail.com';
-insert into auth.users (id, email) values ('aaaa0000-0000-4000-8000-00000000000a', 'AlejoRodriguezAguirrePF@gmail.com');
-select pg_temp.check((select role from public.profiles where id = 'aaaa0000-0000-4000-8000-00000000000a') = 'user', 'sin confirmar: user');
+insert into auth.users (id, email, email_confirmed_at) values ('aaaa0000-0000-4000-8000-00000000000a', 'AlejoRodriguezAguirrePF@gmail.com', now());
+select pg_temp.check((select role from public.profiles where id = 'aaaa0000-0000-4000-8000-00000000000a') = 'user', 'registro con el correo del dueño: user');
 update auth.users set email_confirmed_at = now() where id = 'aaaa0000-0000-4000-8000-00000000000a';
-select pg_temp.check((select role from public.profiles where id = 'aaaa0000-0000-4000-8000-00000000000a') = 'admin', 'al confirmar: admin');
+select pg_temp.check((select role from public.profiles where id = 'aaaa0000-0000-4000-8000-00000000000a') = 'user', 'confirmar el correo tampoco da admin');
+select pg_temp.check(to_regclass('public.admin_emails') is null, 'sin lista de correos de admin');
+-- El rol admin se da directamente en la base (fuera de la API).
+update public.profiles set role = 'admin' where id = 'aaaa0000-0000-4000-8000-00000000000a';
+select pg_temp.check((select role from public.profiles where id = 'aaaa0000-0000-4000-8000-00000000000a') = 'admin', 'admin asignado desde la base');
 
 -- Otro correo confirmado no recibe nada.
 insert into auth.users (id, email, email_confirmed_at) values ('bbbb0000-0000-4000-8000-00000000000b', 'comun@test.local', now());
@@ -29,7 +33,6 @@ select pg_temp.expect_error($$update public.profiles set role = 'admin' where id
 select pg_temp.check((select role from public.profiles where id = 'bbbb0000-0000-4000-8000-00000000000b') = 'user', 'sigue siendo user');
 select pg_temp.expect_error($$select public.admin_dashboard()$$, 'panel para usuario común');
 select pg_temp.expect_error($$select * from public.admin_users('')$$, 'listado para usuario común');
-select pg_temp.check((select count(*) from public.admin_emails) = 0, 'no ve los correos de admin');
 select pg_temp.check((select count(*) from public.profiles where id <> 'bbbb0000-0000-4000-8000-00000000000b') = 0, 'no ve otros perfiles');
 select pg_temp.check(not public.has_premium('bbbb0000-0000-4000-8000-00000000000b'), 'sin Premium');
 select pg_temp.check((select max(week) from public.library_days where plan_id = 'plan-07') = 1, 'usuario común: solo la muestra gratis');
@@ -42,6 +45,11 @@ select set_config('request.headers', '', true);
 -- Admin: Premium sin suscripción ni cobro, panel y listado con correo.
 set request.jwt.claim.sub = 'aaaa0000-0000-4000-8000-00000000000a';
 select pg_temp.check(public.is_admin(), 'es admin');
+-- Ni el admin desde la app puede dar o quitar el rol admin; sí cambiar entre usuario y entrenador.
+select pg_temp.expect_error($$update public.profiles set role = 'admin' where id = 'bbbb0000-0000-4000-8000-00000000000b'$$, 'admin no da admin desde la app');
+update public.profiles set role = 'coach' where id = 'bbbb0000-0000-4000-8000-00000000000b';
+select pg_temp.check((select role from public.profiles where id = 'bbbb0000-0000-4000-8000-00000000000b') = 'coach', 'admin: usuario a entrenador');
+update public.profiles set role = 'user' where id = 'bbbb0000-0000-4000-8000-00000000000b';
 select pg_temp.check(public.has_premium('aaaa0000-0000-4000-8000-00000000000a'), 'admin con Premium');
 select pg_temp.check(public.can_use_feature('hydration'), 'funciones Premium');
 select pg_temp.check((select count(*) from public.subscriptions where user_id = 'aaaa0000-0000-4000-8000-00000000000a') = 0, 'sin suscripción creada');
@@ -68,5 +76,9 @@ select pg_temp.check(public.has_premium('aaaa0000-0000-4000-8000-00000000000a'),
 -- Como un suscriptor sin plan empezado: en el catálogo, solo la muestra gratis.
 select pg_temp.check((select max(week) from public.library_days where plan_id = 'plan-07') = 1, 'vista con suscripción sin inscripción: muestra gratis');
 select set_config('request.headers', '', true);
+-- El servidor con la clave de servicio tampoco puede dar admin.
+reset request.jwt.claim.sub;
+set role service_role;
+select pg_temp.expect_error($$update public.profiles set role = 'admin' where id = 'bbbb0000-0000-4000-8000-00000000000b'$$, 'service_role no da admin');
 reset role;
 rollback;
