@@ -3,7 +3,7 @@
 ## 2026-10-25 — Página principal: quién diseña los planes
 
 - Se quitó la tarjeta «Criterio profesional»; las otras dos ocupan el ancho completo.
-- «¿Quién diseña los planes?» viene abierta, con el retrato de Alejo Rodríguez Aguirre, su nombre y una foto chica entrenando en la pista (WebP optimizado).
+- «¿Quién diseña los planes?» viene abierta, con el retrato de Alejo Rodríguez Aguirre y su nombre (WebP optimizado).
 - Nueva respuesta de «¿Necesito experiencia previa?», en primera persona.
 
 ## 2026-10-25 — Aprender e Hidratación sin carteles de revisión

@@ -42,7 +42,7 @@ test.describe("landing", () => {
     const designer = page.getByRole("region", { name: "¿Quién diseña los planes?" });
     await expect(designer).toContainText("Alejo Rodríguez Aguirre");
     await expect(designer.getByRole("img", { name: /^Retrato de Alejo Rodríguez Aguirre/ })).toBeVisible();
-    await expect(designer.getByRole("img", { name: /corriendo en una pista/ })).toBeVisible();
+    await expect(designer.getByRole("img")).toHaveCount(1);
     // Mouse: cierra y abre.
     await first.click();
     await expect(first).toHaveAttribute("aria-expanded", "false");
