@@ -53,7 +53,17 @@ test.describe("flujo vertical con backend", () => {
     await expect(page.getByRole("link", { name: "Administración" })).toHaveCount(0);
     await page.goto("/hidratacion");
     await expect(page.getByText("Hidratación está incluido en Premium")).toBeVisible();
-    await expect(page.getByText("No existe una cantidad de agua universal", { exact: false })).toBeVisible();
+    // Aprender e Hidratación: sin carteles de revisión pendiente, con un único aviso general al pie.
+    const note = "Contenido informativo. No reemplaza la consulta con un profesional de la salud.";
+    await expect(page.getByText(note)).toHaveCount(1);
+    await expect(page.getByText(/revisión|borrador/i)).toHaveCount(0);
+    await page.goto("/aprender");
+    await expect(page.getByRole("link", { name: "Qué es el RPE (esfuerzo percibido)" })).toBeVisible();
+    await expect(page.getByText(note)).toHaveCount(1);
+    await expect(page.getByText(/revisión|borrador/i)).toHaveCount(0);
+    await page.getByRole("link", { name: "Qué es el RPE (esfuerzo percibido)" }).click();
+    await expect(page.getByText(note)).toHaveCount(1);
+    await expect(page.getByText(/revisión|borrador/i)).toHaveCount(0);
     await page.goto("/suscripcion");
     await expect(page.getByText("Pagos pendientes de configuración")).toBeVisible();
   });

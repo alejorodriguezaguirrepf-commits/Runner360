@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-10-25 — Aprender e Hidratación sin carteles de revisión
+
+- Se quitaron los carteles «Pendiente de revisión profesional» de Aprender, de cada artículo y de las recomendaciones de Hidratación.
+- En su lugar, un único aviso breve al pie: «Contenido informativo. No reemplaza la consulta con un profesional de la salud.»
+- La marca de revisión profesional queda solo como dato interno del panel de administración.
+
 ## 2026-10-25 — Sesiones con porcentaje y RPE (contenido 2026.12)
 
 - **Solo porcentaje y RPE:** cada tramo muestra su intensidad como «75 % · RPE 5», sin nombres como umbral, rodaje, suave o tempo, en todos los planes y distancias. Con el test de la Calculadora cargado, también el ritmo por km.

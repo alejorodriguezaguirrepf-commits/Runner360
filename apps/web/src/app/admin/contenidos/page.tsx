@@ -16,7 +16,7 @@ export default async function ContentsAdminPage() {
   );
   return (
     <>
-      <PageHeader title="Contenidos educativos" subtitle="Los contenidos sin revisión profesional se muestran con esa advertencia a los usuarios." />
+      <PageHeader title="Contenidos educativos" subtitle="La marca de revisión profesional es interna: los usuarios ven el contenido sin advertencias, con un aviso general al pie." />
       <div className="space-y-4">
         {items.map((c) => (
           <Card key={c.id}>

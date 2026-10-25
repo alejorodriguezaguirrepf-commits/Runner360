@@ -1,8 +1,9 @@
 import { BEVERAGE_LABELS, formatDate, HYDRATION_CONTEXT_LABELS, todayIn, WEEKDAY_SHORT, type ContentRow, type HydrationLogRow, type HydrationReminderRow } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HealthNote } from "@/components/app/health-note";
 import { PremiumGate } from "@/components/app/premium-gate";
-import { Alert, Badge, Card, CardTitle, EmptyState, PageHeader, Stat } from "@/components/ui/primitives";
+import { Card, CardTitle, EmptyState, PageHeader, Stat } from "@/components/ui/primitives";
 import { canUseFeature, requireOnboardedSession } from "@/lib/auth";
 import { deleteHydrationAction, deleteReminderAction, toggleReminderAction } from "@/lib/actions/modules";
 import { HydrationForm, ReminderForm } from "./hydration-forms";
@@ -16,32 +17,27 @@ export default async function HydrationPage() {
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const allowed = await canUseFeature(session, "hydration");
-  const { data: contents } = await supabase.from("educational_contents").select("slug, title, summary, reviewed_by").eq("category", "hydration").eq("status", "published");
+  const { data: contents } = await supabase.from("educational_contents").select("slug, title, summary").eq("category", "hydration").eq("status", "published");
   const education = (
     <Card>
       <CardTitle>Recomendaciones educativas</CardTitle>
       <ul className="space-y-3">
-        {((contents ?? []) as Pick<ContentRow, "slug" | "title" | "summary" | "reviewed_by">[]).map((c) => (
+        {((contents ?? []) as Pick<ContentRow, "slug" | "title" | "summary">[]).map((c) => (
           <li key={c.slug}>
             <Link href={`/aprender/${c.slug}`} className="font-semibold text-primary-ink hover:underline">{c.title}</Link>
-            {!c.reviewed_by ? <Badge tone="warning" className="ml-2">Pendiente de revisión profesional</Badge> : null}
             <p className="text-sm text-muted">{c.summary}</p>
           </li>
         ))}
       </ul>
     </Card>
   );
-  const disclaimer = (
-    <Alert tone="info" title="Orientativo, no prescriptivo">
-      No existe una cantidad de agua universal. La app registra lo que cargás; no mide tu estado de hidratación. Con calor, sesiones prolongadas, enfermedad o medicación, consultá a un profesional.
-    </Alert>
-  );
 
   if (!allowed) {
     return (
       <>
         <PageHeader title="Hidratación" />
-        <div className="space-y-4">{disclaimer}<PremiumGate feature="Hidratación" />{education}</div>
+        <div className="space-y-4"><PremiumGate feature="Hidratación" />{education}</div>
+        <HealthNote />
       </>
     );
   }
@@ -58,7 +54,6 @@ export default async function HydrationPage() {
     <>
       <PageHeader title="Hidratación" subtitle={formatDate(today, "weekday")} />
       <div className="space-y-4">
-        {disclaimer}
         <div className="grid grid-cols-3 gap-3">
           <Stat label="Registrado hoy" value={`${nf.format(totalMl)} ml`} />
           <Stat label="Registros" value={todayLogs.length} />
@@ -108,6 +103,7 @@ export default async function HydrationPage() {
         </Card>
         {education}
       </div>
+      <HealthNote />
     </>
   );
 }

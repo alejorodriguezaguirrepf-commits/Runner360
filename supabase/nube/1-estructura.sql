@@ -2472,7 +2472,7 @@ on conflict (id) do nothing;
 
 -- ===== supabase/seed/30_educational_content.sql =====
 -- Contenido educativo inicial. Orientativo y general: NO reemplaza el consejo de un profesional.
--- reviewed_by queda en NULL: la interfaz lo muestra como "Pendiente de revisión profesional".
+-- reviewed_by queda en NULL hasta que un profesional lo revise (marca interna del panel; los usuarios no ven advertencias).
 
 insert into public.educational_contents (id, slug, title, summary, body, category, is_premium, status, published_at)
 values
