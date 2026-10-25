@@ -291,7 +291,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             for (final s in legacyToday) ...[
-                              Text((s['session'] as Map)['title'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+                              Text(sessionTitle((s['session'] as Map)['title'] as String), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                               Text(
                                 '${sessionTypeLabels[(s['session'] as Map)['session_type']]} · ${formatMinutesLong((s['session'] as Map)['duration_s'] as int?)}',
                               ),

@@ -25,14 +25,25 @@ String formatDateShort(DateTime d) => DateFormat('EEE d MMM', locale).format(d);
 String formatDateLong(DateTime d) => DateFormat("EEEE d 'de' MMMM", locale).format(d);
 
 const sessionTypeLabels = {
-  'easy_run': 'Rodaje fácil',
-  'long_run': 'Rodaje largo',
+  'easy_run': 'Carrera continua',
+  'long_run': 'Carrera continua larga',
   'intervals': 'Intervalos',
-  'tempo': 'Tempo / umbral',
-  'recovery': 'Recuperación',
+  'tempo': 'Carrera continua exigente',
+  'recovery': 'Carrera continua corta',
   'rest': 'Descanso',
   'strength': 'Fuerza complementaria',
   'test': 'Evaluación',
 };
+
+/// Títulos guardados en los planes DEMO anteriores (no editables) → nombre que se muestra (igual que la web).
+const _legacySessionTitles = {
+  'Rodaje fácil': 'Carrera continua',
+  'Rodaje largo': 'Carrera continua larga',
+  'Tempo': 'Carrera continua exigente',
+  'Recuperación': 'Carrera continua corta',
+};
+
+/// Título de una sesión para mostrar (sin nombres de esfuerzo como «rodaje» o «tempo»).
+String sessionTitle(String title) => _legacySessionTitles[title] ?? title;
 
 const calendarStatusLabels = {'pending': 'Pendiente', 'completed': 'Completada', 'modified': 'Modificada', 'skipped': 'No realizada'};

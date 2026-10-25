@@ -80,7 +80,7 @@ class _PlanScreenState extends State<PlanScreen> {
                     for (final c in entry.value)
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: Text((c['session'] as Map)['title'] as String, style: const TextStyle(fontWeight: FontWeight.w700)),
+                        title: Text(sessionTitle((c['session'] as Map)['title'] as String), style: const TextStyle(fontWeight: FontWeight.w700)),
                         subtitle: Text(
                           '${formatDateShort(DateTime.parse(c['scheduled_date'] as String))} · ${formatMinutesLong((c['session'] as Map)['duration_s'] as int?)}',
                         ),
@@ -108,7 +108,7 @@ class _PlanScreenState extends State<PlanScreen> {
           shrinkWrap: true,
           padding: const EdgeInsets.all(20),
           children: [
-            Text(s['title'] as String, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+            Text(sessionTitle(s['title'] as String), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
             Text(
               '${sessionTypeLabels[s['session_type']]} · ${formatMinutesLong(s['duration_s'] as int?)}${s['rpe_min'] != null ? ' · RPE ${s['rpe_min']}–${s['rpe_max']}' : ''}',
             ),

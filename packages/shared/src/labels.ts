@@ -30,15 +30,28 @@ export const GOAL_LABELS: Record<Goal, string> = {
 };
 
 export const SESSION_TYPE_LABELS: Record<SessionType, string> = {
-  easy_run: "Rodaje fácil",
-  long_run: "Rodaje largo",
+  easy_run: "Carrera continua",
+  long_run: "Carrera continua larga",
   intervals: "Intervalos",
-  tempo: "Tempo / umbral",
-  recovery: "Recuperación",
+  tempo: "Carrera continua exigente",
+  recovery: "Carrera continua corta",
   rest: "Descanso",
   strength: "Fuerza complementaria",
   test: "Evaluación",
 };
+
+/** Títulos guardados en los planes DEMO anteriores (versiones publicadas, no editables) → nombre que se muestra. */
+const LEGACY_SESSION_TITLES: Record<string, string> = {
+  "Rodaje fácil": SESSION_TYPE_LABELS.easy_run,
+  "Rodaje largo": SESSION_TYPE_LABELS.long_run,
+  Tempo: SESSION_TYPE_LABELS.tempo,
+  Recuperación: SESSION_TYPE_LABELS.recovery,
+};
+
+/** Título de una sesión para mostrar (sin nombres de esfuerzo como «rodaje» o «tempo»). */
+export function sessionTitle(title: string): string {
+  return LEGACY_SESSION_TITLES[title] ?? title;
+}
 
 export const INTENSITY_LABELS: Record<Intensity, string> = {
   very_low: "Muy baja",

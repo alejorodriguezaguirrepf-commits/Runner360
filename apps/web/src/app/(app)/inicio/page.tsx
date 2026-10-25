@@ -1,5 +1,5 @@
 import { addDays } from "@runner360/training-engine";
-import { formatDate, formatKm, formatMinutesLong, formatPercent, todayIn } from "@runner360/shared";
+import { formatDate, formatKm, formatMinutesLong, formatPercent, sessionTitle, todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SessionFacts, StatusBadge } from "@/components/app/session-summary";
@@ -72,13 +72,13 @@ export default async function DashboardPage() {
               <p className="text-muted">
                 {active.userPlan.start_date > today
                   ? `Tu plan comienza el ${formatDate(active.userPlan.start_date, "weekday")}. Hasta entonces podés registrar entrenamientos libres.`
-                  : "Hoy no hay sesión planificada. Descansá o hacé actividad suave si te sentís bien."}
+                  : "Hoy no hay sesión planificada. Descansá o hacé actividad liviana si te sentís bien."}
               </p>
             ) : (
               d.todaySessions.map((s) => (
                 <div key={s.id} className="space-y-3">
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-2xl font-extrabold">{s.session.title}</p>
+                    <p className="text-2xl font-extrabold">{sessionTitle(s.session.title)}</p>
                     <StatusBadge status={s.status} />
                   </div>
                   {s.session.objective ? <p className="text-sm text-muted">{s.session.objective}</p> : null}
@@ -119,7 +119,7 @@ export default async function DashboardPage() {
             <Card className="mb-6">
               <CardTitle action={<Link href={`/plan/sesion/${d.nextSession.id}`} className="text-sm font-semibold text-primary-ink hover:underline">Ver</Link>}>Próxima sesión</CardTitle>
               <p className="text-sm text-muted">{formatDate(d.nextSession.scheduled_date, "weekday")}</p>
-              <p className="mb-3 font-semibold">{d.nextSession.session.title}</p>
+              <p className="mb-3 font-semibold">{sessionTitle(d.nextSession.session.title)}</p>
               <SessionFacts session={d.nextSession.session} compact />
             </Card>
           ) : null}

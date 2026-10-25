@@ -1,5 +1,5 @@
 import { currentPlanWeek } from "@runner360/training-engine";
-import { DISTANCE_LABELS, formatDate, LEVEL_LABELS, todayIn, WEEKDAY_SHORT } from "@runner360/shared";
+import { DISTANCE_LABELS, formatDate, LEVEL_LABELS, sessionTitle, todayIn, WEEKDAY_SHORT } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sessionVolumeLabel, StatusBadge } from "@/components/app/session-summary";
@@ -85,7 +85,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
                           <p className={`font-semibold ${it.scheduled_date === today ? "text-primary-ink" : ""}`}>{it.scheduled_date === today ? "Hoy" : formatDate(it.scheduled_date)}</p>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="truncate font-semibold">{it.session.title}</p>
+                          <p className="truncate font-semibold">{sessionTitle(it.session.title)}</p>
                           <p className="text-xs text-muted">{sessionVolumeLabel(it.session)}</p>
                         </div>
                         <StatusBadge status={it.status} />

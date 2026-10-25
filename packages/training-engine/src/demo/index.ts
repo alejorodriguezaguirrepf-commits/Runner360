@@ -75,11 +75,11 @@ const PROGRESSION_CRITERIA =
   "Avanzá a la sesión siguiente si completaste esta dentro del rango de esfuerzo indicado y sin dolor. Si no, repetila o consultá a tu entrenador.";
 
 const TYPE_META: Record<SessionType, { title: string; intensity: Intensity; rpe: [number, number] | null }> = {
-  easy_run: { title: "Rodaje fácil", intensity: "low", rpe: [3, 4] },
-  long_run: { title: "Rodaje largo", intensity: "low", rpe: [3, 5] },
+  easy_run: { title: "Carrera continua", intensity: "low", rpe: [3, 4] },
+  long_run: { title: "Carrera continua larga", intensity: "low", rpe: [3, 5] },
   intervals: { title: "Intervalos", intensity: "high", rpe: [7, 8] },
-  tempo: { title: "Tempo", intensity: "moderate", rpe: [6, 7] },
-  recovery: { title: "Recuperación", intensity: "very_low", rpe: [2, 3] },
+  tempo: { title: "Carrera continua exigente", intensity: "moderate", rpe: [6, 7] },
+  recovery: { title: "Carrera continua corta", intensity: "very_low", rpe: [2, 3] },
   rest: { title: "Descanso", intensity: "very_low", rpe: null },
   strength: { title: "Fuerza complementaria", intensity: "moderate", rpe: [5, 6] },
   test: { title: "Evaluación", intensity: "high", rpe: null },
@@ -105,18 +105,18 @@ function sessionFor(distance: DistanceCode, level: Level, cfg: DemoConfig, week:
   const walkRun = distance === "5K" && level === "beginner" && week <= 4;
   let minutes: number;
   let main: string;
-  const warmup = "10 min de caminata o trote muy suave y movilidad articular.";
-  const cooldown = "5–10 min de caminata suave y respiración tranquila.";
+  const warmup = "10 min de caminata o trote muy tranquilo y movilidad articular.";
+  const cooldown = "5–10 min de caminata tranquila y respiración pausada.";
   switch (type) {
     case "long_run":
       minutes = roundMinutes(cfg.longPeakMin * f);
       main = walkRun
-        ? `${minutes - 15} min alternando trote suave y caminata. Ajustá la proporción para mantenerte en RPE 3–5.`
+        ? `${minutes - 15} min alternando trote tranquilo y caminata. Ajustá la proporción para mantenerte en RPE 3–5.`
         : `${minutes - 15} min continuos a ritmo conversacional (RPE 3–5).`;
       break;
     case "intervals":
       minutes = roundMinutes(cfg.easyPeakMin * f + 5);
-      main = `Bloques de 2–3 min a RPE 7–8 con 2 min de trote o caminata de recuperación, hasta completar ${minutes - 20} min.`;
+      main = `Bloques de 2–3 min a RPE 7–8 con 2 min de pausa trotando o caminando, hasta completar ${minutes - 20} min.`;
       break;
     case "tempo":
       minutes = roundMinutes(cfg.easyPeakMin * f);
@@ -124,7 +124,7 @@ function sessionFor(distance: DistanceCode, level: Level, cfg: DemoConfig, week:
       break;
     case "recovery":
       minutes = roundMinutes(cfg.easyPeakMin * f * 0.7);
-      main = `${minutes - 10} min de trote muy suave (RPE 2–3). Si hay fatiga marcada, reemplazá por caminata.`;
+      main = `${minutes - 10} min de trote muy tranquilo (RPE 2–3). Si hay fatiga marcada, reemplazá por caminata.`;
       break;
     case "strength":
       minutes = 30;
@@ -133,8 +133,8 @@ function sessionFor(distance: DistanceCode, level: Level, cfg: DemoConfig, week:
     default:
       minutes = roundMinutes(cfg.easyPeakMin * f);
       main = walkRun
-        ? `${minutes - 15} min alternando 1–2 min de trote suave y 1–2 min de caminata (RPE 3–4).`
-        : `${minutes - 15} min de trote suave a ritmo conversacional (RPE 3–4).`;
+        ? `${minutes - 15} min alternando 1–2 min de trote tranquilo y 1–2 min de caminata (RPE 3–4).`
+        : `${minutes - 15} min de trote a ritmo conversacional (RPE 3–4).`;
   }
   const exercises =
     type === "strength"
@@ -159,7 +159,7 @@ function sessionFor(distance: DistanceCode, level: Level, cfg: DemoConfig, week:
     rpeMax: meta.rpe?.[1] ?? null,
     warmup: type === "strength" ? "5 min de movilidad general." : warmup,
     mainSet: main,
-    cooldown: type === "strength" ? "5 min de estiramientos suaves." : cooldown,
+    cooldown: type === "strength" ? "5 min de estiramientos leves." : cooldown,
     notes: "Contenido DEMO generado para pruebas. No reemplaza la indicación de un profesional.",
     progressionCriteria: PROGRESSION_CRITERIA,
     stopCriteria: STOP_CRITERIA,

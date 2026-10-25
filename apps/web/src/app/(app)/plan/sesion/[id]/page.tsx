@@ -1,4 +1,4 @@
-import { formatDate, type ExerciseRow } from "@runner360/shared";
+import { formatDate, sessionTitle, type ExerciseRow } from "@runner360/shared";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -22,7 +22,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
     <>
       <p className="mb-2 text-sm"><Link href="/plan" className="font-semibold text-primary-ink hover:underline">← Volver al plan</Link></p>
       <PageHeader
-        title={s.title}
+        title={sessionTitle(s.title)}
         subtitle={`${formatDate(item.scheduled_date, "weekday")} · semana ${item.week_number}, sesión ${item.session_number}`}
         actions={item.status === "pending" ? <ButtonLink href={`/registrar?sesion=${item.id}`}>Registrar esta sesión</ButtonLink> : <StatusBadge status={item.status} />}
       />

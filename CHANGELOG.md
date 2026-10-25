@@ -8,6 +8,7 @@
 - **Ayuda del RPE** a un toque, con la tabla de equivalencias.
 - El validador de los planes controla que cada tramo tenga porcentaje y que no aparezcan nombres de esfuerzo.
 - Las vistas previas de Vercel ya no actualizan la biblioteca de planes de producción.
+- Planes DEMO anteriores: «Rodaje fácil» pasa a «Carrera continua» (también «Carrera continua larga», «Carrera continua exigente» y «Carrera continua corta»), en la web y en la app.
 
 ## 2026-10-21 — Acceso desde el link, app instalable y plan anual
 

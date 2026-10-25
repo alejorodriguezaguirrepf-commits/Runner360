@@ -1,5 +1,5 @@
 import { addDays } from "@runner360/training-engine";
-import { formatDate, todayIn } from "@runner360/shared";
+import { formatDate, sessionTitle, todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import { SessionFacts } from "@/components/app/session-summary";
 import { Card, CardTitle, DemoBadge, PageHeader } from "@/components/ui/primitives";
@@ -26,7 +26,7 @@ export default async function RegisterWorkoutPage({ searchParams }: { searchPara
       {selected ? (
         <Card className="mb-4">
           <CardTitle action={active?.version.isDemo ? <DemoBadge /> : null}>Sesión planificada · {formatDate(selected.scheduled_date, "weekday")}</CardTitle>
-          <p className="mb-3 font-semibold">{selected.session.title}</p>
+          <p className="mb-3 font-semibold">{sessionTitle(selected.session.title)}</p>
           <SessionFacts session={selected.session} compact />
         </Card>
       ) : null}
@@ -35,7 +35,7 @@ export default async function RegisterWorkoutPage({ searchParams }: { searchPara
           today={today}
           defaultDate={selected && selected.scheduled_date <= today ? selected.scheduled_date : today}
           defaultEntryId={selected?.id ?? ""}
-          sessions={options.map((o) => ({ id: o.id, label: `${formatDate(o.scheduled_date)} · ${o.session.title}` }))}
+          sessions={options.map((o) => ({ id: o.id, label: `${formatDate(o.scheduled_date)} · ${sessionTitle(o.session.title)}` }))}
         />
       </Card>
     </>
