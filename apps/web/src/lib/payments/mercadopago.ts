@@ -163,6 +163,42 @@ async function preapprovalEvent(base: NormalizedSubscriptionEvent, id: string): 
   };
 }
 
+async function paymentEvent(base: NormalizedSubscriptionEvent, id: string): Promise<NormalizedSubscriptionEvent> {
+  const p = await mpFetch(`/v1/payments/${encodeURIComponent(id)}`);
+  // Los débitos de la suscripción mensual también son "payment": esos llegan por authorized_payment.
+  const meta = (p.metadata ?? {}) as Record<string, unknown>;
+  if (p.operation_type === "recurring_payment" || meta.preapproval_id) return base;
+  const ref = parseExternalReference(p.external_reference);
+  if (!ref.userId || !ref.productCode) return base;
+  const { status, payment } = mapMercadoPagoOneOff(p);
+  return { ...base, prepaid: true, providerSubscriptionId: `payment:${id}`, userId: ref.userId, productCode: ref.productCode, status, payment };
+}
+
+/** Último débito de una suscripción (el primero se cobra al darla de alta). null si no hay o si falla la consulta. */
+async function latestAuthorizedPayment(preapprovalId: string): Promise<NormalizedPayment | null> {
+  try {
+    const res = await mpFetch(`/authorized_payments/search?preapproval_id=${encodeURIComponent(preapprovalId)}`);
+    const results = (Array.isArray(res.results) ? res.results : []) as Record<string, unknown>[];
+    const payments = results.map((ap) => mapMercadoPagoPayment(ap)).filter((p): p is NormalizedPayment => p !== null);
+    return payments.sort((a, b) => Date.parse(b.paidAt) - Date.parse(a.paidAt))[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parámetros con los que Mercado Pago vuelve a la app (pura, testeable): `preapproval_id` en la
+ * suscripción mensual; `payment_id` (o `collection_id`) en Checkout Pro. Se validan antes de consultar la API.
+ */
+export function parseReturnParams(params: URLSearchParams): { preapprovalId: string | null; paymentId: string | null } {
+  const pre = params.get("preapproval_id");
+  const pay = params.get("payment_id") ?? params.get("collection_id");
+  return {
+    preapprovalId: pre && /^[a-z0-9]{6,64}$/i.test(pre) ? pre : null,
+    paymentId: pay && /^\d{1,20}$/.test(pay) ? pay : null,
+  };
+}
+
 export const mercadoPagoProvider: PaymentProvider = {
   id: "mercadopago",
   label: "Mercado Pago",
@@ -229,16 +265,7 @@ export const mercadoPagoProvider: PaymentProvider = {
     const base: NormalizedSubscriptionEvent = { providerEventId: eventId, eventType: body.type ?? body.action ?? "unknown", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
     if (!dataId) return base;
     if (body.type === "subscription_preapproval") return preapprovalEvent(base, dataId);
-    if (body.type === "payment" || body.topic === "payment") {
-      const p = await mpFetch(`/v1/payments/${encodeURIComponent(dataId)}`);
-      // Los débitos de la suscripción mensual también son "payment": esos llegan por authorized_payment.
-      const meta = (p.metadata ?? {}) as Record<string, unknown>;
-      if (p.operation_type === "recurring_payment" || meta.preapproval_id) return base;
-      const ref = parseExternalReference(p.external_reference);
-      if (!ref.userId || !ref.productCode) return base;
-      const { status, payment } = mapMercadoPagoOneOff(p);
-      return { ...base, prepaid: true, providerSubscriptionId: `payment:${dataId}`, userId: ref.userId, productCode: ref.productCode, status, payment };
-    }
+    if (body.type === "payment" || body.topic === "payment") return paymentEvent(base, dataId);
     if (body.type === "subscription_authorized_payment") {
       const ap = await mpFetch(`/authorized_payments/${encodeURIComponent(dataId)}`);
       const preId = typeof ap.preapproval_id === "string" ? ap.preapproval_id : null;
@@ -246,6 +273,15 @@ export const mercadoPagoProvider: PaymentProvider = {
       return { ...(await preapprovalEvent(base, preId)), payment: mapMercadoPagoPayment(ap) };
     }
     return base;
+  },
+
+  async eventFromReturn(params) {
+    if (!this.isConfigured()) return null;
+    const { preapprovalId, paymentId } = parseReturnParams(params);
+    const base: NormalizedSubscriptionEvent = { providerEventId: `return:${preapprovalId ?? paymentId}`, eventType: "checkout_return", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
+    if (preapprovalId) return { ...(await preapprovalEvent(base, preapprovalId)), payment: await latestAuthorizedPayment(preapprovalId) };
+    if (paymentId) return paymentEvent(base, paymentId);
+    return null;
   },
 
   async cancelAtPeriodEnd(id) {

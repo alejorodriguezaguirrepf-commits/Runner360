@@ -84,6 +84,8 @@ Mercado Pago ya no permite crear aplicaciones desde una cuenta de prueba («No p
 
 ## Cosas a tener en cuenta
 
+- **Confirmación al volver:** cuando la persona vuelve de Mercado Pago (`/suscripcion?estado=procesando&preapproval_id=…` o `&payment_id=…`), la app consulta la operación a la API y la aplica en el momento (`confirmCheckoutReturn` en `lib/payments/process.ts`), solo si pertenece a esa persona. No reemplaza al webhook: las renovaciones mensuales llegan solo por webhook.
+
 - **El correo tiene que coincidir.** La suscripción mensual se crea con el correo de la cuenta de RUNNER 360 (`payer_email`). Si la persona entra a Mercado Pago con otra cuenta, Mercado Pago puede rechazar el alta. Conviene avisarlo en la pantalla de pago si aparecen casos.
 - **Mensual = Suscripciones sin plan** (`/preapproval` con `auto_recurring`): el importe en pesos se fija al momento del alta con la cotización del día.
 - **Anual = Checkout Pro** (`/checkout/preferences`): admite cuotas, tarjetas, dinero en cuenta y efectivo.

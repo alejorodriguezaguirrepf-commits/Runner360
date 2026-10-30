@@ -56,6 +56,11 @@ export interface PaymentProvider {
   /** Normaliza el evento (puede consultar la API del proveedor para obtener el estado real). */
   parseWebhook(input: WebhookInput): Promise<NormalizedSubscriptionEvent | null>;
   cancelAtPeriodEnd(providerSubscriptionId: string): Promise<void>;
+  /**
+   * Estado real de la operación con la que la persona vuelve del checkout (parámetros de la URL de
+   * vuelta). Opcional: permite activar el acceso sin esperar el webhook.
+   */
+  eventFromReturn?(params: URLSearchParams): Promise<NormalizedSubscriptionEvent | null>;
 }
 
 export class ProviderNotConfiguredError extends Error {

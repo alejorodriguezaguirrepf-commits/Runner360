@@ -6,16 +6,28 @@ import { pricing } from "@/i18n/es-AR/pricing";
 import { Alert, Badge, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { annualAccessUntil, hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { checkoutAvailable, getPricedProducts } from "@/lib/data/pricing";
-import { PROVIDERS } from "@/lib/payments/registry";
+import { confirmCheckoutReturn, type ReturnOutcome } from "@/lib/payments/process";
+import { getProvider, PROVIDERS } from "@/lib/payments/registry";
+import { rateLimit } from "@/lib/rate-limit";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { CancelSubscriptionForm, CheckoutForm } from "./billing-forms";
 
 export const metadata: Metadata = { title: "Suscripción" };
 
 const PAYMENT_LABELS: Record<string, string> = { approved: "Aprobado · mes liberado", pending: "En proceso", rejected: "Rechazado", refunded: "Devuelto" };
 
-export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<{ estado?: string }> }) {
+type ReturnParams = { estado?: string; preapproval_id?: string; payment_id?: string; collection_id?: string };
+
+export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<ReturnParams> }) {
   const session = await requireOnboardedSession();
-  const { estado } = await searchParams;
+  const sp = await searchParams;
+  const { estado } = sp;
+  // Vuelta de Mercado Pago: se confirma el pago en el momento, sin esperar el aviso del webhook.
+  let confirmation: ReturnOutcome = "ignored";
+  if (estado === "procesando" && (sp.preapproval_id || sp.payment_id || sp.collection_id) && rateLimit(`checkout-return:${session.user.id}`, 10, 60_000).ok) {
+    const params = new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"));
+    confirmation = await confirmCheckoutReturn(getProvider("mercadopago"), params, session.user.id, createAdminClient());
+  }
   const [products, premium, annualUntil, { data: subs }, { data: payments }] = await Promise.all([
     getPricedProducts(session.supabase),
     hasPremium(session),
@@ -44,7 +56,11 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
           <strong>Anual:</strong> un único pago por 12 meses, sin renovación automática. Durante el año elegís cualquier plan, lo ves completo desde el
           primer día y, al terminarlo, lo renovás o elegís otro sin volver a pagar.
         </Alert>
-        {estado === "procesando" ? <Alert tone="info" title="Estamos confirmando tu pago">El acceso se activa cuando el proveedor confirma la operación. Puede demorar unos minutos.</Alert> : null}
+        {estado === "procesando" && confirmation === "active" && premium ? (
+          <Alert tone="success" title="¡Listo! Tu pago se acreditó">Ya tenés acceso Premium.</Alert>
+        ) : estado === "procesando" ? (
+          <Alert tone="info" title="Estamos confirmando tu pago">El acceso se activa cuando se confirma la operación. Puede demorar unos minutos.</Alert>
+        ) : null}
         {!anyConfigured ? (
           <Alert tone="warning" title="Pagos pendientes de configuración">
             Los medios de pago (Mercado Pago y tarjeta internacional) todavía no están habilitados en esta instalación. No se realizan cobros.

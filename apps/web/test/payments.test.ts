@@ -1,6 +1,9 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { assessMercadoPagoAccount, looksLikePublicKey, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { confirmCheckoutReturn } from "@/lib/payments/process";
+import type { NormalizedSubscriptionEvent, PaymentProvider } from "@/lib/payments/types";
+import { assessMercadoPagoAccount, looksLikePublicKey, mercadoPagoProvider, parseReturnParams, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -119,5 +122,26 @@ describe("Public Key copiada en lugar del Access Token", () => {
     expect(looksLikePublicKey(`APP_USR-${uuid}`)).toBe(true);
     expect(looksLikePublicKey(`TEST-${uuid}`)).toBe(true);
     expect(looksLikePublicKey(`APP_USR-${token}`)).toBe(false);
+  });
+});
+
+describe("vuelta del checkout de Mercado Pago", () => {
+  it("toma y valida los ids de la URL de vuelta", () => {
+    expect(parseReturnParams(new URLSearchParams("estado=procesando&preapproval_id=2c9380848f1a2b3c"))).toEqual({ preapprovalId: "2c9380848f1a2b3c", paymentId: null });
+    expect(parseReturnParams(new URLSearchParams("collection_id=123456789&status=approved"))).toEqual({ preapprovalId: null, paymentId: "123456789" });
+    expect(parseReturnParams(new URLSearchParams("preapproval_id=../../x&payment_id=abc"))).toEqual({ preapprovalId: null, paymentId: null });
+  });
+
+  const event = (userId: string): NormalizedSubscriptionEvent => ({ providerEventId: "return:1", eventType: "checkout_return", providerSubscriptionId: "pre1", userId, productCode: "premium_monthly", status: "active", currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null });
+  const fakeProvider = (userId: string): PaymentProvider => ({ ...mercadoPagoProvider, isConfigured: () => true, eventFromReturn: async () => event(userId) });
+
+  it("no aplica una operación de otra persona (ni toca la base)", async () => {
+    const admin = new Proxy({}, { get: () => { throw new Error("no debería usar la base"); } }) as SupabaseClient;
+    expect(await confirmCheckoutReturn(fakeProvider("otro-usuario"), new URLSearchParams("preapproval_id=abc123"), "yo", admin)).toBe("ignored");
+  });
+
+  it("sin configuración o sin clave de servicio: no hace nada", async () => {
+    expect(await confirmCheckoutReturn(fakeProvider("yo"), new URLSearchParams(), "yo", null)).toBe("ignored");
+    expect(await confirmCheckoutReturn(null, new URLSearchParams(), "yo", null)).toBe("ignored");
   });
 });
