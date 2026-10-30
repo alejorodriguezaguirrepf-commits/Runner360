@@ -114,16 +114,23 @@ export function assessMercadoPagoAccount(me: Record<string, unknown>, mpEnv: "te
   return { ok: true, message: `${who}. Credenciales válidas.` };
 }
 
+/** La Public Key tiene forma de UUID (TEST-xxxxxxxx-xxxx-…); el Access Token, TEST-<números>-<fecha>-<hex>-<números>. */
+export function looksLikePublicKey(token: string): boolean {
+  return /^(TEST|APP_USR)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token);
+}
+
 /** Verifica el Access Token contra la API. Nunca expone el token ni datos de pago. */
 export async function checkMercadoPagoAccount(mpEnv: "test" | "prod" | null): Promise<MpAccountCheck> {
   if (!serverEnv.mercadoPagoAccessToken) return { ok: false, message: "Falta MP_ACCESS_TOKEN." };
+  if (looksLikePublicKey(serverEnv.mercadoPagoAccessToken)) return { ok: false, message: "MP_ACCESS_TOKEN tiene la Public Key. Copiá el Access Token (está en la misma pantalla de credenciales)." };
   try {
     const res = await fetch(`${API}/users/me`, {
       headers: { Authorization: `Bearer ${serverEnv.mercadoPagoAccessToken}` },
       signal: AbortSignal.timeout(5000),
       cache: "no-store",
     });
-    if (res.status === 401 || res.status === 403) return { ok: false, message: "Mercado Pago rechazó el Access Token (vencido, revocado o mal copiado)." };
+    if (res.status === 401) return { ok: false, message: "Mercado Pago rechazó el Access Token (vencido, revocado o mal copiado)." };
+    if (res.status === 403) return { ok: false, message: "Mercado Pago no le da permiso a este Access Token (403). Revisá que sea el de la aplicación RUNNER 360." };
     if (!res.ok) return { ok: false, message: `Mercado Pago respondió ${res.status}. Probá más tarde.` };
     return assessMercadoPagoAccount((await res.json()) as Record<string, unknown>, mpEnv, serverEnv.mercadoPagoAccessToken.startsWith("TEST-"));
   } catch {

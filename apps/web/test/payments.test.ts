@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { assessMercadoPagoAccount, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import { assessMercadoPagoAccount, looksLikePublicKey, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -108,5 +108,16 @@ describe("verificación de la cuenta de Mercado Pago", () => {
   it("token TEST- de una cuenta real: es modo prueba, no cobros reales", () => {
     expect(assessMercadoPagoAccount(real, "test", true)).toEqual({ ok: true, message: "RUNNER360 · credenciales de prueba. Credenciales válidas." });
     expect(assessMercadoPagoAccount(real, "prod", true).ok).toBe(false);
+  });
+});
+
+describe("Public Key copiada en lugar del Access Token", () => {
+  // Valores inventados, armados por partes.
+  const uuid = ["1a2b3c4d", "5e6f", "7a8b", "9c0d", "1e2f3a4b5c6d"].join("-");
+  const token = ["1".repeat(16), "103012", "ab".repeat(16), "9".repeat(9)].join("-");
+  it("distingue la Public Key (UUID) del Access Token", () => {
+    expect(looksLikePublicKey(`APP_USR-${uuid}`)).toBe(true);
+    expect(looksLikePublicKey(`TEST-${uuid}`)).toBe(true);
+    expect(looksLikePublicKey(`APP_USR-${token}`)).toBe(false);
   });
 });
