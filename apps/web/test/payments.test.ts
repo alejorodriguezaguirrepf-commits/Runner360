@@ -1,6 +1,9 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { confirmCheckoutReturn } from "@/lib/payments/process";
+import type { NormalizedSubscriptionEvent, PaymentProvider } from "@/lib/payments/types";
+import { assessMercadoPagoAccount, looksLikePublicKey, mercadoPagoProvider, parseReturnParams, returnSearchParams, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -87,5 +90,65 @@ describe("débitos automáticos de Mercado Pago", () => {
 
   it("sin id no hay débito", () => {
     expect(mapMercadoPagoPayment({ status: "processed" })).toBeNull();
+  });
+});
+
+describe("verificación de la cuenta de Mercado Pago", () => {
+  const real = { id: 1, nickname: "RUNNER360", site_id: "MLA", tags: ["normal"] };
+  const prueba = { id: 2, nickname: "TESTUSER123", site_id: "MLA", tags: ["normal", "test_user"] };
+  it("cuenta coherente con MP_ENV: válida", () => {
+    expect(assessMercadoPagoAccount(real, "prod")).toEqual({ ok: true, message: "RUNNER360 · cuenta real. Credenciales válidas." });
+    expect(assessMercadoPagoAccount(prueba, "test").ok).toBe(true);
+  });
+  it("cuenta de prueba en producción o real en prueba: error", () => {
+    expect(assessMercadoPagoAccount(prueba, "prod")).toMatchObject({ ok: false, message: expect.stringMatching(/cuenta de prueba/) });
+    expect(assessMercadoPagoAccount(real, "test")).toMatchObject({ ok: false, message: expect.stringMatching(/cobros serían reales/) });
+  });
+  it("cuenta de otro país: error; sin MP_ENV: sugiere el valor", () => {
+    expect(assessMercadoPagoAccount({ ...real, site_id: "MLB" }, "prod").ok).toBe(false);
+    expect(assessMercadoPagoAccount(prueba, null).message).toMatch(/MP_ENV=test/);
+  });
+  it("token TEST- de una cuenta real: es modo prueba, no cobros reales", () => {
+    expect(assessMercadoPagoAccount(real, "test", true)).toEqual({ ok: true, message: "RUNNER360 · credenciales de prueba. Credenciales válidas." });
+    expect(assessMercadoPagoAccount(real, "prod", true).ok).toBe(false);
+  });
+});
+
+describe("Public Key copiada en lugar del Access Token", () => {
+  // Valores inventados, armados por partes.
+  const uuid = ["1a2b3c4d", "5e6f", "7a8b", "9c0d", "1e2f3a4b5c6d"].join("-");
+  const token = ["1".repeat(16), "103012", "ab".repeat(16), "9".repeat(9)].join("-");
+  it("distingue la Public Key (UUID) del Access Token", () => {
+    expect(looksLikePublicKey(`APP_USR-${uuid}`)).toBe(true);
+    expect(looksLikePublicKey(`TEST-${uuid}`)).toBe(true);
+    expect(looksLikePublicKey(`APP_USR-${token}`)).toBe(false);
+  });
+});
+
+describe("vuelta del checkout de Mercado Pago", () => {
+  it("toma y valida los ids de la URL de vuelta", () => {
+    expect(parseReturnParams(new URLSearchParams("estado=procesando&preapproval_id=2c9380848f1a2b3c"))).toEqual({ preapprovalId: "2c9380848f1a2b3c", paymentId: null });
+    expect(parseReturnParams(new URLSearchParams("collection_id=123456789&status=approved"))).toEqual({ preapprovalId: null, paymentId: "123456789" });
+    expect(parseReturnParams(new URLSearchParams("preapproval_id=../../x&payment_id=abc"))).toEqual({ preapprovalId: null, paymentId: null });
+  });
+
+  it("entiende la vuelta mal armada con dos signos de pregunta", () => {
+    const params = returnSearchParams({ estado: "procesando?preapproval_id=546ce30b50204897a1e1bf6993cd1b2f" });
+    expect(params.get("estado")).toBe("procesando");
+    expect(parseReturnParams(params).preapprovalId).toBe("546ce30b50204897a1e1bf6993cd1b2f");
+    expect(returnSearchParams({ estado: "procesando", payment_id: ["123", "456"] }).get("payment_id")).toBe("123");
+  });
+
+  const event = (userId: string): NormalizedSubscriptionEvent => ({ providerEventId: "return:1", eventType: "checkout_return", providerSubscriptionId: "pre1", userId, productCode: "premium_monthly", status: "active", currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null });
+  const fakeProvider = (userId: string): PaymentProvider => ({ ...mercadoPagoProvider, isConfigured: () => true, eventFromReturn: async () => event(userId) });
+
+  it("no aplica una operación de otra persona (ni toca la base)", async () => {
+    const admin = new Proxy({}, { get: () => { throw new Error("no debería usar la base"); } }) as SupabaseClient;
+    expect(await confirmCheckoutReturn(fakeProvider("otro-usuario"), new URLSearchParams("preapproval_id=abc123"), "yo", admin)).toBe("ignored");
+  });
+
+  it("sin configuración o sin clave de servicio: no hace nada", async () => {
+    expect(await confirmCheckoutReturn(fakeProvider("yo"), new URLSearchParams(), "yo", null)).toBe("ignored");
+    expect(await confirmCheckoutReturn(null, new URLSearchParams(), "yo", null)).toBe("ignored");
   });
 });

@@ -99,6 +99,48 @@ export function parseExternalReference(ref: unknown): { userId: string | null; p
   return m ? { userId: m[1] ?? null, productCode: m[2] ?? null } : { userId: null, productCode: null };
 }
 
+export type MpAccountCheck = { ok: boolean; message: string };
+
+/**
+ * Evalúa la cuenta dueña del Access Token (GET /users/me) frente a MP_ENV (pura, testeable).
+ * Es de prueba si la cuenta trae la etiqueta "test_user" (token APP_USR- de un usuario de prueba) o si
+ * el token es TEST- (credenciales de prueba de una cuenta real: /users/me informa la cuenta real).
+ */
+export function assessMercadoPagoAccount(me: Record<string, unknown>, mpEnv: "test" | "prod" | null, testToken = false): MpAccountCheck {
+  const tags = Array.isArray(me.tags) ? me.tags.map(String) : [];
+  const isTest = testToken || tags.includes("test_user");
+  const who = `${typeof me.nickname === "string" ? me.nickname : `cuenta ${String(me.id ?? "?")}`} · ${testToken ? "credenciales de prueba" : isTest ? "cuenta de prueba" : "cuenta real"}`;
+  if (me.site_id !== "MLA") return { ok: false, message: `${who}: no es una cuenta de Argentina (${String(me.site_id ?? "?")}). Los cobros son en pesos argentinos.` };
+  if (mpEnv === "prod" && isTest) return { ok: false, message: `${who}: MP_ENV=prod pero el token es de una cuenta de prueba.` };
+  if (mpEnv === "test" && !isTest) return { ok: false, message: `${who}: MP_ENV=test pero el token es de una cuenta real (los cobros serían reales).` };
+  if (!mpEnv) return { ok: true, message: `${who}. Definí MP_ENV=${isTest ? "test" : "prod"} para activar la validación.` };
+  return { ok: true, message: `${who}. Credenciales válidas.` };
+}
+
+/** La Public Key tiene forma de UUID (TEST-xxxxxxxx-xxxx-…); el Access Token, TEST-<números>-<fecha>-<hex>-<números>. */
+export function looksLikePublicKey(token: string): boolean {
+  return /^(TEST|APP_USR)-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token);
+}
+
+/** Verifica el Access Token contra la API. Nunca expone el token ni datos de pago. */
+export async function checkMercadoPagoAccount(mpEnv: "test" | "prod" | null): Promise<MpAccountCheck> {
+  if (!serverEnv.mercadoPagoAccessToken) return { ok: false, message: "Falta MP_ACCESS_TOKEN." };
+  if (looksLikePublicKey(serverEnv.mercadoPagoAccessToken)) return { ok: false, message: "MP_ACCESS_TOKEN tiene la Public Key. Copiá el Access Token (está en la misma pantalla de credenciales)." };
+  try {
+    const res = await fetch(`${api()}/users/me`, {
+      headers: { Authorization: `Bearer ${serverEnv.mercadoPagoAccessToken}` },
+      signal: AbortSignal.timeout(5000),
+      cache: "no-store",
+    });
+    if (res.status === 401) return { ok: false, message: "Mercado Pago rechazó el Access Token (vencido, revocado o mal copiado)." };
+    if (res.status === 403) return { ok: false, message: "Mercado Pago no le da permiso a este Access Token (403). Revisá que sea el de la aplicación RUNNER 360." };
+    if (!res.ok) return { ok: false, message: `Mercado Pago respondió ${res.status}. Probá más tarde.` };
+    return assessMercadoPagoAccount((await res.json()) as Record<string, unknown>, mpEnv, serverEnv.mercadoPagoAccessToken.startsWith("TEST-"));
+  } catch {
+    return { ok: false, message: "No se pudo contactar a Mercado Pago." };
+  }
+}
+
 async function mpFetch(path: string, init?: RequestInit): Promise<Record<string, unknown>> {
   const res = await fetch(`${api()}${path}`, {
     ...init,
@@ -122,6 +164,58 @@ async function preapprovalEvent(base: NormalizedSubscriptionEvent, id: string): 
     currentPeriodEnd: typeof pre.next_payment_date === "string" ? pre.next_payment_date : null,
     cancelAtPeriodEnd: null,
   };
+}
+
+async function paymentEvent(base: NormalizedSubscriptionEvent, id: string): Promise<NormalizedSubscriptionEvent> {
+  const p = await mpFetch(`/v1/payments/${encodeURIComponent(id)}`);
+  // Los débitos de la suscripción mensual también son "payment": esos llegan por authorized_payment.
+  const meta = (p.metadata ?? {}) as Record<string, unknown>;
+  if (p.operation_type === "recurring_payment" || meta.preapproval_id) return base;
+  const ref = parseExternalReference(p.external_reference);
+  if (!ref.userId || !ref.productCode) return base;
+  const { status, payment } = mapMercadoPagoOneOff(p);
+  return { ...base, prepaid: true, providerSubscriptionId: `payment:${id}`, userId: ref.userId, productCode: ref.productCode, status, payment };
+}
+
+/** Último débito de una suscripción (el primero se cobra al darla de alta). null si no hay o si falla la consulta. */
+async function latestAuthorizedPayment(preapprovalId: string): Promise<NormalizedPayment | null> {
+  try {
+    const res = await mpFetch(`/authorized_payments/search?preapproval_id=${encodeURIComponent(preapprovalId)}`);
+    const results = (Array.isArray(res.results) ? res.results : []) as Record<string, unknown>[];
+    const payments = results.map((ap) => mapMercadoPagoPayment(ap)).filter((p): p is NormalizedPayment => p !== null);
+    return payments.sort((a, b) => Date.parse(b.paidAt) - Date.parse(a.paidAt))[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parámetros con los que Mercado Pago vuelve a la app (pura, testeable): `preapproval_id` en la
+ * suscripción mensual; `payment_id` (o `collection_id`) en Checkout Pro. Se validan antes de consultar la API.
+ */
+export function parseReturnParams(params: URLSearchParams): { preapprovalId: string | null; paymentId: string | null } {
+  const pre = params.get("preapproval_id");
+  const pay = params.get("payment_id") ?? params.get("collection_id");
+  return {
+    preapprovalId: pre && /^[a-z0-9]{6,64}$/i.test(pre) ? pre : null,
+    paymentId: pay && /^\d{1,20}$/.test(pay) ? pay : null,
+  };
+}
+
+/**
+ * Query de la URL de vuelta, tolerando la forma mal armada "?estado=procesando?preapproval_id=…"
+ * (Mercado Pago suma su "?" a una URL que ya tenía query). Pura, testeable.
+ */
+export function returnSearchParams(query: Record<string, string | string[] | undefined>): URLSearchParams {
+  const out = new URLSearchParams();
+  for (const [key, raw] of Object.entries(query)) {
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof value !== "string") continue;
+    const [head = "", ...rest] = value.split("?");
+    out.set(key, head);
+    if (rest.length) for (const [k, v] of new URLSearchParams(rest.join("&"))) if (!out.has(k)) out.set(k, v);
+  }
+  return out;
 }
 
 export const mercadoPagoProvider: PaymentProvider = {
@@ -152,7 +246,8 @@ export const mercadoPagoProvider: PaymentProvider = {
       reason: `RUNNER 360 · ${req.product.name}`,
       external_reference: `${req.userId}:${req.product.code}`,
       payer_email: req.email,
-      back_url: req.successUrl,
+      // Mercado Pago agrega "?preapproval_id=…" a la vuelta aunque la URL ya tenga "?": se manda sin query.
+      back_url: req.successUrl.split("?")[0],
       status: "pending",
       auto_recurring: {
         frequency: 1,
@@ -190,16 +285,7 @@ export const mercadoPagoProvider: PaymentProvider = {
     const base: NormalizedSubscriptionEvent = { providerEventId: eventId, eventType: body.type ?? body.action ?? "unknown", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
     if (!dataId) return base;
     if (body.type === "subscription_preapproval") return preapprovalEvent(base, dataId);
-    if (body.type === "payment" || body.topic === "payment") {
-      const p = await mpFetch(`/v1/payments/${encodeURIComponent(dataId)}`);
-      // Los débitos de la suscripción mensual también son "payment": esos llegan por authorized_payment.
-      const meta = (p.metadata ?? {}) as Record<string, unknown>;
-      if (p.operation_type === "recurring_payment" || meta.preapproval_id) return base;
-      const ref = parseExternalReference(p.external_reference);
-      if (!ref.userId || !ref.productCode) return base;
-      const { status, payment } = mapMercadoPagoOneOff(p);
-      return { ...base, prepaid: true, providerSubscriptionId: `payment:${dataId}`, userId: ref.userId, productCode: ref.productCode, status, payment };
-    }
+    if (body.type === "payment" || body.topic === "payment") return paymentEvent(base, dataId);
     if (body.type === "subscription_authorized_payment") {
       const ap = await mpFetch(`/authorized_payments/${encodeURIComponent(dataId)}`);
       const preId = typeof ap.preapproval_id === "string" ? ap.preapproval_id : null;
@@ -214,6 +300,15 @@ export const mercadoPagoProvider: PaymentProvider = {
       return { ...(await preapprovalEvent(base, preId)), payment };
     }
     return base;
+  },
+
+  async eventFromReturn(params) {
+    if (!this.isConfigured()) return null;
+    const { preapprovalId, paymentId } = parseReturnParams(params);
+    const base: NormalizedSubscriptionEvent = { providerEventId: `return:${preapprovalId ?? paymentId}`, eventType: "checkout_return", providerSubscriptionId: null, userId: null, productCode: null, status: null, currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null };
+    if (preapprovalId) return { ...(await preapprovalEvent(base, preapprovalId)), payment: await latestAuthorizedPayment(preapprovalId) };
+    if (paymentId) return paymentEvent(base, paymentId);
+    return null;
   },
 
   async cancelAtPeriodEnd(id) {

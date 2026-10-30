@@ -60,12 +60,7 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
   }
 
   try {
-    const applied = event.prepaid ? { sub: await applyPrepaidEvent(admin, provider.id, event), recovered: false, graceUntil: null } : await applySubscriptionEvent(admin, provider.id, event);
-    const subscription = applied.sub;
-    if (subscription && event.payment) {
-      await recordPayment(admin, provider.id, subscription, event.payment);
-      await notifyPayment(admin, provider.id, subscription, event.payment, { recovered: applied.recovered, graceUntil: applied.graceUntil });
-    }
+    await applyEvent(admin, provider.id, event);
     await admin.from("payment_events").update({ processed_at: new Date().toISOString() }).eq("id", eventRowId);
   } catch (e) {
     logError(`webhook:${provider.id}:apply`, e);
@@ -73,6 +68,36 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
     // 200 para que el proveedor no reintente indefinidamente; queda visible en administración.
   }
   return { status: 200, body: { received: true } };
+}
+
+/** Aplica el evento (webhook o vuelta del checkout), registra el pago y avisa (sin duplicados). */
+async function applyEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<void> {
+  const applied: Applied = event.prepaid ? { sub: await applyPrepaidEvent(admin, provider, event), recovered: false, graceUntil: null } : await applySubscriptionEvent(admin, provider, event);
+  if (applied.sub && event.payment) {
+    await recordPayment(admin, provider, applied.sub, event.payment);
+    await notifyPayment(admin, provider, applied.sub, event.payment, { recovered: applied.recovered, graceUntil: applied.graceUntil });
+  }
+}
+
+export type ReturnOutcome = "active" | "pending" | "ignored";
+
+/**
+ * Vuelta del checkout: consulta al proveedor el estado real de la operación y lo aplica igual que el
+ * webhook, sin esperarlo (el webhook sigue haciendo falta para las renovaciones). Solo se aplica si la
+ * operación pertenece a quien vuelve (external_reference); los parámetros de la URL no se creen.
+ * Idempotente: repetirlo o que llegue también el webhook no duplica nada.
+ */
+export async function confirmCheckoutReturn(provider: PaymentProvider | null, params: URLSearchParams, userId: string, admin: SupabaseClient | null): Promise<ReturnOutcome> {
+  if (!provider?.eventFromReturn || !provider.isConfigured() || !admin) return "ignored";
+  try {
+    const event = await provider.eventFromReturn(params);
+    if (!event || event.userId !== userId || !event.providerSubscriptionId || !event.status) return "ignored";
+    await applyEvent(admin, provider.id, event);
+    return event.status === "active" ? "active" : "pending";
+  } catch (e) {
+    logError(`checkout-return:${provider.id}`, e);
+    return "ignored";
+  }
 }
 
 type SubscriptionRef = { id: string; user_id: string };

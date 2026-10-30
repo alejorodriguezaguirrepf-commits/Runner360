@@ -50,7 +50,7 @@ export function readPaymentsConfig(env: Env): PaymentsConfig {
  * faltantes, entorno inválido o credenciales de prueba en producción detienen la app.
  * Las credenciales de prueba de Mercado Pago empiezan con "TEST-"; las de producción, con "APP_USR-".
  * (Las cuentas de prueba de suscripciones también usan "APP_USR-": eso se verifica contra la API con
- * `pnpm payments:check`.)
+ * la verificación de cuenta del panel de administración: checkMercadoPagoAccount en mercadopago.ts.)
  */
 export function paymentsConfigProblems(env: Env): { errors: string[]; warnings: string[] } {
   const c = readPaymentsConfig(env);
