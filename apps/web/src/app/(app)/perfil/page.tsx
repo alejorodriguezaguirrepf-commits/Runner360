@@ -5,6 +5,8 @@ import { hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { loadTrainingProfile } from "@/lib/data/training";
 import { t } from "@/i18n";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+import { PushToggle } from "@/components/notifications/push-toggle";
+import { isPushConfigured, vapidPublicKey } from "@/lib/notifications/push";
 import { DeleteAccountForm, DeleteHealthDataForm, IncidentForm, RevokeHealthButton } from "./account-forms";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -50,6 +52,13 @@ export default async function ProfilePage() {
           <p className="mb-3 text-sm text-muted">Elegí cómo se ve la aplicación en este dispositivo.</p>
           <ThemeSwitcher />
         </Card>
+        {isPushConfigured() ? (
+          <Card>
+            <CardTitle>Avisos</CardTitle>
+            <p className="mb-3 text-sm text-muted">Te avisamos si hay un problema con el cobro de tu suscripción.</p>
+            <PushToggle vapidPublicKey={vapidPublicKey()} />
+          </Card>
+        ) : null}
         {tp ? (
           <Card>
             <CardTitle>Perfil de corredor</CardTitle>

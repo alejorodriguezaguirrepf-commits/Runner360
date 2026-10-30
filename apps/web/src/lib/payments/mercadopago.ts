@@ -22,7 +22,8 @@ import {
  * automática y con cuotas. Llega como evento "payment"; el período lo calcula lib/payments/process.ts.
  */
 
-const API = "https://api.mercadopago.com";
+// MP_API_BASE solo para pruebas locales (servidor simulado de Mercado Pago); en producción, la API real.
+const api = () => process.env.MP_API_BASE?.trim() || "https://api.mercadopago.com";
 
 export function mapMercadoPagoStatus(s: string): SubscriptionStatus {
   switch (s) {
@@ -40,10 +41,11 @@ export function mapMercadoPagoStatus(s: string): SubscriptionStatus {
 /** Estado de un débito de la suscripción (authorized_payment). Solo "approved" libera un mes. */
 export function mapMercadoPagoPayment(ap: Record<string, unknown>, now = new Date().toISOString()): NormalizedPayment | null {
   if (ap.id === undefined || ap.id === null) return null;
-  const payment = (ap.payment ?? {}) as { id?: unknown; status?: unknown };
+  const payment = (ap.payment ?? {}) as { id?: unknown; status?: unknown; status_detail?: unknown };
   const ps = String(payment.status ?? "");
   const status: PaymentStatus =
     ps === "approved" ? "approved" : ps === "refunded" || ps === "charged_back" ? "refunded" : ps === "rejected" || ps === "cancelled" || ap.status === "cancelled" ? "rejected" : "pending";
+  const detail = [payment.status_detail, ap.rejection_code, ap.status_detail].find((d): d is string => typeof d === "string" && d.length > 0);
   const amount = typeof ap.transaction_amount === "number" ? Math.round(ap.transaction_amount * 100) : null;
   const when = [ap.debit_date, ap.last_modified, ap.date_created].find((d): d is string => typeof d === "string" && !Number.isNaN(Date.parse(d)));
   return {
@@ -52,6 +54,7 @@ export function mapMercadoPagoPayment(ap: Record<string, unknown>, now = new Dat
     amountMinor: amount,
     currency: typeof ap.currency_id === "string" ? ap.currency_id : null,
     paidAt: when ?? now,
+    ...(status === "rejected" ? { failureCode: detail ?? null } : {}),
   };
 }
 
@@ -97,7 +100,7 @@ export function parseExternalReference(ref: unknown): { userId: string | null; p
 }
 
 async function mpFetch(path: string, init?: RequestInit): Promise<Record<string, unknown>> {
-  const res = await fetch(`${API}${path}`, {
+  const res = await fetch(`${api()}${path}`, {
     ...init,
     headers: { Authorization: `Bearer ${serverEnv.mercadoPagoAccessToken}`, "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
@@ -201,7 +204,14 @@ export const mercadoPagoProvider: PaymentProvider = {
       const ap = await mpFetch(`/authorized_payments/${encodeURIComponent(dataId)}`);
       const preId = typeof ap.preapproval_id === "string" ? ap.preapproval_id : null;
       if (!preId) return base;
-      return { ...(await preapprovalEvent(base, preId)), payment: mapMercadoPagoPayment(ap) };
+      const payment = mapMercadoPagoPayment(ap);
+      // Sin motivo en el débito: se consulta el pago (status_detail) para explicarle al usuario qué pasó.
+      const paymentId = (ap.payment as { id?: unknown } | undefined)?.id;
+      if (payment?.status === "rejected" && !payment.failureCode && paymentId) {
+        const p = await mpFetch(`/v1/payments/${encodeURIComponent(String(paymentId))}`).catch(() => null);
+        if (p && typeof p.status_detail === "string") payment.failureCode = p.status_detail;
+      }
+      return { ...(await preapprovalEvent(base, preId)), payment };
     }
     return base;
   },

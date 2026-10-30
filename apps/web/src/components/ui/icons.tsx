@@ -88,6 +88,9 @@ export const IconLock = (p: IconProps) => (
 export const IconList = (p: IconProps) => (
   <Svg {...p}><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1" /><circle cx="4.5" cy="12" r="1" /><circle cx="4.5" cy="18" r="1" /></Svg>
 );
+export const IconBell = (p: IconProps) => (
+  <Svg {...p}><path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8" /><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0" /></Svg>
+);
 export const IconChevronLeft = (p: IconProps) => (
   <Svg {...p}><path d="m15 6-6 6 6 6" /></Svg>
 );

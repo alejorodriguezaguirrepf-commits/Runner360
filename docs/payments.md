@@ -37,6 +37,8 @@ Solo servidor: ninguna empieza con `NEXT_PUBLIC_`. Nunca se suben al repositorio
 | `MP_WEBHOOK_SECRET` | Clave secreta de *Tus integraciones → Webhooks*. |
 | `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` (la URL pública de toda la app; también adonde vuelve Mercado Pago). `APP_BASE_URL` se acepta como nombre anterior. |
 | `FX_SOURCE`, `FX_RATE_TYPE` | Ver arriba. |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Claves de las notificaciones push (`npx web-push generate-vapid-keys`). Sin ellas no hay push. |
+| `RESEND_API_KEY` | Clave de Resend para los mails al admin. Sin ella no se mandan mails. Opcionales: `ADMIN_NOTIFICATIONS_EMAIL` (destinatario) y `RESEND_FROM` (remitente). |
 | `CRON_SECRET` | Secreto de las tareas programadas. Generalo con `openssl rand -hex 32`. Sin él, la tarea diaria no corre (la cotización igual se actualiza con las visitas). |
 
 Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET`. Sin `MP_ENV` la app funciona como antes y deja un aviso en el registro.
@@ -97,9 +99,19 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 - **Vercel → Settings → Deployment Protection:** "Vercel Authentication" en **Standard Protection** (protege solo las vistas previas). Compartí siempre `https://runner360.vercel.app`.
 - **Supabase → Authentication → URL Configuration:** *Site URL* = `https://runner360.vercel.app` y en *Redirect URLs* `https://runner360.vercel.app/**`.
 
+## Notificaciones de pagos
+
+- **Al admin**, por cada pago acreditado (primer pago o renovación), débito rechazado, pago regularizado y acceso cortado: notificación en el panel (campana con contador en `/admin/notificaciones`, filtro por tipo, marcar como leídas, link a la ficha del usuario) y, según los canales activos en esa misma página, **mail** (Resend) y **push**.
+- **Pagos con problemas** (`/admin/pagos`): débitos rechazados de los últimos 90 días con usuario, plan, monto, motivo y estado (en gracia, regularizado o acceso cortado).
+- **Al usuario**, cuando un débito es rechazado: cartel fijo arriba de la app (no se puede cerrar, no bloquea) con el motivo en lenguaje claro y el botón **Actualizar medio de pago** (`mercadopago.com.ar/subscriptions`), más push si lo activó en *Perfil → Avisos*. Mientras la cuenta no tenga dominio propio verificado en Resend, los mails van solo al admin.
+- **Período de gracia: 5 días.** Con un débito rechazado la suscripción pasa a `past_due` y conserva el acceso hasta `grace_until` (Mercado Pago reintenta hasta 4 veces en 10 días). Un débito aprobado la regulariza (sale el cartel y se confirma que está todo en orden). Si vence la gracia sin cobro, la tarea diaria (`/api/cron/diario`) corta el acceso (`expired`) y avisa.
+- **Sin duplicados:** cada aviso tiene una clave única por pago y estado (`admin_notifications.dedupe_key`, `user_notices.dedupe_key`); si Mercado Pago repite el aviso, se notifica una vez.
+- **Push en iPhone:** solo con la app instalada en la pantalla de inicio (iOS 16.4 o posterior).
+- **Pruebas:** `e2e/payment-notifications.spec.ts` manda avisos firmados como Mercado Pago contra una API simulada. Correr la web con `MP_ACCESS_TOKEN=TEST-e2e`, `MP_WEBHOOK_SECRET=e2e-webhook-secret`, `MP_API_BASE=http://127.0.0.1:4599` y `CRON_SECRET=e2e-cron-secret`, y Playwright con `E2E_PAYMENTS=1`. `MP_API_BASE` es solo para pruebas locales.
+
 ## Pendiente en los próximos PR
 
 - *(PR 2)* Script del plan (`preapproval_plan`), alta, verificación de credenciales contra la API (`pnpm payments:check`).
-- *(PR 3)* Webhooks en segundo plano, período de gracia, acceso hasta el fin del período, conciliación diaria.
-- *(PR 4)* Botón de baja, historial de pagos, actualizar medio de pago.
+- *(PR 3)* Webhooks en segundo plano y conciliación diaria (el período de gracia ya está, ver Notificaciones).
+- *(PR 4)* Botón de baja e historial de pagos.
 - *(PR 5)* Panel de administración, prueba de punta a punta en modo prueba y **checklist de producción paso a paso**.

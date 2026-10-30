@@ -1,6 +1,8 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { logError } from "@/lib/log";
+import { notifyPayment } from "@/lib/notifications/payments";
+import { graceEnd } from "@/lib/notifications/payment-texts";
 import { prepaidPeriod } from "./annual";
 import type { NormalizedPayment, NormalizedSubscriptionEvent, PaymentProvider, WebhookInput } from "./types";
 
@@ -16,6 +18,8 @@ export type WebhookOutcome =
  *  3. Aplica el cambio de estado sobre subscriptions con service_role.
  *  4. Si el evento trae un débito automático, lo registra en subscription_payments (cada débito
  *     aprobado libera un mes del plan en curso; ver enrollment_open_weeks en la base).
+ *  5. Débito rechazado: la suscripción pasa a past_due con 5 días de gracia (Mercado Pago
+ *     reintenta el cobro); uno aprobado la regulariza. Avisa al admin y al usuario (sin duplicados).
  */
 export async function processWebhook(provider: PaymentProvider, input: WebhookInput, admin: SupabaseClient | null): Promise<WebhookOutcome> {
   if (!provider.isConfigured() || !admin) return { status: 503, body: { error: "Integración de pagos pendiente de configuración" } };
@@ -56,8 +60,12 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
   }
 
   try {
-    const subscription = event.prepaid ? await applyPrepaidEvent(admin, provider.id, event) : await applySubscriptionEvent(admin, provider.id, event);
-    if (subscription && event.payment) await recordPayment(admin, provider.id, subscription, event.payment);
+    const applied = event.prepaid ? { sub: await applyPrepaidEvent(admin, provider.id, event), recovered: false, graceUntil: null } : await applySubscriptionEvent(admin, provider.id, event);
+    const subscription = applied.sub;
+    if (subscription && event.payment) {
+      await recordPayment(admin, provider.id, subscription, event.payment);
+      await notifyPayment(admin, provider.id, subscription, event.payment, { recovered: applied.recovered, graceUntil: applied.graceUntil });
+    }
     await admin.from("payment_events").update({ processed_at: new Date().toISOString() }).eq("id", eventRowId);
   } catch (e) {
     logError(`webhook:${provider.id}:apply`, e);
@@ -68,26 +76,53 @@ export async function processWebhook(provider: PaymentProvider, input: WebhookIn
 }
 
 type SubscriptionRef = { id: string; user_id: string };
+type Applied = { sub: SubscriptionRef | null; recovered: boolean; graceUntil: string | null };
 
-async function applySubscriptionEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<SubscriptionRef> {
+/**
+ * Estado de una suscripción mensual según el débito del evento (pura, testeable):
+ *  - rechazado: past_due con gracia (se conserva la gracia ya abierta para no extenderla con cada reintento);
+ *  - aprobado: activa, sin gracia (si venía con problemas, se regulariza);
+ *  - sin débito: un aviso de "autorizada" no saca de past_due ni de expired (eso lo decide un débito aprobado).
+ */
+export function debitStatus(
+  existing: { status: string; grace_until: string | null } | null,
+  eventStatus: string | null,
+  payment: { status: string } | null | undefined,
+  now = new Date(),
+): { status?: string; graceUntil?: string | null; recovered: boolean } {
+  const troubled = existing?.status === "past_due" || existing?.status === "expired";
+  if (payment?.status === "rejected" && eventStatus !== "cancelled") {
+    const open = existing?.status === "past_due" && existing.grace_until && new Date(existing.grace_until) > now;
+    return { status: "past_due", graceUntil: open ? existing.grace_until : graceEnd(now).toISOString(), recovered: false };
+  }
+  if (payment?.status === "approved" && eventStatus !== "cancelled") return { status: "active", graceUntil: null, recovered: troubled };
+  if (troubled && eventStatus === "active") return { recovered: false };
+  return { status: eventStatus ?? undefined, recovered: false };
+}
+
+async function applySubscriptionEvent(admin: SupabaseClient, provider: string, event: NormalizedSubscriptionEvent): Promise<Applied> {
   const { data: existing } = await admin
     .from("subscriptions")
-    .select("id, user_id")
+    .select("id, user_id, status, grace_until")
     .eq("provider", provider)
     .eq("provider_subscription_id", event.providerSubscriptionId)
-    .maybeSingle<SubscriptionRef>();
+    .maybeSingle<SubscriptionRef & { status: string; grace_until: string | null }>();
 
-  const changes: Record<string, unknown> = { status: event.status };
+  const debit = debitStatus(existing ?? null, event.status, event.payment);
+  const changes: Record<string, unknown> = {};
+  if (debit.status) changes.status = debit.status;
+  if (debit.graceUntil !== undefined) changes.grace_until = debit.graceUntil;
   if (event.currentPeriodStart) changes.current_period_start = event.currentPeriodStart;
   if (event.currentPeriodEnd) changes.current_period_end = event.currentPeriodEnd;
   if (event.cancelAtPeriodEnd !== null) changes.cancel_at_period_end = event.cancelAtPeriodEnd;
   if (event.status === "cancelled") changes.cancelled_at = new Date().toISOString();
-  if (event.status === "active") changes.started_at = event.currentPeriodStart ?? new Date().toISOString();
+  if (debit.status === "active") changes.started_at = event.currentPeriodStart ?? new Date().toISOString();
+  const result = (sub: SubscriptionRef): Applied => ({ sub, recovered: debit.recovered, graceUntil: (changes.grace_until as string | null | undefined) ?? existing?.grace_until ?? null });
 
   if (existing) {
     const { error } = await admin.from("subscriptions").update(changes).eq("id", existing.id);
     if (error) throw new Error(error.message);
-    return existing;
+    return result({ id: existing.id, user_id: existing.user_id });
   }
   if (!event.userId || !event.productCode) throw new Error("Evento sin referencia de usuario o producto");
   const { data: product } = await admin.from("subscription_products").select("id").eq("code", event.productCode).maybeSingle<{ id: string }>();
@@ -104,7 +139,7 @@ async function applySubscriptionEvent(admin: SupabaseClient, provider: string, e
     .select("id, user_id")
     .single<SubscriptionRef>();
   if (error || !created) throw new Error(error?.message ?? "No se pudo crear la suscripción");
-  return created;
+  return result(created);
 }
 
 type PrepaidRow = SubscriptionRef & { status: string; current_period_start: string | null; current_period_end: string | null };
@@ -184,6 +219,7 @@ async function recordPayment(admin: SupabaseClient, provider: string, subscripti
       amount_minor: payment.amountMinor,
       currency: payment.currency,
       paid_at: payment.paidAt,
+      failure_code: payment.status === "rejected" ? (payment.failureCode ?? null) : null,
     },
     { onConflict: "provider,provider_payment_id" },
   );

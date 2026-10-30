@@ -37,6 +37,8 @@ export interface NormalizedPayment {
   amountMinor: number | null;
   currency: string | null;
   paidAt: string;
+  /** Motivo de un débito rechazado (status_detail de Mercado Pago, p. ej. cc_rejected_insufficient_amount). */
+  failureCode?: string | null;
 }
 
 export interface WebhookInput {

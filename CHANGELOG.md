@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-10-30 — Notificaciones de pagos y débitos rechazados
+
+- **Admin:** campana con contador y página de notificaciones (pagos acreditados con detalle de usuario, plan, monto, fecha, primer pago o renovación e ID de Mercado Pago; débitos rechazados; pagos regularizados; accesos cortados), con filtro por tipo y marcar como leídas. Mail y push activables desde el panel.
+- **Pagos con problemas:** listado de débitos rechazados con motivo y estado.
+- **Usuario:** si falla el débito automático, cartel con el motivo y el botón para actualizar el medio de pago, y push si lo activó. 5 días de gracia mientras Mercado Pago reintenta; si no se cobra, se pausa el acceso y se avisa; si se cobra, se confirma que está todo en orden.
+- Sin avisos duplicados aunque Mercado Pago repita el evento.
+
 ## 2026-10-25 — Registro en un paso
 
 - **Sin correo de confirmación:** al tocar «Comenzar gratis» se crea la cuenta, la sesión queda iniciada y se pasa a las preguntas del plan. Se quitaron los textos de «revisá tu correo» y «confirmá tu cuenta».

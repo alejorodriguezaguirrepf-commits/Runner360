@@ -6,6 +6,7 @@ import { AnnualExpiryNotice } from "@/components/app/annual-notice";
 import { signOutAction } from "@/lib/actions/auth";
 import { ViewAsBanner } from "@/components/app/view-as-banner";
 import { InstallBanner } from "@/components/pwa/install";
+import { PaymentNotice } from "@/components/notifications/payment-notice";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requireOnboardedSession();
@@ -39,6 +40,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </form>
         </header>
         <main id="contenido" className="mx-auto max-w-5xl px-4 pb-28 pt-6 sm:px-6 lg:pb-12 lg:pt-10">
+          <PaymentNotice supabase={session.supabase} userId={session.user.id} />
           <AnnualExpiryNotice until={annualUntil} />
           <InstallBanner />
           <MobileMoreLinks isAdmin={isAdmin} />
