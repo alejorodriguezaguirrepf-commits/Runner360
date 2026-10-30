@@ -65,7 +65,7 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
    | `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` |
    | `CRON_SECRET` | una clave larga al azar (`openssl rand -hex 32`) |
    Borrá las variables viejas `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET` si existen. **Redeploy.**
-5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado*.
+5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado* y, en *Cuenta de Mercado Pago*, «cuenta de prueba. Credenciales válidas.» (la app consulta a Mercado Pago con el token y avisa si el token fue rechazado, si la cuenta no es de Argentina o si no coincide con `MP_ENV`).
 
 ### 3. Prueba completa (modo prueba)
 1. En la app, creá una cuenta con **el correo del comprador de prueba** (Mercado Pago exige que quien paga sea una cuenta de prueba).
@@ -78,7 +78,14 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 1. Con tu cuenta real de Mercado Pago: aplicación → **Credenciales de producción** → completá los datos que pide y copiá el **Access Token** (`APP_USR-…`).
 2. En la aplicación real → **Webhooks** → misma URL y mismos eventos → copiá la **nueva clave secreta**.
 3. En Vercel: `MP_ENV` = `prod`, `MP_ACCESS_TOKEN` y `MP_WEBHOOK_SECRET` con los valores reales. **Redeploy.** (Si `prod` se combina con un token `TEST-`, la app no arranca a propósito.)
-4. Hacé una suscripción real con tu tarjeta desde una cuenta común de la app (no la de administrador, que no paga). Verificá el cobro en Mercado Pago y en el panel, cancelá y devolvé el pago desde Mercado Pago (Actividad → el cobro → *Devolver dinero*).
+4. En el panel, *Cuenta de Mercado Pago* tiene que decir «cuenta real. Credenciales válidas.».
+5. Hacé una suscripción real con tu tarjeta desde una cuenta común de la app (no la de administrador, que no paga). Verificá el cobro en Mercado Pago y en el panel, cancelá y devolvé el pago desde Mercado Pago (Actividad → el cobro → *Devolver dinero*).
+
+## Cosas a tener en cuenta
+
+- **El correo tiene que coincidir.** La suscripción mensual se crea con el correo de la cuenta de RUNNER 360 (`payer_email`). Si la persona entra a Mercado Pago con otra cuenta, Mercado Pago puede rechazar el alta. Conviene avisarlo en la pantalla de pago si aparecen casos.
+- **Mensual = Suscripciones sin plan** (`/preapproval` con `auto_recurring`): el importe en pesos se fija al momento del alta con la cotización del día.
+- **Anual = Checkout Pro** (`/checkout/preferences`): admite cuotas, tarjetas, dinero en cuenta y efectivo.
 
 ## Plan anual (pago único por 12 meses)
 
@@ -99,7 +106,7 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 
 ## Pendiente en los próximos PR
 
-- *(PR 2)* Script del plan (`preapproval_plan`), alta, verificación de credenciales contra la API (`pnpm payments:check`).
+- *(PR 2)* Script del plan (`preapproval_plan`), alta, ~~verificación de credenciales contra la API~~ (hecho: panel de administración → *Cuenta de Mercado Pago*).
 - *(PR 3)* Webhooks en segundo plano, período de gracia, acceso hasta el fin del período, conciliación diaria.
 - *(PR 4)* Botón de baja, historial de pagos, actualizar medio de pago.
 - *(PR 5)* Panel de administración, prueba de punta a punta en modo prueba y **checklist de producción paso a paso**.

@@ -4,8 +4,10 @@ import { BarChart, type BarDatum } from "@/components/charts/bar-chart";
 import { Alert, Card, CardTitle, PageHeader, Stat } from "@/components/ui/primitives";
 import { startViewAsAction } from "@/lib/actions/view-as";
 import { requireAdmin } from "@/lib/auth";
-import { isServiceRoleConfigured } from "@/lib/env.server";
+import { isServiceRoleConfigured, serverEnv } from "@/lib/env.server";
 import { formatListPrice } from "@/lib/money";
+import { readPaymentsConfig } from "@/lib/payments/config";
+import { checkMercadoPagoAccount } from "@/lib/payments/mercadopago";
 import { PROVIDERS } from "@/lib/payments/registry";
 
 export const metadata: Metadata = { title: "Administración", robots: { index: false, follow: false } };
@@ -43,7 +45,10 @@ function lastMonths(n: number): string[] {
 
 export default async function AdminHome() {
   const { supabase } = await requireAdmin();
-  const { data, error } = await supabase.rpc("admin_dashboard");
+  const [{ data, error }, mpCheck] = await Promise.all([
+    supabase.rpc("admin_dashboard"),
+    serverEnv.mercadoPagoAccessToken ? checkMercadoPagoAccount(readPaymentsConfig(process.env).mpEnv) : Promise.resolve(null),
+  ]);
   const d = data as Dashboard | null;
 
   const months = lastMonths(12);
@@ -209,6 +214,9 @@ export default async function AdminHome() {
               {Object.values(PROVIDERS).map((p) => (
                 <li key={p.id} className="flex justify-between gap-3"><span>{p.label}</span><span className={p.isConfigured() ? "text-success" : "text-warning"}>{p.isConfigured() ? "Configurado" : "Pendiente de configuración"}</span></li>
               ))}
+              {mpCheck ? (
+                <li className="flex justify-between gap-3"><span>Cuenta de Mercado Pago</span><span className={`text-right ${mpCheck.ok ? "text-success" : "text-warning"}`}>{mpCheck.message}</span></li>
+              ) : null}
               <li className="flex justify-between gap-3"><span>Clave de servicio (webhooks, eliminación de cuentas)</span><span className={isServiceRoleConfigured() ? "text-success" : "text-warning"}>{isServiceRoleConfigured() ? "Configurada" : "Pendiente"}</span></li>
             </ul>
           </Card>

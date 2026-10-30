@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import { assessMercadoPagoAccount, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -87,5 +87,22 @@ describe("débitos automáticos de Mercado Pago", () => {
 
   it("sin id no hay débito", () => {
     expect(mapMercadoPagoPayment({ status: "processed" })).toBeNull();
+  });
+});
+
+describe("verificación de la cuenta de Mercado Pago", () => {
+  const real = { id: 1, nickname: "RUNNER360", site_id: "MLA", tags: ["normal"] };
+  const prueba = { id: 2, nickname: "TESTUSER123", site_id: "MLA", tags: ["normal", "test_user"] };
+  it("cuenta coherente con MP_ENV: válida", () => {
+    expect(assessMercadoPagoAccount(real, "prod")).toEqual({ ok: true, message: "RUNNER360 · cuenta real. Credenciales válidas." });
+    expect(assessMercadoPagoAccount(prueba, "test").ok).toBe(true);
+  });
+  it("cuenta de prueba en producción o real en prueba: error", () => {
+    expect(assessMercadoPagoAccount(prueba, "prod")).toMatchObject({ ok: false, message: expect.stringMatching(/cuenta de prueba/) });
+    expect(assessMercadoPagoAccount(real, "test")).toMatchObject({ ok: false, message: expect.stringMatching(/cobros serían reales/) });
+  });
+  it("cuenta de otro país: error; sin MP_ENV: sugiere el valor", () => {
+    expect(assessMercadoPagoAccount({ ...real, site_id: "MLB" }, "prod").ok).toBe(false);
+    expect(assessMercadoPagoAccount(prueba, null).message).toMatch(/MP_ENV=test/);
   });
 });

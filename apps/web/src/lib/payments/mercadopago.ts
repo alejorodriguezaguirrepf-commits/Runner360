@@ -96,6 +96,40 @@ export function parseExternalReference(ref: unknown): { userId: string | null; p
   return m ? { userId: m[1] ?? null, productCode: m[2] ?? null } : { userId: null, productCode: null };
 }
 
+export type MpAccountCheck = { ok: boolean; message: string };
+
+/**
+ * Evalúa la cuenta dueña del Access Token (GET /users/me) frente a MP_ENV (pura, testeable).
+ * Las cuentas de prueba traen la etiqueta "test_user" aunque su token empiece con APP_USR-.
+ */
+export function assessMercadoPagoAccount(me: Record<string, unknown>, mpEnv: "test" | "prod" | null): MpAccountCheck {
+  const tags = Array.isArray(me.tags) ? me.tags.map(String) : [];
+  const isTest = tags.includes("test_user");
+  const who = `${typeof me.nickname === "string" ? me.nickname : `cuenta ${String(me.id ?? "?")}`} · ${isTest ? "cuenta de prueba" : "cuenta real"}`;
+  if (me.site_id !== "MLA") return { ok: false, message: `${who}: no es una cuenta de Argentina (${String(me.site_id ?? "?")}). Los cobros son en pesos argentinos.` };
+  if (mpEnv === "prod" && isTest) return { ok: false, message: `${who}: MP_ENV=prod pero el token es de una cuenta de prueba.` };
+  if (mpEnv === "test" && !isTest) return { ok: false, message: `${who}: MP_ENV=test pero el token es de una cuenta real (los cobros serían reales).` };
+  if (!mpEnv) return { ok: true, message: `${who}. Definí MP_ENV=${isTest ? "test" : "prod"} para activar la validación.` };
+  return { ok: true, message: `${who}. Credenciales válidas.` };
+}
+
+/** Verifica el Access Token contra la API. Nunca expone el token ni datos de pago. */
+export async function checkMercadoPagoAccount(mpEnv: "test" | "prod" | null): Promise<MpAccountCheck> {
+  if (!serverEnv.mercadoPagoAccessToken) return { ok: false, message: "Falta MP_ACCESS_TOKEN." };
+  try {
+    const res = await fetch(`${API}/users/me`, {
+      headers: { Authorization: `Bearer ${serverEnv.mercadoPagoAccessToken}` },
+      signal: AbortSignal.timeout(5000),
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) return { ok: false, message: "Mercado Pago rechazó el Access Token (vencido, revocado o mal copiado)." };
+    if (!res.ok) return { ok: false, message: `Mercado Pago respondió ${res.status}. Probá más tarde.` };
+    return assessMercadoPagoAccount((await res.json()) as Record<string, unknown>, mpEnv);
+  } catch {
+    return { ok: false, message: "No se pudo contactar a Mercado Pago." };
+  }
+}
+
 async function mpFetch(path: string, init?: RequestInit): Promise<Record<string, unknown>> {
   const res = await fetch(`${API}${path}`, {
     ...init,
