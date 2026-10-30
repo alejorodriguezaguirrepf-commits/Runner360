@@ -105,4 +105,8 @@ describe("verificación de la cuenta de Mercado Pago", () => {
     expect(assessMercadoPagoAccount({ ...real, site_id: "MLB" }, "prod").ok).toBe(false);
     expect(assessMercadoPagoAccount(prueba, null).message).toMatch(/MP_ENV=test/);
   });
+  it("token TEST- de una cuenta real: es modo prueba, no cobros reales", () => {
+    expect(assessMercadoPagoAccount(real, "test", true)).toEqual({ ok: true, message: "RUNNER360 · credenciales de prueba. Credenciales válidas." });
+    expect(assessMercadoPagoAccount(real, "prod", true).ok).toBe(false);
+  });
 });

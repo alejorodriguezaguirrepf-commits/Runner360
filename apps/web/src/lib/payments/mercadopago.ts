@@ -100,12 +100,13 @@ export type MpAccountCheck = { ok: boolean; message: string };
 
 /**
  * Evalúa la cuenta dueña del Access Token (GET /users/me) frente a MP_ENV (pura, testeable).
- * Las cuentas de prueba traen la etiqueta "test_user" aunque su token empiece con APP_USR-.
+ * Es de prueba si la cuenta trae la etiqueta "test_user" (token APP_USR- de un usuario de prueba) o si
+ * el token es TEST- (credenciales de prueba de una cuenta real: /users/me informa la cuenta real).
  */
-export function assessMercadoPagoAccount(me: Record<string, unknown>, mpEnv: "test" | "prod" | null): MpAccountCheck {
+export function assessMercadoPagoAccount(me: Record<string, unknown>, mpEnv: "test" | "prod" | null, testToken = false): MpAccountCheck {
   const tags = Array.isArray(me.tags) ? me.tags.map(String) : [];
-  const isTest = tags.includes("test_user");
-  const who = `${typeof me.nickname === "string" ? me.nickname : `cuenta ${String(me.id ?? "?")}`} · ${isTest ? "cuenta de prueba" : "cuenta real"}`;
+  const isTest = testToken || tags.includes("test_user");
+  const who = `${typeof me.nickname === "string" ? me.nickname : `cuenta ${String(me.id ?? "?")}`} · ${testToken ? "credenciales de prueba" : isTest ? "cuenta de prueba" : "cuenta real"}`;
   if (me.site_id !== "MLA") return { ok: false, message: `${who}: no es una cuenta de Argentina (${String(me.site_id ?? "?")}). Los cobros son en pesos argentinos.` };
   if (mpEnv === "prod" && isTest) return { ok: false, message: `${who}: MP_ENV=prod pero el token es de una cuenta de prueba.` };
   if (mpEnv === "test" && !isTest) return { ok: false, message: `${who}: MP_ENV=test pero el token es de una cuenta real (los cobros serían reales).` };
@@ -124,7 +125,7 @@ export async function checkMercadoPagoAccount(mpEnv: "test" | "prod" | null): Pr
     });
     if (res.status === 401 || res.status === 403) return { ok: false, message: "Mercado Pago rechazó el Access Token (vencido, revocado o mal copiado)." };
     if (!res.ok) return { ok: false, message: `Mercado Pago respondió ${res.status}. Probá más tarde.` };
-    return assessMercadoPagoAccount((await res.json()) as Record<string, unknown>, mpEnv);
+    return assessMercadoPagoAccount((await res.json()) as Record<string, unknown>, mpEnv, serverEnv.mercadoPagoAccessToken.startsWith("TEST-"));
   } catch {
     return { ok: false, message: "No se pudo contactar a Mercado Pago." };
   }

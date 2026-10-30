@@ -50,9 +50,10 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 2. Nombre: `RUNNER 360`. Tipo de solución: **Pagos online** → **Suscripciones**. ¿Plataforma de e-commerce? **No**.
 
 ### 2. Modo prueba
-1. En la aplicación → **Cuentas de prueba** → creá dos: un **vendedor** y un **comprador** (país Argentina). Anotá usuario y contraseña de cada una.
-2. Abrí una ventana de incógnito, iniciá sesión en Mercado Pago **con el vendedor de prueba**, entrá a *Tus integraciones* y creá ahí también una aplicación de Suscripciones. En **Credenciales de producción** de esa cuenta copiá el **Access Token** (`APP_USR-…`). Para suscripciones, la cuenta vendedora de prueba se usa con sus credenciales "de producción".
-3. **Webhooks** (en la aplicación de la cuenta vendedora de prueba) → **Configurar notificaciones**:
+Mercado Pago ya no permite crear aplicaciones desde una cuenta de prueba («No podés usar credenciales de prueba en un entorno de prueba»): todo se hace desde **tu cuenta real**, en la aplicación del paso 1.
+1. En la aplicación → **Cuentas de prueba** → creá un **comprador** (país Argentina). Anotá usuario y contraseña.
+2. En la aplicación → **Credenciales de prueba** → copiá el **Access Token** (puede empezar con `TEST-` o con `APP_USR-`; la app acepta los dos con `MP_ENV=test`).
+3. **Webhooks** (en la misma aplicación) → **Configurar notificaciones** → pestaña **Modo de prueba**:
    - URL: `https://runner360.vercel.app/api/webhooks/mercadopago`
    - Eventos: **Planes y suscripciones** (marcá *Suscripciones* y *Pagos recurrentes/autorizados*) y **Pagos** (para el plan anual, que es un pago único).
    - Guardá y copiá la **Clave secreta** que se genera.
@@ -60,12 +61,12 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
    | Variable | Valor |
    |---|---|
    | `MP_ENV` | `test` |
-   | `MP_ACCESS_TOKEN` | Access Token del vendedor de prueba (`APP_USR-…`) |
+   | `MP_ACCESS_TOKEN` | Access Token de *Credenciales de prueba* |
    | `MP_WEBHOOK_SECRET` | Clave secreta del webhook |
    | `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` |
    | `CRON_SECRET` | una clave larga al azar (`openssl rand -hex 32`) |
    Borrá las variables viejas `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET` si existen. **Redeploy.**
-5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado* y, en *Cuenta de Mercado Pago*, «cuenta de prueba. Credenciales válidas.» (la app consulta a Mercado Pago con el token y avisa si el token fue rechazado, si la cuenta no es de Argentina o si no coincide con `MP_ENV`).
+5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado* y, en *Cuenta de Mercado Pago*, «credenciales de prueba» o «cuenta de prueba» y «Credenciales válidas.» (la app consulta a Mercado Pago con el token y avisa si el token fue rechazado, si la cuenta no es de Argentina o si no coincide con `MP_ENV`).
 
 ### 3. Prueba completa (modo prueba)
 1. En la app, creá una cuenta con **el correo del comprador de prueba** (Mercado Pago exige que quien paga sea una cuenta de prueba).
