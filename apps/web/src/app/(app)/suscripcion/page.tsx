@@ -6,6 +6,7 @@ import { pricing } from "@/i18n/es-AR/pricing";
 import { Alert, Badge, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { annualAccessUntil, hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { checkoutAvailable, getPricedProducts } from "@/lib/data/pricing";
+import { parseReturnParams, returnSearchParams } from "@/lib/payments/mercadopago";
 import { confirmCheckoutReturn, type ReturnOutcome } from "@/lib/payments/process";
 import { getProvider, PROVIDERS } from "@/lib/payments/registry";
 import { rateLimit } from "@/lib/rate-limit";
@@ -16,16 +17,16 @@ export const metadata: Metadata = { title: "Suscripción" };
 
 const PAYMENT_LABELS: Record<string, string> = { approved: "Aprobado · mes liberado", pending: "En proceso", rejected: "Rechazado", refunded: "Devuelto" };
 
-type ReturnParams = { estado?: string; preapproval_id?: string; payment_id?: string; collection_id?: string };
-
-export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<ReturnParams> }) {
+export default async function SubscriptionPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await requireOnboardedSession();
-  const sp = await searchParams;
-  const { estado } = sp;
-  // Vuelta de Mercado Pago: se confirma el pago en el momento, sin esperar el aviso del webhook.
+  const params = returnSearchParams(await searchParams);
+  const { preapprovalId, paymentId } = parseReturnParams(params);
+  // Vuelta de Mercado Pago (con o sin "estado=procesando"): se confirma el pago en el momento, sin esperar el webhook.
+  // Checkout Pro también vuelve con payment_id cuando el pago se rechaza (status=rejected o null).
+  const rejected = ["rejected", "null"].includes(params.get("status") ?? params.get("collection_status") ?? "");
+  const estado = (preapprovalId || paymentId) && !rejected ? "procesando" : params.get("estado");
   let confirmation: ReturnOutcome = "ignored";
-  if (estado === "procesando" && (sp.preapproval_id || sp.payment_id || sp.collection_id) && rateLimit(`checkout-return:${session.user.id}`, 10, 60_000).ok) {
-    const params = new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => typeof e[1] === "string"));
+  if ((preapprovalId || paymentId) && rateLimit(`checkout-return:${session.user.id}`, 10, 60_000).ok) {
     confirmation = await confirmCheckoutReturn(getProvider("mercadopago"), params, session.user.id, createAdminClient());
   }
   const [products, premium, annualUntil, { data: subs }, { data: payments }] = await Promise.all([

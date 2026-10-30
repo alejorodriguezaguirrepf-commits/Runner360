@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { confirmCheckoutReturn } from "@/lib/payments/process";
 import type { NormalizedSubscriptionEvent, PaymentProvider } from "@/lib/payments/types";
-import { assessMercadoPagoAccount, looksLikePublicKey, mercadoPagoProvider, parseReturnParams, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
+import { assessMercadoPagoAccount, looksLikePublicKey, mercadoPagoProvider, parseReturnParams, returnSearchParams, mapMercadoPagoPayment, mapMercadoPagoStatus, parseExternalReference } from "@/lib/payments/mercadopago";
 import { verifyMercadoPagoSignature, verifyStripeSignature } from "@/lib/payments/signatures";
 import { mapStripeStatus, normalizeStripeEvent } from "@/lib/payments/stripe";
 import { redact } from "@/lib/log";
@@ -130,6 +130,13 @@ describe("vuelta del checkout de Mercado Pago", () => {
     expect(parseReturnParams(new URLSearchParams("estado=procesando&preapproval_id=2c9380848f1a2b3c"))).toEqual({ preapprovalId: "2c9380848f1a2b3c", paymentId: null });
     expect(parseReturnParams(new URLSearchParams("collection_id=123456789&status=approved"))).toEqual({ preapprovalId: null, paymentId: "123456789" });
     expect(parseReturnParams(new URLSearchParams("preapproval_id=../../x&payment_id=abc"))).toEqual({ preapprovalId: null, paymentId: null });
+  });
+
+  it("entiende la vuelta mal armada con dos signos de pregunta", () => {
+    const params = returnSearchParams({ estado: "procesando?preapproval_id=546ce30b50204897a1e1bf6993cd1b2f" });
+    expect(params.get("estado")).toBe("procesando");
+    expect(parseReturnParams(params).preapprovalId).toBe("546ce30b50204897a1e1bf6993cd1b2f");
+    expect(returnSearchParams({ estado: "procesando", payment_id: ["123", "456"] }).get("payment_id")).toBe("123");
   });
 
   const event = (userId: string): NormalizedSubscriptionEvent => ({ providerEventId: "return:1", eventType: "checkout_return", providerSubscriptionId: "pre1", userId, productCode: "premium_monthly", status: "active", currentPeriodStart: null, currentPeriodEnd: null, cancelAtPeriodEnd: null });

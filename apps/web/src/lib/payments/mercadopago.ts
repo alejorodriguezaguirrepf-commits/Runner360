@@ -199,6 +199,22 @@ export function parseReturnParams(params: URLSearchParams): { preapprovalId: str
   };
 }
 
+/**
+ * Query de la URL de vuelta, tolerando la forma mal armada "?estado=procesando?preapproval_id=…"
+ * (Mercado Pago suma su "?" a una URL que ya tenía query). Pura, testeable.
+ */
+export function returnSearchParams(query: Record<string, string | string[] | undefined>): URLSearchParams {
+  const out = new URLSearchParams();
+  for (const [key, raw] of Object.entries(query)) {
+    const value = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof value !== "string") continue;
+    const [head = "", ...rest] = value.split("?");
+    out.set(key, head);
+    if (rest.length) for (const [k, v] of new URLSearchParams(rest.join("&"))) if (!out.has(k)) out.set(k, v);
+  }
+  return out;
+}
+
 export const mercadoPagoProvider: PaymentProvider = {
   id: "mercadopago",
   label: "Mercado Pago",
@@ -227,7 +243,8 @@ export const mercadoPagoProvider: PaymentProvider = {
       reason: `RUNNER 360 · ${req.product.name}`,
       external_reference: `${req.userId}:${req.product.code}`,
       payer_email: req.email,
-      back_url: req.successUrl,
+      // Mercado Pago agrega "?preapproval_id=…" a la vuelta aunque la URL ya tenga "?": se manda sin query.
+      back_url: req.successUrl.split("?")[0],
       status: "pending",
       auto_recurring: {
         frequency: 1,
