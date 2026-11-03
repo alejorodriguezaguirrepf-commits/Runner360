@@ -114,7 +114,7 @@ export function InstallBanner() {
     <aside aria-label="Instalar la app" className="mb-4 flex items-center gap-3 rounded-[var(--radius-card)] border border-line bg-surface p-3">
       <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-on-primary"><IconPhone /></span>
       <p className="min-w-0 flex-1 text-sm">
-        <strong>Instalá RUNNER 360</strong> en tu celular y abrila como una app.
+        <strong>Instalá RUNNER 360</strong> en tu celular y abrila como una app. Si ya la tenías instalada, borrá el ícono viejo e instalala de nuevo desde acá.
       </p>
       {s.canPrompt ? (
         <button type="button" onClick={() => void promptInstall()} className="min-h-11 shrink-0 rounded-lg bg-primary px-3 text-sm font-semibold text-on-primary">

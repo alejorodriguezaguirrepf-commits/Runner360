@@ -152,7 +152,7 @@ export default async function AdminHome() {
               <Alert tone="info" title="Todavía no hay cobros registrados">
                 Los cobros se guardan cuando Mercado Pago avisa cada débito a la app. Para que lleguen faltan: las credenciales de Mercado Pago en
                 Vercel (MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET y MP_ENV) y cargar en Mercado Pago (Tus integraciones → Webhooks) la dirección
-                https://runner360.vercel.app/api/webhooks/mercadopago con los eventos de suscripciones y de pagos de suscripciones.
+                https://runner360.ar/api/webhooks/mercadopago con los eventos de suscripciones y de pagos de suscripciones.
                 Avisos recibidos hasta ahora: {d.payment_events_count}.
               </Alert>
             ) : null}

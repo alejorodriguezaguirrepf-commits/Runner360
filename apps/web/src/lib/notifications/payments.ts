@@ -16,7 +16,7 @@ import { sendPush } from "./push";
 type Kind = "payment_approved" | "payment_failed" | "payment_recovered" | "access_ended";
 type SubRef = { id: string; user_id: string };
 
-const site = () => canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }) || "https://runner360.vercel.app";
+const site = () => canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }) || "https://runner360.ar";
 
 /** Inserta si la clave no existe. Devuelve true si es nueva (hay que avisar). */
 async function insertOnce(admin: SupabaseClient, table: "admin_notifications" | "user_notices", row: Record<string, unknown>): Promise<boolean> {

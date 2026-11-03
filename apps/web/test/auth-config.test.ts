@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { authErrorMessage, isEmailTaken } from "@/lib/auth-errors";
 import { isSupabaseConfigured, missingSupabaseConfig, normalizeBaseUrl, publicEnv, readEnv } from "@/lib/env";
-import { canonicalRedirect, canonicalSiteUrl, pickSiteUrl } from "@/lib/site-url";
+import { canonicalRedirect, canonicalSiteUrl, hasSessionCookie, pickSiteUrl, safeNextPath, sessionHandoffPath } from "@/lib/site-url";
 
 const KEY = "sb_publishable_abcdefghijklmnopqrstuvwxyz";
 
@@ -107,5 +107,35 @@ describe("mensajes de error para el usuario", () => {
   });
   it("cambio de contraseña", () => {
     expect(authErrorMessage({ code: "same_password" }, "update")).toContain("distinta");
+  });
+});
+
+describe("migración a runner360.ar", () => {
+  const base = { canonical: "https://runner360.ar", vercelEnv: "production" };
+  it("el dominio viejo y www redirigen a la misma página del dominio nuevo, con parámetros", () => {
+    expect(canonicalRedirect({ ...base, url: "https://runner360.vercel.app/registro?ref=ig&x=1", host: "runner360.vercel.app" })).toBe(
+      "https://runner360.ar/registro?ref=ig&x=1",
+    );
+    expect(canonicalRedirect({ ...base, url: "https://www.runner360.ar/planes", host: "www.runner360.ar" })).toBe("https://runner360.ar/planes");
+    expect(canonicalRedirect({ ...base, url: "https://runner360.ar/registro", host: "runner360.ar" })).toBeNull();
+  });
+  it("los webhooks, la API móvil y los enlaces de correo siguen funcionando en el dominio viejo", () => {
+    expect(canonicalRedirect({ ...base, url: "https://runner360.vercel.app/api/webhooks/mercadopago", host: "runner360.vercel.app" })).toBeNull();
+    expect(canonicalRedirect({ ...base, url: "https://runner360.vercel.app/auth/confirm?code=abc", host: "runner360.vercel.app" })).toBeNull();
+    expect(canonicalRedirect({ ...base, url: "https://runner360.vercel.app/auth/traspaso?next=%2F", host: "runner360.vercel.app" })).toBeNull();
+  });
+  it("con sesión iniciada pasa por el traspaso, conservando la ruta", () => {
+    expect(sessionHandoffPath({ redirectTo: "https://runner360.ar/plan?semana=2", hasSession: true, method: "GET" })).toBe(
+      "/auth/traspaso?next=%2Fplan%3Fsemana%3D2",
+    );
+    expect(sessionHandoffPath({ redirectTo: "https://runner360.ar/plan", hasSession: false, method: "GET" })).toBeNull();
+    expect(sessionHandoffPath({ redirectTo: "https://runner360.ar/plan", hasSession: true, method: "POST" })).toBeNull();
+    expect(sessionHandoffPath({ redirectTo: null, hasSession: true, method: "GET" })).toBeNull();
+  });
+  it("detecta la cookie de sesión y no permite redirecciones a otros sitios", () => {
+    expect(hasSessionCookie(["sb-uvticrzmegqurffipxny-auth-token.0", "otra"])).toBe(true);
+    expect(hasSessionCookie(["sb-uvticrzmegqurffipxny-auth-token-code-verifier", "r360-tema"])).toBe(false);
+    expect(safeNextPath("/inicio?x=1")).toBe("/inicio?x=1");
+    for (const bad of ["//evil.com", "https://evil.com", "/\\evil.com", "", null]) expect(safeNextPath(bad)).toBeNull();
   });
 });

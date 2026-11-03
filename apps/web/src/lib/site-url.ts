@@ -51,14 +51,37 @@ export function pickSiteUrl(input: {
 }
 
 /**
- * Producción en Vercel: si se entra por otra dirección del deploy (no protegida) se redirige al
- * dominio de producción. Devuelve la URL de destino o null. Las rutas /api quedan igual (webhooks).
+ * Producción en Vercel: si se entra por otra dirección (el dominio viejo runner360.vercel.app, www o
+ * la dirección propia de un deploy) se redirige al dominio de producción conservando ruta y
+ * parámetros. Devuelve la URL de destino o null.
+ * Quedan sin redirigir: /api (webhooks de Mercado Pago y la app móvil, que no siguen redirecciones)
+ * y /auth (enlaces de correo ya enviados y el traspaso de sesión, que se resuelven en el dominio viejo).
  */
 export function canonicalRedirect(input: { url: string; host: string | null; vercelEnv?: string; canonical: string }): string | null {
   if (input.vercelEnv !== "production" || !input.canonical || !input.host) return null;
   const target = new URL(input.canonical);
   if (input.host.toLowerCase() === target.host) return null;
   const u = new URL(input.url);
-  if (u.pathname.startsWith("/api/")) return null;
+  if (u.pathname.startsWith("/api/") || u.pathname.startsWith("/auth/")) return null;
   return `${target.origin}${u.pathname}${u.search}`;
+}
+
+/** Cookie de sesión de Supabase (puede venir partida en .0, .1…). */
+export const hasSessionCookie = (names: readonly string[]) => names.some((n) => /^sb-.+-auth-token(\.\d+)?$/.test(n));
+
+/** Ruta interna (relativa y del mismo sitio) o null. Evita redirecciones abiertas. */
+export function safeNextPath(raw: string | null | undefined): string | null {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/\\")) return null;
+  return raw;
+}
+
+/**
+ * Traspaso de sesión al dominio nuevo: quien ya había iniciado sesión en el dominio viejo pasa por
+ * /auth/traspaso (en el dominio viejo), que genera un enlace de un solo uso y lo abre en el dominio
+ * nuevo. Así no tiene que volver a ingresar. Solo para pedidos GET de páginas.
+ */
+export function sessionHandoffPath(input: { redirectTo: string | null; hasSession: boolean; method: string }): string | null {
+  if (!input.redirectTo || !input.hasSession || input.method !== "GET") return null;
+  const u = new URL(input.redirectTo);
+  return `/auth/traspaso?next=${encodeURIComponent(`${u.pathname}${u.search}`)}`;
 }

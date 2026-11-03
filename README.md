@@ -50,7 +50,7 @@ Ver [`.env.example`](.env.example). Resumen:
 |---|---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | pública | sí | URL del proyecto Supabase |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | pública | sí | clave publicable (anon) |
-| `NEXT_PUBLIC_SITE_URL` | pública | recomendada | dominio público (p. ej. `https://runner360.vercel.app`); los enlaces de correo usan el dominio de la solicitud y nunca `localhost` en producción |
+| `NEXT_PUBLIC_SITE_URL` | pública | recomendada | dominio público (p. ej. `https://runner360.ar`); los enlaces de correo usan el dominio de la solicitud y nunca `localhost` en producción |
 | `SUPABASE_SERVICE_ROLE_KEY` | **secreta** | para borrar cuentas y webhooks | omite RLS, solo servidor |
 | `MERCADOPAGO_ACCESS_TOKEN`, `MERCADOPAGO_WEBHOOK_SECRET` | **secretas** | no | suscripciones con Mercado Pago |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | **secretas** | no | suscripciones internacionales |

@@ -65,7 +65,7 @@ export function paymentsConfigProblems(env: Env): { errors: string[]; warnings: 
   if (c.mpEnv) {
     if (!c.mpAccessToken) errors.push("Falta MP_ACCESS_TOKEN (Mercado Pago).");
     if (!c.mpWebhookSecret) errors.push("Falta MP_WEBHOOK_SECRET (clave secreta de los webhooks de Mercado Pago).");
-    if (!c.appBaseUrl) errors.push("Falta NEXT_PUBLIC_SITE_URL (dominio público de la app, por ejemplo https://runner360.vercel.app).");
+    if (!c.appBaseUrl) errors.push("Falta NEXT_PUBLIC_SITE_URL (dominio público de la app, por ejemplo https://runner360.ar).");
     if (c.mpAccessToken && !/^(TEST|APP_USR)-/.test(c.mpAccessToken)) errors.push("MP_ACCESS_TOKEN no parece un Access Token de Mercado Pago.");
     if (c.mpEnv === "prod" && c.mpAccessToken.startsWith("TEST-")) errors.push("MP_ENV=prod con credenciales de prueba (TEST-).");
     if (c.mpEnv === "prod" && c.appBaseUrl && !c.appBaseUrl.startsWith("https://")) errors.push("MP_ENV=prod requiere NEXT_PUBLIC_SITE_URL con https.");

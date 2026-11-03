@@ -20,7 +20,7 @@ on:
       api_base_url:
         description: "Dominio de la web"
         required: false
-        default: "https://runner360.vercel.app"
+        default: "https://runner360.ar"
   push:
     branches: [main]
     paths: ["apps/mobile/**", ".github/workflows/android-apk.yml"]
@@ -43,7 +43,7 @@ jobs:
     env:
       SUPABASE_URL: ${{ inputs.supabase_url || vars.SUPABASE_URL }}
       SUPABASE_KEY: ${{ inputs.supabase_publishable_key || vars.SUPABASE_PUBLISHABLE_KEY }}
-      API_BASE_URL: ${{ inputs.api_base_url || vars.API_BASE_URL || 'https://runner360.vercel.app' }}
+      API_BASE_URL: ${{ inputs.api_base_url || vars.API_BASE_URL || 'https://runner360.ar' }}
     steps:
       - name: Configuración disponible
         id: cfg

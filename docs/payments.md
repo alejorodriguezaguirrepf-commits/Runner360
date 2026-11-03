@@ -35,7 +35,7 @@ Solo servidor: ninguna empieza con `NEXT_PUBLIC_`. Nunca se suben al repositorio
 | `MP_ENV` | `test` o `prod`. Con esta variable definida la app valida todo al arrancar y **no inicia** si falta algo o si las credenciales no coinciden (por ejemplo, `prod` con un token `TEST-`). |
 | `MP_ACCESS_TOKEN` | Access Token de la aplicación de Mercado Pago (*Tus integraciones → Credenciales*). |
 | `MP_WEBHOOK_SECRET` | Clave secreta de *Tus integraciones → Webhooks*. |
-| `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` (la URL pública de toda la app; también adonde vuelve Mercado Pago). `APP_BASE_URL` se acepta como nombre anterior. |
+| `NEXT_PUBLIC_SITE_URL` | `https://runner360.ar` (la URL pública de toda la app; también adonde vuelve Mercado Pago). `APP_BASE_URL` se acepta como nombre anterior. |
 | `FX_SOURCE`, `FX_RATE_TYPE` | Ver arriba. |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Claves de las notificaciones push (`npx web-push generate-vapid-keys`). Sin ellas no hay push. |
 | `RESEND_API_KEY` | Clave de Resend para los mails al admin. Sin ella no se mandan mails. Opcionales: `ADMIN_NOTIFICATIONS_EMAIL` (destinatario) y `RESEND_FROM` (remitente). |
@@ -45,7 +45,7 @@ Se aceptan también los nombres anteriores `MERCADOPAGO_ACCESS_TOKEN` y `MERCADO
 
 ## Conectar Mercado Pago paso a paso
 
-**Antes:** cuenta de Mercado Pago (vendedor) con la actividad validada. Se trabaja sobre el dominio de producción (`https://runner360.vercel.app`) porque Mercado Pago tiene que poder llegar al webhook (las vistas previas de Vercel están protegidas). Después de cada cambio de variables en Vercel hay que **volver a publicar** (Deployments → último → ⋯ → *Redeploy*).
+**Antes:** cuenta de Mercado Pago (vendedor) con la actividad validada. Se trabaja sobre el dominio de producción (`https://runner360.ar`) porque Mercado Pago tiene que poder llegar al webhook (las vistas previas de Vercel están protegidas). Después de cada cambio de variables en Vercel hay que **volver a publicar** (Deployments → último → ⋯ → *Redeploy*).
 
 ### 1. Crear la aplicación
 1. Entrá a https://www.mercadopago.com.ar/developers/panel → **Tus integraciones** → **Crear aplicación**.
@@ -56,7 +56,7 @@ Mercado Pago ya no permite crear aplicaciones desde una cuenta de prueba («No p
 1. En la aplicación → **Cuentas de prueba** → creá un **comprador** (país Argentina). Anotá usuario y contraseña.
 2. En la aplicación → **Credenciales de prueba** → copiá el **Access Token** (puede empezar con `TEST-` o con `APP_USR-`; la app acepta los dos con `MP_ENV=test`).
 3. **Webhooks** (en la misma aplicación) → **Configurar notificaciones** → pestaña **Modo de prueba**:
-   - URL: `https://runner360.vercel.app/api/webhooks/mercadopago`
+   - URL: `https://runner360.ar/api/webhooks/mercadopago`
    - Eventos: **Planes y suscripciones** (marcá *Suscripciones* y *Pagos recurrentes/autorizados*) y **Pagos** (para el plan anual, que es un pago único).
    - Guardá y copiá la **Clave secreta** que se genera.
 4. En Vercel → Project → Settings → **Environment Variables** (entorno *Production*):
@@ -65,7 +65,7 @@ Mercado Pago ya no permite crear aplicaciones desde una cuenta de prueba («No p
    | `MP_ENV` | `test` |
    | `MP_ACCESS_TOKEN` | Access Token de *Credenciales de prueba* |
    | `MP_WEBHOOK_SECRET` | Clave secreta del webhook |
-   | `NEXT_PUBLIC_SITE_URL` | `https://runner360.vercel.app` |
+   | `NEXT_PUBLIC_SITE_URL` | `https://runner360.ar` |
    | `CRON_SECRET` | una clave larga al azar (`openssl rand -hex 32`) |
    Borrá las variables viejas `MERCADOPAGO_ACCESS_TOKEN` y `MERCADOPAGO_WEBHOOK_SECRET` si existen. **Redeploy.**
 5. Comprobá en la app → **Administración → Panel → Estado de integraciones**: *Mercado Pago: Configurado* y, en *Cuenta de Mercado Pago*, «credenciales de prueba» o «cuenta de prueba» y «Credenciales válidas.» (la app consulta a Mercado Pago con el token y avisa si el token fue rechazado, si la cuenta no es de Argentina o si no coincide con `MP_ENV`).
@@ -104,10 +104,10 @@ Mercado Pago ya no permite crear aplicaciones desde una cuenta de prueba («No p
 ## Links siempre al dominio de producción
 
 - Correos de confirmación y recuperación, y la vuelta de Mercado Pago, usan siempre `NEXT_PUBLIC_SITE_URL` / `APP_BASE_URL` o, si faltan, el dominio de producción que informa Vercel. Nunca un link de vista previa.
-- Si alguien entra por otra dirección del deploy de producción, la app lo redirige a `https://runner360.vercel.app`.
-- `https://runner360.vercel.app/api/health` muestra `dominioDeLosEnlaces` y `dominioDeMercadoPago`: los dos tienen que ser `https://runner360.vercel.app`.
-- **Vercel → Settings → Deployment Protection:** "Vercel Authentication" en **Standard Protection** (protege solo las vistas previas). Compartí siempre `https://runner360.vercel.app`.
-- **Supabase → Authentication → URL Configuration:** *Site URL* = `https://runner360.vercel.app` y en *Redirect URLs* `https://runner360.vercel.app/**`.
+- Si alguien entra por otra dirección del deploy de producción, la app lo redirige a `https://runner360.ar`.
+- `https://runner360.ar/api/health` muestra `dominioDeLosEnlaces` y `dominioDeMercadoPago`: los dos tienen que ser `https://runner360.ar`.
+- **Vercel → Settings → Deployment Protection:** "Vercel Authentication" en **Standard Protection** (protege solo las vistas previas). Compartí siempre `https://runner360.ar`.
+- **Supabase → Authentication → URL Configuration:** *Site URL* = `https://runner360.ar` y en *Redirect URLs* `https://runner360.ar/**`.
 
 ## Notificaciones de pagos
 

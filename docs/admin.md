@@ -31,4 +31,4 @@ Desde el panel: **Sin suscripción** o **Con suscripción**. El servidor guarda 
 - Distancias: `training_profiles.target_distance`. Calculadora: `user_pace_tests`.
 - Correos: `auth.users`, solo a través de `admin_users()`.
 
-Los cobros se guardan cuando Mercado Pago avisa por webhook. Hace falta configurar `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `MP_ENV` en Vercel y cargar el webhook `https://runner360.vercel.app/api/webhooks/mercadopago` en Mercado Pago (ver `docs/payments.md`).
+Los cobros se guardan cuando Mercado Pago avisa por webhook. Hace falta configurar `MP_ACCESS_TOKEN`, `MP_WEBHOOK_SECRET` y `MP_ENV` en Vercel y cargar el webhook `https://runner360.ar/api/webhooks/mercadopago` en Mercado Pago (ver `docs/payments.md`).

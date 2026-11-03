@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured, publicEnv, readEnv } from "@/lib/env";
-import { canonicalRedirect, canonicalSiteUrl } from "@/lib/site-url";
+import { canonicalRedirect, canonicalSiteUrl, hasSessionCookie, sessionHandoffPath } from "@/lib/site-url";
 
 /**
  * Proxy (ex middleware): refresca la sesión de Supabase y hace una primera barrera de rutas.
@@ -19,7 +19,16 @@ export async function proxy(request: NextRequest) {
     vercelEnv: readEnv("VERCEL_ENV"),
     canonical: canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }),
   });
-  if (canonical) return NextResponse.redirect(canonical, 308);
+  if (canonical) {
+    // Con sesión iniciada en el dominio viejo, primero se traspasa la sesión al dominio nuevo.
+    const handoff = sessionHandoffPath({
+      redirectTo: canonical,
+      hasSession: hasSessionCookie(request.cookies.getAll().map((c) => c.name)),
+      method: request.method,
+    });
+    if (handoff) return NextResponse.redirect(new URL(handoff, request.url), 307);
+    return NextResponse.redirect(canonical, 308);
+  }
   const isPrivate = PRIVATE_PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
 
   if (!isSupabaseConfigured()) {

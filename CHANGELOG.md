@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-03 — Dominio propio runner360.ar
+
+- **Dominio nuevo:** todos los links que arma la app (mails, Mercado Pago, metadatos, sitemap, robots.txt, app móvil) salen de `NEXT_PUBLIC_SITE_URL`; en producción pasa a ser `https://runner360.ar`.
+- **Redirección permanente (308)** desde runner360.vercel.app y www.runner360.ar a la misma página de runner360.ar, con ruta y parámetros. La API (webhooks de Mercado Pago y app móvil) y los enlaces de correo ya enviados siguen funcionando en el dominio viejo.
+- **Sin volver a ingresar:** quien tenía la sesión iniciada en el dominio viejo pasa una sola vez por `/auth/traspaso`, que la lleva al dominio nuevo con un enlace de un solo uso.
+- **App instalada:** el aviso de instalación invita a reinstalarla desde el dominio nuevo.
+- Nuevos `robots.txt` y `sitemap.xml`. Pasos de la migración en `docs/DOMINIO.md`.
+
 ## 2026-10-30 — Notificaciones de pagos y débitos rechazados
 
 - **Admin:** campana con contador y página de notificaciones (pagos acreditados con detalle de usuario, plan, monto, fecha, primer pago o renovación e ID de Mercado Pago; débitos rechazados; pagos regularizados; accesos cortados), con filtro por tipo y marcar como leídas. Mail y push activables desde el panel.

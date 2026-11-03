@@ -17,7 +17,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: AuthScreen()));
     expect(find.text('Ingresá a tu cuenta'), findsOneWidget);
     expect(find.text('Crear cuenta gratis'), findsOneWidget);
-    expect(signUpUrl.toString(), 'https://runner360.vercel.app/registro');
+    expect(signUpUrl.toString(), 'https://runner360.ar/registro');
     expect(find.textContaining('confirm'), findsNothing);
   });
 
