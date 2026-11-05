@@ -39,7 +39,21 @@ test("app instalable: aviso la primera vez en el celular, se cierra y no vuelve;
 
   await page.goto("/instalar");
   await expect(page.getByRole("heading", { name: "Instalar app" })).toBeVisible();
+  // En Android primero van sus pasos; los de iPhone y la computadora, en "Otros dispositivos".
+  await expect(page.getByText("Agregar a la pantalla principal").first()).toBeVisible();
+  await page.getByText("Otros dispositivos").click();
   await expect(page.getByText("Agregar a inicio").first()).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("descargar la app sin cuenta: pasos del celular primero y sin desbordes", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Descargar la app" }).click();
+  await expect(page).toHaveURL(/\/descargar$/);
+  await expect(page.getByRole("heading", { name: "Descargá la app" })).toBeVisible();
+  await expect(page.getByText("En Android (Chrome)")).toBeVisible();
+  await expect(page.getByText("Agregar a la pantalla principal").first()).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });

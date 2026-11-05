@@ -1,0 +1,33 @@
+import { expect, test } from "@playwright/test";
+
+/** Descargar la app desde la computadora: página pública, pasos del navegador y acceso directo. */
+test.describe("descargar la app (computadora)", () => {
+  test("página pública con los pasos de la computadora y el acceso directo", async ({ page }) => {
+    await page.goto("/descargar");
+    await expect(page.getByRole("heading", { name: "Descargá la app" })).toBeVisible();
+    await expect(page.getByText("En la computadora")).toBeVisible();
+    await expect(page.getByText("Instalar página como aplicación")).toBeVisible(); // Chrome
+    const link = page.getByRole("link", { name: /^Descargar acceso directo/ });
+    await expect(link).toHaveAttribute("href", /\/acceso-directo\?so=(windows|mac|linux)$/);
+    const download = page.waitForEvent("download");
+    await link.click();
+    expect((await download).suggestedFilename()).toMatch(/RUNNER 360\.(url|webloc)|runner360\.desktop/);
+    // Los pasos del celular también están, plegados.
+    await page.getByText("Otros dispositivos").click();
+    await expect(page.getByText("Agregar a inicio").first()).toBeVisible();
+  });
+
+  test("archivo de acceso directo: abre la app en el dominio de producción", async ({ request }) => {
+    const win = await request.get("/acceso-directo?so=windows");
+    expect(win.headers()["content-disposition"]).toContain('filename="RUNNER 360.url"');
+    expect(await win.text()).toMatch(/^\[InternetShortcut\]\r\nURL=https?:\/\/[^/]+\/inicio\r\n/);
+    const mac = await request.get("/acceso-directo?so=mac");
+    expect(await mac.text()).toContain("<key>URL</key>");
+  });
+
+  test("la portada ofrece descargar la app", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "Tené RUNNER 360 a un toque" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Descargá la app" })).toHaveAttribute("href", "/descargar");
+  });
+});

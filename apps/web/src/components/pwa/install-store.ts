@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { DISMISS_KEY, INSTALLED_KEY, detectPlatform, type InstallPromptEvent, type Platform } from "@/lib/pwa";
+import { DISMISS_KEY, INSTALLED_KEY, detectBrowser, detectDesktopOs, detectPlatform, type Browser, type DesktopOs, type InstallPromptEvent, type Platform } from "@/lib/pwa";
 
 // El navegador avisa una sola vez que se puede instalar (beforeinstallprompt), a veces antes de que
 // se abra la pantalla "Instalar app": se guarda acá y lo usan el botón y el aviso.
@@ -45,15 +45,17 @@ export function isStandalone(): boolean {
   return window.matchMedia?.("(display-mode: standalone)").matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 }
 
-export type InstallState = { ready: boolean; platform: Platform; standalone: boolean; installed: boolean; dismissed: boolean; canPrompt: boolean };
+export type InstallState = { ready: boolean; platform: Platform; browser: Browser; os: DesktopOs; standalone: boolean; installed: boolean; dismissed: boolean; canPrompt: boolean };
 
-const SERVER: InstallState = { ready: false, platform: "desktop", standalone: false, installed: false, dismissed: true, canPrompt: false };
+const SERVER: InstallState = { ready: false, platform: "desktop", browser: "other", os: "windows", standalone: false, installed: false, dismissed: true, canPrompt: false };
 let cache: InstallState = SERVER;
 
 function snapshot(): InstallState {
   const next: InstallState = {
     ready: true,
     platform: detectPlatform(navigator.userAgent, navigator.maxTouchPoints, navigator.platform),
+    browser: detectBrowser(navigator.userAgent),
+    os: detectDesktopOs(navigator.userAgent, navigator.platform),
     standalone: isStandalone(),
     installed: installedNow || safeGet(INSTALLED_KEY) === "1",
     dismissed: safeGet(DISMISS_KEY) === "1",

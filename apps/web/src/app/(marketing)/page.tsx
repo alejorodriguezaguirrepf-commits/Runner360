@@ -7,6 +7,7 @@ import {
   IconCheck,
   IconDrop,
   IconFlag,
+  IconPhone,
   IconRoute,
   IconShield,
   IconTimer,
@@ -191,6 +192,18 @@ export default async function LandingPage() {
               defaultOpen={["quien-disena"]}
             />
           </div>
+        </div>
+      </section>
+
+      {/* 8b. La app en el celular o la computadora */}
+      <section id="app" aria-labelledby="descargar-app" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="flex flex-col items-start gap-5 rounded-3xl bg-surface p-6 ring-1 ring-line sm:flex-row sm:items-center sm:p-8">
+          <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-accent text-on-accent"><IconPhone width={28} height={28} /></span>
+          <div className="flex-1">
+            <h2 id="descargar-app" className="text-2xl font-extrabold tracking-tight">Tené RUNNER 360 a un toque</h2>
+            <p className="mt-1 text-muted">Instalala en la pantalla de inicio de tu celular o creá un acceso directo en tu computadora. Se abre como una app y no ocupa lugar.</p>
+          </div>
+          <ButtonLink href="/descargar" className="w-full px-6 text-base sm:w-auto">Descargar la app</ButtonLink>
         </div>
       </section>
 

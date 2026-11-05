@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-05 — Descargá la app (celular y computadora)
+
+- Página pública **runner360.ar/descargar** (también desde la portada y el pie): muestra primero los pasos del dispositivo en el que se está (iPhone, Android o computadora) y los demás plegados.
+- En la computadora: botón para instalar donde el navegador lo permite (Chrome y Edge), pasos para Safari (Agregar al Dock) y un **acceso directo descargable** para Windows, Mac o Linux que funciona en cualquier navegador.
+- La pantalla «Instalar app» de adentro de la app usa la misma guía.
+
 ## 2026-11-03 — Dominio propio runner360.ar
 
 - **Dominio nuevo:** todos los links que arma la app (mails, Mercado Pago, metadatos, sitemap, robots.txt, app móvil) salen de `NEXT_PUBLIC_SITE_URL`; en producción pasa a ser `https://runner360.ar`.

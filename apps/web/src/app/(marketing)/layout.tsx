@@ -43,6 +43,10 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
               <li><Link href="/privacidad" className="hover:text-nav-ink">Política de privacidad</Link></li>
               <li><Link href="/terminos" className="hover:text-nav-ink">Términos y condiciones</Link></li>
             </ul>
+            <p className="pt-2 font-semibold text-nav-ink">App</p>
+            <ul className="space-y-1.5">
+              <li><Link href="/descargar" className="hover:text-nav-ink">Descargá la app</Link></li>
+            </ul>
           </div>
           <div className="space-y-2 text-sm">
             <p className="font-semibold text-nav-ink">Contacto</p>
