@@ -63,3 +63,19 @@ test.describe("descargar la app (iPhone en Safari)", () => {
     expect(body).toMatch(/<string>https?:\/\/[^<]+\/inicio<\/string>/);
   });
 });
+
+/** La app instalada redirige seguido (p. ej. /inicio → /ingresar sin sesión): el service worker no debe trabarlo. */
+test("con el service worker activo, las redirecciones cargan y sin conexión aparece la página offline", async ({ page, context }) => {
+  await page.goto("/descargar");
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+    if (!navigator.serviceWorker.controller) await new Promise((r) => navigator.serviceWorker.addEventListener("controllerchange", r, { once: true }));
+  });
+  await page.goto("/inicio");
+  await expect(page).toHaveURL(/\/ingresar/);
+  await expect(page.getByRole("heading").first()).toBeVisible();
+  await context.setOffline(true);
+  await page.goto("/hoy").catch(() => undefined);
+  await expect(page.getByText(/sin conexión/i).first()).toBeVisible();
+  await context.setOffline(false);
+});

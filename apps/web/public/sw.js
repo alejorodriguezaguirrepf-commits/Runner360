@@ -1,6 +1,6 @@
 // RUNNER 360 — service worker mínimo para que la app se pueda instalar.
 // No guarda páginas con datos personales: solo una página para cuando no hay conexión.
-const CACHE = "r360-v1";
+const CACHE = "r360-v2";
 const OFFLINE = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -16,9 +16,14 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Con conexión, el navegador carga las páginas solo (sin pasar por acá). Safari y Chrome en iPhone
+// rechazan las páginas que el service worker entrega después de una redirección ("Response served by
+// service worker has redirections"), y la app redirige seguido (por ejemplo /inicio → /ingresar al
+// abrir el ícono sin sesión). Por eso solo se interviene sin conexión, para mostrar la página offline.
 self.addEventListener("fetch", (event) => {
-  if (event.request.mode !== "navigate") return;
-  event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE)));
+  const req = event.request;
+  if (req.mode !== "navigate" || req.method !== "GET" || self.navigator.onLine) return;
+  event.respondWith(fetch(req).catch(() => caches.match(OFFLINE)));
 });
 
 // Notificaciones push (avisos de pagos). El contenido llega cifrado; al tocarla se abre la app.

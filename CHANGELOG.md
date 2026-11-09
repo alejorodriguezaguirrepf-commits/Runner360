@@ -1,5 +1,10 @@
 # Cambios
 
+## 2026-11-09 — Arreglo de la app instalada en iPhone (Safari y Chrome)
+
+- El service worker ya no intercepta las páginas cuando hay conexión. Safari y Chrome en iPhone rechazaban las páginas con redirección que pasaban por él (por ejemplo, al abrir el ícono sin sesión: /inicio → /ingresar), y la app quedaba en un error. Sin conexión sigue mostrando la página offline.
+- Los teléfonos buscan la versión nueva del service worker en cada visita (sin copia guardada), para que el arreglo llegue enseguida.
+
 ## 2026-11-09 — Instalar en iPhone desde Instagram y acceso directo para iPhone
 
 - Si la página se abre dentro de **Instagram, Facebook, TikTok u otra app**, la guía lo detecta y muestra primero «Abrila en Safari» (o en Chrome en Android): botón para pasar al navegador, «Copiar enlace» y cómo hacerlo desde el menú de la app. Ahí el teléfono no permite agregar la app a inicio.
