@@ -9,6 +9,7 @@ export const metadata = { robots: { index: false, follow: false } };
 const TABS = [
   { href: "/admin", label: "Panel" },
   { href: "/admin/usuarios", label: "Usuarios" },
+  { href: "/admin/suscripciones", label: "Suscripciones" },
   { href: "/admin/notificaciones", label: "Notificaciones" },
   { href: "/admin/pagos", label: "Pagos con problemas" },
   { href: "/admin/planes", label: "Planes" },

@@ -1,5 +1,6 @@
 import { DISTANCE_LABELS, formatDate, ROLE_LABELS, type ProfileRow } from "@runner360/shared";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Alert, Badge, Card, PageHeader } from "@/components/ui/primitives";
 import { grantManualPremiumAction, revokeManualPremiumAction } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
@@ -68,6 +69,11 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 <div><dt className="text-xs text-muted">Distancia objetivo</dt><dd>{u.target_distance ? (DISTANCE_LABELS[u.target_distance as keyof typeof DISTANCE_LABELS] ?? u.target_distance) : "—"}</dd></div>
                 <div><dt className="text-xs text-muted">Rol</dt><dd>{ROLE_LABELS[u.role]}</dd></div>
               </dl>
+              {u.subscription_status ? (
+                <Link href={`/admin/suscripciones?q=${encodeURIComponent(u.email)}`} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-primary-ink underline">
+                  Ver suscripción y débitos
+                </Link>
+              ) : null}
               {u.id !== user.id ? (
                 <details className="mt-3">
                   <summary className="min-h-11 cursor-pointer py-2 text-sm font-semibold text-primary-ink">Acciones</summary>

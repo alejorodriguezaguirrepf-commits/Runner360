@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-09 — Administración: suscripciones y débitos
+
+- Nueva sección **Suscripciones** en el panel de administración (solo admin): distingue quién **compró** (pagó por Mercado Pago), a quién se le **asignó a mano** y quién se anotó pero **nunca pagó**, con estado, último débito, próximo débito (o hasta cuándo tiene acceso) y cantidad y total de débitos aprobados.
+- Historial de débitos de cada persona (aprobados, rechazados con su motivo, pendientes y devueltos) y una vista **Todos los débitos**, del más nuevo al más viejo.
+- En **Usuarios**, cada persona con suscripción tiene el enlace «Ver suscripción y débitos».
+- Base: consultas `admin_subscribers()` y `admin_debits()` (solo lectura, solo admin; migración 20261109000100, aplicada en producción).
+
 ## 2026-11-09 — Arreglo de la app instalada en iPhone (Safari y Chrome)
 
 - El service worker ya no intercepta las páginas cuando hay conexión. Safari y Chrome en iPhone rechazaban las páginas con redirección que pasaban por él (por ejemplo, al abrir el ícono sin sesión: /inicio → /ingresar), y la app quedaba en un error. Sin conexión sigue mostrando la página offline.
