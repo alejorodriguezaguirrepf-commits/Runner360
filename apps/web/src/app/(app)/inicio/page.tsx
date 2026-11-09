@@ -3,13 +3,15 @@ import { formatDate, formatKm, formatMinutesLong, formatPercent, sessionTitle, t
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SessionFacts, StatusBadge } from "@/components/app/session-summary";
+import { FreePlanNotice } from "@/components/app/free-plan-notice";
 import { PlanDashboard } from "@/components/library/plan-dashboard";
 import { IconChart, IconDrop, IconPlus, IconTimer } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, ProgressBar, Stat } from "@/components/ui/primitives";
-import { requireOnboardedSession } from "@/lib/auth";
+import { hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { buildDashboard } from "@/lib/data/dashboard";
 import { t } from "@/i18n";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { getLibrary } from "@/lib/data/library";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
 
 export const metadata: Metadata = { title: "Inicio" };
@@ -27,10 +29,12 @@ function greeting(): string {
 }
 
 export default async function DashboardPage() {
-  const { supabase, user, profile } = await requireOnboardedSession();
+  const session = await requireOnboardedSession();
+  const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
-  const openEnrollment = await getOpenEnrollment(supabase, user.id);
+  const [openEnrollment, premium, library] = await Promise.all([getOpenEnrollment(supabase, user.id), hasPremium(session), getLibrary()]);
+  const freeWeeks = library?.freePreviewWeeks ?? 1;
   const d = buildDashboard(active, workouts, today);
   const rec = d.recommendation ? RECOMMENDATION_TEXT[d.recommendation.action] : null;
 
@@ -54,7 +58,12 @@ export default async function DashboardPage() {
       </header>
 
       {openEnrollment ? (
-        <PlanDashboard open={openEnrollment} supabase={supabase} today={today} />
+        <>
+          {premium ? null : <div className="mb-6"><FreePlanNotice variant="enrolled" weeks={freeWeeks} /></div>}
+          <PlanDashboard open={openEnrollment} supabase={supabase} today={today} />
+        </>
+      ) : !active && !premium ? (
+        <div className="mb-6"><FreePlanNotice variant="choose" weeks={freeWeeks} /></div>
       ) : !active ? (
         <Card className="mb-6">
           <EmptyState title="Todavía no tenés un plan activo" action={<ButtonLink href="/planes">Elegir un plan</ButtonLink>}>

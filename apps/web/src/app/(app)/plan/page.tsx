@@ -6,7 +6,8 @@ import { sessionVolumeLabel, StatusBadge } from "@/components/app/session-summar
 import { IconChevronRight } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, EmptyState, PageHeader } from "@/components/ui/primitives";
 import { t } from "@/i18n";
-import { annualAccessUntil, requireOnboardedSession } from "@/lib/auth";
+import { FreePlanNotice } from "@/components/app/free-plan-notice";
+import { annualAccessUntil, hasPremium, requireOnboardedSession } from "@/lib/auth";
 import { findPlan, getLibrary } from "@/lib/data/library";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan } from "@/lib/data/training";
@@ -20,7 +21,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const { inscripto } = await searchParams;
-  const [openEnrollment, annualUntil] = await Promise.all([getOpenEnrollment(supabase, user.id), annualAccessUntil(session)]);
+  const [openEnrollment, annualUntil, premium] = await Promise.all([getOpenEnrollment(supabase, user.id), annualAccessUntil(session), hasPremium(session)]);
   if (openEnrollment) {
     const { semana, checkin } = await searchParams;
     return (
@@ -32,6 +33,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
         enrolled={Boolean(inscripto)}
         checkinDone={checkin}
         annual={Boolean(annualUntil)}
+        premium={premium}
       />
     );
   }
@@ -112,13 +114,14 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
     .order("ended_at", { ascending: false, nullsFirst: false })
     .limit(1)
     .maybeSingle<{ id: string; plan_id: string }>();
-  const library = last ? await getLibrary() : null;
+  const library = last || !premium ? await getLibrary() : null;
   const lastPlan = last && library ? findPlan(library, last.plan_id) : null;
 
   return (
     <>
       <PageHeader title="Tu plan" subtitle={t.library.catalog.subtitle} />
       {last && lastPlan ? <PlanFinishedCard enrollmentId={last.id} planTitle={lastPlan.title} annual={Boolean(annualUntil)} /> : null}
+      {premium ? null : <div className="mb-4"><FreePlanNotice variant="choose" weeks={library?.freePreviewWeeks ?? 1} /></div>}
       <Card>
         <EmptyState
           title="Todavía no tenés un plan activo"

@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-09 — Plan gratis más claro: elegí tu plan y entrená la primera semana
+
+- Sin suscripción, **Inicio**, **Mi plan** y **Suscripción** muestran el plan gratis: «Elegí cualquier plan y tenés la semana 1 liberada, día por día», con el botón «Elegir mi plan gratis» (lleva a la biblioteca de planes).
+- Ya entrenando con el plan gratis, se aclara qué semana está liberada y que **si quiere seguir entrenando después, tiene que suscribirse**.
+- Mismos textos en el catálogo de planes, al empezar un plan y en las semanas con candado.
+- Portada: el plan gratis en «Planes y precios» ahora dice qué incluye (migración 20261109000200, solo textos del producto, aplicada en producción).
+
 ## 2026-11-09 — Administración: suscripciones y débitos
 
 - Nueva sección **Suscripciones** en el panel de administración (solo admin): distingue quién **compró** (pagó por Mercado Pago), a quién se le **asignó a mano** y quién se anotó pero **nunca pagó**, con estado, último débito, próximo débito (o hasta cuándo tiene acceso) y cantidad y total de débitos aprobados.

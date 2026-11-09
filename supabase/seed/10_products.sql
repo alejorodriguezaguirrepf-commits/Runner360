@@ -6,8 +6,8 @@ begin;
 
 insert into public.subscription_products (id, code, name, description, tier, billing_interval, features, sort_order)
 values
-  ('00000000-0000-4000-8000-000000000001', 'free', 'Free', 'Para empezar a entrenar y registrar tu actividad.', 'free', null,
-   array['Perfil del corredor', 'Registro básico de entrenamientos', 'Contenido introductorio', 'Plan gratuito o de demostración'], 0),
+  ('00000000-0000-4000-8000-000000000001', 'free', 'Free', 'Elegí cualquier plan y entrená gratis la primera semana.', 'free', null,
+   array['Acceso a todos los planes: 5K, 10K, 21K y 42K', 'La primera semana del plan que elijas, día por día', 'Registro de entrenamientos y perfil del corredor', 'Para seguir entrenando después, te suscribís'], 0),
   ('00000000-0000-4000-8000-000000000002', 'premium_monthly', 'Premium mensual', 'Acceso completo con facturación mensual.', 'premium', 'month',
    array['Planes publicados incluidos en la suscripción', 'Calendario de entrenamiento', 'Historial y estadísticas avanzadas', 'Hidratación y competencias'], 1),
   ('00000000-0000-4000-8000-000000000003', 'premium_yearly', 'Premium anual', 'Acceso completo con facturación anual.', 'premium', 'year',

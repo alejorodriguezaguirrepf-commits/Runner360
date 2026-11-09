@@ -1,3 +1,4 @@
+import { FreePlanNotice } from "@/components/app/free-plan-notice";
 import {
   addDays,
   formatClock,
@@ -45,9 +46,12 @@ export async function EnrollmentView({
   enrolled,
   checkinDone,
   annual = false,
+  premium = true,
 }: {
   checkinDone?: string;
   annual?: boolean;
+  /** Sin suscripción (plan gratis): se aclara qué semana tiene liberada y que para seguir hay que suscribirse. */
+  premium?: boolean;
   open: OpenEnrollment;
   supabase: SupabaseClient;
   today: string;
@@ -114,6 +118,7 @@ export async function EnrollmentView({
         }
       />
       {enrolled ? <div className="mb-4"><Alert tone="success" title={c.enrolled} /></div> : null}
+      {premium ? null : <div className="mb-4"><FreePlanNotice variant="enrolled" weeks={openWeeks.size || 1} /></div>}
       {enrollmentOver(open, today) ? <PlanFinishedCard enrollmentId={enrollment.id} planTitle={plan.title} annual={annual} /> : null}
       {checkinDone ? <div className="mb-4"><Alert tone="success">{checkinDone === "fin" ? m.checkin.completed : m.checkin.saved}</Alert></div> : null}
       {enrollment.status === "paused" ? (

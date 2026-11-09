@@ -1,10 +1,13 @@
 import { formatDate, SUBSCRIPTION_STATUS_LABELS, type SubscriptionRow } from "@runner360/shared";
 import type { Metadata } from "next";
+import { FreePlanNotice } from "@/components/app/free-plan-notice";
 import { PriceTag } from "@/components/billing/price-tag";
 import { IconCheck } from "@/components/ui/icons";
 import { pricing } from "@/i18n/es-AR/pricing";
 import { Alert, Badge, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { annualAccessUntil, hasPremium, requireOnboardedSession } from "@/lib/auth";
+import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { getLibrary } from "@/lib/data/library";
 import { checkoutAvailable, getPricedProducts } from "@/lib/data/pricing";
 import { parseReturnParams, returnSearchParams } from "@/lib/payments/mercadopago";
 import { confirmCheckoutReturn, type ReturnOutcome } from "@/lib/payments/process";
@@ -29,12 +32,14 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
   if ((preapprovalId || paymentId) && rateLimit(`checkout-return:${session.user.id}`, 10, 60_000).ok) {
     confirmation = await confirmCheckoutReturn(getProvider("mercadopago"), params, session.user.id, createAdminClient());
   }
-  const [products, premium, annualUntil, { data: subs }, { data: payments }] = await Promise.all([
+  const [products, premium, annualUntil, { data: subs }, { data: payments }, library, openEnrollment] = await Promise.all([
     getPricedProducts(session.supabase),
     hasPremium(session),
     annualAccessUntil(session),
     session.supabase.from("subscriptions").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(5),
     session.supabase.from("subscription_payments").select("id, status, paid_at, subscription_id").eq("user_id", session.user.id).order("paid_at", { ascending: false }).limit(12),
+    getLibrary(),
+    getOpenEnrollment(session.supabase, session.user.id),
   ]);
   const yearlyIds = new Set((products ?? []).filter((p) => p.billing_interval === "year").map((p) => p.id));
   const current = ((subs ?? []) as SubscriptionRow[])[0];
@@ -98,6 +103,7 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
             </ul>
           </Card>
         ) : null}
+        {premium ? null : <FreePlanNotice variant={openEnrollment ? "enrolled" : "choose"} weeks={library?.freePreviewWeeks ?? 1} />}
         <div className="grid gap-4 md:grid-cols-2">
           {premiumProducts.map((p) => {
             const yearly = p.billing_interval === "year";

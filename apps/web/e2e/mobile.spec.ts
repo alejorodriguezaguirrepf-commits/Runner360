@@ -57,3 +57,17 @@ test("descargar la app sin cuenta: pasos del celular primero y sin desbordes", a
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test("plan gratis: invita a elegir un plan con la primera semana liberada y aclara que para seguir hay que suscribirse", async ({ page }) => {
+  test.skip(!backendConfigured, "Requiere backend Supabase (E2E_WITH_BACKEND=1)");
+  await signUp(page, uniqueEmail("gratis"));
+  await completeOnboarding(page);
+  await page.goto("/inicio");
+  await expect(page.getByRole("heading", { name: "Plan gratis: elegí tu plan y entrená la primera semana" })).toBeVisible();
+  await expect(page.getByText("Si querés seguir entrenando después, tenés que suscribirte.").first()).toBeVisible();
+  await page.getByRole("link", { name: "Elegir mi plan gratis" }).click();
+  await expect(page).toHaveURL(/\/planes/);
+  await expect(page.getByText(/tenés la semana 1 liberada/).first()).toBeVisible();
+  await page.goto("/suscripcion");
+  await expect(page.getByRole("link", { name: "Elegir mi plan gratis" })).toBeVisible();
+});

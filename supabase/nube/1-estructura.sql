@@ -2729,6 +2729,20 @@ revoke execute on function public.admin_debits(uuid, integer, integer) from publ
 grant execute on function public.admin_debits(uuid, integer, integer) to authenticated;
 
 
+-- ===== supabase/migrations/20261109000200_free_plan_texts.sql =====
+-- Plan gratis: la descripción y la lista de la portada dicen qué incluye (todos los planes, con la
+-- primera semana liberada) y que para seguir entrenando hay que suscribirse. Solo textos del producto.
+update public.subscription_products
+set description = 'Elegí cualquier plan y entrená gratis la primera semana.',
+    features = array[
+      'Acceso a todos los planes: 5K, 10K, 21K y 42K',
+      'La primera semana del plan que elijas, día por día',
+      'Registro de entrenamientos y perfil del corredor',
+      'Para seguir entrenando después, te suscribís'
+    ]
+where code = 'free';
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -2737,8 +2751,8 @@ grant execute on function public.admin_debits(uuid, integer, integer) to authent
 
 insert into public.subscription_products (id, code, name, description, tier, billing_interval, features, sort_order)
 values
-  ('00000000-0000-4000-8000-000000000001', 'free', 'Free', 'Para empezar a entrenar y registrar tu actividad.', 'free', null,
-   array['Perfil del corredor', 'Registro básico de entrenamientos', 'Contenido introductorio', 'Plan gratuito o de demostración'], 0),
+  ('00000000-0000-4000-8000-000000000001', 'free', 'Free', 'Elegí cualquier plan y entrená gratis la primera semana.', 'free', null,
+   array['Acceso a todos los planes: 5K, 10K, 21K y 42K', 'La primera semana del plan que elijas, día por día', 'Registro de entrenamientos y perfil del corredor', 'Para seguir entrenando después, te suscribís'], 0),
   ('00000000-0000-4000-8000-000000000002', 'premium_monthly', 'Premium mensual', 'Acceso completo con facturación mensual.', 'premium', 'month',
    array['Planes publicados incluidos en la suscripción', 'Calendario de entrenamiento', 'Historial y estadísticas avanzadas', 'Hidratación y competencias'], 1),
   ('00000000-0000-4000-8000-000000000003', 'premium_yearly', 'Premium anual', 'Acceso completo con facturación anual.', 'premium', 'year',
@@ -2824,6 +2838,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261025000100'),
   ('20261030000100'),
   ('20261109000100'),
+  ('20261109000200'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;
