@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-09 — Instalar en iPhone desde Instagram y acceso directo para iPhone
+
+- Si la página se abre dentro de **Instagram, Facebook, TikTok u otra app**, la guía lo detecta y muestra primero «Abrila en Safari» (o en Chrome en Android): botón para pasar al navegador, «Copiar enlace» y cómo hacerlo desde el menú de la app. Ahí el teléfono no permite agregar la app a inicio.
+- Pasos de Safari actualizados para los iPhone nuevos (el botón Compartir está dentro de «•••») y para Chrome en iPhone.
+- **Acceso directo descargable para iPhone** (/acceso-directo?so=ios): un perfil que solo agrega el ícono de RUNNER 360 a la pantalla de inicio.
+
 ## 2026-11-05 — Descargá la app (celular y computadora)
 
 - Página pública **runner360.ar/descargar** (también desde la portada y el pie): muestra primero los pasos del dispositivo en el que se está (iPhone, Android o computadora) y los demás plegados.

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { IconAddSquare, IconCheck, IconDots, IconPhone, IconShare } from "@/components/ui/icons";
 import { Button, Card, CardTitle } from "@/components/ui/primitives";
-import { shouldShowInstallBanner, type Browser, type DesktopOs } from "@/lib/pwa";
+import { openInChromeHref, openInSafariHref, shouldShowInstallBanner, type Browser, type DesktopOs, type InAppBrowser } from "@/lib/pwa";
 import { dismissInstall, promptInstall, useInstallState } from "./install-store";
 
 function Step({ n, icon, children }: { n: number; icon: React.ReactNode; children: React.ReactNode }) {
@@ -18,35 +18,89 @@ function Step({ n, icon, children }: { n: number; icon: React.ReactNode; childre
   );
 }
 
-/** Dibujo de la barra de Safari con el botón Compartir señalado. */
-function SafariBar() {
+/** Acceso directo descargable para iPhone: un perfil que agrega el ícono (solo se puede instalar desde Safari). */
+function IosShortcutDownload() {
   return (
-    <div aria-hidden className="mx-auto mt-2 flex max-w-xs items-center justify-around rounded-2xl border border-line bg-surface-2 px-4 py-2 text-muted">
-      <span className="text-lg">‹</span>
-      <span className="text-lg">›</span>
-      <span className="relative inline-flex size-10 items-center justify-center rounded-full bg-accent text-on-accent ring-4 ring-accent/30"><IconShare /></span>
-      <span className="text-lg">▢</span>
-      <span className="text-lg">▤</span>
+    <div className="rounded-xl border border-line bg-surface-2 p-4">
+      <p className="text-sm font-semibold text-ink">¿Preferís descargar el acceso directo?</p>
+      <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-muted">
+        <li>Tocá <strong className="text-ink">Descargar acceso directo</strong> y después <strong className="text-ink">Permitir</strong>.</li>
+        <li>Abrí <strong className="text-ink">Configuración</strong> y tocá <strong className="text-ink">Perfil descargado</strong> (arriba de todo).</li>
+        <li>Tocá <strong className="text-ink">Instalar</strong> y poné el código de tu iPhone. El ícono de RUNNER 360 aparece en tu pantalla de inicio.</li>
+      </ol>
+      <p className="mt-2 text-xs text-muted">El iPhone puede marcarlo como “No verificado”: es normal en accesos directos de sitios web. Solo agrega el ícono y lo borrás como cualquier otro.</p>
+      <a href="/acceso-directo?so=ios" className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">
+        Descargar acceso directo (iPhone)
+      </a>
     </div>
   );
 }
 
-function IosSteps() {
+function IosSteps({ browser }: { browser: Browser }) {
+  const safari = browser === "safari";
   return (
-    <>
+    <div className="space-y-4">
       <ol className="space-y-3">
         <Step n={1} icon={<IconShare />}>
-          Abrí esta página en <strong>Safari</strong> y tocá el botón <strong>Compartir</strong> (abajo, en el centro).
+          {safari ? (
+            <>Tocá el botón <strong>Compartir</strong>: está abajo, en el centro, o dentro del botón <strong>•••</strong> (abajo a la derecha) en los iPhone con la versión más nueva.</>
+          ) : browser === "chrome" ? (
+            <>Tocá el botón <strong>Compartir</strong>, arriba a la derecha, al lado de la dirección.</>
+          ) : (
+            <>Abrí el menú del navegador y tocá <strong>Compartir</strong>.</>
+          )}
         </Step>
         <Step n={2} icon={<IconAddSquare />}>
-          Bajá en la lista y tocá <strong>Agregar a inicio</strong>.
+          Bajá en la lista (o tocá <strong>Ver más</strong>) y elegí <strong>Agregar a inicio</strong>.
         </Step>
         <Step n={3} icon={<IconCheck />}>
           Tocá <strong>Agregar</strong>. El ícono de RUNNER 360 queda en tu pantalla de inicio.
         </Step>
       </ol>
-      <SafariBar />
-    </>
+      {safari ? (
+        <IosShortcutDownload />
+      ) : (
+        <p className="text-sm text-muted">Si no aparece <strong className="text-ink">Agregar a inicio</strong>, abrí <strong className="text-ink">runner360.ar</strong> en Safari y repetí los pasos.</p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Página abierta dentro de otra app (Instagram, Facebook…): ahí no se puede instalar. Botón para
+ * pasar a Safari o Chrome, copiar el enlace y, por las dudas, cómo hacerlo desde el menú de la app.
+ */
+function OpenOutside({ app, ios }: { app: InAppBrowser; ios: boolean }) {
+  const [copied, setCopied] = useState(false);
+  const url = window.location.href;
+  const name = app === "app" ? "otra app" : app;
+  const target = ios ? "Safari" : "Chrome";
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      window.prompt("Copiá este enlace:", url);
+    }
+  }
+  return (
+    <Card>
+      <CardTitle>Primero abrila en {target}</CardTitle>
+      <p className="mb-4 text-sm text-muted">
+        Estás viendo RUNNER 360 dentro de {name}. Desde acá {ios ? "el iPhone" : "el teléfono"} no deja agregar la app a la pantalla de inicio: abrí esta página en {target} y seguí los pasos de abajo.
+      </p>
+      <div className="flex flex-wrap gap-3">
+        <a href={ios ? openInSafariHref(url) : openInChromeHref(url)} className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">
+          Abrir en {target}
+        </a>
+        <button type="button" onClick={() => void copy()} className="inline-flex min-h-11 items-center rounded-xl border border-line bg-surface px-4 text-sm font-semibold text-ink">
+          {copied ? "Enlace copiado" : "Copiar enlace"}
+        </button>
+      </div>
+      <p className="mt-3 text-sm text-muted" role="status">
+        {copied ? <>Abrí {target}, tocá la barra de direcciones y pegá el enlace.</> : <>Si el botón no hace nada, tocá los <strong className="text-ink">tres puntos</strong> {ios ? "(•••)" : "(⋮)"} arriba a la derecha y elegí <strong className="text-ink">Abrir en el navegador externo</strong> (o <strong className="text-ink">Abrir en {target}</strong>).</>}
+      </p>
+    </Card>
   );
 }
 
@@ -137,7 +191,7 @@ export function InstallGuide() {
     );
   }
   const sections = {
-    ios: { title: "En iPhone o iPad (Safari)", body: <IosSteps /> },
+    ios: { title: s.platform === "ios" && s.browser !== "safari" && !s.inApp ? "En iPhone o iPad" : "En iPhone o iPad (Safari)", body: <IosSteps browser={s.platform === "ios" && !s.inApp ? s.browser : "safari"} /> },
     android: { title: "En Android (Chrome)", body: <AndroidSteps /> },
     desktop: { title: "En la computadora", body: <DesktopSteps browser={s.browser} os={s.os} /> },
   } as const;
@@ -145,6 +199,7 @@ export function InstallGuide() {
   const [mine, ...rest] = order;
   return (
     <div className="space-y-4">
+      {s.inApp && s.platform !== "desktop" ? <OpenOutside app={s.inApp} ios={s.platform === "ios"} /> : null}
       {s.canPrompt ? (
         <Card>
           <CardTitle>Instalar en este dispositivo</CardTitle>

@@ -17,6 +17,42 @@ export function isIosSafari(ua: string): boolean {
   return /safari/i.test(ua) && !/crios|fxios|edgios|opios|gsa\//i.test(ua);
 }
 
+/**
+ * Navegador interno de otra app (Instagram, Facebook, TikTok…): ahí ni el iPhone ofrece "Agregar a
+ * inicio" ni Android "Instalar app", así que primero hay que abrir la página en Safari o Chrome.
+ * Devuelve el nombre de la app o "app" si es un navegador interno sin nombre reconocible; null si no.
+ */
+export type InAppBrowser = "Instagram" | "Facebook" | "Messenger" | "TikTok" | "LinkedIn" | "X" | "Snapchat" | "LINE" | "Threads" | "Google" | "app";
+export function detectInAppBrowser(ua: string): InAppBrowser | null {
+  if (/instagram/i.test(ua)) return "Instagram";
+  if (/barcelona/i.test(ua)) return "Threads";
+  if (/messenger/i.test(ua)) return "Messenger";
+  if (/fban|fbav|fb_iab|fbios|fb4a/i.test(ua)) return "Facebook";
+  if (/bytedancewebview|musical_ly|tiktok/i.test(ua)) return "TikTok";
+  if (/linkedinapp/i.test(ua)) return "LinkedIn";
+  if (/twitter/i.test(ua)) return "X";
+  if (/snapchat/i.test(ua)) return "Snapchat";
+  if (/\bline\//i.test(ua)) return "LINE";
+  const ios = /iphone|ipad|ipod/i.test(ua);
+  if (ios && /\bgsa\//i.test(ua)) return "Google";
+  // Otras apps de iPhone: su navegador no dice "Safari/" (Chrome, Firefox, Edge y Opera sí se identifican).
+  if (ios && !/safari\//i.test(ua) && !/crios|fxios|edgios|opios|opt\//i.test(ua)) return "app";
+  // Android: las vistas web dentro de una app llevan "; wv)".
+  if (/android/i.test(ua) && /;\s*wv\)/i.test(ua)) return "app";
+  return null;
+}
+
+/** Enlace que abre la página en Safari desde otra app (iOS 17 o más nuevo). */
+export function openInSafariHref(url: string): string {
+  return `x-safari-${url}`;
+}
+
+/** Enlace que abre la página en Chrome desde otra app en Android (si no está, sigue en la misma). */
+export function openInChromeHref(url: string): string {
+  const u = new URL(url);
+  return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=${u.protocol.replace(":", "")};package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`;
+}
+
 export const DISMISS_KEY = "r360-install-dismissed";
 export const INSTALLED_KEY = "r360-installed";
 
@@ -70,4 +106,64 @@ export function shortcutFile(os: DesktopOs, siteUrl: string): { filename: string
     };
   }
   return { filename: "runner360.desktop", contentType: "application/x-desktop", body: `[Desktop Entry]\nType=Link\nName=RUNNER 360\nURL=${url}\nIcon=${site}/icons/icon-192.png\n` };
+}
+
+/**
+ * Acceso directo descargable para iPhone/iPad: un perfil que solo agrega el ícono de RUNNER 360 a la
+ * pantalla de inicio (no cambia ninguna otra configuración y se puede borrar como cualquier ícono).
+ * Los identificadores son fijos: si se instala dos veces, reemplaza al anterior en vez de duplicarlo.
+ */
+export function iosShortcutProfile(siteUrl: string, iconBase64: string): { filename: string; contentType: string; body: string } {
+  const site = siteUrl.replace(/\/+$/, "");
+  const body = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>FullScreen</key>
+			<true/>
+			<key>Icon</key>
+			<data>${iconBase64}</data>
+			<key>IsRemovable</key>
+			<true/>
+			<key>Label</key>
+			<string>RUNNER 360</string>
+			<key>PayloadDisplayName</key>
+			<string>RUNNER 360</string>
+			<key>PayloadIdentifier</key>
+			<string>ar.runner360.acceso-directo.icono</string>
+			<key>PayloadType</key>
+			<string>com.apple.webClip.managed</string>
+			<key>PayloadUUID</key>
+			<string>6F1C2B7E-3A54-4D8B-9E21-5C7A0B3D9F14</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Precomposed</key>
+			<true/>
+			<key>URL</key>
+			<string>${site}/inicio</string>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Agrega el ícono de RUNNER 360 a tu pantalla de inicio. No cambia ninguna otra configuración del teléfono.</string>
+	<key>PayloadDisplayName</key>
+	<string>RUNNER 360</string>
+	<key>PayloadIdentifier</key>
+	<string>ar.runner360.acceso-directo</string>
+	<key>PayloadOrganization</key>
+	<string>RUNNER 360</string>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>A8E4D0C2-71B9-4F36-8D5A-2E9C61F0B7A3</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
+`;
+  return { filename: "RUNNER 360.mobileconfig", contentType: "application/x-apple-aspen-config", body };
 }
