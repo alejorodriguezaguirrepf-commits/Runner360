@@ -1,4 +1,4 @@
--- Runnie: cupo diario de mensajes (5 sin suscripción, 30 con suscripción), solo para quien ingresó.
+-- Runnie: solo con suscripción (30 mensajes por día); sin suscripción, tope 0.
 begin;
 create function pg_temp.check(p_ok boolean, p_label text) returns void language plpgsql as $$
 begin
@@ -23,35 +23,38 @@ select pg_temp.expect_error($$select public.runnie_take_message()$$, 'anónimo: 
 reset role;
 
 set role authenticated;
--- Sin suscripción: 5 por día.
+-- Sin suscripción: Runnie no está incluido (tope 0) y no se registra nada.
 set request.jwt.claim.sub = 'a9000000-0000-4000-8000-0000000000a9';
-select pg_temp.check(public.runnie_daily_limit() = 5, 'gratis: tope 5');
-select pg_temp.check(public.runnie_remaining() = 5, 'gratis: 5 disponibles');
-select pg_temp.check(public.runnie_take_message() = 4, 'gratis: primer mensaje, quedan 4');
-select public.runnie_take_message(), public.runnie_take_message(), public.runnie_take_message();
-select pg_temp.check(public.runnie_take_message() = 0, 'gratis: quinto mensaje, quedan 0');
-select pg_temp.check(public.runnie_take_message() = -1, 'gratis: sexto mensaje rechazado');
-select pg_temp.check(public.runnie_remaining() = 0, 'gratis: sin cupo');
-select pg_temp.check((select messages from public.runnie_usage) = 5, 'gratis: ve su conteo (5)');
+select pg_temp.check(public.runnie_daily_limit() = 0, 'gratis: tope 0');
+select pg_temp.check(public.runnie_remaining() = 0, 'gratis: sin mensajes');
+select pg_temp.check(public.runnie_take_message() = -1, 'gratis: mensaje rechazado');
+select pg_temp.check((select count(*) from public.runnie_usage) = 0, 'gratis: no se registra nada');
 -- No puede reponerse el cupo ni escribir el conteo a mano.
 select pg_temp.expect_error($$select public.runnie_give_back('a9000000-0000-4000-8000-0000000000a9')$$, 'usuario: no repone el cupo');
-update public.runnie_usage set messages = 0;
-select pg_temp.check((select messages from public.runnie_usage) = 5, 'usuario: no edita el conteo');
-select pg_temp.expect_error($$insert into public.runnie_usage (user_id, day, messages) values ('a9000000-0000-4000-8000-0000000000a9', current_date + 1, 0)$$, 'usuario: no inserta conteos');
+select pg_temp.expect_error($$insert into public.runnie_usage (user_id, day, messages) values ('a9000000-0000-4000-8000-0000000000a9', current_date, 0)$$, 'usuario: no inserta conteos');
 
 -- Con suscripción: 30 por día, y no ve el conteo de otra persona.
 set request.jwt.claim.sub = 'b9000000-0000-4000-8000-0000000000b9';
 select pg_temp.check(public.runnie_daily_limit() = 30, 'suscripción: tope 30');
 select pg_temp.check(public.runnie_take_message() = 29, 'suscripción: quedan 29');
+select pg_temp.check(public.runnie_take_message() = 28, 'suscripción: quedan 28');
 select pg_temp.check((select count(*) from public.runnie_usage) = 1, 'suscripción: solo ve su conteo');
+update public.runnie_usage set messages = 0;
+select pg_temp.check((select messages from public.runnie_usage) = 2, 'suscripción: no edita el conteo');
+-- Con el tope lleno, se rechaza.
+reset role;
+update public.runnie_usage set messages = 30 where user_id = 'b9000000-0000-4000-8000-0000000000b9';
+set role authenticated;
+set request.jwt.claim.sub = 'b9000000-0000-4000-8000-0000000000b9';
+select pg_temp.check(public.runnie_take_message() = -1, 'suscripción: mensaje 31 rechazado');
 reset role;
 
 -- El servidor devuelve el mensaje cuando Runnie no pudo responder.
 set role service_role;
-select public.runnie_give_back('a9000000-0000-4000-8000-0000000000a9');
+select public.runnie_give_back('b9000000-0000-4000-8000-0000000000b9');
 reset role;
 set role authenticated;
-set request.jwt.claim.sub = 'a9000000-0000-4000-8000-0000000000a9';
+set request.jwt.claim.sub = 'b9000000-0000-4000-8000-0000000000b9';
 select pg_temp.check(public.runnie_remaining() = 1, 'devuelto: queda 1');
 
 rollback;

@@ -1,5 +1,10 @@
 # Cambios
 
+## 2026-11-09 — Runnie, solo con suscripción
+
+- Runnie pasa a ser parte de la suscripción: con suscripción o plan anual, 30 mensajes por día; sin suscripción, el botón sigue visible y al abrirlo invita a suscribirse (no se llama a la API, así que no genera gasto).
+- Lo controlan el servidor y la base (migración 20261109000400, aplicada en producción). De paso, con tope 0 ya no se registra ningún mensaje.
+
 ## 2026-11-09 — Runnie, el asistente
 
 - **Runnie**: un hombrecito que corre, en la esquina de la app (solo con sesión). Responde dudas sobre cómo usar RUNNER 360 (planes, semana gratis, suscripción, instalar la app) y de running en general, y conoce el plan y la semana de cada persona. Las rutas que menciona (/planes, /suscripcion…) son enlaces.

@@ -56,6 +56,8 @@ export function RunnieChat() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [quota, setQuota] = useState<{ remaining: number | null; limit: number | null }>({ remaining: null, limit: null });
+  // Runnie es parte de la suscripción: null mientras no se sabe, false para mostrar la invitación.
+  const [premium, setPremium] = useState<boolean | null>(null);
   const [announce, setAnnounce] = useState("");
   const titleId = useId();
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -73,7 +75,8 @@ export function RunnieChat() {
     try {
       const res = await fetch("/api/runnie", { cache: "no-store" });
       if (res.ok) {
-        const data = (await res.json()) as { remaining?: number | null; limit?: number | null };
+        const data = (await res.json()) as { premium?: boolean; remaining?: number | null; limit?: number | null };
+        if (typeof data.premium === "boolean") setPremium(data.premium);
         setQuota({ remaining: data.remaining ?? null, limit: data.limit ?? null });
       }
     } catch {
@@ -124,7 +127,12 @@ export function RunnieChat() {
         body: JSON.stringify({ messages: list.map(({ role, content }) => ({ role, content })) }),
       });
       if (!res.ok || !res.body) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string; remaining?: number };
+        const data = (await res.json().catch(() => ({}))) as { error?: string; remaining?: number; premiumOnly?: boolean };
+        if (data.premiumOnly) {
+          setPremium(false);
+          update(history);
+          return;
+        }
         if (typeof data.remaining === "number") setQuota((q) => ({ ...q, remaining: data.remaining! }));
         update(list.map((m) => (m.id === userMsg.id ? { ...m, failed: true } : m)));
         setNotice(data.error ?? "Runnie no pudo responder esta vez. Probá de nuevo en un momento.");
@@ -175,6 +183,7 @@ export function RunnieChat() {
 
   const writing = busy && messages.at(-1)?.role === "user";
   const out = quota.remaining === 0;
+  const locked = premium === false;
 
   return (
     <>
@@ -201,7 +210,7 @@ export function RunnieChat() {
             <div className="min-w-0 flex-1">
               <h2 id={titleId} className="font-extrabold text-ink">Runnie</h2>
               <p className="text-xs text-muted">
-                {quota.remaining !== null && quota.limit !== null ? `Te quedan ${quota.remaining} de ${quota.limit} mensajes hoy` : "Tu asistente de running"}
+                {!locked && quota.remaining !== null && quota.limit ? `Te quedan ${quota.remaining} de ${quota.limit} mensajes hoy` : "Tu asistente de running"}
               </p>
             </div>
             <button type="button" onClick={closeChat} aria-label="Cerrar el chat con Runnie" className="inline-flex size-11 items-center justify-center rounded-xl text-2xl text-muted hover:bg-surface-2 hover:text-ink">
@@ -210,7 +219,20 @@ export function RunnieChat() {
           </header>
 
           <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-            {messages.length === 0 ? (
+            {locked ? (
+              <div className="space-y-3">
+                <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
+                  ¡Hola! Soy Runnie. Respondo dudas sobre tu entrenamiento, tu plan y cómo usar la app.
+                </p>
+                <div className="rounded-2xl border border-primary bg-surface px-4 py-3">
+                  <p className="font-bold text-ink">Runnie es parte de la suscripción</p>
+                  <p className="mt-1 text-sm text-muted">Suscribite y preguntame lo que necesites, hasta 30 mensajes por día.</p>
+                  <Link href="/suscripcion" onClick={() => setOpen(false)} className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">
+                    Ver suscripción
+                  </Link>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="space-y-3">
                 <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
                   ¡Hola! Soy Runnie. Preguntame lo que necesites sobre tu entrenamiento, tu plan o cómo usar la app.
@@ -226,7 +248,7 @@ export function RunnieChat() {
                 </ul>
               </div>
             ) : null}
-            {messages.map((m) =>
+            {locked ? null : messages.map((m) =>
               m.role === "user" ? (
                 <div key={m.id} className="flex flex-col items-end">
                   <p className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2.5 text-sm whitespace-pre-wrap text-on-primary">{m.content}</p>
@@ -254,6 +276,7 @@ export function RunnieChat() {
             ) : null}
           </div>
 
+          {locked ? null : (
           <form
             className="border-t border-line px-4 pt-3 pb-3"
             onSubmit={(e) => {
@@ -293,6 +316,7 @@ export function RunnieChat() {
               ) : null}
             </div>
           </form>
+          )}
           <p aria-live="polite" className="sr-only">{announce}</p>
         </section>
       )}

@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSession } from "@/lib/auth";
+import { getSession, hasPremium } from "@/lib/auth";
 import { isRunnieConfigured, serverEnv } from "@/lib/env.server";
 import { logError } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
@@ -11,8 +11,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /**
  * Runnie: responde una pregunta de la persona con la API de Claude. Respuesta en líneas JSON
  * (NDJSON) a medida que se escribe: {"t":"delta","text"} …, y al final {"t":"done","remaining"} o
- * {"t":"error","message"}. El cupo diario lo controla la base (runnie_take_message); si Runnie no
- * llega a responder, el mensaje se devuelve al cupo.
+ * {"t":"error","message"}. Runnie es parte de la suscripción: sin ella no se llama a la API. El cupo
+ * diario (30 mensajes) lo controla la base (runnie_take_message); si Runnie no llega a responder, el
+ * mensaje se devuelve al cupo.
  */
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -20,6 +21,7 @@ export const maxDuration = 60;
 const MODEL = "claude-opus-5-5";
 
 const MSG = {
+  premiumOnly: "Runnie es parte de la suscripción. Suscribite para preguntarle lo que necesites.",
   unavailable: "Runnie no está disponible por ahora. Probá más tarde.",
   limit: "Llegaste al tope de mensajes de hoy. Mañana podés seguir preguntando.",
   invalid: "No entendí la pregunta. Escribila de nuevo, por favor.",
@@ -42,6 +44,7 @@ export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session || !session.profile.onboarding_completed_at) return json({ error: "No autorizado" }, 401);
   const userId = session.user.id;
+  if (!(await hasPremium(session))) return json({ error: MSG.premiumOnly, premiumOnly: true }, 403);
   if (!rateLimit(`runnie:${userId}`, 8, 60_000).ok) return json({ error: MSG.busy }, 429);
 
   const body = (await request.json().catch(() => null)) as { messages?: unknown } | null;
@@ -133,11 +136,13 @@ export async function POST(request: NextRequest) {
   });
 }
 
-/** Cuántos mensajes le quedan hoy (para mostrar en el chat al abrirlo). */
+/** Si la persona tiene Runnie (suscripción) y cuántos mensajes le quedan hoy (para el chat al abrirlo). */
 export async function GET() {
   if (!isRunnieConfigured()) return json({ enabled: false }, 200);
   const session = await getSession();
   if (!session) return json({ error: "No autorizado" }, 401);
+  const premium = await hasPremium(session);
+  if (!premium) return json({ enabled: true, premium: false, remaining: 0, limit: 0 }, 200);
   const [{ data: remaining }, { data: limit }] = await Promise.all([session.supabase.rpc("runnie_remaining"), session.supabase.rpc("runnie_daily_limit")]);
-  return json({ enabled: true, remaining: typeof remaining === "number" ? remaining : null, limit: typeof limit === "number" ? limit : null }, 200);
+  return json({ enabled: true, premium: true, remaining: typeof remaining === "number" ? remaining : null, limit: typeof limit === "number" ? limit : null }, 200);
 }

@@ -3,8 +3,8 @@
  * Funciones puras (se prueban en test/runnie.test.ts).
  */
 
-/** Tope de mensajes por día (el que vale es el de la base: runnie_daily_limit). */
-export const RUNNIE_LIMITS = { free: 5, premium: 30 } as const;
+/** Runnie es parte de la suscripción: 30 mensajes por día (el que vale es el de la base: runnie_daily_limit). */
+export const RUNNIE_LIMITS = { free: 0, premium: 30 } as const;
 /** Cuántos mensajes previos de la conversación se mandan como contexto, y el largo máximo de cada uno. */
 export const HISTORY_MAX_MESSAGES = 12;
 export const MESSAGE_MAX_CHARS = 1000;
