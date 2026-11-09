@@ -30,12 +30,14 @@ Cualquier hosting compatible con Next.js 16 (Node.js ≥ 20.9). Variables en el 
   | `NEXT_PUBLIC_SITE_URL` | El dominio de producción, p. ej. `https://runner360.ar` |
   | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare → Turnstile → widget de Runner360 → Site Key (ver abajo) |
   | `TURNSTILE_SECRET_KEY` | Cloudflare → Turnstile → widget de Runner360 → Secret Key. Secreta: solo servidor |
+  | `ANTHROPIC_API_KEY` | console.anthropic.com → API Keys → Create Key (para Runnie, el asistente). Secreta: solo servidor. Opcional: sin ella, Runnie no aparece |
 
 - Después de crear o cambiar variables: **Deployments → ⋯ → Redeploy** (Vercel solo aplica variables a despliegues nuevos).
 - Verificación: abrir `https://DOMINIO/api/health` → `"ok": true` y `"faltan": []`.
 - En Supabase → Authentication → URL Configuration: **Site URL** = dominio de producción; **Redirect URLs** = `https://DOMINIO/auth/confirm` (y, para previews, `https://*-TU-EQUIPO.vercel.app/auth/confirm`).
 - **Registro en un paso** (sin correo de confirmación). Las cuentas las crea el servidor de la web con `SUPABASE_SERVICE_ROLE_KEY`, después de verificar el captcha, y la sesión queda iniciada. En Supabase → Authentication → Sign In / Providers → Email: **Confirm email** apagado y **Allow new users to sign up** apagado (así nadie crea cuentas salteándose el formulario). Antes de apagar el registro, `/api/health` tiene que mostrar `SUPABASE_SERVICE_ROLE_KEY: true`. Los correos de recuperación de contraseña siguen activos.
 - El correo por defecto de Supabase (recuperación de contraseña) solo se envía a miembros del proyecto y con límite por hora: para usuarios externos configurá un SMTP propio (Authentication → Emails → SMTP Settings).
+- **Runnie (asistente con IA):** console.anthropic.com → API Keys → Create Key (nombre `runner360-runnie`); cargarla en Vercel como `ANTHROPIC_API_KEY` y hacer Redeploy. Recomendado: en Settings → Limits, un tope de gasto mensual. Cada persona tiene un cupo diario (5 mensajes sin suscripción, 30 con suscripción; lo controla la base) y el texto de las conversaciones no se guarda: en los registros de Vercel queda solo una línea `runnie:usage` con la cantidad de tokens de cada respuesta. `/api/health` muestra si la clave está cargada.
 - **Captcha (Cloudflare Turnstile):** dash.cloudflare.com → Turnstile → Add widget → nombre `Runner360`, hostnames `runner360.ar`, `www.runner360.ar` y `runner360.vercel.app`, Widget mode **Invisible**. Cargar la Site Key y la Secret Key en Vercel (tabla de arriba) y hacer Redeploy. `/api/health` muestra si están cargadas. Sin las dos claves, el registro funciona sin captcha.
 
 ```bash

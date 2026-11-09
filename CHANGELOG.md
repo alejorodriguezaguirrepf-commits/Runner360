@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-09 — Runnie, el asistente
+
+- **Runnie**: un hombrecito que corre, en la esquina de la app (solo con sesión). Responde dudas sobre cómo usar RUNNER 360 (planes, semana gratis, suscripción, instalar la app) y de running en general, y conoce el plan y la semana de cada persona. Las rutas que menciona (/planes, /suscripcion…) son enlaces.
+- Límites: no da indicaciones médicas (ante dolor o síntomas, deriva a un profesional), no inventa datos ni precios y no habla de proveedores técnicos.
+- Cupo diario por persona (hora de Argentina): 5 mensajes sin suscripción y 30 con suscripción, controlado por la base (migración 20261109000300, aplicada en producción). Si Runnie no llega a responder, el mensaje no se descuenta.
+- El texto de las conversaciones no se guarda en el servidor (queda en la pestaña del navegador); solo se cuenta cuántos mensajes se enviaron. Política de privacidad actualizada.
+- Usa la API de Claude (modelo Opus 5.5, esfuerzo bajo, instrucciones en caché y respaldo automático si el modelo declina). Requiere `ANTHROPIC_API_KEY` en Vercel; sin ella, Runnie no aparece.
+
 ## 2026-11-09 — Plan gratis más claro: elegí tu plan y entrená la primera semana
 
 - Sin suscripción, **Inicio**, **Mi plan** y **Suscripción** muestran el plan gratis: «Elegí cualquier plan y tenés la semana 1 liberada, día por día», con el botón «Elegir mi plan gratis» (lleva a la biblioteca de planes).

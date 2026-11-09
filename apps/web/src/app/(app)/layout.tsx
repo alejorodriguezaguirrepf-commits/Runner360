@@ -7,6 +7,8 @@ import { signOutAction } from "@/lib/actions/auth";
 import { ViewAsBanner } from "@/components/app/view-as-banner";
 import { InstallBanner } from "@/components/pwa/install";
 import { PaymentNotice } from "@/components/notifications/payment-notice";
+import { RunnieChat } from "@/components/runnie/runnie-chat";
+import { isRunnieConfigured } from "@/lib/env.server";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requireOnboardedSession();
@@ -48,6 +50,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </main>
       </div>
       <BottomNav />
+      {isRunnieConfigured() ? <RunnieChat /> : null}
     </div>
     </>
   );

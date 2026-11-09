@@ -24,6 +24,12 @@ export default function PrivacyPage() {
           de asignar un plan. No realizamos diagnósticos.
         </li>
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
+        <li>
+          Consultas a Runnie, el asistente: para responderte, tu pregunta, la conversación en curso y un resumen de tu plan
+          (nombre, semana y lo que te toca hoy) se envían a un proveedor de inteligencia artificial que la procesa por cuenta de
+          RUNNER 360. No guardamos el texto de las conversaciones: solo contamos cuántos mensajes enviaste cada día para aplicar
+          el cupo diario. No escribas datos de salud ni datos personales que no quieras compartir.
+        </li>
       </ul>
       <h2>Ubicación</h2>
       <p>
