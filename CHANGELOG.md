@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-10 — Runnie entre los beneficios de la suscripción
+
+- «Runnie, tu asistente: respuestas a tus dudas de entrenamiento y de la app» se suma a la lista de la suscripción mensual en la portada y en Suscripción (el anual ya incluye todo lo del mensual). Migración 20261110000100, solo textos del producto, aplicada en producción.
+
 ## 2026-11-09 — Runnie, solo con suscripción
 
 - Runnie pasa a ser parte de la suscripción: con suscripción o plan anual, 30 mensajes por día; sin suscripción, el botón sigue visible y al abrirlo invita a suscribirse (no se llama a la API, así que no genera gasto).

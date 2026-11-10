@@ -2855,6 +2855,15 @@ end;
 $$;
 
 
+-- ===== supabase/migrations/20261110000100_runnie_beneficio.sql =====
+-- Runnie en la lista de beneficios de la suscripción mensual (la portada y Suscripción la muestran).
+-- El plan anual ya dice "Todo lo incluido en Premium mensual". Solo textos del producto; no se repite.
+update public.subscription_products
+set features = array_append(features, 'Runnie, tu asistente: respuestas a tus dudas de entrenamiento y de la app')
+where code = 'premium_monthly'
+  and not ('Runnie, tu asistente: respuestas a tus dudas de entrenamiento y de la app' = any (features));
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -2866,7 +2875,7 @@ values
   ('00000000-0000-4000-8000-000000000001', 'free', 'Free', 'Elegí cualquier plan y entrená gratis la primera semana.', 'free', null,
    array['Acceso a todos los planes: 5K, 10K, 21K y 42K', 'La primera semana del plan que elijas, día por día', 'Registro de entrenamientos y perfil del corredor', 'Para seguir entrenando después, te suscribís'], 0),
   ('00000000-0000-4000-8000-000000000002', 'premium_monthly', 'Premium mensual', 'Acceso completo con facturación mensual.', 'premium', 'month',
-   array['Planes publicados incluidos en la suscripción', 'Calendario de entrenamiento', 'Historial y estadísticas avanzadas', 'Hidratación y competencias'], 1),
+   array['Planes publicados incluidos en la suscripción', 'Calendario de entrenamiento', 'Historial y estadísticas avanzadas', 'Hidratación y competencias', 'Runnie, tu asistente: respuestas a tus dudas de entrenamiento y de la app'], 1),
   ('00000000-0000-4000-8000-000000000003', 'premium_yearly', 'Premium anual', 'Acceso completo con facturación anual.', 'premium', 'year',
    array['Todo lo incluido en Premium mensual', 'Un único pago anual'], 2)
 on conflict (id) do nothing;
@@ -2953,6 +2962,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261109000200'),
   ('20261109000300'),
   ('20261109000400'),
+  ('20261110000100'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;

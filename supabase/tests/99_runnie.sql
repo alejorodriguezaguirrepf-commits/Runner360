@@ -57,4 +57,7 @@ set role authenticated;
 set request.jwt.claim.sub = 'b9000000-0000-4000-8000-0000000000b9';
 select pg_temp.check(public.runnie_remaining() = 1, 'devuelto: queda 1');
 
+-- Runnie figura entre los beneficios de la suscripción mensual (una sola vez).
+select pg_temp.check((select count(*) from unnest((select features from public.subscription_products where code = 'premium_monthly')) f where f like 'Runnie%') = 1, 'beneficio: Runnie en la suscripción mensual');
+
 rollback;
