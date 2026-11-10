@@ -137,3 +137,15 @@ export const IconAddSquare = (p: IconProps) => (
 export const IconDots = (p: IconProps) => (
   <Svg {...p}><circle cx="12" cy="5" r="1.3" fill="currentColor" /><circle cx="12" cy="12" r="1.3" fill="currentColor" /><circle cx="12" cy="19" r="1.3" fill="currentColor" /></Svg>
 );
+/** Huella digital (ingreso con huella / Face ID). */
+export const IconFingerprint = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 11v3a8 8 0 0 1-1.2 4.2" />
+    <path d="M8.5 9.8A3.5 3.5 0 0 1 15.5 11v1.5" />
+    <path d="M15.4 16.5a12 12 0 0 1-1 3" />
+    <path d="M5.5 15.5V11a6.5 6.5 0 0 1 11.2-4.5" />
+    <path d="M18.4 10.5c.07.5.1 1 .1 1.5v1" />
+    <path d="M8.2 13.5a10 10 0 0 1-1.6 5" />
+    <path d="M3.3 8.5A9.5 9.5 0 0 1 20 6.8" />
+  </Svg>
+);

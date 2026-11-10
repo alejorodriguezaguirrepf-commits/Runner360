@@ -16,6 +16,8 @@
     "@runner360/plan-library": "workspace:*",
     "@runner360/shared": "workspace:*",
     "@runner360/training-engine": "workspace:*",
+    "@simplewebauthn/browser": "^14.0.0",
+    "@simplewebauthn/server": "^14.1.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "next": "16.3.8",

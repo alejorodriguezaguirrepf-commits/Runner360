@@ -25,6 +25,11 @@ export default function PrivacyPage() {
         </li>
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
         <li>
+          Ingreso con huella o Face ID (opcional): la huella o el rostro los verifica tu dispositivo y nunca salen de él.
+          RUNNER 360 no recibe ni guarda datos biométricos: solo una clave pública por dispositivo, con la que comprueba que el
+          ingreso viene de tu teléfono o computadora. Podés quitarla cuando quieras desde tu perfil.
+        </li>
+        <li>
           Consultas a Runnie, el asistente: para responderte, tu pregunta, la conversación en curso y un resumen de tu plan
           (nombre, semana y lo que te toca hoy) se envían a un proveedor de inteligencia artificial que la procesa por cuenta de
           RUNNER 360. No guardamos el texto de las conversaciones: solo contamos cuántos mensajes enviaste cada día para aplicar

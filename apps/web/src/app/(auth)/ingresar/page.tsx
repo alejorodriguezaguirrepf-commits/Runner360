@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BiometricSignIn } from "@/components/auth/biometrics";
 import { SignInForm, type SignInNotice } from "./sign-in-form";
 
 export const metadata: Metadata = { title: "Ingresar" };
@@ -22,6 +23,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       <p className="mt-1 text-sm text-muted">Seguí con tu plan donde lo dejaste.</p>
       <div className="mt-6">
         <SignInForm next={next ?? "/inicio"} notice={notice} />
+        <BiometricSignIn next={next ?? "/inicio"} />
       </div>
     </>
   );

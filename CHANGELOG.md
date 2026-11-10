@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-10 — Ingreso con huella o Face ID (opcional)
+
+- **Ingresar** tiene el botón «Ingresar con huella o Face ID»: entra sin escribir la contraseña con la huella, Face ID, Windows Hello o el bloqueo del dispositivo (llaves de acceso / passkeys).
+- **Perfil → Ingreso con huella**: activar en este dispositivo, ver los dispositivos activados (con fecha del último ingreso) y quitarlos. En **Inicio**, una sugerencia de una sola vez para activarlo si el dispositivo lo permite.
+- La huella nunca sale del dispositivo: se guarda solo una clave pública por dispositivo (migraciones 20261110000200 y 20261110000300, aplicadas en producción). Desafíos de un solo uso que vencen en 5 minutos, verificación de la persona obligatoria, límite de intentos y registro en la auditoría. Política de privacidad actualizada.
+
 ## 2026-11-10 — Runnie entre los beneficios de la suscripción
 
 - «Runnie, tu asistente: respuestas a tus dudas de entrenamiento y de la app» se suma a la lista de la suscripción mensual en la portada y en Suscripción (el anual ya incluye todo lo del mensual). Migración 20261110000100, solo textos del producto, aplicada en producción.

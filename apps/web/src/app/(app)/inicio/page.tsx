@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SessionFacts, StatusBadge } from "@/components/app/session-summary";
 import { FreePlanNotice } from "@/components/app/free-plan-notice";
+import { BiometricSuggestion } from "@/components/auth/biometrics";
 import { PlanDashboard } from "@/components/library/plan-dashboard";
 import { IconChart, IconDrop, IconPlus, IconTimer } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, DemoBadge, EmptyState, ProgressBar, Stat } from "@/components/ui/primitives";
@@ -33,7 +34,12 @@ export default async function DashboardPage() {
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
-  const [openEnrollment, premium, library] = await Promise.all([getOpenEnrollment(supabase, user.id), hasPremium(session), getLibrary()]);
+  const [openEnrollment, premium, library, { count: passkeyCount }] = await Promise.all([
+    getOpenEnrollment(supabase, user.id),
+    hasPremium(session),
+    getLibrary(),
+    supabase.from("passkeys").select("id", { count: "exact", head: true }),
+  ]);
   const freeWeeks = library?.freePreviewWeeks ?? 1;
   const d = buildDashboard(active, workouts, today);
   const rec = d.recommendation ? RECOMMENDATION_TEXT[d.recommendation.action] : null;
@@ -57,6 +63,7 @@ export default async function DashboardPage() {
         </Link>
       </header>
 
+      {passkeyCount === 0 ? <BiometricSuggestion /> : null}
       {openEnrollment ? (
         <>
           {premium ? null : <div className="mb-6"><FreePlanNotice variant="enrolled" weeks={freeWeeks} /></div>}

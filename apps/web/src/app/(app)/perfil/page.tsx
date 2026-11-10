@@ -7,6 +7,7 @@ import { t } from "@/i18n";
 import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { PushToggle } from "@/components/notifications/push-toggle";
 import { isPushConfigured, vapidPublicKey } from "@/lib/notifications/push";
+import { BiometricsCard, type PasskeyItem } from "@/components/auth/biometrics";
 import { DeleteAccountForm, DeleteHealthDataForm, IncidentForm, RevokeHealthButton } from "./account-forms";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -22,10 +23,11 @@ const CONSENT_LABELS: Record<string, string> = {
 export default async function ProfilePage() {
   const session = await requireOnboardedSession();
   const { supabase, user, profile } = session;
-  const [tp, premium, { data: consents }] = await Promise.all([
+  const [tp, premium, { data: consents }, { data: passkeys }] = await Promise.all([
     loadTrainingProfile(supabase, user.id, profile.birth_date),
     hasPremium(session),
     supabase.from("user_consents").select("consent_type, granted, document_version, created_at").order("created_at", { ascending: false }),
+    supabase.from("passkeys").select("id, device_name, created_at, last_used_at").order("created_at", { ascending: false }),
   ]);
   const latest = new Map<string, { granted: boolean; document_version: string; created_at: string }>();
   for (const c of (consents ?? []) as { consent_type: string; granted: boolean; document_version: string; created_at: string }[]) {
@@ -47,6 +49,7 @@ export default async function ProfilePage() {
             ]}
           />
         </Card>
+        <BiometricsCard keys={(passkeys ?? []) as PasskeyItem[]} />
         <Card>
           <CardTitle>Apariencia</CardTitle>
           <p className="mb-3 text-sm text-muted">Elegí cómo se ve la aplicación en este dispositivo.</p>
