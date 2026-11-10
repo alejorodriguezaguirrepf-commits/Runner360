@@ -1,6 +1,8 @@
 import { paceSecondsPerKm } from "@runner360/training-engine";
 import { formatDate, formatDuration, formatKm, formatPaceLabel, WORKOUT_STATUS_LABELS } from "@runner360/shared";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { IconHeart } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, EmptyState, PageHeader } from "@/components/ui/primitives";
 import { requireOnboardedSession } from "@/lib/auth";
 import { loadWorkouts } from "@/lib/data/training";
@@ -8,14 +10,25 @@ import { DeleteWorkoutButton } from "./delete-button";
 
 export const metadata: Metadata = { title: "Historial" };
 
-export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ guardado?: string }> }) {
+export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ guardado?: string; id?: string }> }) {
   const { supabase, user } = await requireOnboardedSession();
-  const { guardado } = await searchParams;
+  const { guardado, id } = await searchParams;
+  const savedId = id && /^[0-9a-f-]{36}$/i.test(id) ? id : null;
   const workouts = await loadWorkouts(supabase, user.id);
   return (
     <>
       <PageHeader title="Historial de entrenamientos" actions={<ButtonLink href="/registrar">Registrar</ButtonLink>} />
-      {guardado ? <div className="mb-4"><Alert tone="success">Entrenamiento guardado.</Alert></div> : null}
+      {guardado ? (
+        <div className="mb-4">
+          <Alert tone="success" title="Entrenamiento guardado.">
+            {savedId ? (
+              <Link href={`/pulsaciones?contexto=post_carrera&entrenamiento=${savedId}`} className="mt-1 inline-flex min-h-11 items-center gap-2 font-semibold underline">
+                <IconHeart /> Medir pulso post-carrera
+              </Link>
+            ) : null}
+          </Alert>
+        </div>
+      ) : null}
       <Card>
         {workouts.length === 0 ? (
           <EmptyState title="Sin entrenamientos registrados">Cuando registres una sesión aparecerá acá.</EmptyState>

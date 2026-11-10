@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-11-10 — Pulsaciones con la cámara (6" × 10)
+
+- Nueva sección **Pulsaciones** (menú): al abrirla se prenden solos la cámara trasera y el flash. Al apoyar la yema del índice, la app estabiliza 3", cuenta los latidos durante 6" (cuenta regresiva, latidos en vivo y la onda del pulso) y muestra `latidos en 6" × 10 = ppm`. Se guarda sola.
+- 100 % automático: si la señal sale inestable recuenta sola (hasta 2 veces) y, si sigue mal, avisa y no guarda; sacar el dedo cancela; levantarlo y volver a apoyarlo mide de nuevo. Tras 90" sin dedo, o al pasar a segundo plano o salir de la sección, se apagan cámara y flash.
+- «¿Cómo usarlo?» debajo, abierta la primera vez. Aviso: medición estimativa, no es un dispositivo médico.
+- Historial (últimas mediciones) y evolución en reposo. Contexto: en reposo, después de correr u otro.
+- «Medir pulso post-carrera» al guardar un entrenamiento (registro libre y sesión del plan), asociado a esa carrera.
+- Base: tabla `heart_rate_measurements` (migración 20261110000400, aplicada en producción) con RLS por persona; `bpm` = `beats × 10` lo calcula la base y solo se guardan lecturas de calidad. Las imágenes nunca se guardan ni se envían. Política de privacidad actualizada.
+
 ## 2026-11-10 — Ingreso con huella o Face ID (opcional)
 
 - **Ingresar** tiene el botón «Ingresar con huella o Face ID»: entra sin escribir la contraseña con la huella, Face ID, Windows Hello o el bloqueo del dispositivo (llaves de acceso / passkeys).

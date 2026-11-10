@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { CheckboxField, ChoiceGroup, FormMessage, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
+import Link from "next/link";
+import { IconHeart } from "@/components/ui/icons";
 import { Alert } from "@/components/ui/primitives";
 import { t } from "@/i18n";
 import { logPlanSessionAction, type LogState } from "@/lib/actions/plan-progress";
@@ -59,6 +61,11 @@ export function SessionLogForm({ date, defaults, hasHealthConsent }: { date: str
         </Alert>
       ) : null}
       <FormMessage state={state} />
+      {state.ok && state.completed && state.workoutId ? (
+        <Link href={`/pulsaciones?contexto=post_carrera&entrenamiento=${state.workoutId}`} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-primary px-4 text-sm font-semibold text-primary-ink hover:bg-surface-2">
+          <IconHeart /> Medir pulso post-carrera
+        </Link>
+      ) : null}
       <SubmitButton pending={pending} pendingText="…">{L.save}</SubmitButton>
     </form>
   );

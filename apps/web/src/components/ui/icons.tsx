@@ -149,3 +149,9 @@ export const IconFingerprint = (p: IconProps) => (
     <path d="M3.3 8.5A9.5 9.5 0 0 1 20 6.8" />
   </Svg>
 );
+/** Corazón (pulsaciones). */
+export const IconHeart = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z" />
+  </Svg>
+);

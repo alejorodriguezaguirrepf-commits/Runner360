@@ -8,7 +8,7 @@ import { canonicalRedirect, canonicalSiteUrl, hasSessionCookie, sessionHandoffPa
  * La protección real se repite en cada layout/acción del servidor y en RLS.
  */
 
-const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin", "/planes", "/hoy", "/calculadora", "/instalar"];
+const PRIVATE_PREFIXES = ["/inicio", "/plan", "/registrar", "/progreso", "/perfil", "/hidratacion", "/competencias", "/suscripcion", "/entrenamientos", "/onboarding", "/admin", "/planes", "/hoy", "/calculadora", "/instalar", "/pulsaciones"];
 const AUTH_PAGES = ["/ingresar", "/registro"];
 
 export async function proxy(request: NextRequest) {

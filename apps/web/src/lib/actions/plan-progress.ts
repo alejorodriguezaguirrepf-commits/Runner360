@@ -61,6 +61,9 @@ const logSchema = z.object({
 export interface LogState extends ActionState {
   /** Textos del contenido que corresponden a lo registrado (p. ej. dolor). */
   ruleTexts?: string[];
+  /** Registro guardado (para "Medir pulso post-carrera") y si fue una sesión realizada. */
+  workoutId?: string;
+  completed?: boolean;
 }
 
 /**
@@ -120,7 +123,9 @@ export async function logPlanSessionAction(_prev: LogState, formData: FormData):
     .eq("enrollment_id", open.enrollment.id)
     .eq("workout_date", v.date)
     .maybeSingle<{ id: string }>();
-  const { error } = existing ? await supabase.from("workout_logs").update(row).eq("id", existing.id) : await supabase.from("workout_logs").insert(row);
+  const { data: saved, error } = existing
+    ? await supabase.from("workout_logs").update(row).eq("id", existing.id).select("id").single<{ id: string }>()
+    : await supabase.from("workout_logs").insert(row).select("id").single<{ id: string }>();
   if (error) {
     // Sin detalles del registro: puede contener datos de salud.
     logError("log:save", { code: error.code });
@@ -164,7 +169,7 @@ export async function logPlanSessionAction(_prev: LogState, formData: FormData):
   revalidatePath("/inicio");
   // Con la pausa, la pantalla de Hoy pasa a la vista de pausa: el aviso se muestra ahí.
   if (paused) redirect("/hoy?pausa=1");
-  return { ok: true, message: L.saved, ruleTexts };
+  return { ok: true, message: L.saved, ruleTexts, workoutId: saved?.id, completed: v.status !== "skipped" };
 }
 
 const checkinSchema = z.object({

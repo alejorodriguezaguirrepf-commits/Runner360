@@ -60,7 +60,8 @@ export async function saveWorkoutAction(_prev: ActionState, formData: FormData):
   }
 
   revalidatePath("/", "layout");
-  redirect("/entrenamientos?guardado=1");
+  // Corrida realizada: el historial ofrece medir el pulso post-carrera de este registro.
+  redirect(skipped ? "/entrenamientos?guardado=1" : `/entrenamientos?guardado=1&id=${workout.id}`);
 }
 
 export async function deleteWorkoutAction(formData: FormData): Promise<void> {

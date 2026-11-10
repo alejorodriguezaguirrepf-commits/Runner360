@@ -25,6 +25,11 @@ export default function PrivacyPage() {
         </li>
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
         <li>
+          Pulsaciones (opcional): para medirlas se usa la cámara y el flash del teléfono. La imagen se procesa en tu
+          dispositivo y nunca se guarda ni se envía; solo guardamos el resultado (latidos contados, pulsaciones por minuto,
+          calidad de la lectura, momento y, si la asociás, la carrera). Es una estimación para entrenar, no un dato médico.
+        </li>
+        <li>
           Ingreso con huella o Face ID (opcional): la huella o el rostro los verifica tu dispositivo y nunca salen de él.
           RUNNER 360 no recibe ni guarda datos biométricos: solo una clave pública por dispositivo, con la que comprueba que el
           ingreso viene de tu teléfono o computadora. Podés quitarla cuando quieras desde tu perfil.

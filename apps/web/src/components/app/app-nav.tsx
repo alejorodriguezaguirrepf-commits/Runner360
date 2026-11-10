@@ -17,6 +17,7 @@ import {
   IconStar,
   IconTimer,
   IconUser,
+  IconHeart,
 } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
 import { t } from "@/i18n";
@@ -31,6 +32,7 @@ const PRIMARY = [
 
 const SECONDARY = [
   { href: "/hoy", label: t.library.today.title, icon: IconTimer },
+  { href: "/pulsaciones", label: "Pulsaciones", icon: IconHeart },
   { href: "/planes", label: t.library.nav.catalog, icon: IconList },
   { href: "/calculadora", label: "Calculadora", icon: IconBolt },
   { href: "/entrenamientos", label: "Historial", icon: IconTimer },
