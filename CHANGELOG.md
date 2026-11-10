@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-10 — Pulsaciones: toma más precisa y opciones sin flash
+
+- **Flash en Android**: se prueban todas las cámaras traseras hasta encontrar la que tiene flash (el navegador solía elegir la gran angular, que no lo tiene).
+- **Fuente de luz** elegible y recordada: *Flash*, *Lámpara o ventana* (cámara trasera apuntando a una luz que atraviesa el dedo) o *Pantalla* (cámara de adelante con la mitad de arriba de la pantalla en blanco). Si el flash no se puede prender, pasa sola a lámpara o ventana y lo avisa.
+- **Señal más precisa**: se usa el canal de color con el pulso más claro (con flash el rojo se satura y el pulso se ve en el verde), se promedia el centro de la imagen en resolución real (~20.000 píxeles por cuadro), se fijan exposición, balance de blancos y foco con el dedo apoyado, y la pantalla no se apaga mientras se mide.
+- **Conteo cuando el pulso está claro**: estabilización mínima de 3"; los 6" de conteo arrancan cuando el pulso se ve claro en dos lecturas seguidas (o a los 8"). Indicador de señal (débil / regular / buena).
+- Corregido: con flash, el rojo saturado se tomaba como «apretás demasiado» y cortaba la medición.
+
 ## 2026-11-10 — Pulsaciones con la cámara (6" × 10)
 
 - Nueva sección **Pulsaciones** (menú): al abrirla se prenden solos la cámara trasera y el flash. Al apoyar la yema del índice, la app estabiliza 3", cuenta los latidos durante 6" (cuenta regresiva, latidos en vivo y la onda del pulso) y muestra `latidos en 6" × 10 = ppm`. Se guarda sola.

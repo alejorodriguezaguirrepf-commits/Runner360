@@ -120,11 +120,71 @@ describe('Flujo automático: casos límite', () => {
       onResult: (r) => results.push(r),
     });
     let t = 0;
-    for (let i = 0; i < 30 * 26; i++) {
+    // Hasta 8" esperando un pulso claro + 3 intentos de 6,5" ≈ 28".
+    for (let i = 0; i < 30 * 30; i++) {
       t += 1000 / 30;
       session.pushFrame(t, { r: 200 + (rand() - 0.5) * 20, g: 40, b: 30 });
     }
     expect(results).toHaveLength(0);
     expect(last).toEqual({ lowQuality: true, status: 'done' });
+  });
+});
+
+describe('Toma más precisa: canal, poca luz y señal que tarda en asentarse', () => {
+  function measure(colorAt: (t: number) => { r: number; g: number; b: number; spread?: number }, seconds: number, light: 'flash' | 'ambient' | 'screen' = 'flash') {
+    const rand = rng(21);
+    const results: MeasureResult[] = [];
+    const starts: number[] = [];
+    let prev: MeasureStatus | null = null;
+    let t = 0;
+    const session = new MeasurementSession({
+      onState: (s) => {
+        if (s.status === 'counting' && prev === 'stabilizing') starts.push(t);
+        prev = s.status;
+      },
+      onResult: (r) => results.push(r),
+    }, { light });
+    for (let i = 0; i < seconds * 30; i++) {
+      t += 1000 / 30 + (rand() - 0.5) * 6;
+      session.pushFrame(t, colorAt(t));
+    }
+    return { results, starts };
+  }
+
+  it('con flash, rojo saturado en 255: lee el pulso en el verde (±10)', () => {
+    const rand = rng(4);
+    const { results } = measure((t) => ({ r: 255, g: 70 - 3 * (ppg(78, t, rand) - 200) / 2, b: 20 }), 12);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.bpm).toBe(results[0]!.beats * 10);
+    expect(Math.abs(results[0]!.bpm - 78)).toBeLessThanOrEqual(10);
+  });
+
+  it('con lámpara o ventana (imagen oscura): detecta el dedo y mide (±10)', () => {
+    const rand = rng(5);
+    const { results } = measure((t) => ({ r: 60 + (ppg(66, t, rand) - 200) / 2, g: 22, b: 18, spread: 4 }), 12, 'ambient');
+    expect(results).toHaveLength(1);
+    expect(Math.abs(results[0]!.bpm - 66)).toBeLessThanOrEqual(10);
+  });
+
+  it('una escena con detalles (no un dedo) no se toma como dedo', () => {
+    const { results, starts } = measure(() => ({ r: 160, g: 60, b: 50, spread: 60 }), 10, 'ambient');
+    expect(results).toHaveLength(0);
+    expect(starts).toHaveLength(0);
+  });
+
+  it('si la señal tarda en asentarse, espera más de 3" antes de contar y el resultado sale bien', () => {
+    const rand = rng(9);
+    // 5" de ruido (dedo moviéndose) y después pulso limpio.
+    const { results, starts } = measure((t) => ({ r: t < 5000 ? 200 + (rand() - 0.5) * 16 : ppg(84, t, rand), g: 40, b: 30 }), 18);
+    expect(starts[0]! - 0).toBeGreaterThan(4000);
+    expect(results).toHaveLength(1);
+    expect(Math.abs(results[0]!.bpm - 84)).toBeLessThanOrEqual(10);
+  });
+
+  it('apretar demasiado (dedo pálido y plano) se avisa', () => {
+    const recent = Array.from({ length: 30 }, () => 255);
+    expect(detectFinger({ r: 255, g: 170, b: 160 }, recent)).toBe('no_finger');
+    expect(detectFinger({ r: 255, g: 125, b: 100 }, recent)).toBe('too_much_pressure');
+    expect(detectFinger({ r: 255, g: 60, b: 20 }, recent)).toBe('ok');
   });
 });

@@ -1,4 +1,4 @@
-import { HeartRateProcessor, detectFinger, COUNT_WINDOW_MS, type FrameColor, type FingerStatus } from './heartRateProcessor';
+import { HeartRateProcessor, detectFinger, COUNT_WINDOW_MS, type FrameColor, type FingerStatus, type LightSource } from './heartRateProcessor';
 
 /** Texto que acompaña al número del resultado (fácil de cambiar). */
 export const RESULT_LABEL = 'pulsaciones por minuto';
@@ -22,9 +22,15 @@ export interface MeasureState {
   result: MeasureResult | null; // último resultado (se mantiene visible al esperar el dedo)
   lowQuality: boolean;
   retrying: boolean;
+  /** Qué tan claro se ve el pulso (0..1), para mostrar "señal débil / buena". */
+  signal: number;
 }
 
 export const STABILIZE_MS = 3000;
+/** Si a los 3" el pulso todavía no se ve claro, se espera un poco más (hasta 8") antes de contar. */
+export const MAX_STABILIZE_MS = 8000;
+/** Periodicidad mínima para empezar a contar (el ruido rara vez la sostiene; un pulso débil sí). */
+const SIGNAL_READY = 0.75;
 const TAIL_MS = 500;          // margen para detectar el último latido de la ventana
 const FINGER_LOST_MS = 1000;
 const IDLE_PAUSE_MS = 90000;
@@ -34,12 +40,17 @@ const UI_EVERY_MS = 150;
 
 export const initialMeasureState: MeasureState = {
   status: 'waitingFinger', finger: 'no_finger', stabilizeProgress: 0, secondsLeft: COUNT_WINDOW_MS / 1000,
-  liveBeats: 0, waveform: [], result: null, lowQuality: false, retrying: false,
+  liveBeats: 0, waveform: [], result: null, lowQuality: false, retrying: false, signal: 0,
 };
 
 export interface SessionCallbacks {
   onState: (s: MeasureState) => void;
   onResult: (r: MeasureResult) => void; // solo resultados válidos → guardado automático
+}
+
+export interface SessionOptions {
+  /** Fuente de luz: con flash, lámpara/ventana o pantalla (cambia cuánta luz se espera). */
+  light?: LightSource;
 }
 
 /**
@@ -55,8 +66,12 @@ export class MeasurementSession {
   private waitingSince: number | null = null;
   private retries = 0;
   private lastEmit = -Infinity;
+  private light: LightSource;
+  private signalReady = false;
+  private readyStreak = 0;
 
-  constructor(private cb: SessionCallbacks) {
+  constructor(private cb: SessionCallbacks, opts: SessionOptions = {}) {
+    this.light = opts.light ?? 'flash';
     cb.onState(this.state);
   }
 
@@ -64,7 +79,7 @@ export class MeasurementSession {
     const status = this.state.status;
     if (status === 'paused') return;
 
-    const finger = detectFinger(color, this.proc.rawRed);
+    const finger = detectFinger(color, this.proc.rawRed, this.light);
     const ok = finger === 'ok';
     if (ok) this.lastFingerAt = t;
     const fingerLost = !ok && t - this.lastFingerAt > FINGER_LOST_MS;
@@ -74,28 +89,32 @@ export class MeasurementSession {
         this.waitingSince ??= t;
         if (ok) {
           this.proc.reset();
-          this.proc.addSample(t, color.r);
+          this.proc.addSample(t, color);
           this.phaseStart = t;
           this.retries = 0;
           this.waitingSince = null;
-          return this.set(t, { status: 'stabilizing', finger, stabilizeProgress: 0, liveBeats: 0, waveform: [], lowQuality: false, retrying: false }, true);
+          this.signalReady = false;
+          this.readyStreak = 0;
+          return this.set(t, { status: 'stabilizing', finger, stabilizeProgress: 0, liveBeats: 0, waveform: [], lowQuality: false, retrying: false, signal: 0 }, true);
         }
         if (t - this.waitingSince > IDLE_PAUSE_MS) return this.set(t, { status: 'paused', finger }, true);
         return this.set(t, { finger });
       }
 
       case 'stabilizing': {
-        if (ok) this.proc.addSample(t, color.r);
+        if (ok) this.proc.addSample(t, color);
         if (fingerLost) return this.toWaiting(t, finger);
-        if (t - this.phaseStart >= STABILIZE_MS) {
+        const elapsed = t - this.phaseStart;
+        // Mínimo 3"; el conteo arranca cuando el pulso se ve claro (o a los 8", lo que pase primero).
+        if (elapsed >= MAX_STABILIZE_MS || (elapsed >= STABILIZE_MS && this.signalReady)) {
           this.countStart = t;
           return this.set(t, { status: 'counting', finger, secondsLeft: COUNT_WINDOW_MS / 1000, liveBeats: 0 }, true);
         }
-        return this.set(t, { finger, stabilizeProgress: (t - this.phaseStart) / STABILIZE_MS });
+        return this.set(t, { finger, stabilizeProgress: Math.min(1, elapsed / STABILIZE_MS) });
       }
 
       case 'counting': {
-        if (ok) this.proc.addSample(t, color.r);
+        if (ok) this.proc.addSample(t, color);
         if (fingerLost) return this.toWaiting(t, finger);
         const end = this.countStart + COUNT_WINDOW_MS;
         if (t >= end + TAIL_MS) return this.finalize(t, finger);
@@ -145,6 +164,12 @@ export class MeasurementSession {
     if (st === 'stabilizing' || st === 'counting') {
       const snap = this.proc.snapshot();
       this.state.waveform = snap.waveform.slice(-150); // ~5"
+      this.state.signal = snap.quality;
+      // Pulso claro en dos lecturas seguidas (≈300 ms): así un pico de ruido no dispara el conteo.
+      if (st === 'stabilizing') {
+        this.readyStreak = snap.quality >= SIGNAL_READY ? this.readyStreak + 1 : 0;
+        if (this.readyStreak >= 2) this.signalReady = true;
+      }
       if (st === 'counting') {
         const end = this.countStart + COUNT_WINDOW_MS;
         this.state.liveBeats = snap.beatTimes.filter((x) => x >= this.countStart && x < end).length;
