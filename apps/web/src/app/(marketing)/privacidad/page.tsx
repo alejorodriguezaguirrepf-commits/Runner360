@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         </li>
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
         <li>
-          Pulsaciones (opcional): para medirlas se usa la cámara y el flash del teléfono. La imagen se procesa en tu
+          Pulsaciones (opcional): para medirlas se usa la cámara de adelante del teléfono, con la pantalla como luz. La imagen se procesa en tu
           dispositivo y nunca se guarda ni se envía; solo guardamos el resultado (latidos contados, pulsaciones por minuto,
           calidad de la lectura, momento y, si la asociás, la carrera). Es una estimación para entrenar, no un dato médico.
         </li>

@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { LightSource } from "@/lib/heart-rate/heartRateProcessor";
 import { initialMeasureState, MeasurementSession, type MeasureResult, type MeasureState } from "@/lib/heart-rate/measurementSession";
 
 export type CameraState = "starting" | "on" | "off" | "error";
 
-/** Lado máximo del recorte central que se promedia (en píxeles reales, sin achicar: más precisión). */
-const MAX_ROI = 160;
+/** Lado máximo del recorte que se promedia (en píxeles reales, sin achicar: más precisión). */
+const MAX_ROI = 200;
+/** Parte del cuadro que se promedia: con la cámara de adelante el dedo tapa casi toda la imagen. */
+const ROI_FRACTION = 0.8;
 
-type Constraint = MediaTrackConstraintSet & { torch?: boolean; exposureMode?: string; whiteBalanceMode?: string; focusMode?: string };
-type Caps = MediaTrackCapabilities & { torch?: boolean; exposureMode?: string[]; whiteBalanceMode?: string[]; focusMode?: string[] };
+type Constraint = MediaTrackConstraintSet & { exposureMode?: string; whiteBalanceMode?: string; focusMode?: string };
+type Caps = MediaTrackCapabilities & { exposureMode?: string[]; whiteBalanceMode?: string[]; focusMode?: string[] };
 type VideoWithFrames = HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number };
 type WakeLockLike = { release: () => Promise<void> };
 
@@ -19,54 +20,22 @@ const VIDEO = { width: { ideal: 320 }, height: { ideal: 240 }, frameRate: { idea
 function stopStream(s: MediaStream | null) {
   s?.getTracks().forEach((t) => t.stop());
 }
-function hasTorch(track: MediaStreamTrack): boolean {
-  return Boolean(((track.getCapabilities?.() ?? {}) as Caps).torch);
-}
 
 /**
- * Cámara trasera con flash. Muchos Android tienen varias cámaras traseras y el navegador elige la
- * gran angular, que no tiene flash: se prueban todas hasta encontrar la que lo tiene.
+ * Cámara para medir pulsaciones por el dedo (PPG): la cámara de adelante, con la pantalla en blanco
+ * iluminando el dedo. Arranca sola al montarse; se apaga al desmontarse, al pasar a segundo plano, al
+ * cerrar y tras 90" sin dedo. La imagen nunca sale del dispositivo: solo se usa el color medio del cuadro.
  */
-async function openBackCameraWithTorch(): Promise<{ stream: MediaStream; torch: boolean }> {
-  const first = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "environment" }, ...VIDEO } });
-  const firstTrack = first.getVideoTracks()[0];
-  if (!firstTrack || hasTorch(firstTrack)) return { stream: first, torch: Boolean(firstTrack) };
-  const firstId = firstTrack.getSettings().deviceId;
-  // Con el permiso ya dado, los nombres de las cámaras están disponibles.
-  const devices = (await navigator.mediaDevices.enumerateDevices()).filter((d) => d.kind === "videoinput" && d.deviceId !== firstId);
-  const back = devices.filter((d) => !/front|frontal|user|delantera|facing front/i.test(d.label));
-  for (const d of back) {
-    try {
-      const s = await navigator.mediaDevices.getUserMedia({ audio: false, video: { deviceId: { exact: d.deviceId }, ...VIDEO } });
-      const tr = s.getVideoTracks()[0];
-      if (tr && hasTorch(tr)) {
-        stopStream(first);
-        return { stream: s, torch: true };
-      }
-      stopStream(s);
-    } catch {
-      // Esa cámara no se pudo abrir: se sigue con la próxima.
-    }
-  }
-  return { stream: first, torch: false };
-}
-
-/**
- * Cámara para medir pulsaciones por el dedo (PPG). Arranca sola al montarse; se apaga al desmontarse,
- * al pasar a segundo plano y tras 90" sin dedo. La imagen nunca sale del dispositivo: solo se usa el
- * color medio del centro del cuadro.
- * - light "flash": cámara trasera con flash (si el teléfono no deja prenderlo, se avisa).
- * - light "ambient": cámara trasera apuntando a una lámpara o ventana (la luz atraviesa el dedo).
- * - light "screen": cámara de adelante, con la pantalla en blanco iluminando el dedo.
- */
-export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: LightSource) {
+export function useCameraHeartRate(onResult: (r: MeasureResult) => void) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const sessionRef = useRef<MeasurementSession | null>(null);
   const wakeRef = useRef<WakeLockLike | null>(null);
-  const genRef = useRef(0); // invalida arranques viejos (StrictMode, visibilidad, cambio de luz)
+  const genRef = useRef(0); // invalida arranques viejos (StrictMode, visibilidad, cerrar)
   const onResultRef = useRef(onResult);
   const lockedRef = useRef(false);
+  /** La persona cerró la medición: al volver a la app no se prende sola. */
+  const closedRef = useRef(false);
   useEffect(() => {
     onResultRef.current = onResult;
   }, [onResult]);
@@ -74,14 +43,9 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
   const [state, setState] = useState<MeasureState>(initialMeasureState);
   const [cameraState, setCameraState] = useState<CameraState>("starting");
   const [error, setError] = useState<string | null>(null);
-  const [torchSupported, setTorchSupported] = useState<boolean | null>(null);
-  /** Luz con la que se está midiendo: si se eligió flash y el teléfono no lo deja prender, "ambient". */
-  const [activeLight, setActiveLight] = useState<LightSource>(light);
 
   const releaseCamera = useCallback(() => {
     genRef.current++;
-    const track = streamRef.current?.getVideoTracks()[0];
-    track?.applyConstraints({ advanced: [{ torch: false } as Constraint] }).catch(() => {});
     stopStream(streamRef.current);
     streamRef.current = null;
     sessionRef.current = null;
@@ -105,10 +69,7 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
     setError(null);
     try {
       if (!navigator.mediaDevices?.getUserMedia) throw Object.assign(new Error("sin cámara"), { name: window.isSecureContext ? "NotFoundError" : "SecurityError" });
-      let stream: MediaStream;
-      let torch = false;
-      if (light === "flash") ({ stream, torch } = await openBackCameraWithTorch());
-      else stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: light === "screen" ? "user" : "environment" }, ...VIDEO } });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: "user" }, ...VIDEO } });
       if (gen !== genRef.current) {
         stopStream(stream);
         return;
@@ -116,12 +77,6 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
       streamRef.current = stream;
       const track = stream.getVideoTracks()[0]!;
       const caps = (track.getCapabilities?.() ?? {}) as Caps;
-      if (light === "flash") {
-        if (torch) await track.applyConstraints({ advanced: [{ torch: true } as Constraint] }).catch(() => (torch = false));
-        setTorchSupported(torch);
-      } else setTorchSupported(null);
-      const sessionLight: LightSource = light === "flash" && !torch ? "ambient" : light;
-      setActiveLight(sessionLight);
 
       // Con el dedo apoyado se fijan exposición, balance de blancos y foco: los ajustes automáticos meten ruido.
       const lockable: Constraint = {};
@@ -174,7 +129,7 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
           },
           onResult: (r) => onResultRef.current(r),
         },
-        { light: sessionLight },
+        { light: "screen" },
       );
       setCameraState("on");
 
@@ -184,9 +139,9 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
         const vw = video.videoWidth;
         const vh = video.videoHeight;
         if (vw && vh) {
-          // Centro del cuadro (60 %) en su resolución real: se promedian miles de píxeles por cuadro,
+          // Centro del cuadro (80 %) en su resolución real: se promedian miles de píxeles por cuadro,
           // lo que permite ver variaciones más chicas que un nivel de brillo.
-          const side = Math.round(Math.min(vw, vh) * 0.6);
+          const side = Math.round(Math.min(vw, vh) * ROI_FRACTION);
           const out = Math.min(side, MAX_ROI);
           if (canvas.width !== out) {
             canvas.width = out;
@@ -230,9 +185,9 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
                 : "No pudimos iniciar la cámara.",
       );
     }
-  }, [releaseCamera, stopCamera, light]);
+  }, [releaseCamera, stopCamera]);
 
-  // Arranque automático al abrir (y al cambiar la fuente de luz) + pausa/reanudación con la visibilidad.
+  // Arranque automático al abrir + pausa/reanudación con la visibilidad.
   useEffect(() => {
     const boot = setTimeout(() => {
       setState(initialMeasureState);
@@ -240,7 +195,7 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
     }, 0);
     const onVis = () => {
       if (document.hidden) stopCamera();
-      else {
+      else if (!closedRef.current) {
         setState(initialMeasureState);
         void startCamera();
       }
@@ -254,9 +209,15 @@ export function useCameraHeartRate(onResult: (r: MeasureResult) => void, light: 
   }, [startCamera, stopCamera, releaseCamera]);
 
   const resume = useCallback(() => {
+    closedRef.current = false;
     setState(initialMeasureState);
     void startCamera();
   }, [startCamera]);
 
-  return { videoRef, state, cameraState, error, torchSupported, activeLight, resume };
+  const close = useCallback(() => {
+    closedRef.current = true;
+    stopCamera();
+  }, [stopCamera]);
+
+  return { videoRef, state, cameraState, error, resume, close };
 }

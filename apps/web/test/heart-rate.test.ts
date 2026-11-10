@@ -181,6 +181,23 @@ describe('Toma más precisa: canal, poca luz y señal que tarda en asentarse', (
     expect(Math.abs(results[0]!.bpm - 84)).toBeLessThanOrEqual(10);
   });
 
+  it('con la pantalla como luz (cámara de adelante, imagen oscura): mide (±10)', () => {
+    const rand = rng(12);
+    const { results } = measure((t) => ({ r: 45 + (ppg(72, t, rand) - 200) / 3, g: 14, b: 12, spread: 3 }), 12, 'screen');
+    expect(results).toHaveLength(1);
+    expect(results[0]!.bpm).toBe(results[0]!.beats * 10);
+    expect(Math.abs(results[0]!.bpm - 72)).toBeLessThanOrEqual(10);
+  });
+
+  it('un salto brusco de brillo (el dedo se acomoda) no se cuenta como latidos', () => {
+    const rand = rng(13);
+    // Durante el conteo el nivel salta de golpe varias veces (mucho más que el pulso) y queda ahí.
+    const level = (t: number) => (t > 5300 ? 8 : 0) - (t > 6900 ? 8 : 0) + (t > 8700 ? 8 : 0) - (t > 10100 ? 8 : 0);
+    const { results } = measure((t) => ({ r: 45 + level(t) + (ppg(66, t, rand) - 200) / 3, g: 14, b: 12, spread: 3 }), 13, 'screen');
+    expect(results).toHaveLength(1);
+    expect(Math.abs(results[0]!.bpm - 66)).toBeLessThanOrEqual(10);
+  });
+
   it('apretar demasiado (dedo pálido y plano) se avisa', () => {
     const recent = Array.from({ length: 30 }, () => 255);
     expect(detectFinger({ r: 255, g: 170, b: 160 }, recent)).toBe('no_finger');

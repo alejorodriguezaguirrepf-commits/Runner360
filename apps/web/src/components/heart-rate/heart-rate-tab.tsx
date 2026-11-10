@@ -2,10 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useSyncExternalStore } from "react";
-import { IconFingerprint, IconHeart } from "@/components/ui/icons";
 import { Button, Card } from "@/components/ui/primitives";
-import type { LightSource } from "@/lib/heart-rate/heartRateProcessor";
-import { RESULT_LABEL, STABILIZE_MS, type MeasureResult } from "@/lib/heart-rate/measurementSession";
+import { RESULT_LABEL, type MeasureResult, type MeasureState } from "@/lib/heart-rate/measurementSession";
 import { useCameraHeartRate } from "./use-camera-heart-rate";
 
 export type HeartRateContext = "reposo" | "post_carrera" | "otro";
@@ -17,31 +15,15 @@ export interface SavedMeasurement extends MeasureResult {
 
 type SaveStatus = "saving" | "ok" | "fail";
 
-const LIGHT_KEY = "runner360.heartRateLight";
-const LIGHTS: { value: LightSource; label: string }[] = [
-  { value: "flash", label: "Flash" },
-  { value: "ambient", label: "Lámpara o ventana" },
-  { value: "screen", label: "Pantalla" },
-];
-const FINGER_HINT: Record<LightSource, string> = {
-  flash: "Apoyá la yema del índice sobre la cámara trasera, tapando también el flash",
-  ambient: "Apuntá la parte de atrás del teléfono a una lámpara o ventana y apoyá la yema del índice sobre la cámara trasera",
-  screen: "Subí el brillo al máximo y apoyá la yema del índice sobre la cámara de adelante (arriba de la pantalla)",
-};
-function readLight(): LightSource {
-  try {
-    const v = window.localStorage.getItem(LIGHT_KEY);
-    return v === "ambient" || v === "screen" ? v : "flash";
-  } catch {
-    return "flash";
-  }
-}
-const noopSubscribe = () => () => {};
+const CONTEXT_LABEL: Record<HeartRateContext, string> = { reposo: "En reposo", post_carrera: "Después de correr", otro: "Otro momento" };
+const FINGER_HINT = "Apoyá suavemente la yema del índice sobre la cámara de adelante (arriba de la pantalla)";
+/** Debajo de esta señal se dan consejos para acomodar el dedo. */
+const WEAK_SIGNAL = 0.75;
 
 /**
- * Pulsaciones: 100 % automático. Al abrir se prende la cámara (con flash si se puede); al apoyar el
- * dedo se estabiliza (mínimo 3"), se cuentan los latidos durante 6" y el resultado (latidos × 10) se
- * guarda solo. Sin flash, la luz puede venir de una lámpara o ventana, o de la pantalla.
+ * Pulsaciones: 100 % automático, con la cámara de adelante y la pantalla en blanco como luz. Al abrir
+ * se prende la cámara y toda la pantalla queda blanca; al apoyar el dedo se estabiliza (mínimo 3"), se
+ * cuentan los latidos durante 6" y el resultado (latidos × 10) se guarda solo.
  */
 export function HeartRateTab({
   context = "reposo",
@@ -56,18 +38,7 @@ export function HeartRateTab({
   const router = useRouter();
   // Estado del guardado de cada resultado (por su hora): así no hace falta reiniciarlo a mano.
   const [saved, setSaved] = useState<{ at: string; status: SaveStatus } | null>(null);
-  // Fuente de luz: la última elegida (se recuerda en este dispositivo) o flash.
-  const storedLight = useSyncExternalStore(noopSubscribe, readLight, () => "flash" as LightSource);
-  const [chosenLight, setChosenLight] = useState<LightSource | null>(null);
-  const light = chosenLight ?? storedLight;
-  const chooseLight = (v: LightSource) => {
-    setChosenLight(v);
-    try {
-      window.localStorage.setItem(LIGHT_KEY, v);
-    } catch {
-      // Sin almacenamiento: se recuerda solo mientras la página esté abierta.
-    }
-  };
+  const [closed, setClosed] = useState(false);
 
   const handleResult = useCallback(
     async (r: MeasureResult) => {
@@ -83,119 +54,67 @@ export function HeartRateTab({
     [context, runId, router, onAutoSave],
   );
 
-  const { videoRef, state, cameraState, error, activeLight, resume } = useCameraHeartRate(handleResult, light);
+  const { videoRef, state, cameraState, error, resume, close } = useCameraHeartRate(handleResult);
   const saveStatus = saved && state.result && saved.at === state.result.measuredAt ? saved.status : null;
-  const noFlash = light === "flash" && activeLight !== "flash" && cameraState === "on";
-  const screenLight = cameraState === "on" && activeLight === "screen";
-
-  const status = (
-    <section aria-live="polite" className="grid min-h-64 content-center gap-3">
-      {cameraState === "starting" ? <p className="text-muted">Preparando cámara…</p> : null}
-
-      {cameraState === "error" ? (
-        <>
-          <p className="font-semibold text-ink">{error}</p>
-          <Button type="button" onClick={resume} className="mx-auto">Reintentar</Button>
-        </>
-      ) : null}
-
-      {cameraState === "off" ? (
-        <>
-          <p className="font-semibold text-ink">Apagamos la cámara para cuidar la batería.</p>
-          <Button type="button" onClick={resume} className="mx-auto">Reactivar cámara</Button>
-        </>
-      ) : null}
-
-      {cameraState === "on" ? (
-        <>
-          {noFlash ? (
-            <p className="mx-auto max-w-sm rounded-xl bg-warning-bg px-3 py-2 text-sm text-warning">
-              Tu teléfono no deja prender el flash desde el navegador. Apuntá la parte de atrás a una lámpara o ventana, o elegí «Pantalla».
-            </p>
-          ) : null}
-
-          {state.status === "waitingFinger" ? (
-            <>
-              {state.result && !state.lowQuality ? <ResultView result={state.result} small /> : null}
-              <span className="mx-auto inline-flex size-16 items-center justify-center rounded-full bg-surface-2 text-primary-ink">
-                <IconFingerprint width={36} height={36} />
-              </span>
-              <p className="mx-auto max-w-sm font-semibold text-ink">
-                {state.finger === "too_much_pressure"
-                  ? "Aflojá un poco la presión del dedo"
-                  : state.result
-                    ? "Apoyá el dedo otra vez para una nueva medición"
-                    : FINGER_HINT[activeLight]}
-              </p>
-            </>
-          ) : null}
-
-          {state.status === "stabilizing" ? (
-            <>
-              <p className="font-semibold text-ink">{state.stabilizeProgress >= 1 ? "Buscando un pulso claro… no muevas el dedo" : "Dedo detectado. Quedate quieto…"}</p>
-              <div className="mx-auto h-2 w-full max-w-xs overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-label="Estabilizando la señal" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(state.stabilizeProgress * 100)}>
-                <div className="h-full rounded-full bg-primary transition-[width]" style={{ width: `${Math.round(state.stabilizeProgress * 100)}%` }} />
-              </div>
-              {state.stabilizeProgress < 1 ? (
-                <p className="text-sm text-muted">Estabilizando señal ({Math.ceil(((1 - state.stabilizeProgress) * STABILIZE_MS) / 1000)}&quot;)</p>
-              ) : null}
-              <SignalMeter value={state.signal} />
-              <Waveform data={state.waveform} />
-            </>
-          ) : null}
-
-          {state.status === "counting" ? (
-            <>
-              {state.retrying ? <p className="text-sm text-muted">Señal inestable, volvemos a contar automáticamente…</p> : null}
-              <p className="tabular text-6xl font-extrabold text-ink" aria-label={`Quedan ${state.secondsLeft} segundos`}>{state.secondsLeft}&quot;</p>
-              <span key={state.liveBeats} aria-hidden className="r360-beat mx-auto inline-flex text-danger">
-                <IconHeart width={40} height={40} />
-              </span>
-              <p className="text-ink">Latidos contados: <strong className="tabular">{state.liveBeats}</strong></p>
-              <SignalMeter value={state.signal} />
-              <Waveform data={state.waveform} />
-            </>
-          ) : null}
-
-          {state.status === "done" && state.result ? (
-            state.lowQuality ? (
-              <p className="mx-auto max-w-sm font-semibold text-ink">
-                No pudimos obtener una lectura confiable. Levantá el dedo y volvé a apoyarlo, sin apretar
-                {activeLight === "flash" ? "." : ", con más luz."}
-              </p>
-            ) : (
-              <>
-                <ResultView result={state.result} />
-                <p className="text-sm text-muted" role="status">
-                  {saveStatus === "saving" ? "Guardando…" : saveStatus === "ok" ? "Guardado ✓" : saveStatus === "fail" ? "No se pudo guardar" : ""}
-                </p>
-                <p className="text-sm text-muted">Levantá el dedo y volvé a apoyarlo para medir de nuevo.</p>
-              </>
-            )
-          ) : null}
-        </>
-      ) : null}
-    </section>
-  );
+  const lighting = cameraState === "starting" || cameraState === "on";
+  const lastResult = state.result && !state.lowQuality ? state.result : null;
 
   return (
     <div className="space-y-4">
-      <LightPicker value={light} onChange={chooseLight} />
       <Card className="text-center">
         {/* El video tiene que estar en la página para leer los cuadros; se ve chiquito (rojo con el dedo). */}
         <video ref={videoRef} aria-hidden className="mx-auto size-14 rounded-full bg-ink object-cover" />
-        <div className="mt-4">{screenLight ? <p className="text-sm text-muted">Midiendo con la luz de la pantalla…</p> : status}</div>
+        <section aria-live={lighting ? undefined : "polite"} className="mt-4 grid min-h-40 content-center gap-3">
+          {lighting ? <p className="text-sm text-muted">Midiendo con la luz de la pantalla…</p> : null}
+
+          {cameraState === "error" ? (
+            <>
+              <p className="font-semibold text-ink">{error}</p>
+              <Button type="button" onClick={resume} className="mx-auto">Reintentar</Button>
+            </>
+          ) : null}
+
+          {cameraState === "off" ? (
+            <>
+              {lastResult ? (
+                <>
+                  <ResultView result={lastResult} />
+                  <SaveNote status={saveStatus} />
+                </>
+              ) : null}
+              {!closed ? <p className="font-semibold text-ink">Apagamos la cámara para cuidar la batería.</p> : null}
+              <Button
+                type="button"
+                onClick={() => {
+                  setClosed(false);
+                  resume();
+                }}
+                className="mx-auto"
+              >
+                {closed ? (lastResult ? "Medir de nuevo" : "Medir pulsaciones") : "Reactivar cámara"}
+              </Button>
+            </>
+          ) : null}
+        </section>
       </Card>
 
-      {screenLight ? (
-        // Luz de pantalla: la mitad de arriba (junto a la cámara de adelante) queda en blanco puro,
-        // a propósito fuera de los colores del tema: es una fuente de luz, no decoración.
-        <div className="fixed inset-x-0 top-0 z-[60] flex h-[100lvh] flex-col">
-          <div aria-hidden className="flex-1 bg-[#ffffff]" />
-          <div className="max-h-[55dvh] overflow-y-auto bg-surface px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] text-center">
-            {status}
-            <button type="button" onClick={() => chooseLight("ambient")} className="mt-2 min-h-11 text-sm font-semibold text-primary-ink underline">
-              Usar otra fuente de luz
+      {lighting ? (
+        // Luz de la medición: toda la pantalla en blanco puro, a propósito fuera de los colores del tema
+        // (es una fuente de luz, no decoración). Los textos van abajo, lejos de la cámara, chicos y sin
+        // animaciones: lo que cambia en pantalla cambia la luz que atraviesa el dedo.
+        <div className="fixed inset-x-0 top-0 z-[60] flex h-[100lvh] flex-col justify-end bg-[#ffffff] text-[#1f2328]">
+          <div className="px-4 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] text-center">
+            <ScreenStatus starting={cameraState === "starting"} state={state} saveStatus={saveStatus} />
+            <p className="mt-3 text-xs text-[#57606a]">{CONTEXT_LABEL[context]} · Subí el brillo de la pantalla al máximo</p>
+            <button
+              type="button"
+              onClick={() => {
+                setClosed(true);
+                close();
+              }}
+              className="mt-2 min-h-11 rounded-full border border-[#d0d7de] px-6 text-sm font-semibold"
+            >
+              Cerrar
             </button>
           </div>
         </div>
@@ -209,40 +128,52 @@ export function HeartRateTab({
   );
 }
 
-/** Fuente de luz que atraviesa el dedo. */
-function LightPicker({ value, onChange }: { value: LightSource; onChange: (v: LightSource) => void }) {
+/** Estado de la medición, en texto chico sobre la pantalla blanca. */
+function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; state: MeasureState; saveStatus: SaveStatus | null }) {
+  let main: string;
+  let detail: string | null = null;
+  if (starting) main = "Preparando cámara…";
+  else if (state.status === "stabilizing") {
+    main = "Dedo detectado. Quedate quieto…";
+    if (state.stabilizeProgress >= 1 && state.signal < WEAK_SIGNAL) detail = weakTip(state);
+    else detail = `Señal: ${signalLabel(state.signal)}`;
+  } else if (state.status === "counting") {
+    main = `Contando latidos… quedan ${state.secondsLeft}"`;
+    detail = state.retrying ? "Señal inestable: volvemos a contar solos" : `Latidos: ${state.liveBeats}`;
+  } else if (state.status === "done" && state.result) {
+    if (state.lowQuality) {
+      main = "No pudimos obtener una lectura confiable";
+      detail = "Levantá el dedo y volvé a apoyarlo tapando toda la cámara, sin apretar.";
+    } else {
+      main = `${state.result.bpm} ${RESULT_LABEL}`;
+      detail = `${state.result.beats} latidos en 6" × 10 · ${saveText(saveStatus) ?? "Levantá el dedo y volvé a apoyarlo para medir de nuevo"}`;
+    }
+  } else if (state.finger === "too_much_pressure") main = "Aflojá un poco la presión del dedo";
+  else if (state.result && !state.lowQuality) {
+    main = `Última: ${state.result.bpm} ${RESULT_LABEL}`;
+    detail = "Apoyá el dedo otra vez para una nueva medición";
+  } else main = FINGER_HINT;
+
   return (
-    <div role="group" aria-label="Fuente de luz" className="flex flex-wrap items-center gap-2">
-      <span className="text-sm font-semibold text-muted">Luz:</span>
-      {LIGHTS.map((l) => (
-        <button
-          key={l.value}
-          type="button"
-          aria-pressed={value === l.value}
-          onClick={() => onChange(l.value)}
-          className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold ${
-            value === l.value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-ink hover:border-primary"
-          }`}
-        >
-          {l.label}
-        </button>
-      ))}
+    <div role="status" aria-live="polite">
+      <p className="mx-auto max-w-sm text-base font-bold">{main}</p>
+      {detail ? <p className="mx-auto mt-1 max-w-sm text-sm">{detail}</p> : null}
     </div>
   );
 }
 
-/** Qué tan claro se ve el pulso. */
-function SignalMeter({ value }: { value: number }) {
-  const label = value >= 0.85 ? "buena" : value >= 0.75 ? "regular" : "débil";
-  const pct = Math.round(Math.min(1, Math.max(0, value)) * 100);
-  return (
-    <div className="mx-auto w-full max-w-xs text-left">
-      <p className="text-xs text-muted">Señal: <strong className="text-ink">{label}</strong></p>
-      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
-        <div className={`h-full rounded-full ${value >= 0.75 ? "bg-primary" : "bg-warning"}`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
+/** Consejo según lo que se ve cuando la señal no alcanza. */
+function weakTip(state: MeasureState): string {
+  if (state.finger === "too_much_pressure") return "Señal débil: aflojá la presión del dedo";
+  return "Señal débil: tapá toda la cámara con la yema, sin apretar, y no muevas la mano";
+}
+
+const signalLabel = (v: number) => (v >= 0.85 ? "buena" : v >= WEAK_SIGNAL ? "regular" : "débil");
+const saveText = (s: SaveStatus | null) => (s === "saving" ? "Guardando…" : s === "ok" ? "Guardado ✓" : s === "fail" ? "No se pudo guardar" : null);
+
+function SaveNote({ status }: { status: SaveStatus | null }) {
+  const text = saveText(status);
+  return text ? <p className="text-sm text-muted" role="status">{text}</p> : null;
 }
 
 const quality = (c: number) => (c >= 0.75 ? "Buena" : c >= 0.5 ? "Regular" : "Baja");
@@ -257,21 +188,6 @@ function ResultView({ result, small }: { result: MeasureResult; small?: boolean 
         {result.beats} latidos en 6&quot; × 10 = {result.bpm} · Calidad: {quality(result.confidence)}
       </p>
     </div>
-  );
-}
-
-/** Señal filtrada (los picos son latidos), con el color de la marca en claro y oscuro. */
-function Waveform({ data }: { data: number[] }) {
-  if (data.length < 2) return <div className="mx-auto h-[70px] w-full max-w-xs" aria-hidden />;
-  const W = 300;
-  const H = 70;
-  const points = data
-    .map((v, i) => `${((i / (data.length - 1)) * W).toFixed(1)},${(H / 2 - Math.max(-3, Math.min(3, v)) * (H / 7)).toFixed(1)}`)
-    .join(" ");
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="mx-auto h-[70px] w-full max-w-xs" aria-hidden>
-      <polyline points={points} fill="none" className="stroke-primary-ink" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
   );
 }
 
@@ -305,13 +221,8 @@ export function HelpContent() {
   return (
     <div className="mt-2 space-y-3 text-sm leading-relaxed text-ink">
       <ol className="list-decimal space-y-1.5 pl-5">
-        <li><strong>Abrí esta pestaña.</strong> La cámara trasera y el flash se prenden solos.</li>
-        <li><strong>Apoyá suavemente la yema del dedo índice</strong> sobre la cámara trasera, tapando también el flash.</li>
-        <li>
-          <strong>¿Tu teléfono no prende el flash?</strong> Elegí la luz: con <em>Lámpara o ventana</em>, apuntá la parte de atrás del teléfono a una
-          luz y apoyá el dedo en la cámara trasera (la luz atraviesa el dedo); con <em>Pantalla</em>, subí el brillo al máximo y apoyá el dedo en la
-          cámara de adelante.
-        </li>
+        <li><strong>Subí el brillo de la pantalla al máximo</strong> y abrí esta pestaña: la cámara de adelante se prende sola y la pantalla queda en blanco para iluminar tu dedo.</li>
+        <li><strong>Apoyá suavemente la yema del dedo índice</strong> sobre la cámara de adelante (arriba de la pantalla), tapándola entera.</li>
         <li><strong>Quedate quieto y sin hablar.</strong> Primero la app estabiliza la señal (3&quot;) y después cuenta tus latidos durante <strong>6 segundos</strong>.</li>
         <li><strong>El resultado aparece solo:</strong> latidos contados × 10 = tus pulsaciones por minuto. Por ejemplo, 8 latidos en 6&quot; = 80. Se guarda automáticamente en tu historial.</li>
         <li><strong>Para medir de nuevo,</strong> levantá el dedo y volvé a apoyarlo.</li>
@@ -321,10 +232,11 @@ export function HelpContent() {
         <li>No aprietes: si presionás fuerte se corta la circulación y no se detecta el pulso.</li>
         <li>Mantené la mano quieta y apoyada, más o menos a la altura del corazón.</li>
         <li>Si tenés las manos frías, frotalas unos segundos antes.</li>
-        <li>Mirá el indicador de <strong>señal</strong>: si dice débil, acomodá el dedo para tapar toda la cámara o buscá más luz.</li>
+        <li>Si abajo dice <strong>señal débil</strong>, acomodá el dedo para tapar toda la cámara y confirmá que el brillo esté al máximo.</li>
+        <li>Medí en un lugar sin sol directo sobre la pantalla: la luz de afuera mete ruido.</li>
         <li>Pulso en reposo: medilo sentado, después de 1 minuto tranquilo. Pulso post-carrera: medilo apenas terminás.</li>
         <li>Si la señal sale inestable, la app repite el conteo sola.</li>
-        <li>Es normal que el flash caliente un poco la cámara.</li>
+        <li>Tocá <strong>Cerrar</strong> para volver a ver tu historial.</li>
       </ul>
       <p className="text-xs text-muted">
         El método 6&quot; × 10 es la toma rápida clásica: el resultado va de 10 en 10. Es una estimación para entrenar, no un dispositivo médico. La imagen

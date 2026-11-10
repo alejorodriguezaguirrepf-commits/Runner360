@@ -42,7 +42,7 @@ export default async function HeartRatePage({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <PageHeader title="Pulsaciones" subtitle="Apoyá el dedo sobre la cámara trasera: la app cuenta tus latidos durante 6 segundos y los multiplica por 10." />
+      <PageHeader title="Pulsaciones" subtitle="Subí el brillo al máximo y apoyá el dedo sobre la cámara de adelante: la app cuenta tus latidos durante 6 segundos y los multiplica por 10." />
 
       <nav aria-label="Cuándo medís" className="mb-4 flex flex-wrap gap-2">
         {CONTEXTS.map((c) => {

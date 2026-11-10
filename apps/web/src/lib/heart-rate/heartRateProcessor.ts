@@ -149,9 +149,13 @@ export class HeartRateProcessor {
 
 // ---------------- DSP ----------------
 
-/** Remuestreo a 30 Hz, band-pass 0.7–3.5 Hz sin desfase e inversión (más sangre = menos luz). */
+/**
+ * Remuestreo a 30 Hz, recorte de saltos bruscos (movimiento del dedo o cambios de luz), band-pass
+ * 0.7–3.5 Hz sin desfase e inversión (más sangre = menos luz).
+ */
 function filtered(times: number[], raw: number[]): { t: number[]; y: number[] } {
-  const { t, v } = resample(times, raw, FS);
+  const { t, v: resampled } = resample(times, raw, FS);
+  const v = clipJumps(resampled);
   const m = mean(v);
   let x = v.map((s) => s - m);
   const f1 = MIN_BPM / 60;
@@ -164,6 +168,22 @@ function filtered(times: number[], raw: number[]): { t: number[]; y: number[] } 
 }
 
 interface Biquad { b0: number; b1: number; b2: number; a1: number; a2: number }
+
+/**
+ * Un latido cambia el brillo de a poco; un movimiento o un cambio de luz, de golpe. Se limita cada
+ * paso entre cuadros a 4 veces su variación típica (mediana de los pasos), sin tocar la forma del pulso.
+ */
+function clipJumps(v: number[]): number[] {
+  if (v.length < 3) return v;
+  const steps: number[] = [];
+  for (let i = 1; i < v.length; i++) steps.push(v[i]! - v[i - 1]!);
+  const mad = median(steps.map(Math.abs));
+  if (mad === 0) return v;
+  const limit = mad * 4;
+  const out = [v[0]!];
+  for (let i = 0; i < steps.length; i++) out.push(out[i]! + Math.max(-limit, Math.min(limit, steps[i]!)));
+  return out;
+}
 
 function bandpassCoeffs(fs: number, f0: number, q: number): Biquad {
   // RBJ Audio EQ Cookbook — band-pass, 0 dB en el pico

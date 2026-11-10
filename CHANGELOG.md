@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-10 — Pulsaciones: solo con la cámara de adelante y la pantalla como luz
+
+- Queda una sola forma de medir, la que mejor funcionó: **brillo al máximo y yema del índice sobre la cámara de adelante**. Se sacan *Flash* y *Lámpara o ventana* (y su código).
+- **Luz más pareja**: mientras la cámara está prendida, toda la pantalla queda en blanco. El estado va abajo, lejos de la cámara, en texto chico y sin animaciones (antes el corazón que latía y la onda cambiaban la luz que atraviesa el dedo y metían ruido).
+- **Señal más estable**: se promedia el 80 % de la imagen (el dedo tapa casi toda la cámara de adelante) y se recortan los saltos bruscos de brillo cuando el dedo se acomoda, para que no se cuenten como latidos.
+- **Guía en vivo**: si la señal sigue débil, avisa «tapá toda la cámara con la yema, sin apretar, y no muevas la mano».
+- Botón **Cerrar** para salir de la luz y ver el historial; «Medir de nuevo» vuelve a prender la cámara. Ayuda y política de privacidad actualizadas.
+
 ## 2026-11-10 — Pulsaciones: toma más precisa y opciones sin flash
 
 - **Flash en Android**: se prueban todas las cámaras traseras hasta encontrar la que tiene flash (el navegador solía elegir la gran angular, que no lo tiene).
