@@ -38,8 +38,8 @@ export const faq = {
       id: "cobro",
       order: 5,
       question: "¿Cómo se cobran las suscripciones?",
-      // Pendiente: «Mediante débito automático.» se publica cuando se confirme un cobro real.
-      answer: "Los medios de pago están en proceso de integración. Mientras tanto no se realizan cobros desde la plataforma.",
+      answer:
+        "Por débito automático a través de Mercado Pago. La suscripción mensual se debita sola cada mes; el plan anual se paga una sola vez por 12 meses, sin renovación automática.",
     },
     {
       id: "cancelar",

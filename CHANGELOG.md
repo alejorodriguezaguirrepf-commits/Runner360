@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-10 — Preguntas frecuentes: cómo se cobra
+
+- «¿Cómo se cobran las suscripciones?»: por débito automático a través de Mercado Pago (la mensual se debita sola cada mes; el anual es un pago único por 12 meses, sin renovación automática).
+
 ## 2026-11-10 — Portada: Pulsaciones y Calculadora en «Funciones principales»
 
 - Se suman dos funciones a la portada: **Calculadora de ritmos y parciales** (test de distancia y tiempo → ritmos por intensidad y tiempo de cada parcial de las pasadas) y **Pulsaciones con el celular** (dedo en la cámara de adelante, 6" × 10, guardado automático; estimación, no dispositivo médico).

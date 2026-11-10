@@ -29,6 +29,7 @@ describe("preguntas frecuentes", () => {
       "No, no lo reemplaza. Pero te da las herramientas necesarias para llevar adelante un plan de entrenamiento serio si entrenás solo o sos autodidacta.",
     );
     expect(byId["gratis"]).toBe("Sí. Tenés una opción gratuita con la primera semana de cualquier plan.");
+    expect(byId["cobro"]).toContain("débito automático a través de Mercado Pago");
   });
 
   it("el JSON-LD (FAQPage) tiene exactamente el texto visible, en el mismo orden", () => {
