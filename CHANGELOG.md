@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-10 — Pulsaciones: conteo gigante con el color del logo
+
+- La cuenta regresiva ocupa casi toda la pantalla (de la mitad para abajo) y los latidos y el resultado se ven grandes, en el verde azulado del logo. La parte de arriba, junto a la cámara, queda en blanco para seguir iluminando el dedo.
+
 ## 2026-11-10 — Preguntas frecuentes: cómo se cobra
 
 - «¿Cómo se cobran las suscripciones?»: por débito automático a través de Mercado Pago (la mensual se debita sola cada mes; el anual es un pago único por 12 meses, sin renovación automática).

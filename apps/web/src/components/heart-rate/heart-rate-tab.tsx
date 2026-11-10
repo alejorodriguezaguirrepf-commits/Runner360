@@ -17,6 +17,11 @@ type SaveStatus = "saving" | "ok" | "fail";
 
 const CONTEXT_LABEL: Record<HeartRateContext, string> = { reposo: "En reposo", post_carrera: "Después de correr", otro: "Otro momento" };
 const FINGER_HINT = "Apoyá suavemente la yema del índice sobre la cámara de adelante (arriba de la pantalla)";
+/**
+ * Números gigantes del conteo y del resultado, con el color del logo. Ocupan la parte de abajo: la de
+ * arriba (junto a la cámara de adelante, donde está el dedo) queda siempre en blanco para iluminarlo.
+ */
+const BIG = "tabular font-extrabold leading-[0.85] tracking-tight text-brand-teal";
 /** Debajo de esta señal se dan consejos para acomodar el dedo. */
 const WEAK_SIGNAL = 0.75;
 
@@ -129,17 +134,18 @@ export function HeartRateTab({
 }
 
 /**
- * Estado de la medición sobre la pantalla blanca. Los números grandes van en la parte de abajo, lejos de
- * la cámara de adelante, y sin animaciones: así casi no cambian la luz que atraviesa el dedo.
+ * Estado de la medición sobre la pantalla blanca. Los números grandes van de la mitad para abajo, lejos
+ * de la cámara de adelante, y sin animaciones: así casi no cambian la luz que llega al dedo.
  */
 function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; state: MeasureState; saveStatus: SaveStatus | null }) {
   if (!starting && state.status === "counting") {
     return (
       <div role="status" aria-live="off">
-        <div className="mx-auto grid max-w-sm grid-cols-2 gap-4">
-          <BigNumber value={`${state.secondsLeft}"`} label="segundos" ariaLabel={`Quedan ${state.secondsLeft} segundos`} />
-          <BigNumber value={String(state.liveBeats)} label="latidos" ariaLabel={`${state.liveBeats} latidos contados`} />
-        </div>
+        <p className={`${BIG} block text-[min(42vh,80vw)]`} aria-label={`Quedan ${state.secondsLeft} segundos`}>{state.secondsLeft}</p>
+        <p className="text-xl font-bold">segundos</p>
+        <p className="mt-3 text-2xl font-bold" aria-label={`${state.liveBeats} latidos contados`}>
+          <span className={`${BIG} text-6xl`}>{state.liveBeats}</span> latidos
+        </p>
         <p className="mx-auto mt-2 max-w-sm text-sm font-semibold">
           {state.retrying ? "Señal inestable: volvemos a contar solos" : "Contando latidos… no muevas el dedo"}
         </p>
@@ -153,8 +159,8 @@ function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; stat
     const next = [saveText(saveStatus), state.status === "waitingFinger" ? "Apoyá el dedo otra vez para medir de nuevo" : null].filter(Boolean).join(" · ");
     return (
       <div role="status" aria-live="polite">
-        <p className="tabular text-8xl font-extrabold leading-none" aria-label={`${r.bpm} ${RESULT_LABEL}`}>{r.bpm}</p>
-        <p className="mt-1 text-lg font-bold">{RESULT_LABEL}</p>
+        <p className={`${BIG} block text-[min(32vh,48vw)]`} aria-label={`${r.bpm} ${RESULT_LABEL}`}>{r.bpm}</p>
+        <p className="mt-1 text-2xl font-bold">{RESULT_LABEL}</p>
         <p className="mx-auto mt-1 max-w-sm text-sm">
           {r.beats} latidos en 6&quot; × 10 = {r.bpm}
         </p>
@@ -180,15 +186,6 @@ function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; stat
     <div role="status" aria-live="polite">
       <p className="mx-auto max-w-sm text-lg font-bold">{main}</p>
       {detail ? <p className="mx-auto mt-1 max-w-sm text-sm">{detail}</p> : null}
-    </div>
-  );
-}
-
-function BigNumber({ value, label, ariaLabel }: { value: string; label: string; ariaLabel: string }) {
-  return (
-    <div aria-label={ariaLabel}>
-      <p className="tabular text-7xl font-extrabold leading-none">{value}</p>
-      <p className="mt-1 text-sm font-semibold">{label}</p>
     </div>
   );
 }
