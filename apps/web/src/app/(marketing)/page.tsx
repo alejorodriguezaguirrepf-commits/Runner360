@@ -7,6 +7,7 @@ import {
   IconCheck,
   IconDrop,
   IconFlag,
+  IconHeart,
   IconPhone,
   IconRoute,
   IconShield,
@@ -36,6 +37,16 @@ const FEATURES = [
   { icon: IconChart, title: "Evolución", text: "Kilómetros semanales, tiempo acumulado, cumplimiento del plan y consistencia." },
   { icon: IconDrop, title: "Hidratación", text: "Registrá lo que tomás y consultá recomendaciones educativas generales." },
   { icon: IconFlag, title: "Competencias", text: "Objetivos, resultados reales, parciales y marcas personales." },
+  {
+    icon: IconBolt,
+    title: "Calculadora de ritmos y parciales",
+    text: "Cargá un test (distancia y tiempo) y obtené tus ritmos por intensidad y el tiempo de cada parcial de tus pasadas, por ejemplo 6 × 400 m al 90 %.",
+  },
+  {
+    icon: IconHeart,
+    title: "Pulsaciones con el celular",
+    text: "Subí el brillo, apoyá el dedo en la cámara de adelante y la app cuenta tus latidos durante 6 segundos (× 10). Se guarda solo, en reposo o después de correr. Es una estimación, no un dispositivo médico.",
+  },
   { icon: IconShield, title: "Privacidad", text: "Tus datos son tuyos: acceso restringido, exportación y eliminación de cuenta." },
 ];
 

@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-10 — Portada: Pulsaciones y Calculadora en «Funciones principales»
+
+- Se suman dos funciones a la portada: **Calculadora de ritmos y parciales** (test de distancia y tiempo → ritmos por intensidad y tiempo de cada parcial de las pasadas) y **Pulsaciones con el celular** (dedo en la cámara de adelante, 6" × 10, guardado automático; estimación, no dispositivo médico).
+
 ## 2026-11-10 — Pulsaciones: números grandes en pantalla
 
 - Durante el conteo se ven en grande los segundos que quedan y los latidos contados; el resultado (pulsaciones por minuto) también aparece en grande y queda en pantalla al levantar el dedo. Van en la parte de abajo, lejos de la cámara, y sin animaciones para no alterar la luz.
