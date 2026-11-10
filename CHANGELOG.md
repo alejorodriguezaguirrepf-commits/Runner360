@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-10 — Pulsaciones: números grandes en pantalla
+
+- Durante el conteo se ven en grande los segundos que quedan y los latidos contados; el resultado (pulsaciones por minuto) también aparece en grande y queda en pantalla al levantar el dedo. Van en la parte de abajo, lejos de la cámara, y sin animaciones para no alterar la luz.
+
 ## 2026-11-10 — Pulsaciones: solo con la cámara de adelante y la pantalla como luz
 
 - Queda una sola forma de medir, la que mejor funcionó: **brillo al máximo y yema del índice sobre la cámara de adelante**. Se sacan *Flash* y *Lámpara o ventana* (y su código).

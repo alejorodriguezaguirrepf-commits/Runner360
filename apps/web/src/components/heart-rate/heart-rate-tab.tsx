@@ -128,8 +128,41 @@ export function HeartRateTab({
   );
 }
 
-/** Estado de la medición, en texto chico sobre la pantalla blanca. */
+/**
+ * Estado de la medición sobre la pantalla blanca. Los números grandes van en la parte de abajo, lejos de
+ * la cámara de adelante, y sin animaciones: así casi no cambian la luz que atraviesa el dedo.
+ */
 function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; state: MeasureState; saveStatus: SaveStatus | null }) {
+  if (!starting && state.status === "counting") {
+    return (
+      <div role="status" aria-live="off">
+        <div className="mx-auto grid max-w-sm grid-cols-2 gap-4">
+          <BigNumber value={`${state.secondsLeft}"`} label="segundos" ariaLabel={`Quedan ${state.secondsLeft} segundos`} />
+          <BigNumber value={String(state.liveBeats)} label="latidos" ariaLabel={`${state.liveBeats} latidos contados`} />
+        </div>
+        <p className="mx-auto mt-2 max-w-sm text-sm font-semibold">
+          {state.retrying ? "Señal inestable: volvemos a contar solos" : "Contando latidos… no muevas el dedo"}
+        </p>
+      </div>
+    );
+  }
+  // El resultado queda grande también al levantar el dedo (es cuando se mira la pantalla).
+  const showResult = state.status === "done" || (state.status === "waitingFinger" && state.finger !== "too_much_pressure");
+  if (!starting && showResult && state.result && !state.lowQuality) {
+    const r = state.result;
+    const next = [saveText(saveStatus), state.status === "waitingFinger" ? "Apoyá el dedo otra vez para medir de nuevo" : null].filter(Boolean).join(" · ");
+    return (
+      <div role="status" aria-live="polite">
+        <p className="tabular text-8xl font-extrabold leading-none" aria-label={`${r.bpm} ${RESULT_LABEL}`}>{r.bpm}</p>
+        <p className="mt-1 text-lg font-bold">{RESULT_LABEL}</p>
+        <p className="mx-auto mt-1 max-w-sm text-sm">
+          {r.beats} latidos en 6&quot; × 10 = {r.bpm}
+        </p>
+        {next ? <p className="mx-auto mt-1 max-w-sm text-sm font-semibold">{next}</p> : null}
+      </div>
+    );
+  }
+
   let main: string;
   let detail: string | null = null;
   if (starting) main = "Preparando cámara…";
@@ -137,27 +170,25 @@ function ScreenStatus({ starting, state, saveStatus }: { starting: boolean; stat
     main = "Dedo detectado. Quedate quieto…";
     if (state.stabilizeProgress >= 1 && state.signal < WEAK_SIGNAL) detail = weakTip(state);
     else detail = `Señal: ${signalLabel(state.signal)}`;
-  } else if (state.status === "counting") {
-    main = `Contando latidos… quedan ${state.secondsLeft}"`;
-    detail = state.retrying ? "Señal inestable: volvemos a contar solos" : `Latidos: ${state.liveBeats}`;
-  } else if (state.status === "done" && state.result) {
-    if (state.lowQuality) {
-      main = "No pudimos obtener una lectura confiable";
-      detail = "Levantá el dedo y volvé a apoyarlo tapando toda la cámara, sin apretar.";
-    } else {
-      main = `${state.result.bpm} ${RESULT_LABEL}`;
-      detail = `${state.result.beats} latidos en 6" × 10 · ${saveText(saveStatus) ?? "Levantá el dedo y volvé a apoyarlo para medir de nuevo"}`;
-    }
+  } else if (state.status === "done" && state.lowQuality) {
+    main = "No pudimos obtener una lectura confiable";
+    detail = "Levantá el dedo y volvé a apoyarlo tapando toda la cámara, sin apretar.";
   } else if (state.finger === "too_much_pressure") main = "Aflojá un poco la presión del dedo";
-  else if (state.result && !state.lowQuality) {
-    main = `Última: ${state.result.bpm} ${RESULT_LABEL}`;
-    detail = "Apoyá el dedo otra vez para una nueva medición";
-  } else main = FINGER_HINT;
+  else main = FINGER_HINT;
 
   return (
     <div role="status" aria-live="polite">
-      <p className="mx-auto max-w-sm text-base font-bold">{main}</p>
+      <p className="mx-auto max-w-sm text-lg font-bold">{main}</p>
       {detail ? <p className="mx-auto mt-1 max-w-sm text-sm">{detail}</p> : null}
+    </div>
+  );
+}
+
+function BigNumber({ value, label, ariaLabel }: { value: string; label: string; ariaLabel: string }) {
+  return (
+    <div aria-label={ariaLabel}>
+      <p className="tabular text-7xl font-extrabold leading-none">{value}</p>
+      <p className="mt-1 text-sm font-semibold">{label}</p>
     </div>
   );
 }
