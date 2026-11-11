@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-11 — Entrenar con wellness diario, «Finalizar sesión» y seguimiento del entrenador
+
+- **Wellness antes de entrenar**: al abrir el plan (o Hoy), si todavía no se respondió en el día, aparece el cuestionario: sueño, energía, dolor muscular, estrés y ánimo, de 1 a 5 (5 = mejor), una pregunta por pantalla con opciones grandes. Puntaje de 5 a 25 con un consejo para el día y una nota opcional para el entrenador. «Más tarde» lo pospone; vuelve a aparecer la próxima vez que se abre el plan. Se puede editar en el día.
+- **Finalizar sesión**: con el wellness hecho, el día de hoy muestra «Finalizar sesión». Paso 1: distancia y tiempo de cada km (o solo el tiempo total), con total y ritmo medio en vivo. Paso 2: RPE de la sesión (1–10) y comentario opcional. Resumen con ritmo medio, km más rápido y carga (RPE × minutos), y acceso a medir el pulso post-carrera. Se puede corregir después.
+- **Seguimiento**: en Progreso, «Wellness y carga» (wellness de 14 días, carga semanal, carga de 7 días frente al promedio, detalle por ítem y sesiones con sus parciales). En Administración, nueva pestaña **Deportistas**: cada deportista con wellness de hoy, promedio de 7 días, última sesión y carga; primero los que necesitan atención (wellness bajo, ítems en 1–2, salto de carga, plan en pausa), y la ficha completa de cada uno.
+- Base: tabla `wellness_checkins` (migración 20261111000100, aplicada en producción) con RLS: cada persona la suya, el equipo (entrenador / admin) la lee; solo con consentimiento de datos de salud. Los parciales usan la tabla existente `workout_splits`. El wellness se borra con «Borrar mis datos de salud» y se incluye en la exportación de datos. Política de privacidad actualizada.
+
 ## 2026-11-10 — Pulsaciones: conteo gigante con el color del logo
 
 - La cuenta regresiva ocupa casi toda la pantalla (de la mitad para abajo) y los latidos y el resultado se ven grandes, en el verde azulado del logo. La parte de arriba, junto a la cámara, queda en blanco para seguir iluminando el dedo.

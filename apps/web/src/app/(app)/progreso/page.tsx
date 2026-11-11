@@ -8,6 +8,8 @@ import { toLogItems } from "@/lib/data/dashboard";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { loadActivePlan, loadWorkouts } from "@/lib/data/training";
 import { PlanProgress } from "@/components/library/plan-progress";
+import { MonitoringView } from "@/components/training/monitoring-view";
+import { loadMonitoring } from "@/lib/data/monitoring";
 
 export const metadata: Metadata = { title: "Progreso" };
 
@@ -19,11 +21,18 @@ export default async function ProgressPage() {
   const today = todayIn(profile.timezone);
   const advanced = await canUseFeature(session, "advanced_stats");
   const weeksBack = advanced ? 12 : 4;
-  const [workouts, active, openEnrollment] = await Promise.all([
+  const [workouts, active, openEnrollment, monitoring] = await Promise.all([
     loadWorkouts(supabase, user.id, advanced ? undefined : addDays(today, -35)),
     loadActivePlan(supabase, user.id),
     getOpenEnrollment(supabase, user.id),
+    loadMonitoring(supabase, user.id, addDays(today, -27)),
   ]);
+  const monitor = (
+    <section aria-labelledby="seguimiento" className="mb-6">
+      <h2 id="seguimiento" className="mb-3 text-xl font-extrabold">Wellness y carga</h2>
+      <MonitoringView wellness={monitoring.wellness} sessions={monitoring.sessions} today={today} />
+    </section>
+  );
   const logs = toLogItems(workouts);
   const weekly = weeklyTotals(logs, addDays(today, -(weeksBack - 1) * 7), today);
   const cons = consistency(logs, today, weeksBack);
@@ -35,6 +44,7 @@ export default async function ProgressPage() {
       <>
         <PageHeader title="Progreso" />
         {openEnrollment ? <PlanProgress supabase={supabase} open={openEnrollment} today={today} /> : null}
+        {monitor}
         <Card><EmptyState title="Todavía no hay registros" action={<ButtonLink href="/registrar">Registrar mi primer entrenamiento</ButtonLink>}>Tus gráficos se construyen solo con los entrenamientos que registres.</EmptyState></Card>
       </>
     );
@@ -54,6 +64,7 @@ export default async function ProgressPage() {
         <div className="mb-4"><Alert tone="info" title="Estadísticas básicas">Ves las últimas 4 semanas. El historial completo, las marcas y la evolución por distancia están incluidos en Premium. <a className="font-semibold underline" href="/suscripcion">Ver Premium</a></Alert></div>
       ) : null}
       {openEnrollment ? <PlanProgress supabase={supabase} open={openEnrollment} today={today} /> : null}
+      {monitor}
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
         {openEnrollment ? null : (
           <Stat label="Cumplimiento del plan" value={formatPercent(compliance?.rate ?? null)} hint={compliance ? `${compliance.completed + compliance.modified}/${compliance.due} sesiones vencidas` : "Sin plan activo"} />

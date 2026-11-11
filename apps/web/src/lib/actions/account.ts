@@ -18,13 +18,14 @@ export async function revokeHealthConsentAction(): Promise<void> {
     .update({ pain_score: null, red_flags: [], sleep_quality: null, pain_reported: false })
     .eq("user_id", user.id);
   await supabase.from("health_screenings").delete().eq("user_id", user.id);
+  await supabase.from("wellness_checkins").delete().eq("user_id", user.id);
   await supabase.from("user_consents").insert({ user_id: user.id, consent_type: "health_data", document_version: LEGAL_VERSIONS.health_data, granted: false });
   revalidatePath("/perfil");
 }
 
 /**
- * Borra los datos de salud de los registros (dolor, señales de alarma, sueño y notas) y retira el
- * consentimiento. Se conservan fecha, duración, distancia y RPE.
+ * Borra los datos de salud de los registros (dolor, señales de alarma, sueño y notas) y el wellness
+ * diario, y retira el consentimiento. Se conservan fecha, duración, distancia y RPE.
  */
 export async function deleteHealthDataAction(_prev: ActionState): Promise<ActionState> {
   const { supabase, user } = await requireSession();
@@ -37,6 +38,7 @@ export async function deleteHealthDataAction(_prev: ActionState): Promise<Action
     return { ok: false, message: t.library.health.generic };
   }
   await supabase.from("health_screenings").delete().eq("user_id", user.id);
+  await supabase.from("wellness_checkins").delete().eq("user_id", user.id);
   await supabase.from("user_consents").insert({ user_id: user.id, consent_type: "health_data", document_version: LEGAL_VERSIONS.health_data, granted: false });
   revalidatePath("/perfil");
   return { ok: true, message: t.library.health.deleted };

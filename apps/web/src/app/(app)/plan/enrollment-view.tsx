@@ -26,6 +26,9 @@ import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { enrollmentOver } from "@/lib/data/enrollment";
 import { CancelEnrollmentButton, PlanFinishedCard } from "./plan-actions";
+import { TodayActions, WellnessToday } from "@/components/training/today-actions";
+import { WellnessCheckin } from "@/components/training/wellness-checkin";
+import { getFinishedSession, getWellness, hasHealthConsent } from "@/lib/data/monitoring";
 
 const m = t.library;
 const c = m.calendar;
@@ -70,7 +73,7 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [week, overview, { data: ratingRows }] = await Promise.all([
+  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday] = await Promise.all([
     loadWeek(supabase, open, selected),
     getOverviewDays(supabase, enrollment.content_version, plan.id),
     supabase
@@ -78,6 +81,9 @@ export async function EnrollmentView({
       .select("workout_date, plan_week, plan_day_index, rating, note")
       .eq("enrollment_id", enrollment.id)
       .order("workout_date", { ascending: false }),
+    getWellness(supabase, enrollment.user_id, today),
+    hasHealthConsent(supabase, enrollment.user_id),
+    getFinishedSession(supabase, enrollment.id, today),
   ]);
   const ratings = (ratingRows ?? []) as RatingRow[];
   const ratingByDate = new Map(ratings.map((r) => [r.workout_date, r]));
@@ -128,6 +134,15 @@ export async function EnrollmentView({
           </Alert>
         </div>
       ) : null}
+      {/* Cada vez que se abre el plan, si todavía no se respondió hoy, aparece el wellness. */}
+      {enrollment.status === "active" ? (
+        <WellnessCheckin
+          autoOpen={!wellness}
+          hasConsent={consent}
+          initial={wellness ? { sleep: wellness.sleep, energy: wellness.energy, soreness: wellness.soreness, stress: wellness.stress, mood: wellness.mood } : null}
+        />
+      ) : null}
+      {wellness ? <WellnessToday wellness={wellness} /> : null}
       {checkin ? (
         <div className="mb-6">
           <CheckinCard
@@ -215,7 +230,14 @@ export async function EnrollmentView({
                   dateHint={shortDate(date)}
                   rating={ratingByDate.get(date)?.rating ?? null}
                   footer={
-                    date <= today ? (
+                    date === today && enrollment.status === "active" ? (
+                      <>
+                        <TodayActions date={date} plannedKm={day.distance_km_est} wellness={wellness} finished={finishedToday} />
+                        {finishedToday ? (
+                          <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
+                        ) : null}
+                      </>
+                    ) : date <= today ? (
                       <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
                     ) : (
                       <p className="mt-4 text-xs text-muted">{R.later}</p>

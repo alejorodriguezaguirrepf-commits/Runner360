@@ -16,6 +16,8 @@ const TABLES = [
   "session_ratings",
   "user_pace_tests",
   "workout_splits",
+  "wellness_checkins",
+  "heart_rate_measurements",
   "hydration_logs",
   "hydration_reminders",
   "competitions",

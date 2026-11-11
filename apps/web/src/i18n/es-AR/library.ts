@@ -284,7 +284,7 @@ export const library = {
     sleep: "Sueño de anoche",
     sleepOptions: { good: "Bien", fair: "Regular", poor: "Mal" },
     notes: "Notas (opcional)",
-    consent: "Doy mi consentimiento expreso para registrar datos de salud (dolor, señales de alarma y sueño). Son datos sensibles: solo los ves vos y los podés borrar cuando quieras.",
+    consent: "Doy mi consentimiento expreso para registrar datos de salud (dolor, señales de alarma y sueño). Son datos sensibles: los ven vos y tu entrenador, y los podés borrar cuando quieras.",
     consentRequired: "Para registrar dolor, señales o sueño necesitamos tu consentimiento expreso.",
     save: "Guardar registro",
     saved: "Registro guardado.",
@@ -337,10 +337,10 @@ export const library = {
   },
   health: {
     title: "Datos de salud",
-    text: "Dolor, señales de alarma, sueño y notas de tus registros son datos sensibles. Podés borrarlos cuando quieras: se conservan la fecha, la duración, la distancia y el RPE.",
+    text: "Dolor, señales de alarma, sueño y notas de tus registros, y tu wellness diario, son datos sensibles. Podés borrarlos cuando quieras: se conservan la fecha, la duración, la distancia, los parciales y el RPE.",
     delete: "Borrar mis datos de salud",
-    confirm: "¿Borrar el dolor, las señales de alarma, el sueño y las notas de todos tus registros? No se puede deshacer.",
-    deleted: "Borramos tus datos de salud de los registros y retiramos tu consentimiento.",
+    confirm: "¿Borrar el dolor, las señales de alarma, el sueño y las notas de todos tus registros, y tu wellness diario? No se puede deshacer.",
+    deleted: "Borramos tus datos de salud de los registros y tu wellness, y retiramos tu consentimiento.",
     generic: "No pudimos borrar los datos. Probá nuevamente.",
   },
   admin: {

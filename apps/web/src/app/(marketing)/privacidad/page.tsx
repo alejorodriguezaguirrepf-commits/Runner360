@@ -25,6 +25,12 @@ export default function PrivacyPage() {
         </li>
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
         <li>
+          Wellness diario y cierre de sesión (opcional): antes de entrenar podés responder cómo dormiste y cómo están tu energía, tus
+          músculos, tu estrés y tu ánimo (de 1 a 5); al terminar, los tiempos parciales por km y el esfuerzo percibido (RPE). El
+          wellness es un dato de salud: se guarda solo con tu consentimiento expreso, lo ven vos y tu entrenador, y lo podés borrar
+          desde tu perfil.
+        </li>
+        <li>
           Pulsaciones (opcional): para medirlas se usa la cámara de adelante del teléfono, con la pantalla como luz. La imagen se procesa en tu
           dispositivo y nunca se guarda ni se envía; solo guardamos el resultado (latidos contados, pulsaciones por minuto,
           calidad de la lectura, momento y, si la asociás, la carrera). Es una estimación para entrenar, no un dato médico.

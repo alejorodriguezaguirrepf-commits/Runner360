@@ -14,6 +14,9 @@ import { resumePlanAction } from "@/lib/actions/plan-progress";
 import { requireOnboardedSession } from "@/lib/auth";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { checkinProps, loadWeek, pendingCheckinWeek, resumeTarget } from "@/lib/library/week";
+import { TodayActions, WellnessToday } from "@/components/training/today-actions";
+import { WellnessCheckin } from "@/components/training/wellness-checkin";
+import { getFinishedSession, getWellness } from "@/lib/data/monitoring";
 
 export const metadata: Metadata = { title: "Hoy" };
 
@@ -74,6 +77,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const pending = pendingCheckinWeek(open, today, weekdayOf(today));
   const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
   const { data: consent } = await supabase.rpc("has_consent", { p_user: user.id, p_type: "health_data" });
+  const [wellness, finishedToday] = await Promise.all([getWellness(supabase, user.id, today), getFinishedSession(supabase, enrollment.id, today)]);
   const { data: todayRating } = await supabase
     .from("session_ratings")
     .select("rating, note")
@@ -128,7 +132,14 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             open
             tips
             rating={todayRating?.rating ?? null}
-            footer={todayDay.is_rest ? null : <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} />}
+            footer={
+              todayDay.is_rest ? null : (
+                <>
+                  <TodayActions date={today} plannedKm={todayDay.distance_km_est} wellness={wellness} finished={finishedToday} />
+                  {finishedToday ? <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} /> : null}
+                </>
+              )
+            }
           />
         </ol>
         <IntensityScale />
@@ -137,10 +148,11 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             <p className="font-semibold">{todayDay.strength_only ? fmt(T.strengthOnly, { r: plan.strength_routine }) : T.rest}</p>
           </Card>
         ) : (
-          <Card>
-            <CardTitle>{todayLog ? T.loggedTitle : T.logTitle}</CardTitle>
+          <details className="rounded-[var(--radius-card)] border border-line bg-surface p-4">
+            <summary className="min-h-11 cursor-pointer content-center font-bold">Registro completo: dolor, señales de alarma, sueño y notas</summary>
+            <p className="mb-4 text-sm text-muted">Usalo si tuviste alguna molestia o querés dejar más detalle. Los parciales y el RPE se cargan con «Finalizar sesión».</p>
             <SessionLogForm date={today} defaults={defaults} hasHealthConsent={consent === true} />
-          </Card>
+          </details>
         )}
       </div>
     );
@@ -150,6 +162,12 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
     <>
       {header}
       {checkinDone ? <div className="mb-4"><Alert tone="success">{checkinDone === "fin" ? t.library.checkin.completed : t.library.checkin.saved}</Alert></div> : null}
+      <WellnessCheckin
+        autoOpen={!wellness}
+        hasConsent={consent === true}
+        initial={wellness ? { sleep: wellness.sleep, energy: wellness.energy, soreness: wellness.soreness, stress: wellness.stress, mood: wellness.mood } : null}
+      />
+      {wellness ? <WellnessToday wellness={wellness} /> : null}
       {notices}
       {missedYesterday && missedRule ? (
         <div className="mb-6"><Alert tone="info" title={T.missedYesterday}>{missedRule}</Alert></div>
