@@ -1,26 +1,24 @@
 import { PDFDocument, rgb, StandardFonts, type PDFFont, type PDFPage } from "pdf-lib";
 
 /**
- * PDF de una semana de entrenamiento (A4, para guardar o imprimir). Sin datos de salud: solo el plan,
- * los ritmos de referencia y lo registrado (km, tiempo, RPE). Se prueba en test/week-pdf.test.ts.
+ * PDF de una semana de entrenamiento (A4, para guardar o imprimir): los días de entrenamiento tal como
+ * se ven en Mi plan (Día 1, Día 2…), sin descansos ni días de solo fuerza. Sin datos de salud. Se prueba
+ * en test/week-pdf.test.ts.
  */
 
 export type WeekPdfLine = { what: string; effort: string | null; pace: string | null; notes: string[] };
 export type WeekPdfBlock = { name: string; total: string | null; lines: WeekPdfLine[] };
 export type WeekPdfDay = {
-  /** "Lunes 9/11". */
+  /** "Día 1" (como en la pantalla del plan). */
   label: string;
-  isRest: boolean;
-  /** "Descanso" o "Solo fuerza" en los días sin carrera. */
-  restLabel: string | null;
-  title: string | null;
-  /** "8,5 km · 50 min". */
-  volume: string | null;
+  /** "10 nov". */
+  dateHint: string;
+  /** "9,9 km · 59'". */
+  volume: string;
   blocks: WeekPdfBlock[];
-  tips: string | null;
+  /** "Después: Rutina de fuerza". */
   strength: string | null;
-  /** Lo registrado (si ya lo hizo): "8,5 km · 46:10 · RPE 6". */
-  done: string | null;
+  done: boolean;
   today: boolean;
 };
 export type WeekPdfData = {
@@ -30,8 +28,6 @@ export type WeekPdfData = {
   weekLabel: string;
   range: string;
   summary: string;
-  goal: string | null;
-  criterion: string | null;
   paceNote: string | null;
   days: WeekPdfDay[];
   rpeNote: string;
@@ -90,9 +86,8 @@ function textRows(text: string, f: Fonts, opts: { bold?: boolean; size?: number;
 
 function dayRows(day: WeekPdfDay, f: Fonts): Row[] {
   const rows: Row[] = [];
-  if (day.isRest) return rows;
-  for (const b of day.blocks) {
-    rows.push(...textRows(`${b.name.toUpperCase()}${b.total ? `  ·  ${b.total}` : ""}`, f, { bold: true, size: 7.5, color: TEAL_DARK, gap: 4 }));
+  day.blocks.forEach((b, i) => {
+    rows.push(...textRows(`${i + 1}. ${b.name.toUpperCase()}${b.total ? `  ·  ${b.total}` : ""}`, f, { bold: true, size: 7.5, color: TEAL_DARK, gap: 4 }));
     for (const l of b.lines) {
       const what = textRows(l.what, f, { bold: true, size: 9.5, indent: 8, gap: 1.5 });
       const meta = clean([l.effort, l.pace].filter(Boolean).join(" · "), f.regular);
@@ -103,15 +98,13 @@ function dayRows(day: WeekPdfDay, f: Fonts): Row[] {
       if (meta && !last?.suffix) rows.push(...textRows(meta, f, { size: 8.5, color: TEAL_DARK, indent: 8 }));
       for (const n of l.notes) rows.push(...textRows(n, f, { size: 8.5, color: MUTED, indent: 8 }));
     }
-  }
+  });
   if (day.strength) rows.push(...textRows(day.strength, f, { size: 8.5, gap: 5 }));
-  if (day.tips) rows.push(...textRows(`Consejo: ${day.tips}`, f, { size: 8.5, color: MUTED, gap: 4 }));
   return rows;
 }
 
 const rowHeight = (r: Row) => r.size * 1.25 + r.gap;
-const HEADER_H = 24;
-const LOG_H = 28;
+const HEADER_H = 26;
 
 export async function buildWeekPdf(data: WeekPdfData): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
@@ -151,8 +144,6 @@ export async function buildWeekPdf(data: WeekPdfData): Promise<Uint8Array> {
   const intro: Row[] = [
     ...textRows(data.planMeta, f, { size: 9, color: MUTED }),
     ...textRows(data.summary, f, { bold: true, size: 11, gap: 4 }),
-    ...(data.goal ? textRows(`Objetivo de la semana: ${data.goal}`, f, { size: 9.5, gap: 4 }) : []),
-    ...(data.criterion ? textRows(`Para avanzar: ${data.criterion}`, f, { size: 9.5, gap: 2 }) : []),
     ...(data.paceNote ? textRows(data.paceNote, f, { size: 8.5, color: MUTED, gap: 4 }) : []),
   ];
   for (const r of intro) {
@@ -163,30 +154,21 @@ export async function buildWeekPdf(data: WeekPdfData): Promise<Uint8Array> {
 
   for (const day of data.days) {
     const rows = dayRows(day, f);
-    const body = rows.reduce((a, r) => a + rowHeight(r), 0);
-    const total = HEADER_H + (day.isRest ? 0 : body + 8 + LOG_H) + 10;
+    const total = HEADER_H + rows.reduce((a, r) => a + rowHeight(r), 0) + 22;
     // Un día no se corta entre páginas salvo que no entre ni en una hoja nueva.
     if (total <= A4[1] - M * 2 - 40) ensure(total);
     else ensure(HEADER_H + 40);
 
-    // Encabezado del día
+    // Encabezado del día, como en la app: "Día 1", km y duración, fecha y si ya está hecho.
     const top = y;
-    page.drawRectangle({ x: M, y: top - HEADER_H, width: W, height: HEADER_H, color: day.isRest ? SOFT : day.today ? TEAL : SOFT, borderColor: LINE, borderWidth: 0.6 });
-    const ink = NIGHT;
-    draw(day.today ? `${day.label} · hoy` : day.label, M + 10, top - 16, f.bold, 10.5, ink);
-    const title = day.isRest ? (day.restLabel ?? "Descanso") : (day.title ?? "Entrenamiento");
-    draw(title, M + 130, top - 16, day.isRest ? f.regular : f.bold, 10.5, day.isRest ? MUTED : ink);
-    if (day.volume && !day.isRest) {
-      const v = clean(day.volume, f.bold);
-      draw(v, M + W - 10 - f.bold.widthOfTextAtSize(v, 10.5), top - 16, f.bold, 10.5, ink);
-    }
-    y = top - HEADER_H;
-    if (day.isRest) {
-      y -= 10;
-      continue;
-    }
+    page.drawRectangle({ x: M, y: top - HEADER_H, width: W, height: HEADER_H, color: day.today ? TEAL : SOFT, borderColor: LINE, borderWidth: 0.6 });
+    draw(day.label, M + 10, top - 17, f.bold, 11.5);
+    const labelW = f.bold.widthOfTextAtSize(clean(day.label, f.bold), 11.5);
+    draw(day.volume, M + 22 + labelW, top - 17, f.bold, 11.5);
+    const right = clean([day.dateHint, day.today ? "hoy" : null, day.done ? "Hecho" : null].filter(Boolean).join(" · "), f.regular);
+    draw(right, M + W - 10 - f.regular.widthOfTextAtSize(right, 9.5), top - 16.5, day.done ? f.bold : f.regular, 9.5, day.today ? NIGHT : day.done ? TEAL_DARK : MUTED);
+    y = top - HEADER_H - 4;
 
-    y -= 4;
     for (const r of rows) {
       const h = rowHeight(r);
       if (y - h < M + 24) newPage();
@@ -194,28 +176,7 @@ export async function buildWeekPdf(data: WeekPdfData): Promise<Uint8Array> {
       draw(r.text, M + 10 + r.indent, y, f[r.font], r.size, r.color);
       if (r.suffix) draw(r.suffix, M + 10 + r.indent + f[r.font].widthOfTextAtSize(r.text, r.size) + 10, y, f.regular, 8.5, TEAL_DARK);
     }
-    y -= 8;
-
-    // Registro: lo hecho o espacios para completar a mano.
-    if (y - LOG_H < M + 24) newPage();
-    page.drawRectangle({ x: M, y: y - LOG_H + 4, width: W, height: LOG_H - 4, borderColor: LINE, borderWidth: 0.8, color: rgb(1, 1, 1) });
-    const ly = y - LOG_H / 2 - 1;
-    if (day.done) {
-      draw("Hecho:", M + 10, ly, f.bold, 9.5, TEAL_DARK);
-      draw(day.done, M + 50, ly, f.regular, 9.5);
-    } else {
-      page.drawRectangle({ x: M + 10, y: ly - 1.5, width: 10, height: 10, borderColor: NIGHT, borderWidth: 0.8 });
-      draw("Hecho", M + 25, ly, f.regular, 9);
-      const fields: [string, number][] = [["Km", 70], ["Tiempo", 80], ["RPE (1-10)", 40], ["Notas", 120]];
-      let x = M + 70;
-      for (const [label, width] of fields) {
-        draw(label, x, ly, f.regular, 8.5, MUTED);
-        const lw = f.regular.widthOfTextAtSize(label, 8.5) + 4;
-        page.drawLine({ start: { x: x + lw, y: ly - 2 }, end: { x: x + lw + width - lw + 20, y: ly - 2 }, thickness: 0.6, color: LINE });
-        x += width + 28;
-      }
-    }
-    y -= LOG_H + 10;
+    y -= 18;
   }
 
   // Escala de esfuerzo al final

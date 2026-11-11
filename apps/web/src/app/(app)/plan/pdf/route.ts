@@ -1,6 +1,7 @@
 import { mondayOf, weekdayOf } from "@runner360/plan-library";
 import { todayIn } from "@runner360/shared";
 import { NextResponse } from "next/server";
+import { fmt, t } from "@/i18n";
 import { getSession } from "@/lib/auth";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { planPaces } from "@/lib/data/paces";
@@ -34,11 +35,10 @@ export async function GET(request: Request) {
     const pdf = await buildWeekPdf(
       weekPdfData({
         planTitle: open.plan.title,
-        planMeta: `${open.plan.distance_label} · ${open.plan.level} · ${open.plan.duration_label}`,
+        planMeta: `${open.plan.distance_label} · ${open.plan.level} · ${open.plan.duration_label} · ${fmt(t.library.catalog.days, { n: open.plan.days_per_week })}`,
         athlete: profile.display_name ?? null,
         planWeek: week.planWeek,
         totalWeeks: open.plan.duration_weeks,
-        week: week.week,
         dated: week.dated,
         logs: week.logs,
         test: paces.test,

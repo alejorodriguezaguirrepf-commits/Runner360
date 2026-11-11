@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { PDFDocument } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import type { DayRow } from "@/lib/data/library";
-import { rangeLabel, weekPdfData } from "@/lib/pdf/week-data";
+import { shortDate, weekPdfData } from "@/lib/pdf/week-data";
 import { buildWeekPdf } from "@/lib/pdf/week-pdf";
 
 type JsonDay = Record<string, unknown> & { day_index: number; is_rest: boolean };
@@ -46,7 +46,6 @@ async function pdfFor(plan: JsonPlan, weekNumber: number, withTest: boolean) {
     athlete: "Corredora de prueba",
     planWeek: week.week,
     totalWeeks: plan.duration_weeks,
-    week: { weekly_goal: week.weekly_goal, progression_criterion: week.progression_criterion } as never,
     dated,
     logs: [{ workout_date: firstRun.date, status: "completed", distance_m: 8500, duration_s: 2770, rpe: 6 }],
     test: withTest ? { meters: 5000, seconds: 1500 } : null,
@@ -60,18 +59,19 @@ async function pdfFor(plan: JsonPlan, weekNumber: number, withTest: boolean) {
 }
 
 describe("PDF de la semana", () => {
-  it("fechas de la semana en palabras", () => {
-    expect(rangeLabel("2026-11-09", "2026-11-15")).toBe("9 al 15 de noviembre de 2026");
-    expect(rangeLabel("2026-10-26", "2026-11-01")).toBe("26 de octubre al 1 de noviembre de 2026");
-    expect(rangeLabel("2026-12-28", "2027-01-03")).toBe("28 de diciembre de 2026 al 3 de enero de 2027");
+  it("fecha corta como en la pantalla", () => {
+    expect(shortDate("2026-11-09")).toBe("9 nov");
   });
 
-  it("arma los 7 días con lo hecho, ritmos y espacios para completar", async () => {
-    const { data, bytes } = await pdfFor(library.plans[0]!, 3, true);
-    expect(data.days).toHaveLength(7);
+  it("solo los días de entrenamiento, numerados como en Mi plan (sin descansos ni fuerza)", async () => {
+    const plan = library.plans[0]!;
+    const { data, bytes } = await pdfFor(plan, 3, true);
+    const training = plan.weeks.find((w) => w.week === 3)!.days.filter((d) => !d.is_rest).length;
+    expect(data.days).toHaveLength(training);
+    expect(data.days.map((d) => d.label)).toEqual(Array.from({ length: training }, (_, i) => `Día ${i + 1}`));
     expect(data.weekLabel).toMatch(/^Semana 3 de \d+$/);
     expect(data.days.filter((d) => d.done)).toHaveLength(1);
-    expect(data.days.find((d) => !d.isRest)!.blocks.some((b) => b.lines.some((l) => l.pace?.startsWith("Ritmo ")))).toBe(true);
+    expect(data.days[0]!.blocks.some((b) => b.lines.some((l) => l.pace?.startsWith("Ritmo ")))).toBe(true);
     expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe("%PDF-");
     const doc = await PDFDocument.load(bytes);
     expect(doc.getPageCount()).toBeGreaterThanOrEqual(1);

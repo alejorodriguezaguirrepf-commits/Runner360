@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-11 — PDF de la semana: igual que en Mi plan
+
+- El PDF ahora muestra solo los días de entrenamiento, numerados como en la pantalla (Día 1, Día 2…), con km y duración, fecha, «Hecho» si ya se registró, y sus bloques (1. Entrada en calor, 2. Parte principal, 3. Vuelta a la calma) con porcentaje, RPE y ritmo. Se sacan los días de descanso y de solo fuerza, y lo que no aparece en la pantalla (objetivo de la semana, consejos y espacios para completar a mano).
+
 ## 2026-11-11 — Semana de entrenamiento en PDF
 
 - En **Mi plan**, junto al resumen de la semana elegida, el botón **Descargar PDF**; también en **Hoy** (tarjeta de la semana). Genera un PDF A4 para guardar o imprimir: plan, semana, fechas, objetivo y criterio para avanzar; cada día con entrada en calor, parte principal y vuelta a la calma (porcentaje, RPE y, si hay test, el ritmo por km), consejo técnico y fuerza; lo ya registrado (km, tiempo, RPE) o espacios para completarlo a mano. Funciona igual en celular y computadora.
