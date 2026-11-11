@@ -7,7 +7,7 @@ import { RatingForm } from "@/components/library/rating-form";
 import { WorkoutDay } from "@/components/library/workout";
 import { planPaces } from "@/lib/data/paces";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
-import { IconLock } from "@/components/ui/icons";
+import { IconDownload, IconLock } from "@/components/ui/icons";
 import { Alert, Badge, ButtonLink, Card, CardTitle, cx, EmptyState, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import { resumePlanAction } from "@/lib/actions/plan-progress";
@@ -187,7 +187,15 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       {main}
       {week ? (
         <Card>
-          <CardTitle>{T.week}</CardTitle>
+          <CardTitle
+            action={
+              <a href={`/plan/pdf?semana=${week.weekStart}`} download aria-label="Descargar la semana en PDF" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary-ink hover:underline">
+                <IconDownload /> PDF
+              </a>
+            }
+          >
+            {T.week}
+          </CardTitle>
           <ol className="grid grid-cols-7 gap-1 text-center text-xs">
             {week.dated.map(({ day, date }) => {
               const log = week.logs.find((l) => l.workout_date === date);

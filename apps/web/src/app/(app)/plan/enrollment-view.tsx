@@ -17,7 +17,7 @@ import { SafetyNotices } from "@/components/library/notices";
 import { RatingForm } from "@/components/library/rating-form";
 import { KmNote, WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
 import { planPaces } from "@/lib/data/paces";
-import { IconLock } from "@/components/ui/icons";
+import { IconDownload, IconLock } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { OpenEnrollment } from "@/lib/data/enrollment";
@@ -211,7 +211,19 @@ export async function EnrollmentView({
             </h2>
             <p className="text-sm text-muted">{shortDate(selected)} – {shortDate(addDays(selected, 6))}</p>
           </div>
-          {ordered.length === 7 ? <p className="text-sm font-semibold text-muted">{weekSummary(ordered.map((o) => o.day))}</p> : null}
+          {ordered.length === 7 ? (
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <p className="text-sm font-semibold text-muted">{weekSummary(ordered.map((o) => o.day))}</p>
+              {/* Archivo PDF de la semana (para guardar o imprimir): enlace común, no navegación de la app. */}
+              <a
+                href={`/plan/pdf?semana=${selected}`}
+                download
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-sm font-semibold text-ink hover:border-primary"
+              >
+                <IconDownload /> Descargar PDF
+              </a>
+            </div>
+          ) : null}
         </div>
         {kmPaces.speeds && ordered.length === 7 ? <KmNote testDate={kmPaces.testDate} days={ordered.map((o) => o.day)} speeds={kmPaces.speeds} /> : null}
         {typeof selectedPlanWeek === "number" ? (

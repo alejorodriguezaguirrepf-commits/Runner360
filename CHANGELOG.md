@@ -1,5 +1,10 @@
 # Cambios
 
+## 2026-11-11 — Semana de entrenamiento en PDF
+
+- En **Mi plan**, junto al resumen de la semana elegida, el botón **Descargar PDF**; también en **Hoy** (tarjeta de la semana). Genera un PDF A4 para guardar o imprimir: plan, semana, fechas, objetivo y criterio para avanzar; cada día con entrada en calor, parte principal y vuelta a la calma (porcentaje, RPE y, si hay test, el ritmo por km), consejo técnico y fuerza; lo ya registrado (km, tiempo, RPE) o espacios para completarlo a mano. Funciona igual en celular y computadora.
+- Solo exporta semanas que la persona puede ver en la app. No incluye datos de salud.
+
 ## 2026-11-11 — Entrenar con wellness diario, «Finalizar sesión» y seguimiento del entrenador
 
 - **Wellness antes de entrenar**: al abrir el plan (o Hoy), si todavía no se respondió en el día, aparece el cuestionario: sueño, energía, dolor muscular, estrés y ánimo, de 1 a 5 (5 = mejor), una pregunta por pantalla con opciones grandes. Puntaje de 5 a 25 con un consejo para el día y una nota opcional para el entrenador. «Más tarde» lo pospone; vuelve a aparecer la próxima vez que se abre el plan. Se puede editar en el día.
