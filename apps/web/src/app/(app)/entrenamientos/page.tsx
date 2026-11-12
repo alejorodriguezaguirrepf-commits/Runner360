@@ -17,7 +17,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const workouts = await loadWorkouts(supabase, user.id);
   return (
     <>
-      <PageHeader title="Historial de entrenamientos" actions={<ButtonLink href="/registrar">Registrar</ButtonLink>} />
+      <PageHeader title="Historial de entrenamientos" actions={<ButtonLink href="/plan">Ir a mi plan</ButtonLink>} />
       {guardado ? (
         <div className="mb-4">
           <Alert tone="success" title="Entrenamiento guardado.">

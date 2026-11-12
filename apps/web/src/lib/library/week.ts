@@ -27,6 +27,8 @@ export type LogRow = {
   duration_s: number | null;
   distance_m: number | null;
   rpe: number | null;
+  avg_hr: number | null;
+  max_hr: number | null;
   pain_score: number | null;
   red_flags: RedFlag[];
   sleep_quality: "good" | "fair" | "poor" | null;
@@ -35,7 +37,7 @@ export type LogRow = {
   plan_day_index: number | null;
 };
 
-export const LOG_COLUMNS = "id, workout_date, status, duration_s, distance_m, rpe, pain_score, red_flags, sleep_quality, comments, plan_week, plan_day_index";
+export const LOG_COLUMNS = "id, workout_date, status, duration_s, distance_m, rpe, avg_hr, max_hr, pain_score, red_flags, sleep_quality, comments, plan_week, plan_day_index";
 
 export async function getLogs(supabase: SupabaseClient, enrollmentId: string, from: string, to: string): Promise<LogRow[]> {
   const { data } = await supabase

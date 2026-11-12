@@ -12,7 +12,6 @@ import {
   IconHome,
   IconList,
   IconPhone,
-  IconPlus,
   IconSettings,
   IconStar,
   IconTimer,
@@ -25,13 +24,12 @@ import { t } from "@/i18n";
 const PRIMARY = [
   { href: "/inicio", label: "Inicio", icon: IconHome },
   { href: "/plan", label: "Plan", icon: IconCalendar },
-  { href: "/registrar", label: "Registrar", icon: IconPlus },
+  { href: "/hoy", label: t.library.today.title, icon: IconTimer },
   { href: "/progreso", label: "Progreso", icon: IconChart },
   { href: "/perfil", label: "Perfil", icon: IconUser },
 ];
 
 const SECONDARY = [
-  { href: "/hoy", label: t.library.today.title, icon: IconTimer },
   { href: "/pulsaciones", label: "Pulsaciones", icon: IconHeart },
   { href: "/planes", label: t.library.nav.catalog, icon: IconList },
   { href: "/calculadora", label: "Test/%", icon: IconBolt },
@@ -80,7 +78,7 @@ export function BottomNav() {
       <ul className="grid grid-cols-5">
         {PRIMARY.map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href);
-          const isCta = href === "/registrar";
+          const isCta = href === "/hoy";
           return (
             <li key={href}>
               <Link

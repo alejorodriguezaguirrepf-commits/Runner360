@@ -9,7 +9,7 @@ const m = t.library.workout;
 export type PaceTest = { meters: number; seconds: number };
 
 /** Colores por nivel de intensidad (1 = más suave … 6 = más intenso); legibles en ambos temas. */
-const LEVEL_CLASSES: Record<number, string> = {
+export const LEVEL_CLASSES: Record<number, string> = {
   0: "border-cat-rest bg-cat-rest-bg",
   1: "border-cat-rec bg-cat-rec-bg",
   2: "border-cat-easy bg-cat-easy-bg",
@@ -18,7 +18,7 @@ const LEVEL_CLASSES: Record<number, string> = {
   5: "border-cat-hard bg-cat-hard-bg",
   6: "border-cat-race bg-cat-race-bg",
 };
-const LEVEL_TEXT: Record<number, string> = {
+export const LEVEL_TEXT: Record<number, string> = {
   0: "text-cat-rest",
   1: "text-cat-rec",
   2: "text-cat-easy",
@@ -28,7 +28,7 @@ const LEVEL_TEXT: Record<number, string> = {
   6: "text-cat-race",
 };
 
-const BLOCK_NAMES = { warmup: m.warmup, main: m.main, cooldown: m.cooldown } as const;
+export const BLOCK_NAMES = { warmup: m.warmup, main: m.main, cooldown: m.cooldown } as const;
 
 /** Explicación del RPE a un toque: no ocupa lugar hasta que se abre. */
 export function RpeHelp() {

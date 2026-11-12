@@ -3,7 +3,6 @@ import { formatDate, todayIn } from "@runner360/shared";
 import type { Metadata } from "next";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { IntensityScale, SafetyNotices } from "@/components/library/notices";
-import { RatingForm } from "@/components/library/rating-form";
 import { WorkoutDay } from "@/components/library/workout";
 import { planPaces } from "@/lib/data/paces";
 import { SessionLogForm, type LogDefaults } from "@/components/library/session-log-form";
@@ -17,8 +16,7 @@ import { StrengthBlock } from "@/components/library/strength";
 import { strengthForDay } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek, resumeTarget } from "@/lib/library/week";
 import { WellnessToday } from "@/components/training/today-actions";
-import { SessionTimesTable } from "@/components/training/session-times";
-import { sessionTimes } from "@runner360/plan-library";
+import { SessionLog } from "@/components/training/session-log";
 import { WellnessCheckin } from "@/components/training/wellness-checkin";
 import { getSplitSeconds, getWellness } from "@/lib/data/monitoring";
 
@@ -141,24 +139,17 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             tips
             rating={todayRating?.rating ?? null}
             strength={todayStrength}
-            footer={
-              todayDay.is_rest ? null : (
-                <>
-                  <SessionTimesTable
-                    date={today}
-                    times={sessionTimes(todayDay, paces.test)}
-                    hasTest={Boolean(paces.test)}
-                    canSave
-                    needsWellness={!wellness}
-                    saved={
-                      savedLog
-                        ? { workoutId: savedLog.id, rpe: savedLog.rpe, meters: savedLog.distance_m, seconds: savedLog.duration_s, splits: splitsByLog.get(savedLog.id) ?? [] }
-                        : null
-                    }
-                    defaultOpen
-                  />
-                  <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} />
-                </>
+            detail={
+              todayDay.is_rest ? undefined : (
+                <SessionLog
+                  date={today}
+                  day={todayDay}
+                  test={paces.test}
+                  speeds={paces.speeds}
+                  canSave
+                  needsWellness={!wellness}
+                  saved={savedLog ? { workoutId: savedLog.id, rpe: savedLog.rpe, avgHr: savedLog.avg_hr, maxHr: savedLog.max_hr, splits: splitsByLog.get(savedLog.id) ?? [] } : null}
+                />
               )
             }
           />

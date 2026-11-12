@@ -39,6 +39,7 @@ export function WorkoutDay({
   speeds = null,
   test = null,
   strength = null,
+  detail,
 }: {
   day: DayRow;
   /** Número de día dentro de la semana (1–7). */
@@ -59,6 +60,8 @@ export function WorkoutDay({
   test?: PaceTest | null;
   /** Sesión de fuerza de ese día (con la dosis de la semana), si corresponde. */
   strength?: StrengthPrescription | null;
+  /** Reemplaza el detalle de la sesión (p. ej. la sesión con el registro adentro). */
+  detail?: ReactNode;
 }) {
   const badge = (
     <span
@@ -117,7 +120,7 @@ export function WorkoutDay({
         </summary>
         <div className="border-t border-line px-3 pb-4 pt-2">
           <RpeHelp />
-          <SessionDetail day={day} test={test} speeds={speeds} />
+          {detail ?? <SessionDetail day={day} test={test} speeds={speeds} />}
           {day.strength_after ? (
             strength ? (
               <StrengthBlock p={strength} lead={m.strength} className="mt-2" />

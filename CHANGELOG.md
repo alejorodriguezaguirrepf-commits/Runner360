@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-13 — Registro en el mismo plan, con tilde por trabajo
+
+- **El registro se hace en la sesión del plan** (Mi plan y Hoy): debajo de cada trabajo, el tiempo prescripto (con el test), el casillero «Tu tiempo» y un **✓** para darlo por hecho (sin tiempo anotado, queda el prescripto). Lo anotado se guarda en el dispositivo hasta guardar la sesión.
+- **Al pie de la sesión**: RPE, FC media y FC máxima (opcionales) y **Guardar**. El registro del día (distancia, duración, RPE, FC y parciales) se arma solo.
+- Se quita el botón **Registrar** del menú: en su lugar está **Hoy**. La valoración «¿Cómo te fue?» deja de pedirse en cada día (el historial de valoraciones anteriores se conserva).
+- **Tiempos con los dos puntos siempre puestos**: en todos los campos de tiempo se escriben solo números (1320 → 13:20) — registro del plan, Test/%, registro libre, competencias y onboarding.
+
 ## 2026-11-12 — «Calculadora» pasa a «Test/%» con parciales automáticos
 
 - La pestaña se llama **Test/%** (menú, título y todos los textos que la nombran).

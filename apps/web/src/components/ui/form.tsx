@@ -3,6 +3,7 @@
 import { startTransition, useActionState, useId, type ComponentProps, type FormEvent, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import type { ActionState } from "@/lib/action-state";
+import { ClockInput } from "./clock-input";
 import { Alert, Button, cx } from "./primitives";
 
 export const INPUT =
@@ -42,6 +43,30 @@ export function TextField({ label, name, hint, error, className, ...props }: Fie
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
         className={cx(INPUT, className)}
+        {...props}
+      />
+    </FieldWrap>
+  );
+}
+
+/** Campo de tiempo con los dos puntos siempre puestos (se escriben solo números). */
+export function ClockField({
+  label,
+  name,
+  hint,
+  error,
+  className,
+  ...props
+}: FieldBase & Omit<ComponentProps<typeof ClockInput>, "name">) {
+  const id = useId();
+  return (
+    <FieldWrap id={id} label={label} hint={hint ?? "Escribí solo los números: 4530 = 45:30"} error={error}>
+      <ClockInput
+        id={id}
+        name={name}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : `${id}-hint`}
+        className={cx(INPUT, "tabular", className)}
         {...props}
       />
     </FieldWrap>

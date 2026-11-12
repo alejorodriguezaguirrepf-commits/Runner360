@@ -84,3 +84,19 @@ describe("porcentajes sobre la velocidad (casos verificados a mano)", () => {
     expect(formatDistance(1500)).toBe("1,5 km");
   });
 });
+
+describe("tiempos con los dos puntos siempre puestos", () => {
+  it("se completan de derecha a izquierda escribiendo solo números", async () => {
+    const { clockFromDigits } = await import("@/lib/calculator");
+    expect(clockFromDigits("")).toBe("");
+    expect(clockFromDigits("5")).toBe("0:05");
+    expect(clockFromDigits("53")).toBe("0:53");
+    expect(clockFromDigits("530")).toBe("5:30");
+    expect(clockFromDigits("1320")).toBe("13:20");
+    expect(clockFromDigits("13505")).toBe("1:35:05");
+    expect(clockFromDigits("13:20")).toBe("13:20");
+    // Borrar desde el final: "0:5" (después de borrar el 3 de "0:53") vuelve a "0:05".
+    expect(clockFromDigits("0:5")).toBe("0:05");
+    expect(clockFromDigits("0:0")).toBe("");
+  });
+});

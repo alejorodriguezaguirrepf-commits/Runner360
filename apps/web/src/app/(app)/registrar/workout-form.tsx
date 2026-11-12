@@ -3,7 +3,7 @@
 import { kmInputToMeters, paceSecondsPerKm, parseDuration, speedKmh } from "@runner360/training-engine";
 import { formatPaceLabel, formatSpeed, WORKOUT_STATUS_LABELS } from "@runner360/shared";
 import { useState } from "react";
-import { CheckboxField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
+import { CheckboxField, ClockField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
 import { Stat } from "@/components/ui/primitives";
 import { initialActionState } from "@/lib/action-state";
 import { saveWorkoutAction } from "@/lib/actions/workouts";
@@ -49,7 +49,7 @@ export function WorkoutForm({ today, defaultDate, defaultEntryId, sessions }: { 
         <>
           <div className="grid gap-4 sm:grid-cols-2">
             <TextField label="Distancia (km)" name="distanceKm" inputMode="decimal" placeholder="8,5" value={km} onChange={(ev) => setKm(ev.target.value)} error={e.distanceKm} />
-            <TextField label="Duración (mm:ss o h:mm:ss)" name="duration" placeholder="45:30" value={duration} onChange={(ev) => setDuration(ev.target.value)} required error={e.duration} />
+            <ClockField label="Duración" name="duration" value={duration} onChange={setDuration} required error={e.duration} />
           </div>
           <div className="grid grid-cols-2 gap-3" aria-live="polite">
             <Stat label="Ritmo medio" value={formatPaceLabel(pace)} />

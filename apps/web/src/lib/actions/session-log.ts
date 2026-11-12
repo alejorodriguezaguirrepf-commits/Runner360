@@ -15,6 +15,9 @@ const schema = z.object({
   /** Tiempo real (s) de cada fila de la sesión, en el mismo orden; null = como estaba prescripto. */
   actual: z.array(z.number().int().min(1).max(86400).nullable()).max(400),
   rpe: z.number().int().min(1).max(10),
+  /** Frecuencia cardíaca media y máxima de la sesión (opcionales, en lpm). */
+  avgHr: z.number().int().min(30).max(250).nullable().optional(),
+  maxHr: z.number().int().min(30).max(250).nullable().optional(),
 });
 export type SessionLogInput = z.input<typeof schema>;
 export type SessionLogResult = { ok: true; workoutId: string; meters: number; seconds: number } | { ok: false; message: string };
@@ -31,6 +34,7 @@ export async function saveSessionLogAction(input: SessionLogInput): Promise<Sess
   const v = parsed.data;
   const today = todayIn(profile.timezone);
   if (v.date > today) return { ok: false, message: "Todavía no llegó ese día." };
+  if (v.avgHr && v.maxHr && v.avgHr > v.maxHr) return { ok: false, message: "La FC media no puede ser mayor que la máxima." };
 
   const open = await getOpenEnrollment(supabase, user.id);
   if (!open) return { ok: false, message: "No tenés un plan en curso." };
@@ -64,6 +68,8 @@ export async function saveSessionLogAction(input: SessionLogInput): Promise<Sess
     distance_m: totals.meters || null,
     duration_s: totals.seconds,
     rpe: v.rpe,
+    avg_hr: v.avgHr ?? null,
+    max_hr: v.maxHr ?? null,
   };
   const { data: saved, error } = existing
     ? await supabase.from("workout_logs").update(fields).eq("id", existing.id).select("id").single<{ id: string }>()

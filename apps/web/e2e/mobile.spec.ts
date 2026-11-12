@@ -14,11 +14,13 @@ test("navegación inferior en móvil", async ({ page }) => {
   await completeOnboarding(page);
   const nav = page.getByRole("navigation", { name: "Navegación inferior" });
   await expect(nav).toBeVisible();
-  for (const label of ["Inicio", "Plan", "Registrar", "Progreso", "Perfil"]) {
+  for (const label of ["Inicio", "Plan", "Hoy", "Progreso", "Perfil"]) {
     await expect(nav.getByRole("link", { name: label })).toBeVisible();
   }
-  await nav.getByRole("link", { name: "Registrar" }).click();
-  await expect(page).toHaveURL(/\/registrar/);
+  // El registro se hace en el plan: ya no hay botón «Registrar».
+  await expect(nav.getByRole("link", { name: "Registrar" })).toHaveCount(0);
+  await nav.getByRole("link", { name: "Hoy" }).click();
+  await expect(page).toHaveURL(/\/hoy/);
 });
 
 test("app instalable: aviso la primera vez en el celular, se cierra y no vuelve; instrucciones de iPhone", async ({ page, request }) => {

@@ -2,9 +2,10 @@
 
 import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { INPUT } from "@/components/ui/form";
+import { ClockInput } from "@/components/ui/clock-input";
 import { Button, Card, CardTitle, cx } from "@/components/ui/primitives";
 import { savePaceTestAction } from "@/lib/actions/pace-test";
-import { formatClock, formatDistance, maskClock, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
+import { formatClock, formatDistance, paceAt, parseClock, parseDistance, parseKm, PERCENTS, timeAt } from "@/lib/calculator";
 
 type Test = { meters: number; seconds: number };
 type Rep = { id: number; reps: string; meters: string; pct: string };
@@ -119,13 +120,11 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
           </div>
           <div className="space-y-1.5">
             <label htmlFor={timeId} className="block text-sm font-semibold text-ink">Tiempo</label>
-            <input
+            <ClockInput
               id={timeId}
-              inputMode="numeric"
-              autoComplete="off"
               placeholder="12:00"
               value={time}
-              onChange={(e) => setTime(maskClock(e.target.value))}
+              onChange={setTime}
               aria-invalid={timeError ? true : undefined}
               aria-describedby={timeError ? `${timeId}-e` : `${timeId}-h`}
               className={INPUT}

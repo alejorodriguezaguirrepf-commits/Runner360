@@ -45,7 +45,7 @@ export default async function ProgressPage() {
         <PageHeader title="Progreso" />
         {openEnrollment ? <PlanProgress supabase={supabase} open={openEnrollment} today={today} /> : null}
         {monitor}
-        <Card><EmptyState title="Todavía no hay registros" action={<ButtonLink href="/registrar">Registrar mi primer entrenamiento</ButtonLink>}>Tus gráficos se construyen solo con los entrenamientos que registres.</EmptyState></Card>
+        <Card><EmptyState title="Todavía no hay registros" action={<ButtonLink href="/plan">Ir a mi plan</ButtonLink>}>Tus gráficos se construyen con las sesiones que guardes desde tu plan.</EmptyState></Card>
       </>
     );
   }

@@ -9,7 +9,7 @@ import {
   WEEKDAY_LABELS,
 } from "@runner360/shared";
 import { useState } from "react";
-import { CheckboxField, ChoiceGroup, FormMessage, SelectField, SubmitButton, TextField, useFormAction } from "@/components/ui/form";
+import { CheckboxField, ChoiceGroup, ClockField, FormMessage, SelectField, SubmitButton, TextField, useFormAction } from "@/components/ui/form";
 import { Card } from "@/components/ui/primitives";
 import { initialActionState } from "@/lib/action-state";
 import { saveOnboardingAction } from "@/lib/actions/onboarding";
@@ -85,7 +85,7 @@ export function OnboardingForm({ defaults }: { defaults: OnboardingDefaults }) {
           <p className="text-sm font-semibold">Marca reciente (opcional)</p>
           <div className="mt-2 grid gap-4 sm:grid-cols-2">
             <TextField label="Distancia (km)" name="recentMarkDistanceKm" inputMode="decimal" defaultValue={defaults.recentMarkDistanceKm} placeholder="5" error={e.recentMarkDistanceKm} />
-            <TextField label="Tiempo (mm:ss o h:mm:ss)" name="recentMarkTime" defaultValue={defaults.recentMarkTime} placeholder="28:30" error={e.recentMarkTime} />
+            <ClockField label="Tiempo" name="recentMarkTime" defaultValue={defaults.recentMarkTime} error={e.recentMarkTime} />
           </div>
         </div>
       </Card>

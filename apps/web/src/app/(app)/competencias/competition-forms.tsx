@@ -3,7 +3,7 @@
 import { buildEvenSplits, DISTANCE_METERS, kmInputToMeters, paceForTarget, parseDuration, timeFromPace } from "@runner360/training-engine";
 import { DISTANCE_LABELS, formatDuration, formatKm, formatPaceLabel } from "@runner360/shared";
 import { useActionState, useState } from "react";
-import { CheckboxField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
+import { CheckboxField, ClockField, FormMessage, SelectField, SubmitButton, TextAreaField, TextField } from "@/components/ui/form";
 import { Alert, Stat } from "@/components/ui/primitives";
 import { initialActionState } from "@/lib/action-state";
 import { addCompetitionAction, saveResultAction } from "@/lib/actions/modules";
@@ -21,7 +21,7 @@ export function CompetitionForm() {
         <SelectField label="Distancia estándar" name="distanceCode" placeholder="Otra distancia" options={distanceOptions} />
         <TextField label="Distancia (km)" name="distanceKm" inputMode="decimal" hint="Dejalo vacío si elegiste una distancia estándar." error={e.distanceKm} />
         <TextField label="Ubicación (opcional)" name="location" maxLength={120} />
-        <TextField label="Tiempo objetivo (opcional)" name="targetTime" placeholder="1:55:00" error={e.targetTime} />
+        <ClockField label="Tiempo objetivo (opcional)" name="targetTime" error={e.targetTime} />
       </div>
       <FormMessage state={state} />
       <SubmitButton>Guardar competencia</SubmitButton>
@@ -37,7 +37,7 @@ export function ResultForm({ competitionId }: { competitionId: string }) {
       <input type="hidden" name="competitionId" value={competitionId} />
       <div className="grid gap-4 sm:grid-cols-2">
         <SelectField label="Estado" name="status" options={[{ value: "completed", label: "Finalicé" }, { value: "dnf", label: "No finalicé" }, { value: "dns", label: "No largué" }]} />
-        <TextField label="Tiempo final" name="finishTime" placeholder="52:10" error={e.finishTime} />
+        <ClockField label="Tiempo final" name="finishTime" error={e.finishTime} />
       </div>
       <TextAreaField label="Parciales por km (opcional)" name="splits" rows={2} placeholder="5:10, 5:05, …" error={e.splits} />
       <CheckboxField name="isOfficial" label="Es el tiempo oficial de la organización" />
@@ -77,7 +77,7 @@ export function PaceCalculator() {
         <SelectField label="Distancia" name="calcDistance" value={distance} onChange={(e) => setDistance(e.target.value)} options={[...distanceOptions, { value: "custom", label: "Otra" }]} />
         {distance === "custom" ? <TextField label="Km" name="calcKm" inputMode="decimal" value={customKm} onChange={(e) => setCustomKm(e.target.value)} /> : null}
         <SelectField label="Calcular a partir de" name="calcMode" value={mode} onChange={(e) => setMode(e.target.value as "time" | "pace")} options={[{ value: "time", label: "Tiempo objetivo" }, { value: "pace", label: "Ritmo (min/km)" }]} />
-        <TextField label={mode === "time" ? "Tiempo (h:mm:ss)" : "Ritmo (m:ss)"} name="calcInput" value={input} onChange={(e) => setInput(e.target.value)} />
+        <ClockField label={mode === "time" ? "Tiempo" : "Ritmo por km"} name="calcInput" value={input} onChange={setInput} />
         <TextField label="Parcial cada (km)" name="calcSplit" inputMode="decimal" value={splitKm} onChange={(e) => setSplitKm(e.target.value)} />
       </div>
       <div className="grid grid-cols-2 gap-3" aria-live="polite">

@@ -77,3 +77,15 @@ export function formatClock(seconds: number): string {
 export function formatDistance(meters: number): string {
   return meters < 1000 ? `${meters} m` : `${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 3 }).format(meters / 1000)} km`;
 }
+
+/**
+ * Tiempo escrito solo con números → siempre con los dos puntos, completando de derecha a izquierda:
+ * "5" → "0:05", "530" → "5:30", "1320" → "13:20", "13505" → "1:35:05". Vacío → "".
+ */
+export function clockFromDigits(input: string): string {
+  const d = input.replace(/\D/g, "").replace(/^0+/, "").slice(0, 6);
+  if (!d) return "";
+  if (d.length <= 2) return `0:${d.padStart(2, "0")}`;
+  if (d.length <= 4) return `${Number(d.slice(0, -2))}:${d.slice(-2)}`;
+  return `${Number(d.slice(0, -4))}:${d.slice(-4, -2)}:${d.slice(-2)}`;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckboxField, ChoiceGroup, FormMessage, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
+import { CheckboxField, ChoiceGroup, ClockField, FormMessage, SubmitButton, TextAreaField, TextField, useFormAction } from "@/components/ui/form";
 import Link from "next/link";
 import { IconHeart } from "@/components/ui/icons";
 import { Alert } from "@/components/ui/primitives";
@@ -43,7 +43,7 @@ export function SessionLogForm({ date, defaults, hasHealthConsent }: { date: str
       </fieldset>
       {status !== "skipped" ? (
         <div className="grid gap-4 sm:grid-cols-3">
-          <TextField label={L.duration} name="duration" placeholder="40:00" defaultValue={defaults.duration} error={e.duration} />
+          <ClockField label={L.duration} name="duration" defaultValue={defaults.duration} error={e.duration} />
           <TextField label={L.distance} name="distanceKm" inputMode="decimal" defaultValue={defaults.distanceKm} error={e.distanceKm} />
           <TextField label={L.rpe} name="rpe" type="number" min={1} max={10} inputMode="numeric" defaultValue={defaults.rpe} error={e.rpe} />
         </div>

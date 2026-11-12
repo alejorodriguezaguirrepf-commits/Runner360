@@ -14,7 +14,6 @@ import { formatDate } from "@runner360/shared";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { SafetyNotices } from "@/components/library/notices";
-import { RatingForm } from "@/components/library/rating-form";
 import { KmNote, WeekStrip, weekSummary, WorkoutDay } from "@/components/library/workout";
 import { planPaces } from "@/lib/data/paces";
 import { IconDownload, IconLock } from "@/components/ui/icons";
@@ -29,8 +28,7 @@ import { CheckinCard } from "@/components/library/checkin-card";
 import { enrollmentOver } from "@/lib/data/enrollment";
 import { CancelEnrollmentButton, PlanFinishedCard } from "./plan-actions";
 import { WellnessToday } from "@/components/training/today-actions";
-import { SessionTimesTable, type SavedSession } from "@/components/training/session-times";
-import { sessionTimes } from "@runner360/plan-library";
+import { SessionLog, type SavedSession } from "@/components/training/session-log";
 import { WellnessCheckin } from "@/components/training/wellness-checkin";
 import { getSplitSeconds, getWellness, hasHealthConsent } from "@/lib/data/monitoring";
 
@@ -106,7 +104,7 @@ export async function EnrollmentView({
   const weekLogs = (week?.logs ?? []).filter((l) => l.status !== "skipped");
   const splitsByLog = await getSplitSeconds(supabase, weekLogs.map((l) => l.id));
   const savedByDate = new Map<string, SavedSession>(
-    weekLogs.map((l) => [l.workout_date, { workoutId: l.id, rpe: l.rpe, meters: l.distance_m, seconds: l.duration_s, splits: splitsByLog.get(l.id) ?? [] }]),
+    weekLogs.map((l) => [l.workout_date, { workoutId: l.id, rpe: l.rpe, avgHr: l.avg_hr, maxHr: l.max_hr, splits: splitsByLog.get(l.id) ?? [] }]),
   );
   // Fuerza: siempre las rutinas vigentes (no dependen de las sesiones de carrera de la versión inscripta).
   const strengthCtx = week ? { exercises: library.strength, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
@@ -259,24 +257,18 @@ export async function EnrollmentView({
                   dateHint={shortDate(date)}
                   rating={ratingByDate.get(date)?.rating ?? null}
                   strength={strengthCtx ? strengthForDay(strengthCtx, day.day_index) : null}
-                  footer={
-                    <>
-                      <SessionTimesTable
-                        date={date}
-                        times={sessionTimes(day, kmPaces.test)}
-                        hasTest={Boolean(kmPaces.test)}
-                        canSave={date <= today && enrollment.status === "active"}
-                        needsWellness={date === today && !wellness}
-                        saved={savedByDate.get(date) ?? null}
-                        defaultOpen={date === today}
-                      />
-                      {date <= today ? (
-                        <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
-                      ) : (
-                        <p className="mt-4 text-xs text-muted">{R.later}</p>
-                      )}
-                    </>
+                  detail={
+                    <SessionLog
+                      date={date}
+                      day={day}
+                      test={kmPaces.test}
+                      speeds={kmPaces.speeds}
+                      canSave={date <= today && enrollment.status === "active"}
+                      needsWellness={date === today && !wellness}
+                      saved={savedByDate.get(date) ?? null}
+                    />
                   }
+                  footer={date > today ? <p className="mt-4 text-xs text-muted">{R.later}</p> : null}
                 />
               ))}
             </ol>

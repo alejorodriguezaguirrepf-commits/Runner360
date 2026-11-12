@@ -9,6 +9,8 @@ import { sessionBlocks, type BlockKind } from "./session-blocks";
 
 export type TimeRow = {
   block: BlockKind;
+  /** Índice de la línea de la sesión (contando todas las líneas de los tres bloques, en orden). */
+  line: number;
   /** "1000 m", "6,5 km", "15 min". */
   label: string;
   /** Repetición dentro del tramo (1 de 5) o null si es un tramo único. */
@@ -45,8 +47,10 @@ export function pauseSeconds(recovery: string | null): number {
 export function sessionTimes(day: { warmup: string | null; main_set: string | null; cooldown: string | null }, test: Test | null): SessionTimes {
   const rows: TimeRow[] = [];
   let pausesS = 0;
-  for (const block of sessionBlocks(day)) {
+  let lineIndex = -1;
+  for (const block of sessionBlocks(day).filter((b) => b.lines.length > 0)) {
     for (const line of block.lines) {
+      lineIndex++;
       const a = AMOUNT.exec(line.what);
       if (!a) continue;
       const reps = Math.max(1, Number(a[1] ?? 1));
@@ -61,6 +65,7 @@ export function sessionTimes(day: { warmup: string | null; main_set: string | nu
         for (let r = 1; r <= reps; r++)
           rows.push({
             block: block.kind,
+            line: lineIndex,
             label,
             rep: reps > 1 ? r : null,
             reps,
@@ -76,6 +81,7 @@ export function sessionTimes(day: { warmup: string | null; main_set: string | nu
         for (let r = 1; r <= reps; r++)
           rows.push({
             block: block.kind,
+            line: lineIndex,
             label,
             rep: reps > 1 ? r : null,
             reps,
