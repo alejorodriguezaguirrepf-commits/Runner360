@@ -21,7 +21,9 @@ import { IconDownload, IconLock } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { OpenEnrollment } from "@/lib/data/enrollment";
-import { getOverviewDays } from "@/lib/data/library";
+import { getOverviewDays, getStrength } from "@/lib/data/library";
+import { StrengthWeekCard } from "@/components/library/strength";
+import { strengthForDay, strengthWeek } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { enrollmentOver } from "@/lib/data/enrollment";
@@ -73,7 +75,7 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday] = await Promise.all([
+  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday, strengthExercises] = await Promise.all([
     loadWeek(supabase, open, selected),
     getOverviewDays(supabase, enrollment.content_version, plan.id),
     supabase
@@ -84,6 +86,7 @@ export async function EnrollmentView({
     getWellness(supabase, enrollment.user_id, today),
     hasHealthConsent(supabase, enrollment.user_id),
     getFinishedSession(supabase, enrollment.id, today),
+    getStrength(enrollment.content_version),
   ]);
   const ratings = (ratingRows ?? []) as RatingRow[];
   const ratingByDate = new Map(ratings.map((r) => [r.workout_date, r]));
@@ -99,6 +102,13 @@ export async function EnrollmentView({
   const average = ratings.length ? ratings.reduce((a, r) => a + r.rating, 0) / ratings.length : null;
   const openWeeks = new Set(overview.map((d) => d.week));
   const ordered = week?.dated ?? [];
+  const strengthCtx = week ? { exercises: strengthExercises, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
+  const weekdayName = (date: string) =>
+    new Intl.DateTimeFormat("es-AR", { weekday: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`)).replace(/^./, (c) => c.toUpperCase());
+  const strengthDayLabel = (dayIndex: number) => {
+    const o = ordered.find((x) => x.day.day_index === dayIndex);
+    return o ? `${weekdayName(o.date)} ${shortDate(o.date)}${o.day.is_rest ? " (sin carrera)" : ""}` : "";
+  };
   const doneDates = new Set((week?.logs ?? []).filter((l) => l.status !== "skipped").map((l) => l.workout_date));
 
   const pending = enrollment.status === "active" ? pendingCheckinWeek(open, today, weekdayOf(today)) : null;
@@ -241,6 +251,7 @@ export async function EnrollmentView({
                   open={firstOpen?.date === date}
                   dateHint={shortDate(date)}
                   rating={ratingByDate.get(date)?.rating ?? null}
+                  strength={strengthCtx ? strengthForDay(strengthCtx, day.day_index) : null}
                   footer={
                     date === today && enrollment.status === "active" ? (
                       <>
@@ -267,6 +278,12 @@ export async function EnrollmentView({
           )
         ) : null}
       </section>
+
+      {strengthCtx && ordered.length === 7 ? (
+        <div className="mb-6">
+          <StrengthWeekCard sessions={strengthWeek(strengthCtx)} dayLabel={strengthDayLabel} />
+        </div>
+      ) : null}
 
       <section aria-labelledby="valoraciones" className="mb-6 rounded-2xl border border-line bg-surface p-4">
         <h2 id="valoraciones" className="text-lg font-bold">{R.historyTitle}</h2>

@@ -1,10 +1,12 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { readLibraryJson, renderSeed, SEED_FILE } from "../scripts/paths";
-import { buildImportSql, libraryChecksum, LibraryValidationError, parseLibrary } from "../src/import-sql";
+import { buildImportSql, libraryChecksum, LibraryValidationError, parseLibrary, planHash } from "../src/import-sql";
+import { checkStrengthRoutine } from "../src/strength";
 import { checkInvariants, EXPECTED_PLAN_COUNT, isDemanding, planTotals, raceWeekOf } from "../src/invariants";
 import { librarySchema, type Library } from "../src/schema";
 import golden from "./golden-totals.json";
+import previous from "./plan-hashes-2026.12.json";
 
 const raw = readLibraryJson() as Record<string, unknown>;
 const clone = (): Library => structuredClone(raw) as unknown as Library;
@@ -113,12 +115,36 @@ describe("golden: totales de los 21 planes", () => {
   });
 });
 
-describe("versión 2026.12", () => {
+describe("versión 2026.13", () => {
   const lib = clone();
 
-  it("content_version 2026.12 sin cambio de esquema", () => {
-    expect(lib.content_version).toBe("2026.12");
-    expect(lib.schema_version).toBe("1.0.0");
+  it("content_version 2026.13: esquema 1.1.0 (fuerza en dos sesiones con patrón de movimiento)", () => {
+    expect(lib.content_version).toBe("2026.13");
+    expect(lib.schema_version).toBe("1.1.0");
+  });
+
+  it("los planes (semanas y días) no cambian respecto de 2026.12: solo cambia la fuerza", () => {
+    expect(previous.content_version).toBe("2026.12");
+    for (const p of lib.plans) expect(planHash(p), p.id).toBe(previous.plans[p.id as keyof typeof previous.plans]);
+  });
+
+  it("cada rutina: dos sesiones de 5 ejercicios (2 básicos de rodilla y cadera, 1 auxiliar, empuje y tracción)", () => {
+    for (const r of ["A", "B", "C"] as const) {
+      expect(checkStrengthRoutine(r, lib.strength_routines[r]), r).toEqual([]);
+      const s1 = lib.strength_routines[r].filter((e) => e.session === 1).map((e) => e.pattern);
+      const s2 = lib.strength_routines[r].filter((e) => e.session === 2).map((e) => e.pattern);
+      expect(s1).toEqual(["knee_basic", "hip_basic", "knee_aux", "push_horizontal", "pull_horizontal"]);
+      expect(s2).toEqual(["knee_basic", "hip_basic", "hip_aux", "push_vertical", "pull_vertical"]);
+    }
+  });
+
+  it("el validador rechaza una rutina desbalanceada", () => {
+    const bad = clone();
+    bad.strength_routines.B[3]!.pattern = "knee_aux";
+    expect(checkInvariants(bad).join()).toContain("Rutina B, sesión 1");
+    const short = clone();
+    short.strength_routines.C.pop();
+    expect(checkInvariants(short).join()).toContain("Rutina C, sesión 2: tiene 4 ejercicios");
   });
 
   it("capítulo 5: planes 19–21, 5 km Intermedio de 10 semanas con 3, 4 y 5 días", () => {

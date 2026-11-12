@@ -2989,6 +2989,20 @@ create policy wellness_delete_own on public.wellness_checkins for delete to auth
 revoke all on public.wellness_checkins from anon;
 
 
+-- ===== supabase/migrations/20261112000100_strength_sessions.sql =====
+-- Fuerza desde el contenido 2026.13: cada rutina tiene dos sesiones de 5 ejercicios con su patrón de
+-- movimiento (básicos de rodilla y cadera, auxiliar, empuje y tracción). Solo agrega dos columnas; las
+-- versiones anteriores quedan como estaban (sesión 1, sin patrón).
+
+alter table public.library_strength_exercises
+  add column session smallint not null default 1 check (session in (1, 2)),
+  add column pattern text check (pattern is null or pattern in (
+    'knee_basic', 'hip_basic', 'knee_aux', 'hip_aux', 'push_horizontal', 'pull_horizontal', 'push_vertical', 'pull_vertical'
+  ));
+comment on column public.library_strength_exercises.session is 'Sesión de fuerza de la semana (1 = pesada, 2 = liviana). Desde 2026.13.';
+comment on column public.library_strength_exercises.pattern is 'Patrón de movimiento del ejercicio. Desde 2026.13; null en versiones anteriores.';
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -3092,6 +3106,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261110000300'),
   ('20261110000400'),
   ('20261111000100'),
+  ('20261112000100'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;

@@ -1,6 +1,6 @@
 {
- "schema_version": "1.0.0",
- "content_version": "2026.12",
+ "schema_version": "1.1.0",
+ "content_version": "2026.13",
  "language": "es-AR",
  "source": {
   "theoretical_base": "Planificación de resistencia aeróbica: López Chicharro vs. autores europeos (12 de octubre de 2026)",
@@ -273,123 +273,218 @@
  "strength_routines": {
   "A": [
    {
-    "exercise": "Sentadilla a una silla o cajón",
+    "exercise": "Sentadilla goblet con mancuerna o pesa rusa",
     "target": "Cuádriceps y glúteos",
-    "sets_reps": "2–3 × 10"
-   },
-   {
-    "exercise": "Puente de glúteos en el suelo",
-    "target": "Glúteos e isquiotibiales",
-    "sets_reps": "2–3 × 12"
-   },
-   {
-    "exercise": "Elevación de talones de pie, rodillas extendidas",
-    "target": "Pantorrilla (gemelos)",
-    "sets_reps": "2–3 × 12–15"
-   },
-   {
-    "exercise": "Elevación de talones con rodillas flexionadas",
-    "target": "Sóleo",
-    "sets_reps": "2–3 × 12–15"
-   },
-   {
-    "exercise": "Zancada estática con apoyo",
-    "target": "Cuádriceps, glúteos, equilibrio",
-    "sets_reps": "2–3 × 8 por pierna"
-   },
-   {
-    "exercise": "Peso muerto a una pierna con apoyo",
-    "target": "Isquiotibiales y glúteos",
-    "sets_reps": "2–3 × 8 por pierna"
-   },
-   {
-    "exercise": "Plancha frontal y lateral",
-    "target": "Tronco",
-    "sets_reps": "2–3 × 20–30\" (lateral 15–20\" por lado)"
-   }
-  ],
-  "B": [
-   {
-    "exercise": "Sentadilla goblet (con mancuerna o pesa rusa)",
-    "target": "Cuádriceps y glúteos",
-    "sets_reps": "3 × 8–10"
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "knee_basic"
    },
    {
     "exercise": "Peso muerto rumano con mancuernas",
     "target": "Isquiotibiales y glúteos",
-    "sets_reps": "3 × 8–10"
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "hip_basic"
    },
    {
-    "exercise": "Subida a cajón (step-up)",
-    "target": "Cuádriceps, glúteos, estabilidad",
-    "sets_reps": "3 × 8 por pierna"
+    "exercise": "Subida a cajón (step-up) con mancuernas",
+    "target": "Cuádriceps y glúteos, a una pierna",
+    "sets_reps": "2–4 series × 3–6 repeticiones por pierna, según la semana",
+    "session": 1,
+    "pattern": "knee_aux"
    },
    {
-    "exercise": "Elevación de talones a una pierna, rodilla extendida",
-    "target": "Gemelos",
-    "sets_reps": "3 × 12–15 por pierna"
+    "exercise": "Flexiones de brazos (manos en el suelo o elevadas en un banco)",
+    "target": "Pectoral, hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "push_horizontal"
    },
    {
-    "exercise": "Elevación de talones sentado o con rodilla flexionada",
-    "target": "Sóleo",
-    "sets_reps": "3 × 12–15"
+    "exercise": "Remo con mancuerna a una mano, apoyado en un banco",
+    "target": "Dorsal ancho y espalda media",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "pull_horizontal"
    },
    {
-    "exercise": "Puente de glúteos a una pierna",
-    "target": "Glúteos e isquiotibiales",
-    "sets_reps": "3 × 10 por pierna"
+    "exercise": "Sentadilla con mancuernas a un cajón",
+    "target": "Cuádriceps y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "knee_basic"
    },
    {
-    "exercise": "Plancha lateral y «dead bug»",
-    "target": "Tronco",
-    "sets_reps": "3 × 30\" / 3 × 8 por lado"
+    "exercise": "Peso muerto con pesa rusa o mancuerna desde el suelo",
+    "target": "Glúteos, isquiotibiales y espalda baja",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_basic"
    },
    {
-    "exercise": "Saltos cortos en el lugar (pogo), desde el bloque de desarrollo",
-    "target": "Rigidez del tobillo, economía",
-    "sets_reps": "2–3 × 15–20"
+    "exercise": "Hip thrust con mancuerna, espalda apoyada en un banco",
+    "target": "Glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_aux"
+   },
+   {
+    "exercise": "Press de hombros con mancuernas, sentado",
+    "target": "Hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "push_vertical"
+   },
+   {
+    "exercise": "Jalón al pecho con banda elástica o en polea",
+    "target": "Dorsal ancho y bíceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "pull_vertical"
+   }
+  ],
+  "B": [
+   {
+    "exercise": "Sentadilla goblet pesada o sentadilla con barra",
+    "target": "Cuádriceps y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "knee_basic"
+   },
+   {
+    "exercise": "Peso muerto rumano con barra o mancuernas",
+    "target": "Isquiotibiales y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "hip_basic"
+   },
+   {
+    "exercise": "Sentadilla búlgara con mancuernas",
+    "target": "Cuádriceps y glúteos, a una pierna",
+    "sets_reps": "2–4 series × 3–6 repeticiones por pierna, según la semana",
+    "session": 1,
+    "pattern": "knee_aux"
+   },
+   {
+    "exercise": "Press de banca con mancuernas",
+    "target": "Pectoral, hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "push_horizontal"
+   },
+   {
+    "exercise": "Remo con barra o con mancuernas, inclinado",
+    "target": "Dorsal ancho y espalda media",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "pull_horizontal"
+   },
+   {
+    "exercise": "Sentadilla frontal con barra o prensa de piernas",
+    "target": "Cuádriceps y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "knee_basic"
+   },
+   {
+    "exercise": "Peso muerto con barra hexagonal o pesa rusa",
+    "target": "Glúteos, isquiotibiales y espalda baja",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_basic"
+   },
+   {
+    "exercise": "Hip thrust con barra o mancuerna",
+    "target": "Glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_aux"
+   },
+   {
+    "exercise": "Press militar con mancuernas, de pie",
+    "target": "Hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "push_vertical"
+   },
+   {
+    "exercise": "Dominadas asistidas con banda o jalón al pecho",
+    "target": "Dorsal ancho y bíceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "pull_vertical"
    }
   ],
   "C": [
    {
-    "exercise": "Sentadilla con barra o peso muerto con barra hexagonal",
-    "target": "Cadena posterior, cuádriceps, glúteos",
-    "sets_reps": "3–4 × 4–6 (pesado, 2–3 repeticiones en reserva)"
+    "exercise": "Sentadilla trasera con barra",
+    "target": "Cuádriceps y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "knee_basic"
    },
    {
-    "exercise": "Sentadilla búlgara",
-    "target": "Cuádriceps y glúteos (unilateral)",
-    "sets_reps": "3 × 6–8 por pierna"
-   },
-   {
-    "exercise": "Peso muerto a una pierna con mancuerna",
+    "exercise": "Peso muerto rumano con barra",
     "target": "Isquiotibiales y glúteos",
-    "sets_reps": "3 × 8 por pierna"
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "hip_basic"
    },
    {
-    "exercise": "Elevación de talones con carga, rodilla extendida",
-    "target": "Gemelos",
-    "sets_reps": "3 × 8–10"
+    "exercise": "Sentadilla búlgara con barra o mancuernas",
+    "target": "Cuádriceps y glúteos, a una pierna",
+    "sets_reps": "2–4 series × 3–6 repeticiones por pierna, según la semana",
+    "session": 1,
+    "pattern": "knee_aux"
    },
    {
-    "exercise": "Elevación de talones sentado con carga",
-    "target": "Sóleo",
-    "sets_reps": "3 × 10–12"
+    "exercise": "Press de banca con barra",
+    "target": "Pectoral, hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "push_horizontal"
    },
    {
-    "exercise": "Curl nórdico asistido o puente de isquiotibiales excéntrico",
-    "target": "Isquiotibiales",
-    "sets_reps": "3 × 5–6"
+    "exercise": "Remo con barra (Pendlay)",
+    "target": "Dorsal ancho y espalda media",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 1,
+    "pattern": "pull_horizontal"
    },
    {
-    "exercise": "Pallof press y plancha lateral",
-    "target": "Tronco (antirrotación)",
-    "sets_reps": "3 × 10 por lado / 3 × 30–40\""
+    "exercise": "Sentadilla frontal con barra",
+    "target": "Cuádriceps y glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "knee_basic"
    },
    {
-    "exercise": "Pliometría: pogo, saltos al cajón, multisaltos cortos",
-    "target": "Rigidez y economía",
-    "sets_reps": "3 × 6–8 (calidad, pausa completa)"
+    "exercise": "Peso muerto con barra hexagonal o convencional",
+    "target": "Glúteos, isquiotibiales y espalda baja",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_basic"
+   },
+   {
+    "exercise": "Hip thrust con barra",
+    "target": "Glúteos",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "hip_aux"
+   },
+   {
+    "exercise": "Press militar con barra, de pie",
+    "target": "Hombros y tríceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "push_vertical"
+   },
+   {
+    "exercise": "Dominadas (con lastre si hacen falta más de 6)",
+    "target": "Dorsal ancho y bíceps",
+    "sets_reps": "2–4 series × 3–6 repeticiones, según la semana",
+    "session": 2,
+    "pattern": "pull_vertical"
    }
   ]
  },

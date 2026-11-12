@@ -1,5 +1,5 @@
 import "server-only";
-import type { CatalogPlan, Category, Intensity, LoadSignal, SessionCategory } from "@runner360/plan-library";
+import type { CatalogPlan, Category, Intensity, LoadSignal, SessionCategory, StrengthPattern } from "@runner360/plan-library";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 import { logError } from "@/lib/log";
@@ -65,13 +65,25 @@ export type DayRow = {
   minutes_by_intensity: Record<string, number> | null;
 };
 
+/** Ejercicio de una rutina de fuerza. session y pattern existen desde el contenido 2026.13 (antes: 1 y null). */
+export type StrengthExercise = {
+  routine: "A" | "B" | "C";
+  position: number;
+  exercise: string;
+  target: string;
+  sets_reps: string;
+  session: 1 | 2;
+  pattern: StrengthPattern | null;
+};
+const STRENGTH_COLUMNS = "routine, position, exercise, target, sets_reps, session, pattern";
+
 export type OverviewDay = Pick<DayRow, "week" | "day_index" | "is_rest" | "strength_only" | "category" | "short_label" | "is_quality">;
 
 export type Library = {
   version: LibraryVersion;
   plans: PlanRow[];
   intensities: (Intensity & { position: number })[];
-  strength: { routine: "A" | "B" | "C"; position: number; exercise: string; target: string; sets_reps: string }[];
+  strength: StrengthExercise[];
   freePreviewWeeks: number;
 };
 
@@ -101,7 +113,7 @@ const loadLibrary = unstable_cache(
     const [plans, intensities, strength, settings] = await Promise.all([
       db.from("library_plans").select(PLAN_COLUMNS).eq("content_version", v).order("number"),
       db.from("library_intensities").select("position, name, zone, rpe, talk_test, feel, use_for").eq("content_version", v).order("position"),
-      db.from("library_strength_exercises").select("routine, position, exercise, target, sets_reps").eq("content_version", v).order("routine").order("position"),
+      db.from("library_strength_exercises").select(STRENGTH_COLUMNS).eq("content_version", v).order("routine").order("position"),
       db.from("library_settings").select("free_preview_weeks").maybeSingle<{ free_preview_weeks: number }>(),
     ]);
     return {
@@ -153,6 +165,29 @@ export async function getPlanWeeks(version: string, planId: string): Promise<Wee
   } catch (e) {
     logError("library:weeks", e);
     return null;
+  }
+}
+
+const loadStrength = unstable_cache(
+  async (version: string): Promise<StrengthExercise[]> => {
+    const db = createPublicClient();
+    if (!db) throw new LibraryUnavailable("sin configuración");
+    return must(
+      await db.from("library_strength_exercises").select(STRENGTH_COLUMNS).eq("content_version", version).order("routine").order("position"),
+      "fuerza",
+    ) as StrengthExercise[];
+  },
+  ["library-strength"],
+  { revalidate: 86_400, tags: ["library"] },
+);
+
+/** Rutinas de fuerza de una versión del contenido (la de la inscripción, que puede no ser la vigente). */
+export async function getStrength(version: string): Promise<StrengthExercise[]> {
+  try {
+    return await loadStrength(version);
+  } catch (e) {
+    logError("library:strength", e);
+    return [];
   }
 }
 

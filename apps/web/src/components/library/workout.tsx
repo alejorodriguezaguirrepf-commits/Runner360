@@ -6,7 +6,9 @@ import { IconLock } from "@/components/ui/icons";
 import { cx } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { DayRow } from "@/lib/data/library";
+import type { StrengthPrescription } from "@/lib/library/strength";
 import { RpeHelp, SessionDetail, type PaceTest } from "./session-detail";
+import { StrengthBlock } from "./strength";
 
 const m = t.library.workout;
 const R = t.library.rating;
@@ -36,6 +38,7 @@ export function WorkoutDay({
   footer,
   speeds = null,
   test = null,
+  strength = null,
 }: {
   day: DayRow;
   /** Número de día dentro de la semana (1–7). */
@@ -54,6 +57,8 @@ export function WorkoutDay({
   speeds?: Speeds | null;
   /** Test de la Calculadora: muestra el ritmo de cada porcentaje. */
   test?: PaceTest | null;
+  /** Sesión de fuerza de ese día (con la dosis de la semana), si corresponde. */
+  strength?: StrengthPrescription | null;
 }) {
   const badge = (
     <span
@@ -114,10 +119,14 @@ export function WorkoutDay({
           <RpeHelp />
           <SessionDetail day={day} test={test} speeds={speeds} />
           {day.strength_after ? (
-            <p className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
-              <span className="font-semibold">{m.strength}: </span>
-              {m.strengthText}
-            </p>
+            strength ? (
+              <StrengthBlock p={strength} lead={m.strength} className="mt-2" />
+            ) : (
+              <p className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
+                <span className="font-semibold">{m.strength}: </span>
+                {m.strengthText}
+              </p>
+            )
           ) : null}
           {tips && day.technical_notes ? <p className="mt-3 text-sm text-muted">💡 {day.technical_notes}</p> : null}
           {footer}

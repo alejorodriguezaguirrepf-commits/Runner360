@@ -13,6 +13,9 @@ import { fmt, t } from "@/i18n";
 import { resumePlanAction } from "@/lib/actions/plan-progress";
 import { requireOnboardedSession } from "@/lib/auth";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
+import { getStrength } from "@/lib/data/library";
+import { StrengthBlock } from "@/components/library/strength";
+import { strengthForDay } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek, resumeTarget } from "@/lib/library/week";
 import { TodayActions, WellnessToday } from "@/components/training/today-actions";
 import { WellnessCheckin } from "@/components/training/wellness-checkin";
@@ -71,7 +74,9 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   }
 
   const slot = planDayAt(enrollment, open.segments, plan.duration_weeks, today);
-  const week = await loadWeek(supabase, open, mondayOf(today));
+  const [week, strengthExercises] = await Promise.all([loadWeek(supabase, open, mondayOf(today)), getStrength(enrollment.content_version)]);
+  const todayStrength =
+    week && slot ? strengthForDay({ exercises: strengthExercises, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks }, slot.dayIndex) : null;
   const todayDay = slot && week ? week.days.find((d) => d.day_index === slot.dayIndex) : null;
   const todayLog = week?.logs.find((l) => l.workout_date === today) ?? null;
   const pending = pendingCheckinWeek(open, today, weekdayOf(today));
@@ -132,6 +137,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             open
             tips
             rating={todayRating?.rating ?? null}
+            strength={todayStrength}
             footer={
               todayDay.is_rest ? null : (
                 <>
@@ -146,6 +152,7 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
         {todayDay.is_rest ? (
           <Card>
             <p className="font-semibold">{todayDay.strength_only ? fmt(T.strengthOnly, { r: plan.strength_routine }) : T.rest}</p>
+            {todayDay.strength_only && todayStrength ? <StrengthBlock p={todayStrength} lead="Hoy" open className="mt-3" /> : null}
           </Card>
         ) : (
           <details className="rounded-[var(--radius-card)] border border-line bg-surface p-4">

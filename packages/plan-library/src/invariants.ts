@@ -1,4 +1,5 @@
 import type { Library, LibraryDay, LibraryPlan, LibrarySessionDay } from "./schema";
+import { checkStrengthRoutine } from "./strength";
 import { DAY_LABELS } from "./schema";
 
 /** Cantidad de planes que trae la biblioteca. Si cambia, es un cambio de contenido deliberado. */
@@ -45,6 +46,7 @@ export function checkInvariants(lib: Library): string[] {
   const sessionCodes = new Set(lib.session_catalog.map((s) => s.code));
   const intensityNames = new Set(lib.intensity_scale.map((i) => i.name));
   for (const name of Object.keys(lib.zone_map)) if (!intensityNames.has(name)) err("zone_map", `intensidad desconocida "${name}"`);
+  for (const r of ["A", "B", "C"] as const) for (const e of checkStrengthRoutine(r, lib.strength_routines[r])) err("strength_routines", e);
 
   for (const plan of lib.plans) {
     const p = plan.id;

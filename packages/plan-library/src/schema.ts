@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STRENGTH_PATTERNS } from "./strength";
 
 /**
  * Esquema ESTRICTO de content/training-plans/running_plans_library.json.
@@ -55,6 +56,9 @@ export const strengthExerciseSchema = z.strictObject({
   exercise: text,
   target: text,
   sets_reps: text,
+  /** Desde 2026.13: sesión de fuerza de la semana (1 = pesada, 2 = liviana) y patrón de movimiento. */
+  session: z.union([z.literal(1), z.literal(2)]),
+  pattern: z.enum(STRENGTH_PATTERNS),
 });
 
 const referenceSchema = z.union([text, z.strictObject({ ref: text, use: text })]);

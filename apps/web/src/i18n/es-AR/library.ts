@@ -257,7 +257,7 @@ export const library = {
     resume: "Retomar el plan",
     resumeText: "Al retomar, el plan sigue desde la semana {n} según el tiempo que pasó sin entrenar.",
     rest: "Hoy es día de descanso.",
-    strengthOnly: "Hoy es descanso de carrera: corresponde la fuerza (rutina {r}).",
+    strengthOnly: "Hoy es descanso de carrera: te toca la sesión de fuerza.",
     locked: "La sesión de hoy está en un mes del plan que todavía no se liberó. Se libera con el débito mensual de la suscripción.",
     sessionOf: "Sesión de hoy · semana {n} del plan",
     week: "Esta semana",

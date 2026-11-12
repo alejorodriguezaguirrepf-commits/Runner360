@@ -106,8 +106,10 @@ export function libraryTables(library: Library, checksum: string): TableSpec[] {
     },
     {
       table: "library_strength_exercises",
-      columns: ["content_version", "routine", "position", "exercise", "target", "sets_reps"],
-      rows: (["A", "B", "C"] as const).flatMap((r) => library.strength_routines[r].map((e, n): SqlValue[] => [v, r, n + 1, e.exercise, e.target, e.sets_reps])),
+      columns: ["content_version", "routine", "position", "exercise", "target", "sets_reps", "session", "pattern"],
+      rows: (["A", "B", "C"] as const).flatMap((r) =>
+        library.strength_routines[r].map((e, n): SqlValue[] => [v, r, n + 1, e.exercise, e.target, e.sets_reps, e.session, e.pattern]),
+      ),
       conflict: "content_version, routine, position",
     },
     {
