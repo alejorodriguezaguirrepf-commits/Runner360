@@ -71,7 +71,7 @@ export function weekPdfData(input: WeekPdfInput): WeekPdfData {
     weekLabel: fmt(w.weekOf, { n: input.planWeek, total: input.totalWeeks }),
     range: `${shortDate(first)} – ${shortDate(last)}`,
     summary,
-    paceNote: input.test && input.testDate ? fmt(w.paceFromTest, { date: formatDate(input.testDate, "long") }) : `${w.kmFromPlan} Calculadora ${w.kmFromPlanEnd}`,
+    paceNote: input.test && input.testDate ? fmt(w.paceFromTest, { date: formatDate(input.testDate, "long") }) : `${w.kmFromPlan} ${w.kmCalculator} ${w.kmFromPlanEnd}`,
     days: pdfDays,
     rpeNote: `${w.rpeHelp} ${w.rpeText}`,
     generatedAt: input.generatedAt,

@@ -7,8 +7,8 @@ test.describe("calculadora de ritmos", () => {
   test("test → tabla por porcentaje, pasadas, test guardado y planes en km", async ({ page }) => {
     await signUp(page, uniqueEmail("calc"));
     await completeOnboarding(page);
-    await page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Calculadora" }).click();
-    await expect(page.getByRole("heading", { name: "Calculadora de ritmos" })).toBeVisible();
+    await page.getByRole("navigation", { name: "Principal" }).getByRole("link", { name: "Test/%" }).click();
+    await expect(page.getByRole("heading", { name: "Test/%" })).toBeVisible();
 
     // a) Test: 2,4 km en 12:00 → 5:00/km.
     await page.getByLabel("Km del test").fill("2,4");
@@ -20,19 +20,20 @@ test.describe("calculadora de ritmos", () => {
     // b) Tabla: 400 m al 100 % = 2:00, al 80 % = 2:30, al 50 % = 4:00.
     const table = page.getByRole("region", { name: "Tabla de ritmos por porcentaje" });
     const row = (p: number) => table.getByRole("row", { name: new RegExp(`^${p} %`) });
-    const col400 = 3; // %, ritmo, 200 m, 400 m…
+    const col400 = 6; // %, ritmo, 100, 150, 200, 300, 400 m…
     await expect(row(100).getByRole("cell").nth(col400 - 1)).toHaveText("2:00");
     await expect(row(80).getByRole("cell").nth(col400 - 1)).toHaveText("2:30");
     await expect(row(50).getByRole("cell").nth(col400 - 1)).toHaveText("4:00");
     await expect(row(80).getByRole("cell").first()).toHaveText("6:15");
     await expect(table.getByRole("row")).toHaveCount(12);
 
-    // Agregar y quitar distancias.
-    await page.getByLabel("Agregar distancia").fill("1,5 km");
+    // Distancias fijas de 100 a 5000 m; se agrega una propia y se quita.
+    for (const d of ["100 m", "150 m", "700 m", "1,5 km", "3 km", "5 km"]) await expect(table.getByRole("columnheader", { name: d, exact: true })).toBeVisible();
+    await page.getByLabel("Agregar distancia").fill("250");
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
-    await expect(table.getByRole("columnheader", { name: "1,5 km" })).toBeVisible();
-    await page.getByRole("button", { name: "Quitar 200 m" }).click();
-    await expect(table.getByRole("columnheader", { name: "200 m" })).toHaveCount(0);
+    await expect(table.getByRole("columnheader", { name: "250 m" })).toBeVisible();
+    await page.getByRole("button", { name: "Quitar 250 m" }).click();
+    await expect(table.getByRole("columnheader", { name: "250 m" })).toHaveCount(0);
     await page.getByLabel("Agregar distancia").fill("10 millas");
     await page.getByRole("button", { name: "Agregar", exact: true }).click();
     await expect(page.getByText("Escribí una distancia como 400, 400 m o 5 km.")).toBeVisible();

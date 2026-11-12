@@ -39,7 +39,7 @@ const FEATURES = [
   { icon: IconFlag, title: "Competencias", text: "Objetivos, resultados reales, parciales y marcas personales." },
   {
     icon: IconBolt,
-    title: "Calculadora de ritmos y parciales",
+    title: "Test/%: ritmos y parciales",
     text: "Cargá un test (distancia y tiempo) y obtené tus ritmos por intensidad y el tiempo de cada parcial de tus pasadas, por ejemplo 6 × 400 m al 90 %.",
   },
   {

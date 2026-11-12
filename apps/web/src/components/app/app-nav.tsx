@@ -34,7 +34,7 @@ const SECONDARY = [
   { href: "/hoy", label: t.library.today.title, icon: IconTimer },
   { href: "/pulsaciones", label: "Pulsaciones", icon: IconHeart },
   { href: "/planes", label: t.library.nav.catalog, icon: IconList },
-  { href: "/calculadora", label: "Calculadora", icon: IconBolt },
+  { href: "/calculadora", label: "Test/%", icon: IconBolt },
   { href: "/entrenamientos", label: "Historial", icon: IconTimer },
   { href: "/hidratacion", label: "Hidratación", icon: IconDrop },
   { href: "/competencias", label: "Competencias", icon: IconFlag },

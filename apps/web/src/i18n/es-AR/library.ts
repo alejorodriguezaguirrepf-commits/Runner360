@@ -108,10 +108,10 @@ export const library = {
   },
   workout: {
     kmFromTest: "Distancias calculadas con tu test del {date}.",
-    kmFromModel: "Distancias estimadas para el nivel del plan. Cargá tu test en la",
-    kmCalculator: "Calculadora",
+    kmFromModel: "Distancias estimadas para el nivel del plan. Cargá tu test en",
+    kmCalculator: "Test/%",
     kmFromModelEnd: "para ajustarlas a tu ritmo.",
-    kmFromPlan: "Cada tramo indica su porcentaje del ritmo de tu test (100 %) y su RPE. Cargá tu test en la",
+    kmFromPlan: "Cada tramo indica su porcentaje del ritmo de tu test (100 %) y su RPE. Cargá tu test en",
     kmFromPlanEnd: "para ver el ritmo por km de cada tramo.",
     paceFromTest: "Ritmos calculados con tu test del {date} (100 %).",
     day: "Día",

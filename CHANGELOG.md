@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-12 — «Calculadora» pasa a «Test/%» con parciales automáticos
+
+- La pestaña se llama **Test/%** (menú, título y todos los textos que la nombran).
+- Con el test cargado, la tabla calcula sola los parciales del 50 % al 100 % en 100, 150, 200, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000 y 5000 m (siempre están).
+- Se puede agregar cualquier otra distancia: se suma a la tabla y queda guardada en el dispositivo; las agregadas se pueden quitar.
+
 ## 2026-11-12 — Registro automático desde el plan: tiempos prescriptos y reales
 
 - Cada entrenamiento del plan (Mi plan y Hoy) tiene **«Tiempos y registro de la sesión»** en dos columnas: **Prescripto** (con el test de la Calculadora, el tiempo de cada pasada o tramo según su porcentaje) y **Real** (para cargar solo lo que no salió como estaba). Las pausas entre pasadas se suman solas.

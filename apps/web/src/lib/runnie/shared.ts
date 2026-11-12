@@ -17,7 +17,7 @@ export const APP_LINKS: Record<string, string> = {
   "/planes": "Planes: la biblioteca para elegir plan (5K, 10K, 21K y 42K)",
   "/registrar": "Registrar: cargar un entrenamiento",
   "/progreso": "Progreso: estadísticas e historial",
-  "/calculadora": "Calculadora de ritmos",
+  "/calculadora": "Test/% (parciales por porcentaje)",
   "/aprender": "Aprender: contenido educativo",
   "/hidratacion": "Hidratación (con suscripción)",
   "/competencias": "Competencias (con suscripción)",

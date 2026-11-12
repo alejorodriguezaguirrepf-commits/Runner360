@@ -200,7 +200,7 @@ export default async function AdminHome() {
               )}
             </Card>
             <Card>
-              <CardTitle>Calculadora de ritmos</CardTitle>
+              <CardTitle>Test/%</CardTitle>
               <div className="grid grid-cols-2 gap-3">
                 <Stat label="Personas con test guardado" value={String(d.calculator.users)} />
                 <Stat label="Usada en 30 días" value={String(d.calculator.last_30d)} />

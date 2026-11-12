@@ -90,8 +90,8 @@ export function SessionTimesTable({
       <div className="border-t border-line px-3 pb-3 pt-2">
         {!hasTest ? (
           <p className="mb-2 rounded-lg bg-surface-2 px-3 py-2 text-xs text-muted">
-            Para ver el tiempo de cada pasada, cargá tu test en la{" "}
-            <Link href="/calculadora" className="font-semibold text-primary-ink underline">Calculadora</Link>.
+            Para ver el tiempo de cada pasada, cargá tu test en{" "}
+            <Link href="/calculadora" className="font-semibold text-primary-ink underline">Test/%</Link>.
             {canSave ? " Igual podés cargar tus tiempos reales." : ""}
           </p>
         ) : null}

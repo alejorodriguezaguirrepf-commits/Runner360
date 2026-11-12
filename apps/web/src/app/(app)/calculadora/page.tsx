@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui/primitives";
 import { requireOnboardedSession } from "@/lib/auth";
 import { PaceCalculator } from "./pace-calculator";
 
-export const metadata: Metadata = { title: "Calculadora de ritmos" };
+export const metadata: Metadata = { title: "Test/%" };
 
 export default async function CalculatorPage() {
   const { supabase, user } = await requireOnboardedSession();
@@ -15,8 +15,8 @@ export default async function CalculatorPage() {
   return (
     <>
       <PageHeader
-        title="Calculadora de ritmos"
-        subtitle="Cargá tu test y calculá tiempos y ritmos por porcentaje. El 100 % es el ritmo de tu test; el porcentaje es sobre la velocidad."
+        title="Test/%"
+        subtitle="Cargá tu test y te calculamos los parciales del 50 % al 100 % en cada distancia. El 100 % es el ritmo de tu test; el porcentaje es sobre la velocidad."
       />
       <PaceCalculator initial={data ? { meters: data.distance_m, seconds: data.time_s, savedAt: data.updated_at } : null} />
     </>

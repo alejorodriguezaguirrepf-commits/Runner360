@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore, useTransition } from "react";
 import { INPUT } from "@/components/ui/form";
 import { Button, Card, CardTitle, cx } from "@/components/ui/primitives";
 import { savePaceTestAction } from "@/lib/actions/pace-test";
@@ -9,17 +9,46 @@ import { formatClock, formatDistance, maskClock, paceAt, parseClock, parseDistan
 type Test = { meters: number; seconds: number };
 type Rep = { id: number; reps: string; meters: string; pct: string };
 
-const DEFAULT_DISTANCES = [200, 400, 1000, 5000];
+/** Distancias fijas de la tabla (siempre están). */
+const DEFAULT_DISTANCES = [100, 150, 200, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000, 5000];
+/** Distancias que agrega la persona: se recuerdan en este dispositivo. */
+const CUSTOM_KEY = "runner360.testDistances";
+const noopSubscribe = () => () => {};
+function readCustom(): string {
+  try {
+    return window.localStorage.getItem(CUSTOM_KEY) ?? "[]";
+  } catch {
+    return "[]";
+  }
+}
+function parseCustom(raw: string): number[] {
+  try {
+    const v = JSON.parse(raw) as unknown;
+    return Array.isArray(v) ? v.filter((x): x is number => Number.isInteger(x) && x > 0 && x <= 100_000).slice(0, 20) : [];
+  } catch {
+    return [];
+  }
+}
 
 function kmText(meters: number): string {
   return String(meters / 1000).replace(".", ",");
 }
 
-/** Calculadora: test (km + tiempo) → tabla de ritmos por porcentaje y calculadora de pasadas. */
+/** Test/%: test (km + tiempo) → tabla de parciales por porcentaje (50 a 100 %) y calculadora de pasadas. */
 export function PaceCalculator({ initial }: { initial: { meters: number; seconds: number; savedAt: string } | null }) {
   const [km, setKm] = useState(initial ? kmText(initial.meters) : "");
   const [time, setTime] = useState(initial ? formatClock(initial.seconds) : "");
-  const [distances, setDistances] = useState<number[]>(DEFAULT_DISTANCES);
+  const storedCustom = useSyncExternalStore(noopSubscribe, readCustom, () => "[]");
+  const [editedCustom, setEditedCustom] = useState<number[] | null>(null);
+  const custom = useMemo(() => editedCustom ?? parseCustom(storedCustom), [editedCustom, storedCustom]);
+  const setCustom = (next: number[]) => {
+    setEditedCustom(next);
+    try {
+      window.localStorage.setItem(CUSTOM_KEY, JSON.stringify(next));
+    } catch {
+      // Sin almacenamiento: se recuerdan solo mientras la página esté abierta.
+    }
+  };
   const [newDistance, setNewDistance] = useState("");
   const [distanceError, setDistanceError] = useState<string | null>(null);
   const [reps, setReps] = useState<Rep[]>([{ id: 1, reps: "6", meters: "400", pct: "90" }]);
@@ -50,7 +79,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [test?.meters, test?.seconds, implausible]);
 
-  const sorted = useMemo(() => [...distances].sort((a, b) => a - b), [distances]);
+  const sorted = useMemo(() => [...new Set([...DEFAULT_DISTANCES, ...custom])].sort((a, b) => a - b), [custom]);
 
   function addDistance() {
     const m = parseDistance(newDistance);
@@ -59,7 +88,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
       return;
     }
     setDistanceError(null);
-    setDistances((d) => (d.includes(m) ? d : [...d, m]));
+    if (!DEFAULT_DISTANCES.includes(m) && !custom.includes(m)) setCustom([...custom, m]);
     setNewDistance("");
   }
 
@@ -116,7 +145,7 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
 
       {/* b) Tabla de ritmos */}
       <Card>
-        <CardTitle>Tabla de ritmos</CardTitle>
+        <CardTitle>Parciales por porcentaje</CardTitle>
         <div className="flex flex-wrap items-start gap-2">
           <div className="min-w-0 flex-1 space-y-1.5">
             <label htmlFor={distId} className="block text-sm font-semibold text-ink">Agregar distancia</label>
@@ -146,24 +175,30 @@ export function PaceCalculator({ initial }: { initial: { meters: number; seconds
             )}
           </div>
         </div>
-        <ul className="mt-3 flex flex-wrap gap-2" aria-label="Distancias de la tabla">
-          {sorted.map((m) => (
-            <li key={m} className="inline-flex items-center gap-1 rounded-full border border-line bg-surface-2 py-1 pl-3 pr-1 text-sm font-semibold">
-              {formatDistance(m)}
-              <button
-                type="button"
-                onClick={() => setDistances((d) => d.filter((x) => x !== m))}
-                className="inline-flex size-8 items-center justify-center rounded-full text-muted hover:bg-surface hover:text-ink"
-                aria-label={`Quitar ${formatDistance(m)}`}
-              >
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
+        <p className="mt-3 text-xs text-muted">
+          Siempre están: 100, 150, 200, 300, 400, 500, 600, 700, 800, 1000, 1500, 2000, 3000 y 5000 m. Las que agregues se suman a la tabla y quedan guardadas en este dispositivo.
+        </p>
+        {custom.length ? (
+          <ul className="mt-2 flex flex-wrap gap-2" aria-label="Tus distancias">
+            {[...custom].sort((a, b) => a - b).map((m) => (
+              <li key={m} className="inline-flex items-center gap-1 rounded-full border border-primary bg-surface-2 py-1 pl-3 pr-1 text-sm font-semibold">
+                {formatDistance(m)}
+                <button
+                  type="button"
+                  onClick={() => setCustom(custom.filter((x) => x !== m))}
+                  className="inline-flex size-8 items-center justify-center rounded-full text-muted hover:bg-surface hover:text-ink"
+                  aria-label={`Quitar ${formatDistance(m)}`}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
+        {test && !implausible ? <p className="mt-4 text-xs text-muted sm:hidden">Deslizá la tabla hacia el costado para ver todas las distancias.</p> : null}
         {test && !implausible ? (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-line" tabIndex={0} role="region" aria-label="Tabla de ritmos por porcentaje">
+          <div className="mt-2 overflow-x-auto sm:mt-4 rounded-xl border border-line" tabIndex={0} role="region" aria-label="Tabla de ritmos por porcentaje">
             <table className="tabular w-full min-w-max text-sm">
               <thead className="bg-surface-2 text-left text-xs uppercase tracking-wide text-muted">
                 <tr>
