@@ -35,7 +35,7 @@ async function enrollStartedLastWeek(page: Page, name: string) {
     headers: { ...headers, Prefer: "return=minimal" },
     body: JSON.stringify({
       user_id: id,
-      content_version: "2026.13",
+      content_version: "2026.14",
       plan_id: "plan-05",
       start_date: start,
       race_date: addDays(start, 11 * 7 + 6),

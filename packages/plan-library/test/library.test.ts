@@ -115,11 +115,11 @@ describe("golden: totales de los 21 planes", () => {
   });
 });
 
-describe("versión 2026.13", () => {
+describe("versión 2026.14", () => {
   const lib = clone();
 
-  it("content_version 2026.13: esquema 1.1.0 (fuerza en dos sesiones con patrón de movimiento)", () => {
-    expect(lib.content_version).toBe("2026.13");
+  it("content_version 2026.14: esquema 1.1.0 (fuerza en dos sesiones con patrón de movimiento)", () => {
+    expect(lib.content_version).toBe("2026.14");
     expect(lib.schema_version).toBe("1.1.0");
   });
 

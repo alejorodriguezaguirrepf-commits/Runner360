@@ -23,7 +23,7 @@ describe("fuerza en el plan", () => {
     expect(thursday.session).toBe(2);
     expect(monday.exercises).toHaveLength(5);
     expect(monday.dose).toMatchObject({ sets: 4, reps: 4, rir: 2 });
-    expect(thursday.dose).toMatchObject({ sets: 3, reps: 6 });
+    expect(thursday.dose).toMatchObject({ sets: 4, reps: 6 });
     expect(strengthForDay(ctx, 1)).toBeNull();
     expect(strengthWeek(ctx).map((s) => [s.prescription.session, s.dayIndexes])).toEqual([
       [1, [0]],

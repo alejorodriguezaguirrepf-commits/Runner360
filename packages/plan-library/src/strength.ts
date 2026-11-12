@@ -6,8 +6,9 @@
  *
  * Dosificación con variación de cargas (ondulante): la sesión 1 de la semana es la más pesada (menos
  * repeticiones) y la 2 la más liviana; además cambia según el momento del plan (base → desarrollo →
- * específico) y el tipo de semana (carga, descarga, puesta a punto, competencia). Siempre entre 3 y 6
- * repeticiones y no más de 4 series. La carga se regula con repeticiones en reserva (RIR).
+ * específico) y el tipo de semana (carga, descarga, puesta a punto, competencia). Siempre 4 series por
+ * ejercicio y entre 3 y 6 repeticiones. La carga se regula con repeticiones en reserva (RIR): en las
+ * descargas, la puesta a punto y la semana de competencia se aliviana con más reserva.
  */
 
 export const STRENGTH_PATTERNS = ["knee_basic", "hip_basic", "knee_aux", "hip_aux", "push_horizontal", "pull_horizontal", "push_vertical", "pull_vertical"] as const;
@@ -58,19 +59,19 @@ export function strengthPhase(weekType: string, week: number, totalWeeks: number
   return "specific";
 }
 
-/** Series × repeticiones y RIR por momento y sesión (1 = pesada, 2 = liviana). */
+/** Series × repeticiones y RIR por momento y sesión (1 = pesada, 2 = liviana). Siempre 4 series. */
 const TABLE: Record<StrengthPhase, Record<StrengthSessionNumber, { sets: number; reps: number; rir: number }>> = {
-  base: { 1: { sets: 3, reps: 5, rir: 3 }, 2: { sets: 3, reps: 6, rir: 3 } },
-  development: { 1: { sets: 4, reps: 4, rir: 2 }, 2: { sets: 3, reps: 6, rir: 2 } },
-  specific: { 1: { sets: 4, reps: 3, rir: 2 }, 2: { sets: 3, reps: 5, rir: 2 } },
-  deload: { 1: { sets: 2, reps: 5, rir: 4 }, 2: { sets: 2, reps: 5, rir: 4 } },
-  taper: { 1: { sets: 2, reps: 3, rir: 3 }, 2: { sets: 2, reps: 4, rir: 3 } },
-  race: { 1: { sets: 2, reps: 3, rir: 4 }, 2: { sets: 2, reps: 3, rir: 4 } },
+  base: { 1: { sets: 4, reps: 5, rir: 3 }, 2: { sets: 4, reps: 6, rir: 3 } },
+  development: { 1: { sets: 4, reps: 4, rir: 2 }, 2: { sets: 4, reps: 6, rir: 2 } },
+  specific: { 1: { sets: 4, reps: 3, rir: 2 }, 2: { sets: 4, reps: 5, rir: 2 } },
+  deload: { 1: { sets: 4, reps: 5, rir: 4 }, 2: { sets: 4, reps: 5, rir: 4 } },
+  taper: { 1: { sets: 4, reps: 3, rir: 3 }, 2: { sets: 4, reps: 4, rir: 3 } },
+  race: { 1: { sets: 4, reps: 3, rir: 4 }, 2: { sets: 4, reps: 3, rir: 4 } },
 };
 
 const NOTES: Partial<Record<StrengthPhase, string>> = {
   deload: "Carga liviana: la semana es para recuperar.",
-  taper: "Pocas series para mantener la fuerza sin llegar cansado a la carrera.",
+  taper: "Pocas repeticiones y carga moderada para mantener la fuerza sin llegar cansado a la carrera.",
   race: "Liviana y al menos 3 días antes de la competencia. Si dudás, saltéala.",
 };
 

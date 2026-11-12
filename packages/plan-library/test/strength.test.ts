@@ -12,7 +12,7 @@ describe("fuerza: dosificación con variación de cargas", () => {
     expect(strengthPhase("RACE", 24, 24)).toBe("race");
   });
 
-  it("siempre entre 3 y 6 repeticiones y no más de 4 series", () => {
+  it("siempre 4 series por ejercicio y entre 3 y 6 repeticiones", () => {
     for (const t of ["L", "D", "DC", "T1", "T2", "RACE", "REC1", "TRANS"])
       for (let w = 1; w <= 48; w++)
         for (const s of [1, 2] as const)
@@ -20,8 +20,7 @@ describe("fuerza: dosificación con variación de cargas", () => {
             const d = strengthDose({ weekType: t, week: w, totalWeeks: 48, session: s, level });
             expect(d.reps).toBeGreaterThanOrEqual(3);
             expect(d.reps).toBeLessThanOrEqual(6);
-            expect(d.sets).toBeLessThanOrEqual(4);
-            expect(d.sets).toBeGreaterThanOrEqual(2);
+            expect(d.sets).toBe(4);
           }
   });
 
@@ -40,8 +39,8 @@ describe("fuerza: dosificación con variación de cargas", () => {
     expect(strengthDose({ weekType: "L", week: 12, totalWeeks: 24, session: 1, level: "A" }).rir).toBe(3);
   });
 
-  it("descarga, puesta a punto y competencia: menos series y más reserva", () => {
-    expect(doseLabel(strengthDose({ weekType: "D", week: 4, totalWeeks: 12, session: 1, level: "B" }))).toBe("2 × 5 · 4 en reserva");
+  it("descarga, puesta a punto y competencia: 4 series pero con más reserva", () => {
+    expect(doseLabel(strengthDose({ weekType: "D", week: 4, totalWeeks: 12, session: 1, level: "B" }))).toBe("4 × 5 · 4 en reserva");
     expect(strengthDose({ weekType: "RACE", week: 12, totalWeeks: 12, session: 1, level: "B" }).note).toContain("3 días antes");
   });
 

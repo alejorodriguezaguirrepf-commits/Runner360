@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-11-12 — Fuerza: siempre 4 series (contenido 2026.14)
+
+- Todos los planes: **4 series por ejercicio** en todas las semanas. Lo que cambia según el momento del plan y la semana son las repeticiones (3 a 6) y la reserva: base 4 × 5 / 4 × 6; desarrollo 4 × 4 / 4 × 6; específico 4 × 3 / 4 × 5; descargas 4 × 5 liviano; puesta a punto 4 × 3–4; semana de competencia 4 × 3 liviana.
+
 ## 2026-11-12 — Fuerza: rutinas equilibradas con variación de cargas (contenido 2026.13)
 
 - **Rutinas nuevas** (A principiante, B intermedio, C avanzado), cada una con **dos sesiones de 5 ejercicios**: dos básicos de tren inferior (uno dominante de rodilla y uno de cadera), un auxiliar de tren inferior (de rodilla en la sesión 1 y de cadera en la 2), un empuje y una tracción de tren superior (horizontales en la sesión 1, verticales en la 2).
