@@ -5,6 +5,7 @@
 - **Rutinas nuevas** (A principiante, B intermedio, C avanzado), cada una con **dos sesiones de 5 ejercicios**: dos básicos de tren inferior (uno dominante de rodilla y uno de cadera), un auxiliar de tren inferior (de rodilla en la sesión 1 y de cadera en la 2), un empuje y una tracción de tren superior (horizontales en la sesión 1, verticales en la 2).
 - **Variación de cargas**: la primera sesión de fuerza de la semana es la pesada y la segunda la liviana. Base 3 × 5 / 3 × 6; desarrollo 4 × 4 / 3 × 6; específico 4 × 3 / 3 × 5; descargas 2 × 5; puesta a punto 2 × 3–4; semana de competencia 2 × 3 liviana. Siempre de 3 a 6 repeticiones y no más de 4 series; la carga se regula con repeticiones en reserva (una más en principiantes).
 - **En la app**: cada día con fuerza muestra su sesión desplegable con los 5 ejercicios, el patrón y las series × repeticiones de esa semana; «Fuerza de la semana» en Mi plan y en la ficha del plan (incluye los días sin carrera), y en Hoy, la sesión del día.
+- Las rutinas nuevas se ven también en las inscripciones en curso (que conservan su versión de los planes de carrera).
 - Los planes (semanas y sesiones de carrera) no cambian: el test lo comprueba contra 2026.12. Migración 20261112000100 (dos columnas en los ejercicios de fuerza), aplicada en producción. El validador exige el equilibrio de cada rutina.
 
 ## 2026-11-11 — PDF de la semana: igual que en Mi plan

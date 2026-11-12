@@ -168,29 +168,6 @@ export async function getPlanWeeks(version: string, planId: string): Promise<Wee
   }
 }
 
-const loadStrength = unstable_cache(
-  async (version: string): Promise<StrengthExercise[]> => {
-    const db = createPublicClient();
-    if (!db) throw new LibraryUnavailable("sin configuración");
-    return must(
-      await db.from("library_strength_exercises").select(STRENGTH_COLUMNS).eq("content_version", version).order("routine").order("position"),
-      "fuerza",
-    ) as StrengthExercise[];
-  },
-  ["library-strength"],
-  { revalidate: 86_400, tags: ["library"] },
-);
-
-/** Rutinas de fuerza de una versión del contenido (la de la inscripción, que puede no ser la vigente). */
-export async function getStrength(version: string): Promise<StrengthExercise[]> {
-  try {
-    return await loadStrength(version);
-  } catch (e) {
-    logError("library:strength", e);
-    return [];
-  }
-}
-
 /** Grilla liviana (categoría y etiqueta) de las semanas que la persona puede ver. */
 export async function getOverviewDays(supabase: SupabaseClient, version: string, planId: string): Promise<OverviewDay[]> {
   const { data, error } = await supabase

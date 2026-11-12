@@ -13,7 +13,6 @@ import { fmt, t } from "@/i18n";
 import { resumePlanAction } from "@/lib/actions/plan-progress";
 import { requireOnboardedSession } from "@/lib/auth";
 import { getOpenEnrollment } from "@/lib/data/enrollment";
-import { getStrength } from "@/lib/data/library";
 import { StrengthBlock } from "@/components/library/strength";
 import { strengthForDay } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek, resumeTarget } from "@/lib/library/week";
@@ -74,9 +73,10 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   }
 
   const slot = planDayAt(enrollment, open.segments, plan.duration_weeks, today);
-  const [week, strengthExercises] = await Promise.all([loadWeek(supabase, open, mondayOf(today)), getStrength(enrollment.content_version)]);
+  const week = await loadWeek(supabase, open, mondayOf(today));
+  // Fuerza: siempre las rutinas vigentes (no dependen de las sesiones de carrera de la versión inscripta).
   const todayStrength =
-    week && slot ? strengthForDay({ exercises: strengthExercises, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks }, slot.dayIndex) : null;
+    week && slot ? strengthForDay({ exercises: open.library.strength, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks }, slot.dayIndex) : null;
   const todayDay = slot && week ? week.days.find((d) => d.day_index === slot.dayIndex) : null;
   const todayLog = week?.logs.find((l) => l.workout_date === today) ?? null;
   const pending = pendingCheckinWeek(open, today, weekdayOf(today));

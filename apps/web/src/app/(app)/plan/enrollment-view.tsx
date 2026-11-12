@@ -21,7 +21,7 @@ import { IconDownload, IconLock } from "@/components/ui/icons";
 import { Alert, ButtonLink, Card, CardTitle, PageHeader } from "@/components/ui/primitives";
 import { fmt, t } from "@/i18n";
 import type { OpenEnrollment } from "@/lib/data/enrollment";
-import { getOverviewDays, getStrength } from "@/lib/data/library";
+import { getOverviewDays } from "@/lib/data/library";
 import { StrengthWeekCard } from "@/components/library/strength";
 import { strengthForDay, strengthWeek } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
@@ -75,7 +75,7 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday, strengthExercises] = await Promise.all([
+  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday] = await Promise.all([
     loadWeek(supabase, open, selected),
     getOverviewDays(supabase, enrollment.content_version, plan.id),
     supabase
@@ -86,7 +86,6 @@ export async function EnrollmentView({
     getWellness(supabase, enrollment.user_id, today),
     hasHealthConsent(supabase, enrollment.user_id),
     getFinishedSession(supabase, enrollment.id, today),
-    getStrength(enrollment.content_version),
   ]);
   const ratings = (ratingRows ?? []) as RatingRow[];
   const ratingByDate = new Map(ratings.map((r) => [r.workout_date, r]));
@@ -102,7 +101,8 @@ export async function EnrollmentView({
   const average = ratings.length ? ratings.reduce((a, r) => a + r.rating, 0) / ratings.length : null;
   const openWeeks = new Set(overview.map((d) => d.week));
   const ordered = week?.dated ?? [];
-  const strengthCtx = week ? { exercises: strengthExercises, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
+  // Fuerza: siempre las rutinas vigentes (no dependen de las sesiones de carrera de la versión inscripta).
+  const strengthCtx = week ? { exercises: library.strength, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
   const weekdayName = (date: string) =>
     new Intl.DateTimeFormat("es-AR", { weekday: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`)).replace(/^./, (c) => c.toUpperCase());
   const strengthDayLabel = (dayIndex: number) => {
