@@ -8,6 +8,7 @@ import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 import { PushToggle } from "@/components/notifications/push-toggle";
 import { isPushConfigured, vapidPublicKey } from "@/lib/notifications/push";
 import { BiometricsCard, type PasskeyItem } from "@/components/auth/biometrics";
+import { EmailPrefToggle } from "@/components/app/email-pref-toggle";
 import { DeleteAccountForm, DeleteHealthDataForm, IncidentForm, RevokeHealthButton } from "./account-forms";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -23,11 +24,12 @@ const CONSENT_LABELS: Record<string, string> = {
 export default async function ProfilePage() {
   const session = await requireOnboardedSession();
   const { supabase, user, profile } = session;
-  const [tp, premium, { data: consents }, { data: passkeys }] = await Promise.all([
+  const [tp, premium, { data: consents }, { data: passkeys }, { data: emailPref }] = await Promise.all([
     loadTrainingProfile(supabase, user.id, profile.birth_date),
     hasPremium(session),
     supabase.from("user_consents").select("consent_type, granted, document_version, created_at").order("created_at", { ascending: false }),
     supabase.from("passkeys").select("id, device_name, created_at, last_used_at").order("created_at", { ascending: false }),
+    supabase.from("email_preferences").select("motivational").eq("user_id", user.id).maybeSingle<{ motivational: boolean }>(),
   ]);
   const latest = new Map<string, { granted: boolean; document_version: string; created_at: string }>();
   for (const c of (consents ?? []) as { consent_type: string; granted: boolean; document_version: string; created_at: string }[]) {
@@ -54,6 +56,16 @@ export default async function ProfilePage() {
           <CardTitle>Apariencia</CardTitle>
           <p className="mb-3 text-sm text-muted">Elegí cómo se ve la aplicación en este dispositivo.</p>
           <ThemeSwitcher />
+        </Card>
+        <Card>
+          <CardTitle>Correos</CardTitle>
+          <p className="mb-2 text-sm text-muted">
+            {premium
+              ? "Cada 15 días te mandamos un correo para alentarte a seguir entrenando."
+              : "Una vez por semana te mandamos un correo con novedades e invitaciones para entrenar con un plan."}{" "}
+            Los avisos de tu cuenta y de tus pagos llegan igual.
+          </p>
+          <EmailPrefToggle on={emailPref?.motivational ?? true} />
         </Card>
         {isPushConfigured() ? (
           <Card>

@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-11-13 — Correos de motivación
+
+- **Sin suscripción**: un correo por semana, alegre y alentador, invitando a suscribirse (4 versiones que van rotando).
+- **Con suscripción**: un correo cada 15 días alentando a seguir entrenando (4 versiones).
+- Los envía la tarea diaria (tope de 90 por día, configurable). Nunca a administradores, a correos sin confirmar ni a cuentas de menos de 2 días.
+- **Baja**: link en cada correo (sin iniciar sesión, con confirmación), baja con un toque desde el programa de correo y opción en Perfil → Correos. Los avisos de cuenta y pagos no cambian.
+- Requiere un dominio verificado en Resend y `RESEND_FROM` con ese dominio (con el remitente de prueba no se envían).
+- Base: `email_preferences` (preferencia y token de baja), `email_sends` (registro de envíos) y funciones para los destinatarios y la baja (migración 20261113000100, aplicada en producción). Política de privacidad actualizada.
+
 ## 2026-11-13 — Registro en el mismo plan, con tilde por trabajo
 
 - **El registro se hace en la sesión del plan** (Mi plan y Hoy): debajo de cada trabajo, el tiempo prescripto (con el test), el casillero «Tu tiempo» y un **✓** para darlo por hecho (sin tiempo anotado, queda el prescripto). Lo anotado se guarda en el dispositivo hasta guardar la sesión.
