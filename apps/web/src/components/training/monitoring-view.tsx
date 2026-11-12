@@ -154,7 +154,7 @@ export function MonitoringView({ wellness, sessions, today, coach = false }: { w
                               const diff = pp && avg ? Math.round(pp - avg) : null;
                               return (
                                 <tr key={i}>
-                                  <th scope="row" className="py-1 pr-3 font-semibold">{p.meters === 1000 ? `Km ${i + 1}` : `${km(p.meters)} km`}</th>
+                                  <th scope="row" className="py-1 pr-3 font-semibold">{i + 1}. {p.meters >= 1000 ? `${km(p.meters)} km` : `${p.meters} m`}</th>
                                   <td className="py-1 pr-3">{formatClock(p.seconds)}</td>
                                   <td className="py-1">
                                     {pace(pp)}

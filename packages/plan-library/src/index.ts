@@ -14,3 +14,4 @@ export * from "./quality-rules";
 export * from "./effort";
 export * from "./session-blocks";
 export * from "./strength";
+export * from "./session-times";

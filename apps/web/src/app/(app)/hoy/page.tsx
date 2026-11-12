@@ -16,9 +16,11 @@ import { getOpenEnrollment } from "@/lib/data/enrollment";
 import { StrengthBlock } from "@/components/library/strength";
 import { strengthForDay } from "@/lib/library/strength";
 import { checkinProps, loadWeek, pendingCheckinWeek, resumeTarget } from "@/lib/library/week";
-import { TodayActions, WellnessToday } from "@/components/training/today-actions";
+import { WellnessToday } from "@/components/training/today-actions";
+import { SessionTimesTable } from "@/components/training/session-times";
+import { sessionTimes } from "@runner360/plan-library";
 import { WellnessCheckin } from "@/components/training/wellness-checkin";
-import { getFinishedSession, getWellness } from "@/lib/data/monitoring";
+import { getSplitSeconds, getWellness } from "@/lib/data/monitoring";
 
 export const metadata: Metadata = { title: "Hoy" };
 
@@ -82,7 +84,8 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
   const pending = pendingCheckinWeek(open, today, weekdayOf(today));
   const checkin = pending ? await checkinProps(supabase, open, pending, today) : null;
   const { data: consent } = await supabase.rpc("has_consent", { p_user: user.id, p_type: "health_data" });
-  const [wellness, finishedToday] = await Promise.all([getWellness(supabase, user.id, today), getFinishedSession(supabase, enrollment.id, today)]);
+  const savedLog = todayLog && todayLog.status !== "skipped" ? todayLog : null;
+  const [wellness, splitsByLog] = await Promise.all([getWellness(supabase, user.id, today), getSplitSeconds(supabase, savedLog ? [savedLog.id] : [])]);
   const { data: todayRating } = await supabase
     .from("session_ratings")
     .select("rating, note")
@@ -141,8 +144,20 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
             footer={
               todayDay.is_rest ? null : (
                 <>
-                  <TodayActions date={today} plannedKm={todayDay.distance_km_est} wellness={wellness} finished={finishedToday} />
-                  {finishedToday ? <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} /> : null}
+                  <SessionTimesTable
+                    date={today}
+                    times={sessionTimes(todayDay, paces.test)}
+                    hasTest={Boolean(paces.test)}
+                    canSave
+                    needsWellness={!wellness}
+                    saved={
+                      savedLog
+                        ? { workoutId: savedLog.id, rpe: savedLog.rpe, meters: savedLog.distance_m, seconds: savedLog.duration_s, splits: splitsByLog.get(savedLog.id) ?? [] }
+                        : null
+                    }
+                    defaultOpen
+                  />
+                  <RatingForm date={today} rating={todayRating?.rating ?? null} note={todayRating?.note ?? null} />
                 </>
               )
             }

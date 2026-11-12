@@ -28,9 +28,11 @@ import { checkinProps, loadWeek, pendingCheckinWeek } from "@/lib/library/week";
 import { CheckinCard } from "@/components/library/checkin-card";
 import { enrollmentOver } from "@/lib/data/enrollment";
 import { CancelEnrollmentButton, PlanFinishedCard } from "./plan-actions";
-import { TodayActions, WellnessToday } from "@/components/training/today-actions";
+import { WellnessToday } from "@/components/training/today-actions";
+import { SessionTimesTable, type SavedSession } from "@/components/training/session-times";
+import { sessionTimes } from "@runner360/plan-library";
 import { WellnessCheckin } from "@/components/training/wellness-checkin";
-import { getFinishedSession, getWellness, hasHealthConsent } from "@/lib/data/monitoring";
+import { getSplitSeconds, getWellness, hasHealthConsent } from "@/lib/data/monitoring";
 
 const m = t.library;
 const c = m.calendar;
@@ -75,7 +77,7 @@ export async function EnrollmentView({
     valid(requestedWeek) ??
     (weeks.some((w) => w.weekStart === thisMonday) ? thisMonday : thisMonday < enrollment.start_date ? enrollment.start_date : (weeks.at(-1)?.weekStart ?? enrollment.start_date));
   const selectedPlanWeek = planWeekAt(segments, selected, plan.duration_weeks);
-  const [week, overview, { data: ratingRows }, wellness, consent, finishedToday] = await Promise.all([
+  const [week, overview, { data: ratingRows }, wellness, consent] = await Promise.all([
     loadWeek(supabase, open, selected),
     getOverviewDays(supabase, enrollment.content_version, plan.id),
     supabase
@@ -85,7 +87,6 @@ export async function EnrollmentView({
       .order("workout_date", { ascending: false }),
     getWellness(supabase, enrollment.user_id, today),
     hasHealthConsent(supabase, enrollment.user_id),
-    getFinishedSession(supabase, enrollment.id, today),
   ]);
   const ratings = (ratingRows ?? []) as RatingRow[];
   const ratingByDate = new Map(ratings.map((r) => [r.workout_date, r]));
@@ -101,6 +102,12 @@ export async function EnrollmentView({
   const average = ratings.length ? ratings.reduce((a, r) => a + r.rating, 0) / ratings.length : null;
   const openWeeks = new Set(overview.map((d) => d.week));
   const ordered = week?.dated ?? [];
+  // Registro de cada día de la semana (con sus parciales) para la columna «Real».
+  const weekLogs = (week?.logs ?? []).filter((l) => l.status !== "skipped");
+  const splitsByLog = await getSplitSeconds(supabase, weekLogs.map((l) => l.id));
+  const savedByDate = new Map<string, SavedSession>(
+    weekLogs.map((l) => [l.workout_date, { workoutId: l.id, rpe: l.rpe, meters: l.distance_m, seconds: l.duration_s, splits: splitsByLog.get(l.id) ?? [] }]),
+  );
   // Fuerza: siempre las rutinas vigentes (no dependen de las sesiones de carrera de la versión inscripta).
   const strengthCtx = week ? { exercises: library.strength, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
   const weekdayName = (date: string) =>
@@ -253,18 +260,22 @@ export async function EnrollmentView({
                   rating={ratingByDate.get(date)?.rating ?? null}
                   strength={strengthCtx ? strengthForDay(strengthCtx, day.day_index) : null}
                   footer={
-                    date === today && enrollment.status === "active" ? (
-                      <>
-                        <TodayActions date={date} plannedKm={day.distance_km_est} wellness={wellness} finished={finishedToday} />
-                        {finishedToday ? (
-                          <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
-                        ) : null}
-                      </>
-                    ) : date <= today ? (
-                      <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
-                    ) : (
-                      <p className="mt-4 text-xs text-muted">{R.later}</p>
-                    )
+                    <>
+                      <SessionTimesTable
+                        date={date}
+                        times={sessionTimes(day, kmPaces.test)}
+                        hasTest={Boolean(kmPaces.test)}
+                        canSave={date <= today && enrollment.status === "active"}
+                        needsWellness={date === today && !wellness}
+                        saved={savedByDate.get(date) ?? null}
+                        defaultOpen={date === today}
+                      />
+                      {date <= today ? (
+                        <RatingForm date={date} rating={ratingByDate.get(date)?.rating ?? null} note={ratingByDate.get(date)?.note ?? null} />
+                      ) : (
+                        <p className="mt-4 text-xs text-muted">{R.later}</p>
+                      )}
+                    </>
                   }
                 />
               ))}

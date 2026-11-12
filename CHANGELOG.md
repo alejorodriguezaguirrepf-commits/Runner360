@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-12 — Registro automático desde el plan: tiempos prescriptos y reales
+
+- Cada entrenamiento del plan (Mi plan y Hoy) tiene **«Tiempos y registro de la sesión»** en dos columnas: **Prescripto** (con el test de la Calculadora, el tiempo de cada pasada o tramo según su porcentaje) y **Real** (para cargar solo lo que no salió como estaba). Las pausas entre pasadas se suman solas.
+- Al pie: **RPE de la sesión** y **«Guardar sesión»**. El registro del día se arma solo: distancia, duración total, RPE y los parciales de cada pasada (lo vacío se guarda como estaba prescripto). Se puede actualizar después.
+- Sin test cargado no hay tiempos prescriptos: se pueden cargar los reales o guardar con la distancia y la duración estimadas del plan.
+- Hoy, antes de guardar, se pide el wellness. Reemplaza al «Finalizar sesión» por km. En el seguimiento, los parciales se muestran por tramo (1000 m, 3 km…).
+
 ## 2026-11-12 — Fuerza: siempre 4 series (contenido 2026.14)
 
 - Todos los planes: **4 series por ejercicio** en todas las semanas. Lo que cambia según el momento del plan y la semana son las repeticiones (3 a 6) y la reserva: base 4 × 5 / 4 × 6; desarrollo 4 × 4 / 4 × 6; específico 4 × 3 / 4 × 5; descargas 4 × 5 liviano; puesta a punto 4 × 3–4; semana de competencia 4 × 3 liviana.

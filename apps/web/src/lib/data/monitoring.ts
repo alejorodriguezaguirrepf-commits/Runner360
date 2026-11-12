@@ -1,6 +1,5 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { FinishedSession } from "@/components/training/finish-session";
 import type { Split } from "@/lib/session-finish";
 import type { WellnessRow } from "@/lib/wellness";
 
@@ -16,22 +15,13 @@ export async function hasHealthConsent(supabase: SupabaseClient, userId: string)
   return data === true;
 }
 
-/** Sesión del plan de un día con sus parciales (para "Finalizar sesión"). */
-export async function getFinishedSession(supabase: SupabaseClient, enrollmentId: string, date: string): Promise<FinishedSession | null> {
-  const { data: log } = await supabase
-    .from("workout_logs")
-    .select("id, status, distance_m, duration_s, rpe")
-    .eq("enrollment_id", enrollmentId)
-    .eq("workout_date", date)
-    .maybeSingle<{ id: string; status: string; distance_m: number | null; duration_s: number | null; rpe: number | null }>();
-  if (!log || log.status === "skipped") return null;
-  const { data: splits } = await supabase.from("workout_splits").select("distance_m, duration_s").eq("workout_id", log.id).order("split_index");
-  return {
-    distanceM: log.distance_m,
-    durationS: log.duration_s,
-    rpe: log.rpe,
-    splits: ((splits ?? []) as { distance_m: number; duration_s: number }[]).map((s) => ({ meters: s.distance_m, seconds: s.duration_s })),
-  };
+/** Tiempos de los parciales (en orden) de cada registro. */
+export async function getSplitSeconds(supabase: SupabaseClient, workoutIds: string[]): Promise<Map<string, number[]>> {
+  const out = new Map<string, number[]>();
+  if (!workoutIds.length) return out;
+  const { data } = await supabase.from("workout_splits").select("workout_id, split_index, duration_s").in("workout_id", workoutIds).order("split_index");
+  for (const s of (data ?? []) as { workout_id: string; duration_s: number }[]) out.set(s.workout_id, [...(out.get(s.workout_id) ?? []), s.duration_s]);
+  return out;
 }
 
 export type MonitoredSession = {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { acuteChronic, loadStatus, mondayIso, weeklyLoads } from "@/lib/monitoring";
-import { parseKmInput, sessionLoad, splitSlots, summarize } from "@/lib/session-finish";
+import { paceSPerKm, sessionLoad } from "@/lib/session-finish";
 import { averageScore, wellnessFlags, wellnessLevel, wellnessScore } from "@/lib/wellness";
 
 describe("wellness", () => {
@@ -21,41 +21,11 @@ describe("wellness", () => {
   });
 });
 
-describe("Finalizar sesión: parciales por km", () => {
-  it("un parcial por km y uno final con lo que sobra", () => {
-    expect(splitSlots(5000).map((s) => s.meters)).toEqual([1000, 1000, 1000, 1000, 1000]);
-    expect(splitSlots(8500).map((s) => s.meters)).toEqual([1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 500]);
-    expect(splitSlots(8500).at(-1)!.index).toBe(9);
-  });
-  it("un resto de menos de 50 m se suma al último km", () => {
-    expect(splitSlots(5030).map((s) => s.meters)).toEqual([1000, 1000, 1000, 1000, 1030]);
-    expect(splitSlots(400).map((s) => s.meters)).toEqual([400]);
-    expect(splitSlots(0)).toEqual([]);
-  });
-  it("lee los km con coma o punto", () => {
-    expect(parseKmInput("8,5")).toBe(8500);
-    expect(parseKmInput("10")).toBe(10000);
-    expect(parseKmInput("abc")).toBeNull();
-    expect(parseKmInput("0")).toBeNull();
-    expect(parseKmInput("150")).toBeNull();
-  });
-  it("totales, ritmo medio, km más rápido y carga (RPE × minutos)", () => {
-    const s = summarize(
-      [
-        { meters: 1000, seconds: 330 },
-        { meters: 1000, seconds: 310 },
-        { meters: 1000, seconds: 345 },
-        { meters: 500, seconds: 160 },
-      ],
-      6,
-    );
-    expect(s.meters).toBe(3500);
-    expect(s.seconds).toBe(1145);
-    expect(Math.round(s.paceS!)).toBe(327);
-    expect(s.fastest).toBe(1);
-    expect(s.slowest).toBe(2);
-    expect(s.load).toBe(Math.round(6 * (1145 / 60)));
+describe("carga de la sesión", () => {
+  it("RPE × minutos y ritmo", () => {
+    expect(sessionLoad(6, 1800)).toBe(180);
     expect(sessionLoad(null, 1800)).toBeNull();
+    expect(paceSPerKm(1000, 300)).toBe(300);
   });
 });
 
