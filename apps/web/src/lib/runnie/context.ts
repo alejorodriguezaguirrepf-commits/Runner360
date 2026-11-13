@@ -9,24 +9,32 @@ import { strengthForDay } from "@/lib/library/strength";
 import { loadWeek, todaySummary } from "@/lib/library/week";
 import { logError } from "@/lib/log";
 import { acuteChronic, addDaysIso, loadStatus } from "@/lib/monitoring";
-import { averageScore } from "@/lib/wellness";
+import { averageScore, wellnessLevel } from "@/lib/wellness";
 import { loadLine, recentSessionLine, sessionLines, strengthLine, testLine, wellnessLine } from "./facts";
-import type { RunnieContext } from "./prompt";
+import type { RunnieContext } from "./answer";
 
 type Plan = NonNullable<RunnieContext["plan"]>;
 
 /**
  * Datos de la cuenta que Runnie usa para responder sobre el caso de la persona. Nunca falla: sin
- * datos, va sin plan. El wellness y las sesiones (datos de salud) van solo si la persona eligió
- * compartirlos en el chat y dio su consentimiento para registrarlos.
+ * datos, va sin plan. Todo se procesa dentro de RUNNER 360 (no se envía a terceros). El wellness y
+ * las sesiones (datos de salud) se usan solo si la persona dio el consentimiento para registrarlos.
  */
-export async function runnieContext(session: Session, remaining: number, shareHealth = false): Promise<RunnieContext> {
-  const { profile } = session;
+export async function runnieContext(session: Session): Promise<RunnieContext> {
+  const { supabase, profile } = session;
   const today = todayIn(profile.timezone);
-  const [premium, annualUntil] = await Promise.all([hasPremium(session), annualAccessUntil(session)]);
-  const base: RunnieContext = { name: profile.display_name, today, premium, annual: Boolean(annualUntil), remaining, plan: null };
-  const [plan, health] = await Promise.all([planContext(session, today), shareHealth ? healthContext(session, today) : Promise.resolve(null)]);
-  return { ...base, plan, health };
+  const [premium, annualUntil, plan, health, articles] = await Promise.all([
+    hasPremium(session),
+    annualAccessUntil(session),
+    planContext(session, today),
+    healthContext(session, today),
+    supabase
+      .from("educational_contents")
+      .select("slug, title, summary")
+      .eq("status", "published")
+      .then(({ data }) => (data ?? []) as { slug: string; title: string; summary: string | null }[], () => []),
+  ]);
+  return { name: profile.display_name, today, premium: premium || Boolean(annualUntil), plan, health, articles };
 }
 
 async function planContext(session: Session, today: string): Promise<Plan | null> {
@@ -71,6 +79,8 @@ async function planContext(session: Session, today: string): Promise<Plan | null
       openWeeks: typeof openWeeks === "number" ? openWeeks : 0,
       today: todayText || null,
       test: paces?.test && paces.testDate ? testLine(paces.test, paces.testDate) : null,
+      testRaw: paces?.test ?? null,
+      routine: plan.strength_routine ?? null,
       session: day && !day.is_rest ? sessionLines(day, paces?.test ?? null) : null,
       strength: strength ? strengthLine(strength) : null,
       saved,
@@ -92,6 +102,7 @@ async function healthContext(session: Session, today: string): Promise<NonNullab
     const ac = acuteChronic(sessions, today);
     return {
       wellnessToday: todayRow ? wellnessLine(todayRow) : null,
+      wellnessLevel: todayRow ? wellnessLevel(todayRow.score) : null,
       wellnessWeek: averageScore(week),
       recent: sessions.slice(0, 6).map(recentSessionLine),
       load: sessions.length ? loadLine(ac.acute, ac.chronic, loadStatus(ac.ratio)) : null,

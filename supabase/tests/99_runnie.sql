@@ -1,4 +1,4 @@
--- Runnie: solo con suscripción (30 mensajes por día); sin suscripción, tope 0.
+-- Runnie: el cupo diario de la base quedó sin uso (Runnie responde dentro de la app, gratis para todos); se prueba igual mientras exista.
 begin;
 create function pg_temp.check(p_ok boolean, p_label text) returns void language plpgsql as $$
 begin
@@ -57,7 +57,8 @@ set role authenticated;
 set request.jwt.claim.sub = 'b9000000-0000-4000-8000-0000000000b9';
 select pg_temp.check(public.runnie_remaining() = 1, 'devuelto: queda 1');
 
--- Runnie figura entre los beneficios de la suscripción mensual (una sola vez).
-select pg_temp.check((select count(*) from unnest((select features from public.subscription_products where code = 'premium_monthly')) f where f like 'Runnie%') = 1, 'beneficio: Runnie en la suscripción mensual');
+-- Runnie es gratis: figura una vez en el plan gratis y ya no entre los beneficios pagos.
+select pg_temp.check((select count(*) from unnest((select features from public.subscription_products where code = 'free')) f where f like 'Runnie%') = 1, 'beneficio: Runnie en el plan gratis');
+select pg_temp.check((select count(*) from unnest((select features from public.subscription_products where code = 'premium_monthly')) f where f like 'Runnie%') = 0, 'beneficio: Runnie ya no es pago');
 
 rollback;

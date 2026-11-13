@@ -1,60 +1,120 @@
 import { describe, expect, it } from "vitest";
 import { faq } from "@/i18n/es-AR/faq";
-import { contextBlock, RUNNIE_SYSTEM, sanitizeHistory, type RunnieContext } from "@/lib/runnie/prompt";
+import { answer, normalize, sanitizeHistory, scoreIntents, type RunnieContext } from "@/lib/runnie/answer";
 import { loadLine, recentSessionLine, sessionLines, strengthLine, testLine, wellnessLine } from "@/lib/runnie/facts";
 import { APP_LINKS, HISTORY_MAX_MESSAGES, linkify, MESSAGE_MAX_CHARS } from "@/lib/runnie/shared";
 
-const base: RunnieContext = { name: "Ana", today: "2026-11-09", premium: false, annual: false, remaining: 4, plan: null };
+const base: RunnieContext = { name: "Ana Pérez", today: "2026-11-09", premium: false, plan: null };
+type Plan = NonNullable<RunnieContext["plan"]>;
+const plan: Plan = {
+  title: "10K en 12 semanas",
+  distance: "10K",
+  level: "Intermedio",
+  duration: "3 meses",
+  daysPerWeek: 4,
+  startDate: "2026-11-02",
+  raceDate: "2027-01-24",
+  status: "active",
+  currentWeek: 2,
+  totalWeeks: 12,
+  openWeeks: 4,
+  today: "Pasadas",
+  test: "3 km en 12:00 (cargado el 2026-11-01)",
+  testRaw: { meters: 3000, seconds: 720 },
+  session: ["Parte principal: 4 × 1000 m al 100 % (ritmo 4:00/km, 4:00 cada uno), pausa 2 min trotando"],
+  strength: null,
+  routine: "B",
+  saved: null,
+};
+const top = (q: string) => scoreIntents(q)[0]!.id;
 
-describe("Runnie: instrucciones y conocimiento", () => {
-  it("usa las respuestas aprobadas de las preguntas frecuentes", () => {
-    for (const item of faq.items) expect(RUNNIE_SYSTEM).toContain(item.answer);
+describe("Runnie: entiende de qué se trata la pregunta", () => {
+  it("normaliza tildes, mayúsculas y signos", () => {
+    expect(normalize("¿Qué me TOCA hoy?")).toBe("que me toca hoy");
   });
-  it("explica la semana gratis y que para seguir entrenando hay que suscribirse", () => {
-    expect(RUNNIE_SYSTEM).toContain("primera semana completa");
-    expect(RUNNIE_SYSTEM).toContain("tiene que suscribirse");
-  });
-  it("tiene los límites de salud, de datos inventados y de proveedores", () => {
-    expect(RUNNIE_SYSTEM).toMatch(/No sos médico/);
-    expect(RUNNIE_SYSTEM).toMatch(/dolor en el pecho/);
-    expect(RUNNIE_SYSTEM).toMatch(/No inventes datos/);
-    expect(RUNNIE_SYSTEM).toMatch(/No hables de proveedores técnicos/);
-  });
-  it("la parte fija no cambia entre personas (para que se pueda reutilizar en caché)", () => {
-    expect(RUNNIE_SYSTEM).not.toContain("Ana");
-    expect(RUNNIE_SYSTEM).not.toMatch(/\d{4}-\d{2}-\d{2}/);
+  it.each([
+    ["¿Qué me toca hoy?", "hoy"],
+    ["¿A qué ritmo hago las pasadas?", "ritmo"],
+    ["¿Cómo cargo mi test?", "test"],
+    ["¿Cómo anoto mis tiempos y guardo la sesión?", "registro"],
+    ["¿Qué es el wellness?", "wellness"],
+    ["¿Qué es el RPE?", "rpe"],
+    ["¿Cómo me tomo las pulsaciones?", "pulsaciones"],
+    ["¿Cuántas series hago en el gimnasio?", "fuerza"],
+    ["¿Puedo descargar la semana en PDF?", "pdf"],
+    ["¿En qué semana estoy?", "plan"],
+    ["Quiero mover los días de entrenamiento", "cambios"],
+    ["¿Es gratis?", "gratis"],
+    ["¿Cómo se cobra? ¿Con Mercado Pago?", "cobro"],
+    ["Quiero cancelar", "cancelar"],
+    ["¿Cómo instalo la app en el iPhone?", "instalar"],
+    ["No quiero recibir más correos", "correos"],
+    ["Me duele la rodilla", "salud"],
+    ["¿Qué hago el día antes de la carrera?", "carrera"],
+    ["Hola", "saludo"],
+    ["¿Quién diseña los planes?", "disenio"],
+    ["¿Qué entreno mañana?", "manana"],
+    ["¿Cuánto cuesta la suscripción?", "precio"],
+    ["Dormí mal, ¿hago la sesión de hoy?", "fatiga"],
+    ["¿Cómo hago para correr más rápido?", "mejorar"],
+    ["¿Qué es un fartlek?", "sesiones"],
+    ["¿Sirve para una maratón?", "elegir"],
+    ["Me quedé sin semanas liberadas", "plan"],
+    ["¿Tengo que estirar?", "calentar"],
+  ])("«%s» → %s", (q, id) => {
+    expect(top(q)).toBe(id);
   });
 });
 
-describe("Runnie: datos de la persona", () => {
-  it("sin plan: lo invita a elegir uno", () => {
-    const b = contextBlock(base);
-    expect(b).toContain("plan gratis (sin suscripción)");
-    expect(b).toContain("Todavía no eligió un plan");
+describe("Runnie: respuestas", () => {
+  it("lo de hoy, con la sesión y los tiempos del test", () => {
+    const r = answer("¿Qué me toca hoy?", { ...base, plan });
+    expect(r).toContain("semana 2 de 12");
+    expect(r).toContain("- Parte principal: 4 × 1000 m al 100 % (ritmo 4:00/km");
+    expect(r).toContain("completá el wellness");
   });
-  it("con plan: semana actual, semanas liberadas y lo de hoy", () => {
-    const b = contextBlock({
-      ...base,
-      premium: true,
-      plan: {
-        title: "10K en 12 semanas",
-        distance: "10K",
-        level: "Principiante",
-        duration: "3 meses",
-        daysPerWeek: 3,
-        startDate: "2026-11-02",
-        raceDate: "2027-01-24",
-        status: "active",
-        currentWeek: 2,
-        totalWeeks: 12,
-        openWeeks: 4,
-        today: "Trote suave 30 min",
-      },
-    });
-    expect(b).toContain("suscripción activa");
-    expect(b).toContain("Semana del plan: 2 de 12");
-    expect(b).toContain("Semanas liberadas: 4 de 12");
-    expect(b).toContain("Hoy le toca: Trote suave 30 min");
+  it("sin plan, lo manda a elegir uno", () => {
+    expect(answer("¿Qué me toca hoy?", base)).toContain("/planes");
+  });
+  it("los ritmos salen del test; sin test explica cómo cargarlo", () => {
+    expect(answer("¿A qué ritmo voy?", { ...base, plan })).toContain("70 %: 5:43/km");
+    expect(answer("¿A qué ritmo voy?", { ...base, plan: { ...plan, test: null, testRaw: null } })).toContain("/calculadora");
+  });
+  it("ante dolor, primero el aviso de salud", () => {
+    const r = answer("Me duele la rodilla, ¿hago las pasadas de hoy?", { ...base, plan });
+    expect(r.startsWith("Si tenés dolor")).toBe(true);
+    expect(r).toContain("profesional de la salud");
+  });
+  it("usa las respuestas aprobadas de las preguntas frecuentes", () => {
+    const get = (id: string) => faq.items.find((i) => i.id === id)!.answer;
+    expect(answer("¿Cómo se cobran las suscripciones?", base)).toContain(get("cobro"));
+    expect(answer("¿Puedo cancelar cuando quiera?", base)).toContain(get("cancelar"));
+    expect(answer("¿Quién diseña los planes?", base)).toContain(get("quien-disena"));
+  });
+  it("el wellness de hoy con su sugerencia, solo si lo tiene", () => {
+    const health = { wellnessToday: "11/25 (Bajo)", wellnessLevel: "low" as const, wellnessWeek: 14, recent: [], load: null };
+    expect(answer("¿Cómo está mi wellness?", { ...base, health })).toContain("bajá la intensidad");
+    expect(answer("¿Cómo está mi wellness?", base)).not.toContain("Tu wellness de hoy");
+  });
+  it("la fuerza de hoy con su dosis", () => {
+    const r = answer("¿Qué hago de fuerza?", { ...base, plan: { ...plan, strength: "Sesión 1 de la rutina B · 4 series × 5 repeticiones" } });
+    expect(r).toContain("Siempre son 4 series");
+    expect(r).toContain("Hoy te toca: Sesión 1 de la rutina B");
+  });
+  it("si no entiende, dice con qué puede ayudar y sugiere una nota de Aprender si hay", () => {
+    expect(answer("xyz", base)).toContain("No estoy seguro");
+    const articles = [{ slug: "zapatillas-correr", title: "Cómo elegir zapatillas para correr", summary: "Amortiguación y horma." }];
+    expect(answer("¿Qué zapatillas elegir?", { ...base, articles })).toContain("/aprender/zapatillas-correr");
+  });
+  it("saluda por el nombre", () => {
+    expect(answer("Hola", base)).toMatch(/^¡Hola, Ana!/);
+  });
+  it("solo manda a secciones que existen", () => {
+    const all = ["¿Qué me toca hoy?", "test", "guardar", "pdf", "instalar", "correos", "hidratación", "progreso", "carrera", "cambiar días", "suscripción"]
+      .map((q) => answer(q, { ...base, plan }))
+      .join(" ");
+    for (const m of all.matchAll(/(?<![\w.])\/[a-z]+(?![\w/-])/g)) expect(APP_LINKS[m[0]], m[0]).toBeDefined();
+    expect(all).not.toContain("/registrar");
   });
 });
 
@@ -99,23 +159,12 @@ describe("Runnie: enlaces en las respuestas", () => {
     expect(linkify("Entrá a runner360.ar/planes")).toEqual([{ text: "Entrá a runner360.ar/planes" }]);
     expect(linkify("Mirá /secreto")).toEqual([{ text: "Mirá /secreto" }]);
   });
-});
-
-describe("Runnie: lo que sabe de la app", () => {
-  it("conoce el wellness, el registro dentro del plan, Test/%, la fuerza, las pulsaciones y el PDF", () => {
-    expect(RUNNIE_SYSTEM).toMatch(/Wellness: al abrir el plan/);
-    expect(RUNNIE_SYSTEM).toMatch(/se confirma con el tilde/);
-    expect(RUNNIE_SYSTEM).toMatch(/frecuencia cardíaca media y máxima/);
-    expect(RUNNIE_SYSTEM).toMatch(/del 50 % al 100 %/);
-    expect(RUNNIE_SYSTEM).toMatch(/Siempre 4 series por ejercicio, de 3 a 6 repeticiones/);
-    expect(RUNNIE_SYSTEM).toMatch(/cámara de adelante/);
-    expect(RUNNIE_SYSTEM).toMatch(/semana en PDF/);
-  });
-  it("no manda a la sección vieja de registrar y sí a pulsaciones e historial", () => {
-    expect(APP_LINKS["/registrar"]).toBeUndefined();
-    expect(APP_LINKS["/pulsaciones"]).toBeDefined();
-    expect(APP_LINKS["/entrenamientos"]).toBeDefined();
-    expect(RUNNIE_SYSTEM).not.toContain("/registrar");
+  it("enlaza las notas de Aprender", () => {
+    expect(linkify("Leé /aprender/hidratacion-basica.")).toEqual([
+      { text: "Leé " },
+      { text: "/aprender/hidratacion-basica", href: "/aprender/hidratacion-basica" },
+      { text: "." },
+    ]);
   });
 });
 
@@ -145,33 +194,5 @@ describe("Runnie: datos de entrenamiento", () => {
       "2026-11-08: 8 km en 45:00 (5:38/km), RPE 6, carga 270, 2 parciales",
     );
     expect(loadLine(820, 790, "stable")).toContain("820 (estable frente a su promedio de 790 por semana)");
-  });
-  it("el bloque de la persona suma la sesión, la fuerza y lo compartido (o avisa que no lo compartió)", () => {
-    const plan = {
-      title: "10K",
-      distance: "10K",
-      level: "Intermedio",
-      duration: "3 meses",
-      daysPerWeek: 4,
-      startDate: "2026-11-02",
-      raceDate: null,
-      status: "active",
-      currentWeek: 2,
-      totalWeeks: 12,
-      openWeeks: 12,
-      today: "Pasadas",
-      test: null,
-      session: ["Parte principal: 4 × 1000 m al 100 %"],
-      strength: "Sesión 1 de la rutina B",
-      saved: null,
-    };
-    const shared = contextBlock({ ...base, premium: true, plan, health: { wellnessToday: "12/25 (Regular)", wellnessWeek: 15.5, recent: ["2026-11-08: 8 km"], load: "Carga de los últimos 7 días (RPE × minutos): 300" } });
-    expect(shared).toContain("Test: no tiene un test");
-    expect(shared).toContain("  - Parte principal: 4 × 1000 m al 100 %");
-    expect(shared).toContain("Fuerza de hoy: Sesión 1 de la rutina B");
-    expect(shared).toContain("Wellness de hoy: 12/25 (Regular)");
-    expect(shared).toContain("  - 2026-11-08: 8 km");
-    expect(contextBlock({ ...base, plan, health: null })).toContain("No compartió su wellness");
-    expect(contextBlock({ ...base, plan })).not.toContain("wellness");
   });
 });

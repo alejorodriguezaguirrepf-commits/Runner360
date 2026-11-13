@@ -26,7 +26,7 @@ const INVITES: Variant[] = [
     title: "Tu próximo objetivo está más cerca de lo que pensás",
     body: [
       "Cada kilómetro suma, y con un plan suma mucho más.",
-      "Con la suscripción a RUNNER 360 tenés tu plan completo semana a semana, los tiempos de cada pasada según tu test, la fuerza para correr mejor y a Runnie para sacarte cualquier duda.",
+      "Con la suscripción a RUNNER 360 tenés tu plan completo semana a semana, los tiempos de cada pasada según tu test, y la fuerza para correr mejor.",
       "¿Damos el primer paso juntos?",
     ],
     cta: "Quiero suscribirme",

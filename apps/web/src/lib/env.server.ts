@@ -14,10 +14,6 @@ export const serverEnv = {
   get cronSecret() {
     return (process.env.CRON_SECRET ?? "").trim();
   },
-  /** Clave de la API de Claude para Runnie, el asistente (solo servidor; nunca llega al navegador). */
-  get anthropicApiKey() {
-    return (process.env.ANTHROPIC_API_KEY ?? "").trim();
-  },
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
 };
@@ -26,7 +22,3 @@ export function isServiceRoleConfigured(): boolean {
   return serverEnv.supabaseServiceRoleKey.length > 20;
 }
 
-/** Runnie (asistente) habilitado: hay clave de la API de Claude. */
-export function isRunnieConfigured(): boolean {
-  return serverEnv.anthropicApiKey.length > 20;
-}

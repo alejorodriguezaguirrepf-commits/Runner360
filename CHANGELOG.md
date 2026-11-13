@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-13 — Runnie, gratis para todos
+
+- **Runnie** ahora responde dentro de la app, sin servicios de inteligencia artificial pagos: costo cero y disponible para toda persona con cuenta, con o sin suscripción, sin tope diario de mensajes.
+- Entiende las preguntas comunes y responde con la información de la app y con los datos de cada persona: lo que le toca hoy con los ritmos y tiempos según su test, la fuerza del día con su dosis, su plan y semanas liberadas, y (con el consentimiento de datos de salud) su wellness y sus últimas sesiones. Temas: Test/%, cómo anotar tiempos y guardar, wellness, RPE, pulsaciones, PDF, mover días, suscripción y cobros, instalar la app, correos, trote suave, entrada en calor, descanso, cansancio, carrera, y más. Ante dolor o síntomas, primero el aviso de salud.
+- Si no entiende, dice con qué puede ayudar y sugiere una nota de Aprender relacionada.
+- Las preguntas no salen de RUNNER 360 ni se guardan. Política de privacidad actualizada. Se quita la variable `ANTHROPIC_API_KEY`.
+- Runnie deja de figurar entre los beneficios pagos y pasa a la lista del plan gratis (migración 20261113000200).
+
 ## 2026-11-13 — Correos de motivación
 
 - **Sin suscripción**: un correo por semana, alegre y alentador, invitando a suscribirse (4 versiones que van rotando).

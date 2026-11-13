@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isSupabaseConfigured, missingSupabaseConfig, publicEnv, readEnv } from "@/lib/env";
-import { isRunnieConfigured, isServiceRoleConfigured } from "@/lib/env.server";
+import { isServiceRoleConfigured } from "@/lib/env.server";
 import { readPaymentsConfig } from "@/lib/payments/config";
 import { canonicalSiteUrl } from "@/lib/site-url";
 import { turnstileSecret, turnstileSiteKey } from "@/lib/turnstile";
@@ -38,7 +38,6 @@ export async function GET() {
         NEXT_PUBLIC_SITE_URL: Boolean(publicEnv.configuredSiteUrl),
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: Boolean(turnstileSiteKey()),
         TURNSTILE_SECRET_KEY: Boolean(turnstileSecret()),
-        ANTHROPIC_API_KEY: isRunnieConfigured(),
       },
       faltan: missingSupabaseConfig(),
       servicioDeCuentas: authService,

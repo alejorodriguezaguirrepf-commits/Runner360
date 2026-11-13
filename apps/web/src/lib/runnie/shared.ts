@@ -3,8 +3,6 @@
  * Funciones puras (se prueban en test/runnie.test.ts).
  */
 
-/** Runnie es parte de la suscripción: 30 mensajes por día (el que vale es el de la base: runnie_daily_limit). */
-export const RUNNIE_LIMITS = { free: 0, premium: 30 } as const;
 /** Cuántos mensajes previos de la conversación se mandan como contexto, y el largo máximo de cada uno. */
 export const HISTORY_MAX_MESSAGES = 12;
 export const MESSAGE_MAX_CHARS = 1000;
@@ -31,10 +29,10 @@ export type ChatTurn = { role: "user" | "assistant"; content: string };
 
 export type Segment = { text: string; href?: string };
 
-/** Parte una respuesta en texto y enlaces a secciones conocidas de la app (/planes, /suscripcion…). */
+/** Parte una respuesta en texto y enlaces a secciones conocidas de la app (/planes, /suscripcion, /aprender/nota…). */
 export function linkify(text: string): Segment[] {
   const paths = Object.keys(APP_LINKS).sort((a, b) => b.length - a.length);
-  const re = new RegExp(`(${paths.map((p) => p.replace("/", "\\/")).join("|")})(?![\\w-])`, "g");
+  const re = new RegExp(`(\\/aprender\\/[a-z0-9-]+|${paths.map((p) => p.replace("/", "\\/")).join("|")})(?![\\w-])`, "g");
   const out: Segment[] = [];
   let last = 0;
   for (const m of text.matchAll(re)) {

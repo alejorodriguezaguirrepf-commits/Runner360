@@ -7,30 +7,12 @@ import { RunnieAvatar } from "./runnie-avatar";
 
 type Message = ChatTurn & { id: number; failed?: boolean };
 const STORAGE_KEY = "r360-runnie";
-// Si la persona eligió compartir su wellness y sus sesiones (queda en este navegador).
-const SHARE_KEY = "r360-runnie-share";
 const SUGGESTIONS = [
   "¿Qué me toca entrenar hoy?",
   "¿A qué ritmo hago las pasadas de hoy?",
   "¿Cómo anoto mis tiempos y guardo la sesión?",
   "¿Cómo funciona la semana gratis?",
 ];
-
-function loadShare(): boolean {
-  try {
-    return window.localStorage.getItem(SHARE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-function storeShare(on: boolean) {
-  try {
-    if (on) window.localStorage.setItem(SHARE_KEY, "1");
-    else window.localStorage.removeItem(SHARE_KEY);
-  } catch {
-    // Sin almacenamiento: vale mientras la pestaña esté abierta.
-  }
-}
 
 // La conversación queda solo en este navegador mientras la pestaña esté abierta (no se guarda en el servidor).
 function loadStored(): Message[] {
@@ -73,34 +55,19 @@ export function RunnieChat() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [quota, setQuota] = useState<{ remaining: number | null; limit: number | null }>({ remaining: null, limit: null });
-  // Runnie es parte de la suscripción: null mientras no se sabe, false para mostrar la invitación.
-  const [premium, setPremium] = useState<boolean | null>(null);
   const [announce, setAnnounce] = useState("");
-  const [share, setShare] = useState(false);
   const titleId = useId();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(1);
 
-  async function openChat() {
+  function openChat() {
     setOpen(true);
-    setShare(loadShare());
     if (!messages.length) {
       const stored = loadStored();
       nextId.current = stored.reduce((m, x) => Math.max(m, x.id + 1), 1);
       setMessages(stored);
-    }
-    try {
-      const res = await fetch("/api/runnie", { cache: "no-store" });
-      if (res.ok) {
-        const data = (await res.json()) as { premium?: boolean; remaining?: number | null; limit?: number | null };
-        if (typeof data.premium === "boolean") setPremium(data.premium);
-        setQuota({ remaining: data.remaining ?? null, limit: data.limit ?? null });
-      }
-    } catch {
-      // Sin conexión: el contador aparece después del primer mensaje.
     }
   }
 
@@ -144,16 +111,10 @@ export function RunnieChat() {
       const res = await fetch("/api/runnie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: list.map(({ role, content }) => ({ role, content })), share }),
+        body: JSON.stringify({ messages: list.map(({ role, content }) => ({ role, content })) }),
       });
       if (!res.ok || !res.body) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string; remaining?: number; premiumOnly?: boolean };
-        if (data.premiumOnly) {
-          setPremium(false);
-          update(history);
-          return;
-        }
-        if (typeof data.remaining === "number") setQuota((q) => ({ ...q, remaining: data.remaining! }));
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
         update(list.map((m) => (m.id === userMsg.id ? { ...m, failed: true } : m)));
         setNotice(data.error ?? "Runnie no pudo responder esta vez. Probá de nuevo en un momento.");
         return;
@@ -169,13 +130,12 @@ export function RunnieChat() {
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line.trim()) continue;
-          const event = JSON.parse(line) as { t: string; text?: string; remaining?: number; message?: string; keep?: boolean };
+          const event = JSON.parse(line) as { t: string; text?: string; message?: string; keep?: boolean };
           if (event.t === "delta" && event.text) {
             reply += event.text;
             list = [...list.filter((m) => m.id !== replyId), { id: replyId, role: "assistant", content: reply }];
             setMessages(list);
           } else if (event.t === "done") {
-            if (typeof event.remaining === "number") setQuota((q) => ({ ...q, remaining: event.remaining! }));
             setAnnounce("Runnie respondió.");
           } else if (event.t === "error") {
             if (!event.keep || !reply) {
@@ -202,8 +162,6 @@ export function RunnieChat() {
   }
 
   const writing = busy && messages.at(-1)?.role === "user";
-  const out = quota.remaining === 0;
-  const locked = premium === false;
 
   return (
     <>
@@ -211,7 +169,7 @@ export function RunnieChat() {
         <button
           ref={buttonRef}
           type="button"
-          onClick={() => void openChat()}
+          onClick={openChat}
           aria-label="Preguntale a Runnie, tu asistente"
           className="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-40 inline-flex items-center gap-2 rounded-full bg-surface p-1 pr-4 font-semibold text-ink shadow-lg ring-1 ring-line transition hover:ring-primary lg:right-6 lg:bottom-6"
         >
@@ -229,9 +187,7 @@ export function RunnieChat() {
             <RunnieAvatar size={44} />
             <div className="min-w-0 flex-1">
               <h2 id={titleId} className="font-extrabold text-ink">Runnie</h2>
-              <p className="text-xs text-muted">
-                {!locked && quota.remaining !== null && quota.limit ? `Te quedan ${quota.remaining} de ${quota.limit} mensajes hoy` : "Tu asistente de running"}
-              </p>
+              <p className="text-xs text-muted">Tu asistente de running</p>
             </div>
             <button type="button" onClick={closeChat} aria-label="Cerrar el chat con Runnie" className="inline-flex size-11 items-center justify-center rounded-xl text-2xl text-muted hover:bg-surface-2 hover:text-ink">
               ×
@@ -239,20 +195,7 @@ export function RunnieChat() {
           </header>
 
           <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-            {locked ? (
-              <div className="space-y-3">
-                <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
-                  ¡Hola! Soy Runnie. Respondo dudas sobre tu entrenamiento, tu plan y cómo usar la app.
-                </p>
-                <div className="rounded-2xl border border-primary bg-surface px-4 py-3">
-                  <p className="font-bold text-ink">Runnie es parte de la suscripción</p>
-                  <p className="mt-1 text-sm text-muted">Suscribite y preguntame lo que necesites, hasta 30 mensajes por día.</p>
-                  <Link href="/suscripcion" onClick={() => setOpen(false)} className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary">
-                    Ver suscripción
-                  </Link>
-                </div>
-              </div>
-            ) : messages.length === 0 ? (
+            {messages.length === 0 ? (
               <div className="space-y-3">
                 <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
                   ¡Hola! Soy Runnie. Preguntame lo que necesites sobre tu entrenamiento, tu plan o cómo usar la app.
@@ -260,7 +203,7 @@ export function RunnieChat() {
                 <ul className="flex flex-wrap gap-2" aria-label="Preguntas sugeridas">
                   {SUGGESTIONS.map((s) => (
                     <li key={s}>
-                      <button type="button" disabled={busy || out} onClick={() => void send(s)} className="min-h-11 rounded-full border border-line bg-surface px-3 text-left text-sm font-semibold text-ink hover:border-primary disabled:opacity-50">
+                      <button type="button" disabled={busy} onClick={() => void send(s)} className="min-h-11 rounded-full border border-line bg-surface px-3 text-left text-sm font-semibold text-ink hover:border-primary disabled:opacity-50">
                         {s}
                       </button>
                     </li>
@@ -268,7 +211,7 @@ export function RunnieChat() {
                 </ul>
               </div>
             ) : null}
-            {locked ? null : messages.map((m) =>
+            {messages.map((m) =>
               m.role === "user" ? (
                 <div key={m.id} className="flex flex-col items-end">
                   <p className="max-w-[85%] rounded-2xl rounded-tr-sm bg-primary px-4 py-2.5 text-sm whitespace-pre-wrap text-on-primary">{m.content}</p>
@@ -296,7 +239,6 @@ export function RunnieChat() {
             ) : null}
           </div>
 
-          {locked ? null : (
           <form
             className="border-t border-line px-4 pt-3 pb-3"
             onSubmit={(e) => {
@@ -312,8 +254,7 @@ export function RunnieChat() {
                 rows={1}
                 value={input}
                 maxLength={MESSAGE_MAX_CHARS}
-                disabled={out}
-                placeholder={out ? "Llegaste al tope de hoy" : "Escribí tu pregunta"}
+                placeholder="Escribí tu pregunta"
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -323,24 +264,12 @@ export function RunnieChat() {
                 }}
                 className="max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-line bg-surface px-3 py-2.5 text-base text-ink sm:text-sm"
               />
-              <button type="submit" disabled={busy || out || !input.trim()} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary disabled:opacity-50">
+              <button type="submit" disabled={busy || !input.trim()} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary disabled:opacity-50">
                 Enviar
               </button>
             </div>
-            <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 text-xs text-muted">
-              <input
-                type="checkbox"
-                checked={share}
-                onChange={(e) => {
-                  setShare(e.target.checked);
-                  storeShare(e.target.checked);
-                }}
-                className="size-5 shrink-0 accent-primary"
-              />
-              <span>Compartir con Runnie mi wellness y mis últimas sesiones (RPE y tiempos) para que me responda con eso.</span>
-            </label>
-            <div className="flex items-center justify-between gap-2 text-xs text-muted">
-              <span>Runnie puede equivocarse. No reemplaza a un profesional de la salud.</span>
+            <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted">
+              <span>Runnie responde con la información de la app y de tu plan. No reemplaza a un profesional de la salud.</span>
               {messages.length ? (
                 <button type="button" onClick={clear} className="min-h-11 shrink-0 font-semibold underline hover:text-ink">
                   Borrar
@@ -348,7 +277,6 @@ export function RunnieChat() {
               ) : null}
             </div>
           </form>
-          )}
           <p aria-live="polite" className="sr-only">{announce}</p>
         </section>
       )}
