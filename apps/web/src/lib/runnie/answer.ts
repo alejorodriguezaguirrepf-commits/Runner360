@@ -423,6 +423,12 @@ const INTENTS: Intent[] = [
       "Hay planes de 5K, 10K, 21K (media maratón) y 42K (maratón), para distintos niveles, días por semana y duración. En /planes, cada uno muestra para quién es (perfil del corredor), qué necesitás para empezarlo y cuántos días por semana entrenás. Elegí el que corresponde a tu nivel de hoy, no al que te gustaría tener: es la forma de progresar sin lesionarte.",
   },
   {
+    id: "voz",
+    patterns: [[/\bmicrofono|\bpor voz|\bdictad|\bhablarte|\bhablarle|\bte hablo|\bcon la voz/, 5]],
+    reply: () =>
+      "Tocá el micrófono al lado de Enviar y decí tu pregunta: mientras hablás aparece el texto y, cuando terminás, me la manda sola. La primera vez el navegador te pide permiso para usar el micrófono. Si el micrófono no aparece, tu navegador no tiene dictado por voz: probá con Chrome o Safari actualizados.",
+  },
+  {
     id: "quien",
     patterns: [[/\bquien sos|\bque sos\b|\bsos (un |una )?(robot|ia|bot|persona|humano)|\binteligencia artificial|\bcomo funcionas|\bcomo te llamas/, 5]],
     reply: () =>

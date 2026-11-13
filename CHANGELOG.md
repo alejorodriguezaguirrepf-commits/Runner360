@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-13 — Runnie por voz
+
+- En el chat de Runnie, un botón de micrófono al lado de Enviar: se toca, se dice la pregunta y, al terminar de hablar, se envía sola (el texto se ve mientras se habla). Se vuelve a tocar para cortar.
+- Usa el reconocimiento de voz del navegador o del teléfono, en español de Argentina: gratis y sin claves. Donde el navegador no lo ofrece, el micrófono no aparece. Mensajes claros si falta el permiso, no se escuchó nada o no hay conexión.
+- Al cerrar el chat se deja de escuchar sin enviar nada. A RUNNER 360 solo le llega el texto; no se graba audio. Política de privacidad actualizada.
+
 ## 2026-11-13 — Runnie, gratis para todos
 
 - **Runnie** ahora responde dentro de la app, sin servicios de inteligencia artificial pagos: costo cero y disponible para toda persona con cuenta, con o sin suscripción, sin tope diario de mensajes.

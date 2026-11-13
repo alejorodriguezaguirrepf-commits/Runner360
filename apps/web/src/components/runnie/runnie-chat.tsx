@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { linkify, MESSAGE_MAX_CHARS, type ChatTurn } from "@/lib/runnie/shared";
+import { IconMic } from "@/components/ui/icons";
 import { RunnieAvatar } from "./runnie-avatar";
+import { useSpeechInput } from "./use-speech";
 
 type Message = ChatTurn & { id: number; failed?: boolean };
 const STORAGE_KEY = "r360-runnie";
@@ -53,6 +55,13 @@ export function RunnieChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  // Dictado por voz: el texto aparece en la caja mientras se habla y se envía solo al terminar.
+  const speech = useSpeechInput({
+    active: open,
+    onText: (text) => setInput(text),
+    onFinal: (text) => void send(text),
+    onError: (message) => setNotice(message),
+  });
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
@@ -199,6 +208,7 @@ export function RunnieChat() {
               <div className="space-y-3">
                 <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
                   ¡Hola! Soy Runnie. Preguntame lo que necesites sobre tu entrenamiento, tu plan o cómo usar la app.
+                  {speech.supported ? " También podés tocar el micrófono y hablarme." : ""}
                 </p>
                 <ul className="flex flex-wrap gap-2" aria-label="Preguntas sugeridas">
                   {SUGGESTIONS.map((s) => (
@@ -254,7 +264,8 @@ export function RunnieChat() {
                 rows={1}
                 value={input}
                 maxLength={MESSAGE_MAX_CHARS}
-                placeholder="Escribí tu pregunta"
+                placeholder={speech.listening ? "Te escucho…" : "Escribí tu pregunta"}
+                readOnly={speech.listening}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
@@ -264,7 +275,28 @@ export function RunnieChat() {
                 }}
                 className="max-h-32 min-h-11 min-w-0 flex-1 resize-none rounded-xl border border-line bg-surface px-3 py-2.5 text-base text-ink sm:text-sm"
               />
-              <button type="submit" disabled={busy || !input.trim()} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary disabled:opacity-50">
+              {speech.supported ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (speech.listening) speech.stop();
+                    else {
+                      setNotice(null);
+                      speech.start();
+                    }
+                  }}
+                  disabled={busy}
+                  aria-pressed={speech.listening}
+                  aria-label={speech.listening ? "Dejar de escuchar" : "Hablarle a Runnie"}
+                  title={speech.listening ? "Dejar de escuchar" : "Hablarle a Runnie"}
+                  className={`inline-flex size-11 shrink-0 items-center justify-center rounded-xl border disabled:opacity-50 ${
+                    speech.listening ? "animate-pulse border-primary bg-primary text-on-primary motion-reduce:animate-none" : "border-line bg-surface text-ink hover:border-primary"
+                  }`}
+                >
+                  <IconMic width={22} height={22} />
+                </button>
+              ) : null}
+              <button type="submit" disabled={busy || speech.listening || !input.trim()} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-semibold text-on-primary disabled:opacity-50">
                 Enviar
               </button>
             </div>
@@ -277,7 +309,7 @@ export function RunnieChat() {
               ) : null}
             </div>
           </form>
-          <p aria-live="polite" className="sr-only">{announce}</p>
+          <p aria-live="polite" className="sr-only">{speech.listening ? "Runnie te está escuchando." : announce}</p>
         </section>
       )}
     </>

@@ -61,6 +61,7 @@ describe("Runnie: entiende de qué se trata la pregunta", () => {
     ["¿Sirve para una maratón?", "elegir"],
     ["Me quedé sin semanas liberadas", "plan"],
     ["¿Tengo que estirar?", "calentar"],
+    ["¿Puedo hablarte con el micrófono?", "voz"],
   ])("«%s» → %s", (q, id) => {
     expect(top(q)).toBe(id);
   });
@@ -194,5 +195,19 @@ describe("Runnie: datos de entrenamiento", () => {
       "2026-11-08: 8 km en 45:00 (5:38/km), RPE 6, carga 270, 2 parciales",
     );
     expect(loadLine(820, 790, "stable")).toContain("820 (estable frente a su promedio de 790 por semana)");
+  });
+});
+
+describe("Runnie: dictado por voz", () => {
+  it("avisa con un mensaje claro según el error del navegador", async () => {
+    const { speechErrorMessage } = await import("@/components/runnie/use-speech");
+    expect(speechErrorMessage("aborted")).toBeNull();
+    expect(speechErrorMessage("not-allowed")).toContain("permití el uso del micrófono");
+    expect(speechErrorMessage("no-speech")).toContain("No te escuché");
+    expect(speechErrorMessage("otro")).toContain("Escribí tu pregunta");
+  });
+  it("una pregunta dictada (sin signos ni mayúsculas) se entiende igual", () => {
+    expect(scoreIntents("que me toca hoy")[0]!.id).toBe("hoy");
+    expect(scoreIntents("a que ritmo hago las pasadas")[0]!.id).toBe("ritmo");
   });
 });

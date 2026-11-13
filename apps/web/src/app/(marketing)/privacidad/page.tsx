@@ -49,7 +49,9 @@ export default function PrivacyPage() {
           Consultas a Runnie, el asistente: las responde la propia app con la información de RUNNER 360 y con los datos de tu
           cuenta (tu plan, la sesión y la fuerza de hoy, tu test y, si diste el consentimiento de datos de salud, tu wellness y
           tus últimas sesiones). Tus preguntas no se envían a terceros ni se guardan: la conversación queda solo en tu
-          navegador mientras la pestaña esté abierta.
+          navegador mientras la pestaña esté abierta. Si le hablás con el micrófono, el dictado lo hace el reconocimiento de
+          voz de tu navegador o de tu teléfono (que puede procesar el audio en los servicios de su fabricante) y a RUNNER 360
+          solo le llega el texto. RUNNER 360 no graba ni guarda el audio.
         </li>
       </ul>
       <h2>Ubicación</h2>
