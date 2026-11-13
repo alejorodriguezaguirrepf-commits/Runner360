@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   if (!(await hasPremium(session))) return json({ error: MSG.premiumOnly, premiumOnly: true }, 403);
   if (!rateLimit(`runnie:${userId}`, 8, 60_000).ok) return json({ error: MSG.busy }, 429);
 
-  const body = (await request.json().catch(() => null)) as { messages?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { messages?: unknown; share?: unknown } | null;
   const messages = sanitizeHistory(body?.messages);
   if (!messages) return json({ error: MSG.invalid }, 400);
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
   }
   if (remaining < 0) return json({ error: MSG.limit, remaining: 0 }, 429);
 
-  const context = await runnieContext(session, remaining);
+  const context = await runnieContext(session, remaining, body?.share === true);
   const client = new Anthropic({ apiKey: serverEnv.anthropicApiKey, maxRetries: 1 });
   const encoder = new TextEncoder();
 

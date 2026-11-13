@@ -7,12 +7,30 @@ import { RunnieAvatar } from "./runnie-avatar";
 
 type Message = ChatTurn & { id: number; failed?: boolean };
 const STORAGE_KEY = "r360-runnie";
+// Si la persona eligió compartir su wellness y sus sesiones (queda en este navegador).
+const SHARE_KEY = "r360-runnie-share";
 const SUGGESTIONS = [
-  "¿Cómo funciona la semana gratis?",
   "¿Qué me toca entrenar hoy?",
-  "¿A qué ritmo tengo que ir en un trote suave?",
-  "¿Cómo instalo la app en el celular?",
+  "¿A qué ritmo hago las pasadas de hoy?",
+  "¿Cómo anoto mis tiempos y guardo la sesión?",
+  "¿Cómo funciona la semana gratis?",
 ];
+
+function loadShare(): boolean {
+  try {
+    return window.localStorage.getItem(SHARE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+function storeShare(on: boolean) {
+  try {
+    if (on) window.localStorage.setItem(SHARE_KEY, "1");
+    else window.localStorage.removeItem(SHARE_KEY);
+  } catch {
+    // Sin almacenamiento: vale mientras la pestaña esté abierta.
+  }
+}
 
 // La conversación queda solo en este navegador mientras la pestaña esté abierta (no se guarda en el servidor).
 function loadStored(): Message[] {
@@ -59,6 +77,7 @@ export function RunnieChat() {
   // Runnie es parte de la suscripción: null mientras no se sabe, false para mostrar la invitación.
   const [premium, setPremium] = useState<boolean | null>(null);
   const [announce, setAnnounce] = useState("");
+  const [share, setShare] = useState(false);
   const titleId = useId();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -67,6 +86,7 @@ export function RunnieChat() {
 
   async function openChat() {
     setOpen(true);
+    setShare(loadShare());
     if (!messages.length) {
       const stored = loadStored();
       nextId.current = stored.reduce((m, x) => Math.max(m, x.id + 1), 1);
@@ -124,7 +144,7 @@ export function RunnieChat() {
       const res = await fetch("/api/runnie", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: list.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ messages: list.map(({ role, content }) => ({ role, content })), share }),
       });
       if (!res.ok || !res.body) {
         const data = (await res.json().catch(() => ({}))) as { error?: string; remaining?: number; premiumOnly?: boolean };
@@ -307,7 +327,19 @@ export function RunnieChat() {
                 Enviar
               </button>
             </div>
-            <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted">
+            <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-2 text-xs text-muted">
+              <input
+                type="checkbox"
+                checked={share}
+                onChange={(e) => {
+                  setShare(e.target.checked);
+                  storeShare(e.target.checked);
+                }}
+                className="size-5 shrink-0 accent-primary"
+              />
+              <span>Compartir con Runnie mi wellness y mis últimas sesiones (RPE y tiempos) para que me responda con eso.</span>
+            </label>
+            <div className="flex items-center justify-between gap-2 text-xs text-muted">
               <span>Runnie puede equivocarse. No reemplaza a un profesional de la salud.</span>
               {messages.length ? (
                 <button type="button" onClick={clear} className="min-h-11 shrink-0 font-semibold underline hover:text-ink">

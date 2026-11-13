@@ -12,17 +12,18 @@ export const MESSAGE_MAX_CHARS = 1000;
 /** Secciones de la app a las que Runnie puede mandar (se muestran como enlaces en el chat). */
 export const APP_LINKS: Record<string, string> = {
   "/inicio": "Inicio: resumen del día y del plan",
-  "/hoy": "Hoy: la sesión del día",
-  "/plan": "Mi plan: calendario semana a semana",
+  "/hoy": "Hoy: el wellness y la sesión del día, con los tiempos para anotar y guardar",
+  "/plan": "Mi plan: calendario semana a semana, registro de cada sesión y descarga de la semana en PDF",
   "/planes": "Planes: la biblioteca para elegir plan (5K, 10K, 21K y 42K)",
-  "/registrar": "Registrar: cargar un entrenamiento",
-  "/progreso": "Progreso: estadísticas e historial",
-  "/calculadora": "Test/% (parciales por porcentaje)",
+  "/progreso": "Progreso: estadísticas, wellness, carga y parciales",
+  "/entrenamientos": "Historial: los entrenamientos guardados",
+  "/calculadora": "Test/%: cargar el test y ver los parciales del 50 al 100 %",
+  "/pulsaciones": "Pulsaciones: medir las pulsaciones con la cámara del celular",
   "/aprender": "Aprender: contenido educativo",
   "/hidratacion": "Hidratación (con suscripción)",
   "/competencias": "Competencias (con suscripción)",
   "/suscripcion": "Suscripción: planes pagos, pagos y cancelación",
-  "/perfil": "Perfil: datos personales, descargar o borrar la cuenta",
+  "/perfil": "Perfil: datos personales, correos, descargar o borrar la cuenta",
   "/instalar": "Instalar la app en el celular o la computadora",
 };
 

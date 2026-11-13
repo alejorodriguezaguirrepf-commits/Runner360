@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { faq } from "@/i18n/es-AR/faq";
 import { contextBlock, RUNNIE_SYSTEM, sanitizeHistory, type RunnieContext } from "@/lib/runnie/prompt";
-import { HISTORY_MAX_MESSAGES, linkify, MESSAGE_MAX_CHARS } from "@/lib/runnie/shared";
+import { loadLine, recentSessionLine, sessionLines, strengthLine, testLine, wellnessLine } from "@/lib/runnie/facts";
+import { APP_LINKS, HISTORY_MAX_MESSAGES, linkify, MESSAGE_MAX_CHARS } from "@/lib/runnie/shared";
 
 const base: RunnieContext = { name: "Ana", today: "2026-11-09", premium: false, annual: false, remaining: 4, plan: null };
 
@@ -97,5 +98,80 @@ describe("Runnie: enlaces en las respuestas", () => {
   it("no toca direcciones web ni rutas desconocidas", () => {
     expect(linkify("Entrá a runner360.ar/planes")).toEqual([{ text: "Entrá a runner360.ar/planes" }]);
     expect(linkify("Mirá /secreto")).toEqual([{ text: "Mirá /secreto" }]);
+  });
+});
+
+describe("Runnie: lo que sabe de la app", () => {
+  it("conoce el wellness, el registro dentro del plan, Test/%, la fuerza, las pulsaciones y el PDF", () => {
+    expect(RUNNIE_SYSTEM).toMatch(/Wellness: al abrir el plan/);
+    expect(RUNNIE_SYSTEM).toMatch(/se confirma con el tilde/);
+    expect(RUNNIE_SYSTEM).toMatch(/frecuencia cardíaca media y máxima/);
+    expect(RUNNIE_SYSTEM).toMatch(/del 50 % al 100 %/);
+    expect(RUNNIE_SYSTEM).toMatch(/Siempre 4 series por ejercicio, de 3 a 6 repeticiones/);
+    expect(RUNNIE_SYSTEM).toMatch(/cámara de adelante/);
+    expect(RUNNIE_SYSTEM).toMatch(/semana en PDF/);
+  });
+  it("no manda a la sección vieja de registrar y sí a pulsaciones e historial", () => {
+    expect(APP_LINKS["/registrar"]).toBeUndefined();
+    expect(APP_LINKS["/pulsaciones"]).toBeDefined();
+    expect(APP_LINKS["/entrenamientos"]).toBeDefined();
+    expect(RUNNIE_SYSTEM).not.toContain("/registrar");
+  });
+});
+
+describe("Runnie: datos de entrenamiento", () => {
+  const test = { meters: 3000, seconds: 720 }; // 4:00/km
+  it("la sesión de hoy con el ritmo y el tiempo de cada pasada según el test", () => {
+    const day = { warmup: "15 min al 70 %", main_set: "4 × 1000 m al 100 %, pausa 2 min trotando", cooldown: "10 min al 65 %" };
+    const lines = sessionLines(day, test);
+    expect(lines).toHaveLength(3);
+    expect(lines[0]).toMatch(/^Entrada en calor: 15 min al 70 % \(ritmo 5:43\/km, unos 2,63 km\)$/);
+    expect(lines[1]).toBe("Parte principal: 4 × 1000 m al 100 % (ritmo 4:00/km, 4:00 cada uno), pausa 2 min trotando");
+    expect(sessionLines(day, null)[1]).toBe("Parte principal: 4 × 1000 m al 100 %, pausa 2 min trotando");
+  });
+  it("test, fuerza, wellness, sesiones y carga en frases cortas", () => {
+    expect(testLine(test, "2026-11-01")).toBe("3 km en 12:00 (cargado el 2026-11-01)");
+    const s = strengthLine({
+      routine: "B",
+      session: 1,
+      dose: { sets: 4, reps: 5, rir: 3, phase: "base", note: null },
+      exercises: [{ exercise: "Sentadilla goblet", sets_reps: "", pattern: "knee_basic" }],
+    });
+    expect(s).toContain("Sesión 1 de la rutina B · 4 series × 5 repeticiones, dejando 3 en reserva");
+    expect(s).toContain("Sentadilla goblet (tren inferior · básico · dominante de rodilla)");
+    const w = wellnessLine({ check_date: "2026-11-09", sleep: 2, energy: 3, soreness: 4, stress: 3, mood: 4, score: 16, note: null });
+    expect(w).toBe("16/25 (Bien); en 1 o 2 (lo peor): sueño");
+    expect(recentSessionLine({ workout_date: "2026-11-08", distance_m: 8000, duration_s: 2700, rpe: 6, splits: [1, 2] })).toBe(
+      "2026-11-08: 8 km en 45:00 (5:38/km), RPE 6, carga 270, 2 parciales",
+    );
+    expect(loadLine(820, 790, "stable")).toContain("820 (estable frente a su promedio de 790 por semana)");
+  });
+  it("el bloque de la persona suma la sesión, la fuerza y lo compartido (o avisa que no lo compartió)", () => {
+    const plan = {
+      title: "10K",
+      distance: "10K",
+      level: "Intermedio",
+      duration: "3 meses",
+      daysPerWeek: 4,
+      startDate: "2026-11-02",
+      raceDate: null,
+      status: "active",
+      currentWeek: 2,
+      totalWeeks: 12,
+      openWeeks: 12,
+      today: "Pasadas",
+      test: null,
+      session: ["Parte principal: 4 × 1000 m al 100 %"],
+      strength: "Sesión 1 de la rutina B",
+      saved: null,
+    };
+    const shared = contextBlock({ ...base, premium: true, plan, health: { wellnessToday: "12/25 (Regular)", wellnessWeek: 15.5, recent: ["2026-11-08: 8 km"], load: "Carga de los últimos 7 días (RPE × minutos): 300" } });
+    expect(shared).toContain("Test: no tiene un test");
+    expect(shared).toContain("  - Parte principal: 4 × 1000 m al 100 %");
+    expect(shared).toContain("Fuerza de hoy: Sesión 1 de la rutina B");
+    expect(shared).toContain("Wellness de hoy: 12/25 (Regular)");
+    expect(shared).toContain("  - 2026-11-08: 8 km");
+    expect(contextBlock({ ...base, plan, health: null })).toContain("No compartió su wellness");
+    expect(contextBlock({ ...base, plan })).not.toContain("wellness");
   });
 });

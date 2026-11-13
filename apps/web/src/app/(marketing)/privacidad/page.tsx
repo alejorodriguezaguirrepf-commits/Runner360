@@ -47,9 +47,11 @@ export default function PrivacyPage() {
         </li>
         <li>
           Consultas a Runnie, el asistente: para responderte, tu pregunta, la conversación en curso y un resumen de tu plan
-          (nombre, semana y lo que te toca hoy) se envían a un proveedor de inteligencia artificial que la procesa por cuenta de
-          RUNNER 360. No guardamos el texto de las conversaciones: solo contamos cuántos mensajes enviaste cada día para aplicar
-          el cupo diario. No escribas datos de salud ni datos personales que no quieras compartir.
+          (nombre, semana, la sesión y la fuerza de hoy, tu test y si ya guardaste la sesión) se envían a un proveedor de
+          inteligencia artificial que la procesa por cuenta de RUNNER 360. Tu wellness y tus últimas sesiones (RPE, tiempos y
+          carga) se envían solo si activás la opción para compartirlos en el chat, y podés desactivarla cuando quieras. No
+          guardamos el texto de las conversaciones: solo contamos cuántos mensajes enviaste cada día para aplicar el cupo
+          diario. No escribas datos de salud ni datos personales que no quieras compartir.
         </li>
       </ul>
       <h2>Ubicación</h2>
