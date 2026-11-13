@@ -1,5 +1,10 @@
 # Cambios
 
+## 2026-11-13 — Runnie lee en voz alta y te lleva a las secciones
+
+- **Lectura en voz alta**: un parlante en el encabezado del chat. Activado, Runnie lee cada respuesta con la voz del teléfono o del navegador, en español (gratis); dice las secciones por su nombre en lugar de las rutas. Se apaga al cerrar el chat, al mandar otra pregunta o al usar el micrófono. Queda recordado en el navegador.
+- **Te lleva a una sección**: «llevame a Pulsaciones», «abrí el test», «quiero ir a mi progreso», «andá a la pantalla de suscripción»… Runnie contesta y abre la sección (en el celular cierra el chat para que se vea). Si no entiende a cuál, pregunta y muestra las opciones.
+
 ## 2026-11-13 — Runnie por voz
 
 - En el chat de Runnie, un botón de micrófono al lado de Enviar: se toca, se dice la pregunta y, al terminar de hablar, se envía sola (el texto se ve mientras se habla). Se vuelve a tocar para cortar.

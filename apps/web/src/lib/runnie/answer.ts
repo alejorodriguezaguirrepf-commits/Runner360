@@ -88,6 +88,7 @@ const TOPICS = [
   "el PDF de la semana",
   "tu plan, la semana gratis y la suscripción",
   "cómo instalar la app",
+  "llevarte a una sección (por ejemplo: «llevame a Pulsaciones»)",
 ];
 
 type Intent = { id: string; patterns: [RegExp, number][]; reply: (c: RunnieContext, q: string) => string };
@@ -424,9 +425,9 @@ const INTENTS: Intent[] = [
   },
   {
     id: "voz",
-    patterns: [[/\bmicrofono|\bpor voz|\bdictad|\bhablarte|\bhablarle|\bte hablo|\bcon la voz/, 5]],
+    patterns: [[/\bmicrofono|\bpor voz|\bdictad|\bhablarte|\bhablarle|\bte hablo|\bcon la voz|\ben voz alta|\bleer (las |mis )?respuestas|\bparlante/, 5]],
     reply: () =>
-      "Tocá el micrófono al lado de Enviar y decí tu pregunta: mientras hablás aparece el texto y, cuando terminás, me la manda sola. La primera vez el navegador te pide permiso para usar el micrófono. Si el micrófono no aparece, tu navegador no tiene dictado por voz: probá con Chrome o Safari actualizados.",
+      "Tocá el micrófono al lado de Enviar y decí tu pregunta: mientras hablás aparece el texto y, cuando terminás, me la manda sola. La primera vez el navegador te pide permiso para usar el micrófono. Si querés que te lea las respuestas en voz alta, tocá el parlante de arriba. Si el micrófono no aparece, tu navegador no tiene dictado por voz: probá con Chrome o Safari actualizados.",
   },
   {
     id: "quien",
@@ -458,6 +459,54 @@ export function scoreIntents(question: string): { id: string; score: number }[] 
 const MIN_SCORE = 2;
 
 /** La respuesta de Runnie a la última pregunta de la persona. */
+/**
+ * Secciones a las que Runnie puede llevar a la persona, con las formas de nombrarlas (ya
+ * normalizadas). Se revisan en orden: las más específicas primero ("mi plan" antes que "planes").
+ */
+const SECTIONS: { href: string; name: string; words: RegExp }[] = [
+  { href: "/hoy", name: "Hoy", words: /\bhoy\b|\bsesion de hoy|\bentrenamiento de hoy/ },
+  { href: "/entrenamientos", name: "Historial", words: /\bhistorial|\bentrenamientos\b|\bmis sesiones|\bsesiones guardadas/ },
+  { href: "/plan", name: "Mi plan", words: /\bmi plan\b|\bel plan\b|\bcalendario|\bmi semana\b|\bla semana\b/ },
+  { href: "/planes", name: "Planes", words: /\bplanes\b|\bbiblioteca|\bcatalogo|\botro plan|\belegir (un )?plan/ },
+  { href: "/progreso", name: "Progreso", words: /\bprogreso|\bestadistic|\bmi carga\b|\bla carga\b|\bseguimiento/ },
+  { href: "/calculadora", name: "Test/%", words: /\btest\b|\bcalculadora|\bporcentajes?\b|\bparciales/ },
+  { href: "/pulsaciones", name: "Pulsaciones", words: /\bpulsac|\bpulso\b|\bfrecuencia cardiaca|\blatidos/ },
+  { href: "/aprender", name: "Aprender", words: /\baprender|\bnotas\b|\barticulos|\bcontenido/ },
+  { href: "/hidratacion", name: "Hidratación", words: /\bhidrat/ },
+  { href: "/competencias", name: "Competencias", words: /\bcompetencias?\b|\bcarreras\b|\bmis carreras/ },
+  { href: "/suscripcion", name: "Suscripción", words: /\bsuscrip|\bpremium\b|\bpagos?\b|\bplan anual/ },
+  { href: "/perfil", name: "Perfil", words: /\bperfil|\bmi cuenta|\bla cuenta\b|\bmis datos|\bcorreos\b|\bconfiguracion/ },
+  { href: "/instalar", name: "Instalar la app", words: /\binstalar|\binstalacion/ },
+  { href: "/inicio", name: "Inicio", words: /\binicio\b|\bhome\b|\bprincipal\b|\bel comienzo/ },
+];
+
+/** Pedido de ir a otra parte: "llevame a…", "abrí…", "quiero ir a…", "la pantalla de…". */
+const GO = /\b(llevame|llevarme|lleva(me)? a|me llevas|ir a\b|ir al\b|irme a|vamos a\b|abri\b|abrime|abrir\b|abre\b|pasame a|anda a|entrar a|entra a|navega|la seccion de|la pantalla de|la pagina de)/;
+
+/** Si la persona pide ir a una sección: a cuál (null si no lo pide o no se entiende cuál). */
+export function navigationTarget(question: string): { href: string; name: string } | "unknown" | null {
+  const q = normalize(question);
+  const go = GO.exec(q);
+  if (!go) return null;
+  // La sección tiene que nombrarse después del pedido ("llevame a Planes").
+  const rest = q.slice(go.index);
+  const hit = SECTIONS.find((s) => s.words.test(rest));
+  return hit ? { href: hit.href, name: hit.name } : "unknown";
+}
+
+export type RunnieReply = { text: string; href: string | null };
+
+/** La respuesta de Runnie y, si pidió ir a una sección, a dónde llevarla. */
+export function respond(question: string, c: RunnieContext): RunnieReply {
+  const nav = navigationTarget(question);
+  if (nav && nav !== "unknown") return { text: `¡Vamos! Te llevo a ${nav.name} (${nav.href}).`, href: nav.href };
+  const scores = scoreIntents(question);
+  if (nav === "unknown" && scores[0]!.score < MIN_SCORE) {
+    return { text: `¿A qué sección querés ir? Puedo llevarte a: ${SECTIONS.map((s) => s.name).join(", ")}. Por ejemplo: «llevame a Pulsaciones».`, href: null };
+  }
+  return { text: answer(question, c), href: null };
+}
+
 export function answer(question: string, c: RunnieContext): string {
   const scores = scoreIntents(question);
   const top = scores[0]!;

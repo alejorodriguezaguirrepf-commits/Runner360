@@ -2,13 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { logError } from "@/lib/log";
 import { rateLimit } from "@/lib/rate-limit";
-import { answer, sanitizeHistory } from "@/lib/runnie/answer";
+import { respond, sanitizeHistory } from "@/lib/runnie/answer";
 import { runnieContext } from "@/lib/runnie/context";
 
 /**
  * Runnie: responde la pregunta de la persona dentro de la app, sin servicios externos (gratis para
  * todas las personas con cuenta y sin costo para RUNNER 360). Respuesta en líneas JSON (NDJSON):
- * {"t":"delta","text"} y al final {"t":"done"}. El chat también entiende {"t":"error","message"}.
+ * {"t":"delta","text"}, {"t":"go","href"} si pidió ir a una sección, y al final {"t":"done"}. El chat
+ * también entiende {"t":"error","message"}.
  */
 export const dynamic = "force-dynamic";
 
@@ -31,8 +32,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const context = await runnieContext(session);
-    const text = answer(messages.at(-1)!.content, context);
-    const lines = [JSON.stringify({ t: "delta", text }), JSON.stringify({ t: "done" })].join("\n");
+    const reply = respond(messages.at(-1)!.content, context);
+    const events: Record<string, unknown>[] = [{ t: "delta", text: reply.text }];
+    if (reply.href) events.push({ t: "go", href: reply.href });
+    events.push({ t: "done" });
+    const lines = events.map((e) => JSON.stringify(e)).join("\n");
     return new NextResponse(`${lines}\n`, { headers: { "Content-Type": "application/x-ndjson; charset=utf-8", "Cache-Control": "no-store" } });
   } catch (e) {
     logError("runnie:reply", e);

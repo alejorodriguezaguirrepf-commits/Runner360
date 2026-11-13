@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 /**
- * Dictado por voz para Runnie con el reconocimiento de voz del navegador (gratis, sin claves). Escucha
+ * Voz para Runnie (gratis, con lo que trae el navegador o el teléfono).
+ *
+ * Dictado: el reconocimiento de voz del navegador con el reconocimiento de voz del navegador (gratis, sin claves). Escucha
  * una frase en español, muestra el texto mientras se habla y, al terminar, entrega la frase final.
  * Donde el navegador no lo ofrece, `supported` es false y no se muestra el micrófono.
  */
@@ -117,4 +119,43 @@ export function useSpeechInput(opts: { active: boolean; onText: (text: string) =
   }
 
   return { supported, listening, start, stop };
+}
+
+/**
+ * Lectura en voz alta de las respuestas (`active` false, con el chat cerrado, corta la lectura) con la síntesis de voz del navegador, en español (de
+ * Argentina si el teléfono la tiene). Donde no hay síntesis de voz, `supported` es false.
+ */
+export function useSpeechOutput(active: boolean) {
+  const supported = useSyncExternalStore(noop, () => typeof window !== "undefined" && "speechSynthesis" in window, () => false);
+  // Al cerrar el chat (o salir de la página) se deja de hablar.
+  useEffect(() => {
+    if (!active && supported) window.speechSynthesis.cancel();
+  }, [active, supported]);
+  useEffect(() => () => {
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
+  }, []);
+
+  function voice(): SpeechSynthesisVoice | null {
+    // Primero las voces del propio dispositivo (no mandan el texto a ningún servicio).
+    const voices = [...window.speechSynthesis.getVoices()].sort((a, b) => Number(b.localService) - Number(a.localService));
+    const pick = (re: RegExp) => voices.find((v) => re.test(v.lang.replace("_", "-")));
+    return pick(/^es-AR/i) ?? pick(/^es-(419|US|MX)/i) ?? pick(/^es/i) ?? null;
+  }
+
+  function speak(text: string) {
+    if (!supported || !text.trim()) return;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "es-AR";
+    const v = voice();
+    if (v) u.voice = v;
+    synth.speak(u);
+  }
+
+  function cancel() {
+    if (supported) window.speechSynthesis.cancel();
+  }
+
+  return { supported, speak, cancel };
 }

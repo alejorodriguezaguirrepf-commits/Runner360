@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { faq } from "@/i18n/es-AR/faq";
-import { answer, normalize, sanitizeHistory, scoreIntents, type RunnieContext } from "@/lib/runnie/answer";
+import { answer, navigationTarget, normalize, respond, sanitizeHistory, scoreIntents, type RunnieContext } from "@/lib/runnie/answer";
 import { loadLine, recentSessionLine, sessionLines, strengthLine, testLine, wellnessLine } from "@/lib/runnie/facts";
-import { APP_LINKS, HISTORY_MAX_MESSAGES, linkify, MESSAGE_MAX_CHARS } from "@/lib/runnie/shared";
+import { APP_LINKS, forSpeech, HISTORY_MAX_MESSAGES, linkify, MESSAGE_MAX_CHARS } from "@/lib/runnie/shared";
 
 const base: RunnieContext = { name: "Ana Pérez", today: "2026-11-09", premium: false, plan: null };
 type Plan = NonNullable<RunnieContext["plan"]>;
@@ -209,5 +209,48 @@ describe("Runnie: dictado por voz", () => {
   it("una pregunta dictada (sin signos ni mayúsculas) se entiende igual", () => {
     expect(scoreIntents("que me toca hoy")[0]!.id).toBe("hoy");
     expect(scoreIntents("a que ritmo hago las pasadas")[0]!.id).toBe("ritmo");
+  });
+});
+
+describe("Runnie: te lleva a una sección", () => {
+  it.each([
+    ["Llevame a planes", "/planes"],
+    ["llevame a mi plan", "/plan"],
+    ["Quiero ir a pulsaciones", "/pulsaciones"],
+    ["Abrí el test", "/calculadora"],
+    ["Llevame a mi progreso", "/progreso"],
+    ["vamos a la sesión de hoy", "/hoy"],
+    ["Andá a la pantalla de suscripción", "/suscripcion"],
+    ["llevame al historial", "/entrenamientos"],
+    ["llevame al inicio", "/inicio"],
+  ])("«%s» → %s", (q, href) => {
+    const t = navigationTarget(q);
+    expect(t && t !== "unknown" ? t.href : t).toBe(href);
+    expect(respond(q, base)).toMatchObject({ href });
+  });
+  it("las preguntas comunes no se confunden con un pedido de ir", () => {
+    expect(navigationTarget("¿Qué me toca hoy?")).toBeNull();
+    expect(navigationTarget("¿Cómo guardo la sesión?")).toBeNull();
+    expect(respond("¿A qué ritmo hago las pasadas?", { ...base, plan }).href).toBeNull();
+  });
+  it("si no entiende a qué sección, pregunta y muestra las opciones", () => {
+    const r = respond("llevame a la luna", base);
+    expect(r.href).toBeNull();
+    expect(r.text).toContain("¿A qué sección querés ir?");
+  });
+  it("todas las secciones existen", () => {
+    for (const q of ["planes", "mi plan", "hoy", "historial", "progreso", "test", "pulsaciones", "aprender", "hidratación", "competencias", "suscripción", "perfil", "instalar", "inicio"]) {
+      const t = navigationTarget(`llevame a ${q}`);
+      expect(t && t !== "unknown" && APP_LINKS[t.href], q).toBeTruthy();
+    }
+  });
+});
+
+describe("Runnie: lectura en voz alta", () => {
+  it("dice las secciones por su nombre y saca símbolos que la voz lee mal", () => {
+    expect(forSpeech("¡Vamos! Te llevo a Pulsaciones (/pulsaciones).")).toBe("¡Vamos! Te llevo a Pulsaciones.");
+    expect(forSpeech("Cargalo en /calculadora.")).toBe("Cargalo en Test por ciento.");
+    expect(forSpeech("Hoy:\n\n- 4 × 1000 m al 100 % (ritmo 4:00/km)")).toBe("Hoy:\n4 por 1000 m al 100 % (ritmo 4:00 por kilómetro)");
+    expect(forSpeech("Leé «Hidratación» /aprender/hidratacion")).toBe("Leé Hidratación Aprender");
   });
 });

@@ -1,20 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
-import { linkify, MESSAGE_MAX_CHARS, type ChatTurn } from "@/lib/runnie/shared";
-import { IconMic } from "@/components/ui/icons";
+import { forSpeech, linkify, MESSAGE_MAX_CHARS, type ChatTurn } from "@/lib/runnie/shared";
+import { IconMic, IconSpeaker, IconSpeakerOff } from "@/components/ui/icons";
 import { RunnieAvatar } from "./runnie-avatar";
-import { useSpeechInput } from "./use-speech";
+import { useSpeechInput, useSpeechOutput } from "./use-speech";
 
 type Message = ChatTurn & { id: number; failed?: boolean };
 const STORAGE_KEY = "r360-runnie";
+// Si la persona quiere que Runnie lea las respuestas en voz alta (queda en este navegador).
+const READ_KEY = "r360-runnie-leer";
 const SUGGESTIONS = [
   "¿Qué me toca entrenar hoy?",
   "¿A qué ritmo hago las pasadas de hoy?",
   "¿Cómo anoto mis tiempos y guardo la sesión?",
-  "¿Cómo funciona la semana gratis?",
+  "Llevame a mi progreso",
 ];
+
+function loadReadAloud(): boolean {
+  try {
+    return window.localStorage.getItem(READ_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+function storeReadAloud(on: boolean) {
+  try {
+    if (on) window.localStorage.setItem(READ_KEY, "1");
+    else window.localStorage.removeItem(READ_KEY);
+  } catch {
+    // Sin almacenamiento: vale mientras la pestaña esté abierta.
+  }
+}
 
 // La conversación queda solo en este navegador mientras la pestaña esté abierta (no se guarda en el servidor).
 function loadStored(): Message[] {
@@ -62,6 +81,11 @@ export function RunnieChat() {
     onFinal: (text) => void send(text),
     onError: (message) => setNotice(message),
   });
+  // Lectura en voz alta de las respuestas (se activa con el parlante del encabezado).
+  const voice = useSpeechOutput(open);
+  const [readAloud, setReadAloud] = useState(false);
+  const readAloudRef = useRef(false);
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
@@ -73,6 +97,9 @@ export function RunnieChat() {
 
   function openChat() {
     setOpen(true);
+    const read = loadReadAloud();
+    readAloudRef.current = read;
+    setReadAloud(read);
     if (!messages.length) {
       const stored = loadStored();
       nextId.current = stored.reduce((m, x) => Math.max(m, x.id + 1), 1);
@@ -99,6 +126,16 @@ export function RunnieChat() {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages, notice]);
 
+  function toggleReadAloud() {
+    const next = !readAloud;
+    readAloudRef.current = next;
+    setReadAloud(next);
+    storeReadAloud(next);
+    // Hablar dentro del toque habilita la voz en los teléfonos que lo exigen (iPhone).
+    if (next) voice.speak("Listo, te leo las respuestas.");
+    else voice.cancel();
+  }
+
   function update(list: Message[]) {
     setMessages(list);
     store(list);
@@ -116,6 +153,8 @@ export function RunnieChat() {
     update(list);
     setBusy(true);
     let reply = "";
+    let goTo: string | null = null;
+    voice.cancel();
     try {
       const res = await fetch("/api/runnie", {
         method: "POST",
@@ -139,13 +178,16 @@ export function RunnieChat() {
         buffer = lines.pop() ?? "";
         for (const line of lines) {
           if (!line.trim()) continue;
-          const event = JSON.parse(line) as { t: string; text?: string; message?: string; keep?: boolean };
+          const event = JSON.parse(line) as { t: string; text?: string; message?: string; keep?: boolean; href?: string };
           if (event.t === "delta" && event.text) {
             reply += event.text;
             list = [...list.filter((m) => m.id !== replyId), { id: replyId, role: "assistant", content: reply }];
             setMessages(list);
+          } else if (event.t === "go" && event.href?.startsWith("/") && !event.href.startsWith("//")) {
+            goTo = event.href;
           } else if (event.t === "done") {
             setAnnounce("Runnie respondió.");
+            if (readAloudRef.current && reply) voice.speak(forSpeech(reply));
           } else if (event.t === "error") {
             if (!event.keep || !reply) {
               list = list.filter((m) => m.id !== replyId).map((m) => (m.id === userMsg.id ? { ...m, failed: true } : m));
@@ -155,6 +197,11 @@ export function RunnieChat() {
         }
       }
       update(list);
+      if (goTo) {
+        router.push(goTo);
+        // En el celular el chat ocupa toda la pantalla: se cierra para ver la sección.
+        if (!window.matchMedia("(min-width: 1024px)").matches) setOpen(false);
+      }
     } catch {
       update(list.filter((m) => m.id !== replyId || reply).map((m) => (m.id === userMsg.id && !reply ? { ...m, failed: true } : m)));
       setNotice("Se cortó la conexión. Probá de nuevo en un momento.");
@@ -198,6 +245,18 @@ export function RunnieChat() {
               <h2 id={titleId} className="font-extrabold text-ink">Runnie</h2>
               <p className="text-xs text-muted">Tu asistente de running</p>
             </div>
+            {voice.supported ? (
+              <button
+                type="button"
+                onClick={toggleReadAloud}
+                aria-pressed={readAloud}
+                aria-label={readAloud ? "Dejar de leer las respuestas en voz alta" : "Leer las respuestas en voz alta"}
+                title={readAloud ? "Dejar de leer en voz alta" : "Leer las respuestas en voz alta"}
+                className={`inline-flex size-11 items-center justify-center rounded-xl ${readAloud ? "bg-primary text-on-primary" : "text-muted hover:bg-surface-2 hover:text-ink"}`}
+              >
+                {readAloud ? <IconSpeaker width={22} height={22} /> : <IconSpeakerOff width={22} height={22} />}
+              </button>
+            ) : null}
             <button type="button" onClick={closeChat} aria-label="Cerrar el chat con Runnie" className="inline-flex size-11 items-center justify-center rounded-xl text-2xl text-muted hover:bg-surface-2 hover:text-ink">
               ×
             </button>
@@ -209,6 +268,7 @@ export function RunnieChat() {
                 <p className="rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3 text-sm text-ink">
                   ¡Hola! Soy Runnie. Preguntame lo que necesites sobre tu entrenamiento, tu plan o cómo usar la app.
                   {speech.supported ? " También podés tocar el micrófono y hablarme." : ""}
+                  {voice.supported ? " Con el parlante de arriba te leo las respuestas en voz alta." : ""}
                 </p>
                 <ul className="flex flex-wrap gap-2" aria-label="Preguntas sugeridas">
                   {SUGGESTIONS.map((s) => (
@@ -282,6 +342,7 @@ export function RunnieChat() {
                     if (speech.listening) speech.stop();
                     else {
                       setNotice(null);
+                      voice.cancel();
                       speech.start();
                     }
                   }}

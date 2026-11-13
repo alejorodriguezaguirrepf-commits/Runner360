@@ -46,3 +46,21 @@ export function linkify(text: string): Segment[] {
   if (last < text.length) out.push({ text: text.slice(last) });
   return out;
 }
+
+/**
+ * Texto de una respuesta para leerlo en voz alta: las rutas se dicen por su nombre ("/planes" →
+ * "Planes"), sin guiones de lista ni símbolos que la voz lee mal.
+ */
+export function forSpeech(text: string): string {
+  // "Te llevo a Pulsaciones (/pulsaciones)": la ruta entre paréntesis no se lee.
+  return linkify(text.replace(/ \((\/[a-z0-9/-]+)\)/g, ""))
+    .map((s) => (s.href ? (APP_LINKS[s.href]?.split(":")[0] ?? "Aprender") : s.text))
+    .join("")
+    .replace(/^\s*-\s+/gm, "")
+    .replace(/ × /g, " por ")
+    .replace(/\/km\b/g, " por kilómetro")
+    .replace(/Test\/%/g, "Test por ciento")
+    .replace(/[«»]/g, "")
+    .replace(/\n{2,}/g, "\n")
+    .trim();
+}

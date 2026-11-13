@@ -51,7 +51,8 @@ export default function PrivacyPage() {
           tus últimas sesiones). Tus preguntas no se envían a terceros ni se guardan: la conversación queda solo en tu
           navegador mientras la pestaña esté abierta. Si le hablás con el micrófono, el dictado lo hace el reconocimiento de
           voz de tu navegador o de tu teléfono (que puede procesar el audio en los servicios de su fabricante) y a RUNNER 360
-          solo le llega el texto. RUNNER 360 no graba ni guarda el audio.
+          solo le llega el texto. RUNNER 360 no graba ni guarda el audio. Si activás la lectura en voz alta, las respuestas las
+          lee la voz de tu dispositivo (se prefieren las voces que funcionan sin conexión).
         </li>
       </ul>
       <h2>Ubicación</h2>
