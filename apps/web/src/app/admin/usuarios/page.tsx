@@ -41,6 +41,10 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
   return (
     <>
       <PageHeader title="Usuarios" subtitle={`${total} ${q.trim() ? "encontrados" : "registrados"}.`} />
+      <p className="mb-4 text-sm text-muted">
+        El acceso a los planes es automático: cada pago aprobado libera el mes siguiente del plan y el plan anual lo libera completo. No hace falta validar
+        nada por persona.
+      </p>
       <form className="mb-4 flex gap-2" role="search">
         <label className="sr-only" htmlFor="q">Buscar por correo o nombre</label>
         <input id="q" name="q" type="search" defaultValue={q} placeholder="Buscar por correo o nombre" className="min-h-11 min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 text-base sm:text-sm" />
