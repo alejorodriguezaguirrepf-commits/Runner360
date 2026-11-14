@@ -3466,6 +3466,19 @@ as $$
 $$;
 grant execute on function public.library_day_is_open(text, text, smallint) to anon, authenticated, service_role;
 
+-- Para la app: si el plan de la persona quedó bloqueado por su cancelación (para avisarle por qué).
+create or replace function public.my_plan_locked_by_cancellation()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select public.plan_locked_by_cancellation((select auth.uid()));
+$$;
+revoke execute on function public.my_plan_locked_by_cancellation() from public, anon;
+grant execute on function public.my_plan_locked_by_cancellation() to authenticated;
+
 
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
