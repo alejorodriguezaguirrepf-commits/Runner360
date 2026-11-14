@@ -33,8 +33,9 @@ export type Debit = {
   currency: string | null;
   paid_at: string;
   failure_code: string | null;
-  user_id: string;
-  email: string;
+  /** null: la cuenta se borró (el débito se conserva sin datos personales). */
+  user_id: string | null;
+  email: string | null;
   display_name: string | null;
   total_count: number;
 };

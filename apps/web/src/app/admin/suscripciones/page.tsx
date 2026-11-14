@@ -13,7 +13,9 @@ import {
   type Origin,
   type Subscriber,
 } from "@/lib/admin/subscriptions";
+import { canDeleteSubscription } from "@/lib/admin/deletions";
 import { requireAdmin } from "@/lib/auth";
+import { DeleteSubscriptionForm } from "./delete-subscription-form";
 import { failureReason, formatAmount, formatDateTime } from "@/lib/notifications/payment-texts";
 
 export const metadata: Metadata = { title: "Suscripciones", robots: { index: false, follow: false } };
@@ -68,9 +70,13 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
               {debits.map((d) => (
                 <li key={d.payment_id} className="flex flex-wrap items-center justify-between gap-2 border-t border-line py-3 first:border-t-0">
                   <span className="min-w-0 text-sm">
-                    <Link href={`/admin/suscripciones?q=${encodeURIComponent(d.email)}`} className="block truncate font-semibold text-primary-ink underline">
-                      {d.display_name ? `${d.display_name} · ` : ""}{d.email}
-                    </Link>
+                    {d.email ? (
+                      <Link href={`/admin/suscripciones?q=${encodeURIComponent(d.email)}`} className="block truncate font-semibold text-primary-ink underline">
+                        {d.display_name ? `${d.display_name} · ` : ""}{d.email}
+                      </Link>
+                    ) : (
+                      <span className="block font-semibold text-muted">Cuenta borrada</span>
+                    )}
                     <span className="text-ink">{formatDateTime(d.paid_at)}</span>
                     <span className="text-muted"> · {formatAmount(d.amount_minor, d.currency)} · {providerLabel(d.provider)}</span>
                     {d.status === "rejected" ? <span className="block text-xs text-muted">Motivo: {failureReason(d.failure_code)}</span> : null}
@@ -107,7 +113,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
         .order("paid_at", { ascending: false })
     : { data: [] };
   const byUser = new Map<string, DebitRow[]>();
-  for (const d of (debitData ?? []) as DebitRow[]) byUser.set(d.user_id, [...(byUser.get(d.user_id) ?? []), d]);
+  for (const d of (debitData ?? []) as DebitRow[]) if (d.user_id) byUser.set(d.user_id, [...(byUser.get(d.user_id) ?? []), d]);
 
   return (
     <>
@@ -167,6 +173,7 @@ export default async function SubscriptionsPage({ searchParams }: { searchParams
                 ) : (
                   <p className="mt-3 text-xs text-muted">Sin débitos registrados.</p>
                 )}
+                {canDeleteSubscription({ ...s, created_at: s.subscribed_at }, now) ? <DeleteSubscriptionForm subscriptionId={s.subscription_id} email={s.email} /> : null}
               </Card>
             </li>
           );

@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-14 — Administración: borrar usuarios y suscripciones inactivas
+
+- **Usuarios → Acciones → Eliminar usuario**: borra la cuenta y todos sus datos (perfil, planes, entrenamientos, wellness, pulsaciones). Se confirma escribiendo el correo de la cuenta. No se puede con una suscripción o plan anual vigente, un débito automático activo, un pago en curso de los últimos 2 días, un administrador ni la propia cuenta. Queda en la auditoría (sin el correo).
+- **Suscripciones → Eliminar suscripción**: en las que no están activas (canceladas o vencidas y terminadas, asignadas a mano y terminadas, o pendientes de pago hace más de 2 días). Queda en la auditoría.
+- Los débitos se conservan siempre: al borrar una cuenta quedan sin datos personales («Cuenta borrada» en Todos los débitos) y guardan si fueron mensuales o anuales, así los ingresos del panel no cambian. Vale también cuando una persona borra su propia cuenta.
+- Migración 20261114000200, aplicada en producción.
+
 ## 2026-11-14 — Correo de cumpleaños
 
 - El día del cumpleaños (según la fecha de nacimiento del perfil) cada persona recibe un correo de felicitación, alegre y con su nombre, sin mencionar la edad. Cuatro versiones que cambian cada año. Quien nació un 29 de febrero lo recibe el 28 en los años no bisiestos.

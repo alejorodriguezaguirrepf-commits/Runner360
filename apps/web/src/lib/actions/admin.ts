@@ -16,9 +16,11 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
+import { deletionBlockMessage } from "@/lib/admin/deletions";
 import { requireAdmin } from "@/lib/auth";
 import { loadPlanVersions } from "@/lib/data/training";
 import { logError } from "@/lib/log";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const uuid = z.uuid();
 const fail = (context: string, error: unknown, message = "No se pudo completar la operación."): ActionState => {
@@ -42,6 +44,57 @@ export async function changeRoleAction(_prev: ActionState, formData: FormData): 
   if (error) return fail("role", error);
   revalidatePath("/admin/usuarios");
   return { ok: true, message: "Permisos actualizados." };
+}
+
+/**
+ * Borra a una persona y todos sus datos (perfil, planes, registros, wellness…). Sus débitos quedan
+ * guardados sin datos personales. No se puede con una suscripción o plan anual vigente, un débito
+ * automático activo, un administrador ni la propia cuenta. Se confirma escribiendo su correo.
+ */
+export async function deleteUserAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await requireAdmin();
+  const parsed = uuid.safeParse(formData.get("userId"));
+  if (!parsed.success) return { ok: false, message: "Datos inválidos." };
+  const userId = parsed.data;
+  const { data: block, error: blockError } = await supabase.rpc("admin_user_deletion_block", { p_user: userId });
+  if (blockError) return fail("deleteUser:check", blockError);
+  const blocked = deletionBlockMessage(typeof block === "string" ? block : null);
+  if (blocked) return { ok: false, message: blocked };
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, message: "Falta la clave de servicio del servidor: no se puede borrar la cuenta." };
+  const { data: target, error: getError } = await admin.auth.admin.getUserById(userId);
+  if (getError || !target.user) return fail("deleteUser:get", getError, "No se encontró la cuenta.");
+  const typed = String(formData.get("confirm") ?? "").trim().toLowerCase();
+  if (!target.user.email || typed !== target.user.email.toLowerCase()) {
+    return { ok: false, errors: { confirm: "Escribí el correo de la cuenta, tal cual, para confirmar." } };
+  }
+  // En la auditoría queda quién la borró y cuándo, sin el correo de la persona.
+  await supabase.rpc("write_audit_log", { p_action: "user.deleted", p_entity_type: "profile", p_entity_id: userId, p_metadata: { by: "admin" } });
+  const { error } = await admin.auth.admin.deleteUser(userId);
+  if (error) return fail("deleteUser", error, "No se pudo borrar la cuenta.");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin/suscripciones");
+  revalidatePath("/admin");
+  return { ok: true, message: "Cuenta borrada." };
+}
+
+const SUBSCRIPTION_DELETE_MESSAGES: Record<string, ActionState> = {
+  deleted: { ok: true, message: "Suscripción borrada." },
+  active: { ok: false, message: "Esta suscripción todavía da acceso o puede cobrar: no se puede borrar." },
+  missing: { ok: false, message: "Esa suscripción ya no existe." },
+};
+
+/** Borra una suscripción que no está activa (cancelada o vencida y terminada, o un pago que nunca se hizo). */
+export async function deleteSubscriptionAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
+  const { supabase } = await requireAdmin();
+  const parsed = uuid.safeParse(formData.get("subscriptionId"));
+  if (!parsed.success) return { ok: false, message: "Datos inválidos." };
+  const { data, error } = await supabase.rpc("admin_delete_subscription", { p_subscription: parsed.data });
+  if (error) return fail("deleteSubscription", error);
+  revalidatePath("/admin/suscripciones");
+  revalidatePath("/admin/usuarios");
+  revalidatePath("/admin");
+  return SUBSCRIPTION_DELETE_MESSAGES[String(data)] ?? { ok: false, message: "No se pudo borrar la suscripción." };
 }
 
 export async function grantManualPremiumAction(formData: FormData): Promise<void> {

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Alert, Badge, Card, PageHeader } from "@/components/ui/primitives";
 import { grantManualPremiumAction, revokeManualPremiumAction } from "@/lib/actions/admin";
 import { requireAdmin } from "@/lib/auth";
+import { DeleteUserForm } from "./delete-user-form";
 import { RoleForm } from "./role-form";
 
 export const metadata: Metadata = { title: "Usuarios", robots: { index: false, follow: false } };
@@ -89,6 +90,13 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     ) : null}
                     {/* El rol admin solo se cambia directamente en la base: a un admin no se le cambia el rol desde acá. */}
                     {u.role !== "admin" ? <RoleForm userId={u.id} role={u.role} canValidate={canValidate.get(u.id) ?? false} /> : null}
+                    {u.role !== "admin" ? (
+                      hasSub.has(u.id) && !manual.has(u.id) ? (
+                        <p className="text-xs text-muted">Tiene una suscripción activa: para borrar la cuenta, primero tiene que terminar o cancelarse.</p>
+                      ) : (
+                        <DeleteUserForm userId={u.id} email={u.email} />
+                      )
+                    ) : null}
                   </div>
                 </details>
               ) : (
