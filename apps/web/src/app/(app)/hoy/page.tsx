@@ -118,9 +118,11 @@ export default async function TodayPage({ searchParams }: { searchParams: Promis
       </Card>
     );
   } else if (!todayDay) {
+    const { data: cancelLocked } = await supabase.rpc("my_plan_locked_by_cancellation");
     main = (
       <Card className="mb-6">
-        <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {T.locked}</p>
+        <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {cancelLocked === true ? t.library.detail.cancelledLocked : T.locked}</p>
+        {cancelLocked === true ? <p className="mt-2 text-sm text-muted">{t.library.detail.cancelledLockedText}</p> : null}
         <div className="mt-3"><ButtonLink href="/suscripcion" variant="secondary">{t.library.detail.seePremium}</ButtonLink></div>
       </Card>
     );

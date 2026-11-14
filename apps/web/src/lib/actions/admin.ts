@@ -12,7 +12,7 @@ import {
   weekdayListSchema,
 } from "@runner360/training-engine";
 import { contentSchema, fieldErrors, formDataToObject, priceSchema, roleChangeSchema } from "@runner360/shared";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
@@ -169,15 +169,6 @@ export async function toggleFeatureAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/productos");
 }
 
-/** Semanas de cada plan de la biblioteca visibles sin Premium (se aplica en RLS). */
-export async function setFreePreviewWeeksAction(formData: FormData): Promise<void> {
-  const { supabase } = await requireAdmin();
-  const weeks = z.coerce.number().int().min(0).max(60).parse(formData.get("weeks"));
-  await supabase.from("library_settings").update({ free_preview_weeks: weeks }).eq("id", true);
-  await supabase.rpc("write_audit_log", { p_action: "library.free_weeks_updated", p_entity_type: "library_settings", p_entity_id: "free_preview_weeks", p_metadata: { weeks } });
-  revalidateTag("library", "max");
-  revalidatePath("/admin/productos");
-}
 
 // ------------------------------------------------------------------ Planes
 

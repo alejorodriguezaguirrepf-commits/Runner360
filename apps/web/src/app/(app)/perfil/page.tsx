@@ -126,7 +126,7 @@ export default async function ProfilePage() {
               <p className="text-sm font-semibold text-warning">Tenés un débito automático activo.</p>
               <p className="text-sm text-ink">
                 Antes de eliminar tu cuenta, cancelalo: no se te va a cobrar más, mantenés el acceso hasta el fin del período que ya pagaste y
-                después el plan se bloquea solo.
+                después se bloquea el plan completo.
               </p>
               {autoDebit.provider === "apple" || autoDebit.provider === "google" ? (
                 <p className="text-sm text-muted">Lo cancelás desde la tienda de aplicaciones de tu teléfono.</p>

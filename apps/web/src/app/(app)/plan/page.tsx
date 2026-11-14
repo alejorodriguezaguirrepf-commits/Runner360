@@ -21,7 +21,12 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const { inscripto } = await searchParams;
-  const [openEnrollment, annualUntil, premium] = await Promise.all([getOpenEnrollment(supabase, user.id), annualAccessUntil(session), hasPremium(session)]);
+  const [openEnrollment, annualUntil, premium, { data: cancelLocked }] = await Promise.all([
+    getOpenEnrollment(supabase, user.id),
+    annualAccessUntil(session),
+    hasPremium(session),
+    supabase.rpc("my_plan_locked_by_cancellation"),
+  ]);
   if (openEnrollment) {
     const { semana, checkin } = await searchParams;
     return (
@@ -34,6 +39,7 @@ export default async function PlanPage({ searchParams }: { searchParams: Promise
         checkinDone={checkin}
         annual={Boolean(annualUntil)}
         premium={premium}
+        cancelLocked={cancelLocked === true}
       />
     );
   }

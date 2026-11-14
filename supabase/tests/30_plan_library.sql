@@ -103,11 +103,9 @@ select pg_temp.expect_error($$insert into public.weekly_checkins (enrollment_id,
 select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-18') = 7, 'premium sin inscripción ve la muestra');
 reset role;
 
--- El administrador puede ampliar las semanas gratis sin tocar el código.
-update public.library_settings set free_preview_weeks = 2;
-set role anon;
-select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-01' and week = 2) = 7, 'semana 2 abierta por configuración');
-reset role;
+-- La semana gratis está fija en 1: no se puede cambiar.
+select pg_temp.check((select free_preview_weeks from public.library_settings) = 1, 'una semana gratis');
+select pg_temp.expect_error($$update public.library_settings set free_preview_weeks = 2$$, 'semana gratis fija');
 
 -- Una versión usada por inscripciones no se puede borrar.
 select pg_temp.expect_error($$delete from public.library_versions where content_version = '2026.14'$$, 'borrar versión en uso');

@@ -79,6 +79,9 @@ export const library = {
     lockedTotals: "Ver los totales de las semanas {from}–{to}",
     lockedText: "La primera semana es gratis. Si querés seguir entrenando, suscribite: con la suscripción mensual, cada débito automático libera el mes siguiente del plan (4 semanas).",
     seePremium: "Ver suscripción",
+    cancelledLocked: "Tu plan quedó bloqueado",
+    cancelledLockedText:
+      "Cancelaste tu suscripción y terminó el período que habías pagado, así que el plan completo quedó bloqueado. Si te suscribís de nuevo, se vuelve a abrir. Tus entrenamientos guardados siguen en Historial y en Progreso.",
     lockedSubscribed: "Se libera al empezar el plan",
     lockedSubscribedText: "Con tu suscripción, las semanas se liberan mes a mes desde que empezás el plan. Empezalo para verlas en tu calendario.",
     start: "Empezar este plan",

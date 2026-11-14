@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-11-14 — Semana gratis fija y bloqueo del plan al cancelar
+
+- **Semana gratis fija en 1**: ya no se puede cambiar desde Administración → Productos ni desde la API (lo exige la base).
+- **Si la persona cancela su suscripción** (o se reintegra el pago), cuando termina el período que ya pagó se bloquea el plan completo: lo que falta y lo que ya hizo, también la semana gratis. Si se suscribe de nuevo, se vuelve a abrir. Su historial de entrenamientos (Historial y Progreso) se conserva.
+- No cambia: si la suscripción vence por débitos rechazados, lo pagado queda liberado; el plan anual que termina conserva su plan.
+- Avisos claros en Inicio, Mi plan y Hoy («Tu plan quedó bloqueado»), al cancelar, en Suscripción, en Perfil y en Runnie.
+- Migración 20261114000300, aplicada en producción.
+
 ## 2026-11-14 — Eliminar la cuenta con un débito automático activo
 
 - En **Perfil → Eliminar cuenta**, si la persona tiene un débito automático activo, primero aparece «Cancelar mi débito automático»: deja de cobrarse en el momento, mantiene el acceso hasta el fin del período que ya pagó y después el plan se bloquea solo. Recién entonces puede eliminar la cuenta (el servidor también lo exige).

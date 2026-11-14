@@ -34,11 +34,12 @@ export default async function DashboardPage() {
   const { supabase, user, profile } = session;
   const today = todayIn(profile.timezone);
   const [active, workouts] = await Promise.all([loadActivePlan(supabase, user.id), loadWorkouts(supabase, user.id, addDays(today, -70))]);
-  const [openEnrollment, premium, library, { count: passkeyCount }] = await Promise.all([
+  const [openEnrollment, premium, library, { count: passkeyCount }, { data: cancelLocked }] = await Promise.all([
     getOpenEnrollment(supabase, user.id),
     hasPremium(session),
     getLibrary(),
     supabase.from("passkeys").select("id", { count: "exact", head: true }),
+    supabase.rpc("my_plan_locked_by_cancellation"),
   ]);
   const freeWeeks = library?.freePreviewWeeks ?? 1;
   const d = buildDashboard(active, workouts, today);
@@ -66,7 +67,16 @@ export default async function DashboardPage() {
       {passkeyCount === 0 ? <BiometricSuggestion /> : null}
       {openEnrollment ? (
         <>
-          {premium ? null : <div className="mb-6"><FreePlanNotice variant="enrolled" weeks={freeWeeks} /></div>}
+          {premium ? null : cancelLocked === true ? (
+            <div className="mb-6">
+              <Alert tone="warning" title={t.library.detail.cancelledLocked}>
+                {t.library.detail.cancelledLockedText}{" "}
+                <Link href="/suscripcion" className="font-semibold underline">{t.library.detail.seePremium}</Link>
+              </Alert>
+            </div>
+          ) : (
+            <div className="mb-6"><FreePlanNotice variant="enrolled" weeks={freeWeeks} /></div>
+          )}
           <PlanDashboard open={openEnrollment} supabase={supabase} today={today} />
         </>
       ) : !active && !premium ? (

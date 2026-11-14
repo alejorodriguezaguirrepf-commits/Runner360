@@ -52,7 +52,10 @@ export async function EnrollmentView({
   checkinDone,
   annual = false,
   premium = true,
+  cancelLocked = false,
 }: {
+  /** Canceló la suscripción y terminó lo pagado: el plan completo quedó bloqueado. */
+  cancelLocked?: boolean;
   checkinDone?: string;
   annual?: boolean;
   /** Sin suscripción (plan gratis): se aclara qué semana tiene liberada y que para seguir hay que suscribirse. */
@@ -274,8 +277,8 @@ export async function EnrollmentView({
             </ol>
           ) : (
             <Card className="flex flex-col items-start gap-3">
-              <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {m.detail.locked}</p>
-              <p className="text-sm text-muted">{m.detail.lockedText}</p>
+              <p className="inline-flex items-center gap-2 font-semibold"><IconLock /> {cancelLocked ? m.detail.cancelledLocked : m.detail.locked}</p>
+              <p className="text-sm text-muted">{cancelLocked ? m.detail.cancelledLockedText : m.detail.lockedText}</p>
               <ButtonLink href="/suscripcion" variant="secondary">{m.detail.seePremium}</ButtonLink>
             </Card>
           )

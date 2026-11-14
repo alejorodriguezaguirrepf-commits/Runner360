@@ -52,11 +52,40 @@ select pg_temp.check((select count(*) from public.library_days where plan_id = '
 select pg_temp.check((select count(*) from public.subscription_payments) = 5, 've sus débitos');
 reset role;
 
--- Si la suscripción vence, lo pagado queda liberado.
-update public.subscriptions set status = 'cancelled', current_period_end = now() - interval '1 day' where id = '5b5b5b5b-0000-4000-8000-00000000005b';
+-- Si vence por débitos rechazados, lo pagado queda liberado.
+update public.subscriptions set status = 'expired', current_period_end = now() - interval '1 day' where id = '5b5b5b5b-0000-4000-8000-00000000005b';
 set role authenticated;
 set request.jwt.claim.sub = 'c3c3c3c3-0000-4000-8000-0000000000c3';
-select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') = 12, 'lo pagado queda liberado');
+select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') = 12, 'vencida: lo pagado queda liberado');
+reset role;
+
+-- Cancelada por la persona: mientras dura lo pagado, sigue igual.
+update public.subscriptions set status = 'cancelled', current_period_end = now() + interval '10 days' where id = '5b5b5b5b-0000-4000-8000-00000000005b';
+set role authenticated;
+set request.jwt.claim.sub = 'c3c3c3c3-0000-4000-8000-0000000000c3';
+select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') >= 12, 'cancelada: con acceso hasta el fin del período');
+reset role;
+-- Terminado el período: se bloquea el plan completo (lo que falta, lo que hizo y la semana gratis).
+update public.subscriptions set current_period_end = now() - interval '1 day' where id = '5b5b5b5b-0000-4000-8000-00000000005b';
+set role authenticated;
+set request.jwt.claim.sub = 'c3c3c3c3-0000-4000-8000-0000000000c3';
+select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') = 0, 'cancelada y terminada: nada liberado');
+select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-10') = 0, 'cancelada y terminada: no ve ni la semana 1');
+select pg_temp.check((select count(*) from public.library_days where plan_id = 'plan-11') = 0, 'cancelada y terminada: tampoco la muestra de otro plan');
+select pg_temp.check(public.my_plan_locked_by_cancellation(), 'la app sabe que está bloqueado');
+reset role;
+-- Lo mismo si canceló la renovación y el aviso de la cancelación no llegó.
+update public.subscriptions set status = 'active', cancel_at_period_end = true where id = '5b5b5b5b-0000-4000-8000-00000000005b';
+set role authenticated;
+set request.jwt.claim.sub = 'c3c3c3c3-0000-4000-8000-0000000000c3';
+select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') = 0, 'renovación cancelada y terminada: nada liberado');
+reset role;
+-- Si se suscribe de nuevo, se vuelve a abrir todo lo pagado.
+insert into public.subscriptions (user_id, product_id, provider, provider_subscription_id, status, current_period_start, current_period_end, created_at)
+values ('c3c3c3c3-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-000000000002', 'mercadopago', 'pre-2', 'active', now(), now() + interval '30 days', now());
+set role authenticated;
+set request.jwt.claim.sub = 'c3c3c3c3-0000-4000-8000-0000000000c3';
+select pg_temp.check(public.enrollment_open_weeks('e3e3e3e3-0000-4000-8000-0000000000e3') >= 12, 'nueva suscripción: se vuelve a abrir');
 
 -- Plan gratis: solo la muestra; no ve débitos ni semanas liberadas de otros.
 set request.jwt.claim.sub = 'd4d4d4d4-0000-4000-8000-0000000000d4';

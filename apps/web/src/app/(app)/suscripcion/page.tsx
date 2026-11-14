@@ -87,7 +87,15 @@ export default async function SubscriptionPage({ searchParams }: { searchParams:
               </div>
               <div><dt className="text-muted">Medio</dt><dd className="font-semibold">{current.provider === "manual" ? "Otorgado por el equipo" : current.provider === "mercadopago" ? "Mercado Pago" : current.provider}</dd></div>
             </dl>
-            {premium && !currentIsAnnual && !current.cancel_at_period_end && current.status !== "cancelled" ? <div className="mt-4"><CancelSubscriptionForm /></div> : null}
+            {premium && !currentIsAnnual && !current.cancel_at_period_end && current.status !== "cancelled" ? (
+              <div className="mt-4 space-y-2">
+                <p className="text-xs text-muted">
+                  Si cancelás, no se te cobra más y seguís con acceso hasta el fin del período que ya pagaste. Después se bloquea el plan completo (también las
+                  semanas que ya hiciste); tus entrenamientos guardados siguen en Historial.
+                </p>
+                <CancelSubscriptionForm />
+              </div>
+            ) : null}
           </Card>
         ) : null}
         {payments && payments.length ? (

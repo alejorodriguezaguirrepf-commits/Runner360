@@ -301,7 +301,8 @@ const INTENTS: Intent[] = [
   {
     id: "cancelar",
     patterns: [[/\bcancel|\bdar de baja|\bdesuscrib|\bdejar de pagar/, 5]],
-    reply: () => faqAnswer("cancelar"),
+    reply: () =>
+      `${faqAnswer("cancelar")} Cuando termina ese período, se bloquea el plan completo, también las semanas que ya hiciste (si te suscribís de nuevo, se vuelve a abrir). Tus entrenamientos guardados siguen en /entrenamientos.`,
   },
   {
     id: "suscripcion",

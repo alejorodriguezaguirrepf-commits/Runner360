@@ -105,5 +105,5 @@ export async function cancelSubscriptionAction(_prev: ActionState): Promise<Acti
   }
   revalidatePath("/perfil");
   revalidatePath("/suscripcion");
-  return { ok: true, message: "Cancelaste el débito automático: no se te va a cobrar más. Mantenés el acceso hasta el fin del período pago y después el plan se bloquea solo." };
+  return { ok: true, message: "Cancelaste el débito automático: no se te va a cobrar más. Mantenés el acceso hasta el fin del período pago y después se bloquea el plan completo; tus entrenamientos guardados siguen en Historial." };
 }
