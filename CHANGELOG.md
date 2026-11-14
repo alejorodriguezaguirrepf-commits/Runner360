@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-14 — Correo de cumpleaños
+
+- El día del cumpleaños (según la fecha de nacimiento del perfil) cada persona recibe un correo de felicitación, alegre y con su nombre, sin mencionar la edad. Cuatro versiones que cambian cada año. Quien nació un 29 de febrero lo recibe el 28 en los años no bisiestos.
+- Lo manda la tarea diaria, antes que los demás correos y sin otro correo ese día a la misma persona. Uno por año. Respeta la baja de Perfil → Correos y el link de cada correo (el interruptor ahora dice «correos de motivación y de cumpleaños»).
+- Migración 20261114000100 (tipo de envío `birthday` y función `email_birthday_candidates`), aplicada en producción. Privacidad y Perfil actualizados.
+
 ## 2026-11-13 — Runnie lee en voz alta y te lleva a las secciones
 
 - **Lectura en voz alta**: un parlante en el encabezado del chat. Activado, Runnie lee cada respuesta con la voz del teléfono o del navegador, en español (gratis); dice las secciones por su nombre en lugar de las rutas. Se apaga al cerrar el chat, al mandar otra pregunta o al usar el micrófono. Queda recordado en el navegador.

@@ -9,7 +9,7 @@ export function EmailPrefToggle({ on }: { on: boolean }) {
   return (
     <form ref={form} action={setMotivationalEmailsAction}>
       <label className="flex min-h-11 cursor-pointer items-center justify-between gap-3 text-sm">
-        <span className="font-semibold">Recibir correos de motivación</span>
+        <span className="font-semibold">Recibir correos de motivación y de cumpleaños</span>
         <input
           type="checkbox"
           name="motivational"

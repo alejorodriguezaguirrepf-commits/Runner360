@@ -26,8 +26,9 @@ export default function PrivacyPage() {
         <li>Datos de suscripción: estado, fechas y referencias del proveedor de pago. Nunca almacenamos datos completos de tarjetas.</li>
         <li>
           Correos: además de los avisos de tu cuenta y de tus pagos, te podemos mandar correos de motivación (una invitación
-          semanal a suscribirte si no tenés suscripción, o un correo de aliento cada 15 días si la tenés). Podés dejar de
-          recibirlos cuando quieras con el link de cada correo o desde tu perfil.
+          semanal a suscribirte si no tenés suscripción, o un correo de aliento cada 15 días si la tenés) y, el día de tu
+          cumpleaños, un saludo (usamos solo el día y el mes de tu fecha de nacimiento; nunca mencionamos tu edad). Podés dejar
+          de recibirlos cuando quieras con el link de cada correo o desde tu perfil.
         </li>
         <li>
           Wellness diario y cierre de sesión (opcional): antes de entrenar podés responder cómo dormiste y cómo están tu energía, tus

@@ -63,7 +63,7 @@ export default async function ProfilePage() {
             {premium
               ? "Cada 15 días te mandamos un correo para alentarte a seguir entrenando."
               : "Una vez por semana te mandamos un correo con novedades e invitaciones para entrenar con un plan."}{" "}
-            Los avisos de tu cuenta y de tus pagos llegan igual.
+            El día de tu cumpleaños te llega un saludo. Los avisos de tu cuenta y de tus pagos llegan igual.
           </p>
           <EmailPrefToggle on={emailPref?.motivational ?? true} />
         </Card>
