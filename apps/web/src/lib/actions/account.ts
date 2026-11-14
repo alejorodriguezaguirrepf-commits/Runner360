@@ -7,6 +7,7 @@ import { t } from "@/i18n";
 import type { ActionState } from "@/lib/action-state";
 import { requireSession } from "@/lib/auth";
 import { LEGAL_VERSIONS } from "@/lib/legal";
+import { activeAutoDebit } from "@/lib/data/auto-debit";
 import { logError } from "@/lib/log";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -69,6 +70,10 @@ export async function reportIncidentAction(_prev: ActionState, formData: FormDat
 export async function deleteAccountAction(_prev: ActionState, formData: FormData): Promise<ActionState> {
   const { supabase, user } = await requireSession();
   if (formData.get("confirm") !== "ELIMINAR") return { ok: false, errors: { confirm: "Escribí ELIMINAR para confirmar" } };
+  // Con un débito automático activo, primero se cancela: si no, se seguiría cobrando sin cuenta.
+  if (await activeAutoDebit(supabase, user.id)) {
+    return { ok: false, message: "Primero cancelá tu débito automático (en esta misma sección). Después vas a poder eliminar tu cuenta." };
+  }
 
   await supabase.from("profiles").update({ deletion_requested_at: new Date().toISOString() }).eq("id", user.id);
   const admin = createAdminClient();

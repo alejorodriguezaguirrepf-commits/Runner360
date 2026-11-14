@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-14 — Eliminar la cuenta con un débito automático activo
+
+- En **Perfil → Eliminar cuenta**, si la persona tiene un débito automático activo, primero aparece «Cancelar mi débito automático»: deja de cobrarse en el momento, mantiene el acceso hasta el fin del período que ya pagó y después el plan se bloquea solo. Recién entonces puede eliminar la cuenta (el servidor también lo exige).
+- Si todavía le quedan días pagos, se le avisa que los pierde al eliminar la cuenta.
+- El aviso al cancelar ahora lo explica claro, en Perfil y en Suscripción.
+
 ## 2026-11-14 — Administración: borrar usuarios y suscripciones inactivas
 
 - **Usuarios → Acciones → Eliminar usuario**: borra la cuenta y todos sus datos (perfil, planes, entrenamientos, wellness, pulsaciones). Se confirma escribiendo el correo de la cuenta. No se puede con una suscripción o plan anual vigente, un débito automático activo, un pago en curso de los últimos 2 días, un administrador ni la propia cuenta. Queda en la auditoría (sin el correo).

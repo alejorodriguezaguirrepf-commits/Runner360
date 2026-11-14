@@ -25,11 +25,11 @@ export function CheckoutForm({ productId, providers, label }: { productId: strin
   );
 }
 
-export function CancelSubscriptionForm() {
+export function CancelSubscriptionForm({ label = "Cancelar renovación", variant = "ghost" }: { label?: string; variant?: "ghost" | "secondary" | "danger" }) {
   const [state, action] = useActionState(cancelSubscriptionAction, initialActionState);
   return (
     <form action={action} className="space-y-2">
-      <SubmitButton variant="ghost" pendingText="Cancelando…">Cancelar renovación</SubmitButton>
+      <SubmitButton variant={variant} pendingText="Cancelando…">{label}</SubmitButton>
       <FormMessage state={state} />
     </form>
   );

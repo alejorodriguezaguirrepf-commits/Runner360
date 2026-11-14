@@ -1,6 +1,7 @@
 "use server";
 
 import type { PriceRow, ProductRow, SubscriptionRow } from "@runner360/shared";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
@@ -102,5 +103,7 @@ export async function cancelSubscriptionAction(_prev: ActionState): Promise<Acti
     logError("cancelSubscription", e);
     return { ok: false, message: "No pudimos cancelar. Probá más tarde." };
   }
-  return { ok: true, message: "Cancelaste la renovación. Mantenés Premium hasta el fin del período pago." };
+  revalidatePath("/perfil");
+  revalidatePath("/suscripcion");
+  return { ok: true, message: "Cancelaste el débito automático: no se te va a cobrar más. Mantenés el acceso hasta el fin del período pago y después el plan se bloquea solo." };
 }

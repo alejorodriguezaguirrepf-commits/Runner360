@@ -9,6 +9,8 @@ import { PushToggle } from "@/components/notifications/push-toggle";
 import { isPushConfigured, vapidPublicKey } from "@/lib/notifications/push";
 import { BiometricsCard, type PasskeyItem } from "@/components/auth/biometrics";
 import { EmailPrefToggle } from "@/components/app/email-pref-toggle";
+import { activeAutoDebit } from "@/lib/data/auto-debit";
+import { CancelSubscriptionForm } from "../suscripcion/billing-forms";
 import { DeleteAccountForm, DeleteHealthDataForm, IncidentForm, RevokeHealthButton } from "./account-forms";
 
 export const metadata: Metadata = { title: "Perfil" };
@@ -24,12 +26,13 @@ const CONSENT_LABELS: Record<string, string> = {
 export default async function ProfilePage() {
   const session = await requireOnboardedSession();
   const { supabase, user, profile } = session;
-  const [tp, premium, { data: consents }, { data: passkeys }, { data: emailPref }] = await Promise.all([
+  const [tp, premium, { data: consents }, { data: passkeys }, { data: emailPref }, autoDebit] = await Promise.all([
     loadTrainingProfile(supabase, user.id, profile.birth_date),
     hasPremium(session),
     supabase.from("user_consents").select("consent_type, granted, document_version, created_at").order("created_at", { ascending: false }),
     supabase.from("passkeys").select("id, device_name, created_at, last_used_at").order("created_at", { ascending: false }),
     supabase.from("email_preferences").select("motivational").eq("user_id", user.id).maybeSingle<{ motivational: boolean }>(),
+    activeAutoDebit(supabase, user.id),
   ]);
   const latest = new Map<string, { granted: boolean; document_version: string; created_at: string }>();
   for (const c of (consents ?? []) as { consent_type: string; granted: boolean; document_version: string; created_at: string }[]) {
@@ -118,7 +121,27 @@ export default async function ProfilePage() {
         <Card className="border-danger/30">
           <CardTitle>Eliminar cuenta</CardTitle>
           <p className="mb-3 text-sm text-muted">Se eliminan tu cuenta y todos tus datos personales y deportivos. Esta acción no se puede deshacer.</p>
-          <DeleteAccountForm />
+          {autoDebit ? (
+            <div className="space-y-3 rounded-xl border border-warning/40 bg-warning-bg p-3">
+              <p className="text-sm font-semibold text-warning">Tenés un débito automático activo.</p>
+              <p className="text-sm text-ink">
+                Antes de eliminar tu cuenta, cancelalo: no se te va a cobrar más, mantenés el acceso hasta el fin del período que ya pagaste y
+                después el plan se bloquea solo.
+              </p>
+              {autoDebit.provider === "apple" || autoDebit.provider === "google" ? (
+                <p className="text-sm text-muted">Lo cancelás desde la tienda de aplicaciones de tu teléfono.</p>
+              ) : (
+                <CancelSubscriptionForm label="Cancelar mi débito automático" variant="secondary" />
+              )}
+            </div>
+          ) : (
+            <>
+              {premium ? (
+                <p className="mb-3 text-sm text-warning">Todavía tenés acceso pago: si eliminás tu cuenta ahora, perdés los días que te quedan.</p>
+              ) : null}
+              <DeleteAccountForm />
+            </>
+          )}
         </Card>
       </div>
     </>
