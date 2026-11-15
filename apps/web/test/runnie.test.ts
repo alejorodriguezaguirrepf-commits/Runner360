@@ -98,9 +98,9 @@ describe("Runnie: respuestas", () => {
     expect(answer("¿Cómo está mi wellness?", base)).not.toContain("Tu wellness de hoy");
   });
   it("la fuerza de hoy con su dosis", () => {
-    const r = answer("¿Qué hago de fuerza?", { ...base, plan: { ...plan, strength: "Sesión 1 de la rutina B · 4 series × 5 repeticiones" } });
+    const r = answer("¿Qué hago de fuerza?", { ...base, plan: { ...plan, strength: "Día 1 de fuerza (rutina B) · 4 series × 5 repeticiones" } });
     expect(r).toContain("Siempre son 4 series");
-    expect(r).toContain("Hoy te toca: Sesión 1 de la rutina B");
+    expect(r).toContain("Hoy te toca: Día 1 de fuerza (rutina B)");
   });
   it("si no entiende, dice con qué puede ayudar y sugiere una nota de Aprender si hay", () => {
     expect(answer("xyz", base)).toContain("No estoy seguro");
@@ -187,7 +187,7 @@ describe("Runnie: datos de entrenamiento", () => {
       dose: { sets: 4, reps: 5, rir: 3, phase: "base", note: null },
       exercises: [{ exercise: "Sentadilla goblet", sets_reps: "", pattern: "knee_basic" }],
     });
-    expect(s).toContain("Sesión 1 de la rutina B · 4 series × 5 repeticiones, dejando 3 en reserva");
+    expect(s).toContain("Día 1 de fuerza (rutina B) · 4 series × 5 repeticiones, dejando 3 en reserva");
     expect(s).toContain("Sentadilla goblet (tren inferior · básico · dominante de rodilla)");
     const w = wellnessLine({ check_date: "2026-11-09", sleep: 2, energy: 3, soreness: 4, stress: 3, mood: 4, score: 16, note: null });
     expect(w).toBe("16/25 (Bien); en 1 o 2 (lo peor): sueño");

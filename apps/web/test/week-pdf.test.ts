@@ -79,6 +79,22 @@ describe("PDF de la semana", () => {
     if (process.env.PDF_OUT) writeFileSync(join(process.env.PDF_OUT, "semana-corta.pdf"), bytes);
   });
 
+  it("la fuerza dice «día 1 de fuerza» o «día 2 de fuerza», nunca el día de la semana", async () => {
+    let checked = 0;
+    for (const plan of library.plans.slice(0, 6)) {
+      for (const w of plan.weeks.slice(0, 3)) {
+        const { data } = await pdfFor(plan, w.week, false);
+        for (const d of data.days) {
+          if (!d.strength) continue;
+          checked++;
+          expect(d.strength).toMatch(/^Después: día [12] de fuerza$/);
+          expect(d.strength).not.toMatch(/lunes|martes|miércoles|jueves|viernes|sábado|domingo/i);
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
+  });
+
   it("una semana larga de maratón entra en varias hojas sin errores", async () => {
     const plan = [...library.plans].sort((a, b) => b.duration_weeks - a.duration_weeks)[0]!;
     const busiest = [...plan.weeks].sort((a, b) => b.days.filter((d) => !d.is_rest).length - a.days.filter((d) => !d.is_rest).length)[0]!;

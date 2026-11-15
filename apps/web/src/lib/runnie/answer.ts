@@ -129,7 +129,7 @@ function paceReply(c: RunnieContext): string {
 function strengthReply(c: RunnieContext): string {
   const p = c.plan;
   const how =
-    "Los planes tienen dos sesiones de fuerza por semana que se alternan. Cada una tiene 5 ejercicios: 3 de tren inferior (dos básicos, uno dominante de rodilla y otro de cadera, y un auxiliar) y 2 de tren superior (un empuje y una tracción). Siempre son 4 series por ejercicio, de 3 a 6 repeticiones según el momento del plan; la sesión 1 es la más pesada. Elegí un peso con el que te queden algunas repeticiones en reserva al terminar cada serie (las que todavía podrías hacer). En las semanas de descarga, la puesta a punto y la semana de la competencia se aliviana.";
+    "Los planes tienen dos sesiones de fuerza por semana que se alternan. Cada una tiene 5 ejercicios: 3 de tren inferior (dos básicos, uno dominante de rodilla y otro de cadera, y un auxiliar) y 2 de tren superior (un empuje y una tracción). Siempre son 4 series por ejercicio, de 3 a 6 repeticiones según el momento del plan; el día 1 de fuerza es el más pesado y el día 2 el más liviano. Elegí un peso con el que te queden algunas repeticiones en reserva al terminar cada serie (las que todavía podrías hacer). En las semanas de descarga, la puesta a punto y la semana de la competencia se aliviana.";
   const parts = [how];
   if (p?.strength) parts.push(`Hoy te toca: ${p.strength}.`);
   else if (p?.routine) parts.push(`Tu plan usa la rutina ${p.routine}. Los ejercicios con su dosis de la semana los ves en el día que tiene fuerza, en /plan.`);

@@ -1,4 +1,4 @@
-import { effortLabel, formatKmValue, formatMinutes, formatPace, mainSetInKm, paceForPct, sessionBlocks, type Speeds } from "@runner360/plan-library";
+import { effortLabel, formatKmValue, formatMinutes, formatPace, mainSetInKm, paceForPct, sessionBlocks, strengthSessionOf, type Speeds } from "@runner360/plan-library";
 import { formatDate } from "@runner360/shared";
 import { fmt, t } from "@/i18n";
 import type { DayRow } from "@/lib/data/library";
@@ -23,6 +23,12 @@ export type WeekPdfInput = {
 /** "19 oct": fecha corta, como en la pantalla del plan. */
 export const shortDate = (iso: string) =>
   new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${iso}T12:00:00Z`)).replace(".", "");
+
+/** "día 1 de fuerza" según el orden de los días con fuerza de la semana (nunca el día de la semana). */
+function strengthText(days: { day_index: number; is_rest: boolean; strength_only: boolean; strength_after?: boolean | null }[], dayIndex: number): string {
+  const n = strengthSessionOf(days, dayIndex);
+  return n ? `día ${n} de fuerza` : w.strengthText.toLowerCase();
+}
 
 /**
  * Arma el contenido del PDF de la semana tal como se ve en Mi plan: solo los días de entrenamiento
@@ -56,7 +62,7 @@ export function weekPdfData(input: WeekPdfInput): WeekPdfData {
       dateHint: shortDate(date),
       volume: [day.distance_km_est ? formatKmValue(day.distance_km_est, { oneDecimal: true }) : null, formatMinutes(day.duration_min_est, { round: true })].filter(Boolean).join(" · "),
       blocks,
-      strength: day.strength_after ? `${w.strength}: ${w.strengthText}` : null,
+      strength: day.strength_after ? `${w.strength}: ${strengthText(all.map((x) => x.day), day.day_index)}` : null,
       done: input.logs.some((l) => l.workout_date === date && l.status !== "skipped"),
       today: date === input.today,
     };

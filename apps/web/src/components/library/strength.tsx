@@ -38,14 +38,20 @@ export function StrengthDetail({ p }: { p: StrengthPrescription }) {
   );
 }
 
-/** Fuerza desplegable dentro de un día ("Después: Fuerza · Sesión 1 · 4 × 4 · 2 en reserva"). */
-export function StrengthBlock({ p, lead = "Después", open = false, className }: { p: StrengthPrescription; lead?: string; open?: boolean; className?: string }) {
+/** "Día 1 de fuerza" (o "Fuerza" en el contenido anterior, de rutina única). Nunca el día de la semana. */
+export function strengthDayName(p: StrengthPrescription): string {
+  return p.dose ? `Día ${p.session} de fuerza` : "Fuerza";
+}
+
+/** Fuerza desplegable dentro de un día ("Después: día 1 de fuerza · 4 × 4 · 2 en reserva"). */
+export function StrengthBlock({ p, lead, open = false, className }: { p: StrengthPrescription; lead?: string; open?: boolean; className?: string }) {
+  const name = strengthDayName(p);
   return (
     <details open={open} className={cx("group rounded-xl border border-line bg-surface-2 text-sm", className)}>
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 py-2 [&::-webkit-details-marker]:hidden">
         <span className="min-w-0 flex-1">
-          <span className="font-semibold">{lead}: fuerza</span>
-          {p.dose ? <span className="text-muted"> · sesión {p.session} · {doseLabel(p.dose)}</span> : <span className="text-muted"> · rutina {p.routine}</span>}
+          <span className="font-semibold">{lead ? `${lead}: ${name.charAt(0).toLowerCase()}${name.slice(1)}` : name}</span>
+          {p.dose ? <span className="text-muted"> · {doseLabel(p.dose)}</span> : <span className="text-muted"> · rutina {p.routine}</span>}
         </span>
         <span aria-hidden="true" className="text-muted transition group-open:rotate-180">⌄</span>
       </summary>
@@ -56,20 +62,20 @@ export function StrengthBlock({ p, lead = "Después", open = false, className }:
   );
 }
 
-/** Fuerza de la semana: cada sesión con los días en que toca (incluye los días sin carrera). */
-export function StrengthWeekCard({ sessions, dayLabel }: { sessions: { prescription: StrengthPrescription; dayIndexes: number[] }[]; dayLabel: (dayIndex: number) => string }) {
+/** Fuerza de la semana: «Día 1 de fuerza» y «Día 2 de fuerza» (sin días de la semana: cada día del plan dice cuál le toca). */
+export function StrengthWeekCard({ sessions }: { sessions: { prescription: StrengthPrescription; dayIndexes: number[] }[] }) {
   if (!sessions.length) return null;
   return (
     <section aria-labelledby="fuerza-semana" className="rounded-2xl border border-line bg-surface p-4">
       <h2 id="fuerza-semana" className="text-lg font-bold">Fuerza de la semana</h2>
       {sessions.some((s) => s.prescription.dose) ? (
         <p className="mt-1 text-sm text-muted">
-          5 ejercicios por sesión: dos básicos de piernas (rodilla y cadera), uno auxiliar, un empuje y una tracción. La sesión 1 es la más pesada y la 2 la más liviana.
+          5 ejercicios por sesión: dos básicos de piernas (rodilla y cadera), uno auxiliar, un empuje y una tracción. El día 1 de fuerza es el más pesado y el día 2 el más liviano.
         </p>
       ) : null}
       <div className="mt-3 space-y-2">
-        {sessions.map(({ prescription, dayIndexes }) => (
-          <StrengthBlock key={prescription.session} p={prescription} lead={dayIndexes.map(dayLabel).join(" y ")} />
+        {sessions.map(({ prescription }) => (
+          <StrengthBlock key={prescription.session} p={prescription} />
         ))}
       </div>
     </section>

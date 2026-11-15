@@ -50,13 +50,13 @@ export function sessionLines(day: Day, test: Test | null): string[] {
   return out;
 }
 
-/** "Sesión 1 de la rutina B · 4 × 5 · 3 en reserva: Sentadilla goblet; Peso muerto rumano; …". */
+/** "Día 1 de fuerza (rutina B) · 4 series × 5 repeticiones…: Sentadilla goblet; …". */
 export function strengthLine(s: { routine: string; session: number; dose: StrengthDose | null; exercises: { exercise: string; sets_reps: string; pattern: string | null }[] }): string {
   const dose = s.dose ? ` · ${s.dose.sets} series × ${s.dose.reps} repeticiones, dejando ${s.dose.rir} en reserva` : "";
   const list = s.exercises
     .map((e) => (e.pattern && e.pattern in PATTERN_LABELS ? `${e.exercise} (${PATTERN_LABELS[e.pattern as keyof typeof PATTERN_LABELS].toLowerCase()})` : `${e.exercise} (${e.sets_reps})`))
     .join("; ");
-  return `Sesión ${s.session} de la rutina ${s.routine}${dose}${s.dose?.note ? `. ${s.dose.note}` : ""}: ${list}`;
+  return `Día ${s.session} de fuerza (rutina ${s.routine})${dose}${s.dose?.note ? `. ${s.dose.note}` : ""}: ${list}`;
 }
 
 /** "18/25 (Bien); en 1 o 2 (lo peor): sueño". */

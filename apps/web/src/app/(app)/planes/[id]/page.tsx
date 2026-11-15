@@ -24,8 +24,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 /** Plan como lista de tareas: semana elegida (tira S1…SN) y sus días numerados, sin explicaciones. */
-/** Día de la semana del plan (sin fecha: en la ficha no hay calendario). */
-const DAY_NAMES = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
 
 export default async function PlanDetailPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ semana?: string }> }) {
   const session = await requireOnboardedSession();
@@ -64,10 +62,6 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
     days,
     week: weeks?.find((x) => x.week === week) ?? null,
     totalWeeks: plan.duration_weeks,
-  };
-  const strengthDayLabel = (dayIndex: number) => {
-    const d = days.find((x) => x.day_index === dayIndex);
-    return d ? `${DAY_NAMES[dayIndex] ?? d.day_label}${d.is_rest ? " (sin carrera)" : ""}` : "";
   };
   const firstSession = days.find((d) => !d.is_rest)?.day_index;
 
@@ -130,7 +124,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
       </section>
 
       <div className="mt-6 space-y-3">
-        {days.length === 7 ? <StrengthWeekCard sessions={strengthWeek(strengthCtx)} dayLabel={strengthDayLabel} /> : null}
+        {days.length === 7 ? <StrengthWeekCard sessions={strengthWeek(strengthCtx)} /> : null}
         <SafetyNotices items={v.safety} />
       </div>
     </>

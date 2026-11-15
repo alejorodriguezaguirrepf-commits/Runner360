@@ -1,5 +1,10 @@
 # Cambios
 
+## 2026-11-15 — Fuerza: «Día 1 de fuerza» y «Día 2 de fuerza»
+
+- Las sesiones de fuerza ya no se nombran por días de la semana («lunes y jueves»): en Fuerza de la semana, en cada día del plan, en Hoy, en la ficha del plan y en el PDF dicen «Día 1 de fuerza» o «Día 2 de fuerza» según el día que corresponde.
+- Runnie usa los mismos nombres.
+
 ## 2026-11-14 — Semana gratis fija y bloqueo del plan al cancelar
 
 - **Semana gratis fija en 1**: ya no se puede cambiar desde Administración → Productos ni desde la API (lo exige la base).

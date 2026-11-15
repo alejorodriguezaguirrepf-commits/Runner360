@@ -111,12 +111,6 @@ export async function EnrollmentView({
   );
   // Fuerza: siempre las rutinas vigentes (no dependen de las sesiones de carrera de la versión inscripta).
   const strengthCtx = week ? { exercises: library.strength, routine: plan.strength_routine, days: week.days, week: week.week, totalWeeks: plan.duration_weeks } : null;
-  const weekdayName = (date: string) =>
-    new Intl.DateTimeFormat("es-AR", { weekday: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`)).replace(/^./, (c) => c.toUpperCase());
-  const strengthDayLabel = (dayIndex: number) => {
-    const o = ordered.find((x) => x.day.day_index === dayIndex);
-    return o ? `${weekdayName(o.date)} ${shortDate(o.date)}${o.day.is_rest ? " (sin carrera)" : ""}` : "";
-  };
   const doneDates = new Set((week?.logs ?? []).filter((l) => l.status !== "skipped").map((l) => l.workout_date));
 
   const pending = enrollment.status === "active" ? pendingCheckinWeek(open, today, weekdayOf(today)) : null;
@@ -287,7 +281,7 @@ export async function EnrollmentView({
 
       {strengthCtx && ordered.length === 7 ? (
         <div className="mb-6">
-          <StrengthWeekCard sessions={strengthWeek(strengthCtx)} dayLabel={strengthDayLabel} />
+          <StrengthWeekCard sessions={strengthWeek(strengthCtx)} />
         </div>
       ) : null}
 
