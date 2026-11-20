@@ -13,7 +13,7 @@ grant execute on all functions in schema pg_temp to anon, authenticated;
 
 select pg_temp.check((select array_agg(p.code || ':' || pr.currency || ':' || pr.amount_minor order by p.code)
   from public.product_prices pr join public.subscription_products p on p.id = pr.product_id
-  where pr.active and pr.provider is null) = array['premium_monthly:USD:2000', 'premium_yearly:USD:18000'], 'precios de lista USD 20 y 180');
+  where pr.active and pr.provider is null) = array['premium_monthly:ARS:2500000', 'premium_yearly:ARS:25000000'], 'precios de lista en pesos: $ 25.000 y $ 250.000');
 select pg_temp.check(not exists (select 1 from public.product_prices where active and amount_minor = 799), 'sin el precio anterior activo');
 
 insert into public.fx_rates (source, rate_type, rate, quoted_at) values ('dolarapi', 'oficial', 1499.95, now());

@@ -47,9 +47,10 @@ export async function startCheckoutAction(_prev: ActionState, formData: FormData
 
   let price: PriceRow;
   if (parsed.data.provider === "mercadopago") {
-    // Mercado Pago Argentina cobra en pesos: el precio de lista se convierte con la cotización vigente.
-    let rate = await latestRate(supabase);
-    if (isStale(rate)) {
+    // Mercado Pago Argentina cobra en pesos: un precio de lista en pesos se cobra tal cual; uno en otra
+    // moneda se convierte con la cotización vigente.
+    let rate = list?.currency === "ARS" ? null : await latestRate(supabase);
+    if (list?.currency !== "ARS" && isStale(rate)) {
       await refreshRate(5000);
       rate = (await latestRate(supabase)) ?? rate;
     }

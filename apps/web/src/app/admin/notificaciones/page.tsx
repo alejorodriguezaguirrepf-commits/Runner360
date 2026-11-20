@@ -8,7 +8,11 @@ import { adminEmailAddress, isEmailConfigured } from "@/lib/notifications/email"
 import { formatDateTime } from "@/lib/notifications/payment-texts";
 import { isPushConfigured, vapidPublicKey } from "@/lib/notifications/push";
 import { cx } from "@/components/ui/primitives";
+import { todayIn } from "@runner360/shared";
+import { campaignStatus } from "@/lib/notifications/campaign-status";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ChannelsForm } from "./channels-form";
+import { SendCampaignsForm } from "./send-campaigns-form";
 
 export const metadata: Metadata = { title: "Notificaciones", robots: { index: false, follow: false } };
 
@@ -33,6 +37,8 @@ export default async function AdminNotificationsPage({ searchParams }: { searchP
     supabase.from("notification_settings").select("admin_email_enabled, admin_push_enabled").maybeSingle<{ admin_email_enabled: boolean; admin_push_enabled: boolean }>(),
   ]);
   const rows = (data ?? []) as Row[];
+  const mail = await campaignStatus(createAdminClient(), todayIn("America/Argentina/Buenos_Aires"));
+  const day = (d: string | null) => (d ? `${Number(d.slice(8, 10))}/${Number(d.slice(5, 7))}/${d.slice(2, 4)}` : "nunca");
   const unread = rows.filter((r) => !r.read_at).length;
   const chip = (k: Kind | null, label: string) => (
     <Link
@@ -49,6 +55,32 @@ export default async function AdminNotificationsPage({ searchParams }: { searchP
     <>
       <PageHeader title="Notificaciones" subtitle="Pagos acreditados, débitos rechazados y accesos cortados." />
       <div className="space-y-6">
+        <Card>
+          <CardTitle action={<Badge tone={mail.ready ? "success" : "danger"}>{mail.ready ? "Funcionando" : "Sin enviar"}</Badge>}>Correos a usuarios</CardTitle>
+          <p className="text-sm text-muted">
+            Todos los días a la mañana se manda la invitación semanal a quienes no tienen suscripción (asunto «SUSCRIPCIÓN A RUNNER 360»), el aliento cada
+            15 días a quienes sí la tienen y el saludo de cumpleaños.
+          </p>
+          {mail.problems.length ? (
+            <div className="mt-3 rounded-xl border border-danger/40 bg-danger-bg p-3">
+              <p className="text-sm font-semibold text-danger">No se están enviando correos porque:</p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-ink">
+                {mail.problems.map((p) => <li key={p}>{p}</li>)}
+              </ul>
+            </div>
+          ) : null}
+          <dl className="mt-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3">
+            <div><dt className="text-xs text-muted">Invitaciones a suscribirse</dt><dd className="font-semibold">{mail.sent.invite.total} · última: {day(mail.sent.invite.last)}</dd></div>
+            <div><dt className="text-xs text-muted">Aliento a suscriptos</dt><dd className="font-semibold">{mail.sent.encourage.total} · último: {day(mail.sent.encourage.last)}</dd></div>
+            <div><dt className="text-xs text-muted">Cumpleaños</dt><dd className="font-semibold">{mail.sent.birthday.total} · último: {day(mail.sent.birthday.last)}</dd></div>
+          </dl>
+          <p className="mt-2 text-sm text-muted">
+            Pendientes hoy: {mail.dueToday.invite} {mail.dueToday.invite === 1 ? "invitación" : "invitaciones"} y {mail.dueToday.encourage} de aliento.
+          </p>
+          <div className="mt-3">
+            <SendCampaignsForm disabled={!mail.ready && mail.problems.some((p) => !p.includes("CRON_SECRET"))} />
+          </div>
+        </Card>
         <nav aria-label="Filtrar por tipo" className="flex flex-wrap gap-2">
           {chip(null, "Todas")}
           {(Object.keys(KINDS) as Kind[]).map((k) => chip(k, KINDS[k].label))}

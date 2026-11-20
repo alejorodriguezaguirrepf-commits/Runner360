@@ -7,6 +7,8 @@ export const pricing = {
   arsPeriodYear: "por año",
   legend: "Se cobra en pesos argentinos, al equivalente en dólares del día. El valor en pesos es aproximado.",
   rateNote: "Cotización: dólar {type} del {date}.",
+  legendArs: "Precio final en pesos argentinos, con débito automático por Mercado Pago.",
+  legendArsYear: "Precio final en pesos argentinos, en un solo pago por Mercado Pago.",
   rateTypes: { oficial: "oficial", mayorista: "mayorista", blue: "blue", bolsa: "MEP", contadoconliqui: "contado con liquidación", tarjeta: "tarjeta" } as Record<string, string>,
   renewal: "Se renueva automáticamente cada mes. Podés cancelar cuando quieras.",
   renewalYear: "Pago único por doce meses. Es un solo pago: no se cobra mes a mes. Te avisamos 15 días antes de que venza.",

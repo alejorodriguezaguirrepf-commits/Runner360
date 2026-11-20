@@ -15,8 +15,8 @@ values
 on conflict (id) do nothing;
 
 insert into public.product_prices (id, product_id, currency, amount_minor, provider, active)
-values ('00000000-0000-4000-8000-000000000111', '00000000-0000-4000-8000-000000000002', 'USD', 2000, null, true),
-       ('00000000-0000-4000-8000-000000000112', '00000000-0000-4000-8000-000000000003', 'USD', 18000, null, true)
+values ('00000000-0000-4000-8000-000000000111', '00000000-0000-4000-8000-000000000002', 'ARS', 2500000, null, true),
+       ('00000000-0000-4000-8000-000000000112', '00000000-0000-4000-8000-000000000003', 'ARS', 25000000, null, true)
 on conflict (id) do nothing;
 
 commit;

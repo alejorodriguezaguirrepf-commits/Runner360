@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { ActionState } from "@/lib/action-state";
 import { requireAdmin, requireSession } from "@/lib/auth";
+import { todayIn } from "@runner360/shared";
 import { logError } from "@/lib/log";
+import { runEmailCampaigns } from "@/lib/notifications/campaigns";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 /** Admin: marca una notificación (o todas) como leída. */
 export async function markAdminNotificationReadAction(formData: FormData): Promise<void> {
@@ -66,4 +69,29 @@ export async function markNoticeSeenAction(formData: FormData): Promise<void> {
   const { error } = await supabase.from("user_notices").update({ seen_at: new Date().toISOString() }).eq("id", id.data);
   if (error) logError("notices:seen", error);
   revalidatePath("/", "layout");
+}
+
+/**
+ * Admin: manda ahora los correos de motivación que tocan hoy (lo mismo que hace la tarea diaria). Es
+ * seguro repetirlo: cada persona recibe uno por tipo y día, y la frecuencia se respeta.
+ */
+export async function sendCampaignsNowAction(_prev: ActionState): Promise<ActionState> {
+  await requireAdmin();
+  const { emailSetupProblems } = await import("@/lib/notifications/campaign-status");
+  const problems = emailSetupProblems().filter((p) => !p.includes("CRON_SECRET"));
+  if (problems.length) return { ok: false, message: problems.join(" ") };
+  const admin = createAdminClient();
+  if (!admin) return { ok: false, message: "Falta la clave de servicio de Supabase (SUPABASE_SERVICE_ROLE_KEY) en Vercel." };
+  try {
+    const r = await runEmailCampaigns(admin, todayIn("America/Argentina/Buenos_Aires"));
+    revalidatePath("/admin/notificaciones");
+    const total = r.sent.invite + r.sent.encourage + r.sent.birthday;
+    const parts = [`${r.sent.invite} invitaciones`, `${r.sent.encourage} de aliento`, `${r.sent.birthday} de cumpleaños`];
+    if (r.failed) return { ok: false, message: `No se pudieron enviar ${r.failed} correos. Enviados: ${parts.join(", ")}. Revisá la clave y el dominio en Resend.` };
+    if (!total) return { ok: true, message: "Hoy no había correos pendientes: a todos ya les llegó el de esta semana." };
+    return { ok: true, message: `Enviados: ${parts.join(", ")}.${r.pending ? ` Quedan ${r.pending} para mañana (tope diario).` : ""}` };
+  } catch (e) {
+    logError("campaigns:manual", e);
+    return { ok: false, message: "No se pudieron enviar los correos. Probá de nuevo en un rato." };
+  }
 }

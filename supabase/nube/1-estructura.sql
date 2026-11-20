@@ -3480,6 +3480,29 @@ revoke execute on function public.my_plan_locked_by_cancellation() from public, 
 grant execute on function public.my_plan_locked_by_cancellation() to authenticated;
 
 
+-- ===== supabase/migrations/20261120000100_prices_ars.sql =====
+-- Precios en pesos argentinos (precio final, sin cotización del dólar): Premium mensual $ 25.000 y
+-- Premium anual $ 250.000. Los precios anteriores quedan desactivados (no se borran) y el cambio queda
+-- en la auditoría de precios. Las suscripciones mensuales que ya existen siguen con el importe con el
+-- que se dieron de alta en Mercado Pago.
+with wanted(code, amount) as (values ('premium_monthly', 2500000::bigint), ('premium_yearly', 25000000::bigint))
+update public.product_prices pr
+set active = false
+from public.subscription_products p, wanted w
+where p.id = pr.product_id and p.code = w.code
+  and pr.active and pr.provider is null
+  and not (pr.currency = 'ARS' and pr.amount_minor = w.amount);
+
+with wanted(code, amount) as (values ('premium_monthly', 2500000::bigint), ('premium_yearly', 25000000::bigint))
+insert into public.product_prices (product_id, currency, amount_minor, provider, active)
+select p.id, 'ARS', w.amount, null, true
+from wanted w join public.subscription_products p on p.code = w.code
+where not exists (
+  select 1 from public.product_prices pr
+  where pr.product_id = p.id and pr.active and pr.provider is null and pr.currency = 'ARS' and pr.amount_minor = w.amount
+);
+
+
 -- ===== supabase/seed/10_products.sql =====
 -- Catálogo inicial de productos y precios (configuración, no datos de usuarios).
 -- Los precios se administran desde /admin/productos; estos valores son solo el punto de partida.
@@ -3497,8 +3520,8 @@ values
 on conflict (id) do nothing;
 
 insert into public.product_prices (id, product_id, currency, amount_minor, provider, active)
-values ('00000000-0000-4000-8000-000000000111', '00000000-0000-4000-8000-000000000002', 'USD', 2000, null, true),
-       ('00000000-0000-4000-8000-000000000112', '00000000-0000-4000-8000-000000000003', 'USD', 18000, null, true)
+values ('00000000-0000-4000-8000-000000000111', '00000000-0000-4000-8000-000000000002', 'ARS', 2500000, null, true),
+       ('00000000-0000-4000-8000-000000000112', '00000000-0000-4000-8000-000000000003', 'ARS', 25000000, null, true)
 on conflict (id) do nothing;
 
 
@@ -3589,6 +3612,7 @@ insert into runner360_meta.schema_migrations (version) values
   ('20261114000100'),
   ('20261114000200'),
   ('20261114000300'),
+  ('20261120000100'),
   ('seed:10_products.sql'),
   ('seed:30_educational_content.sql')
 on conflict do nothing;

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { birthdayEmail, campaignEmail, dueCampaign, variantIndex } from "@/lib/notifications/campaign-texts";
+import { birthdayEmail, campaignEmail, dueCampaign, INVITE_SUBJECT, variantIndex } from "@/lib/notifications/campaign-texts";
 import { runEmailCampaigns } from "@/lib/notifications/campaigns";
 
 const site = "https://runner360.ar";
@@ -133,5 +133,16 @@ describe("Correo de cumpleaños", () => {
   });
   it("escapa el nombre en el HTML", () => {
     expect(birthdayEmail({ ...input, name: "<b>Ana</b>" }).html).not.toContain("<b>Ana</b>");
+  });
+});
+
+describe("Invitación semanal a suscribirse", () => {
+  it("el asunto es siempre «SUSCRIPCIÓN A RUNNER 360», en todas las versiones", () => {
+    expect(INVITE_SUBJECT).toBe("SUSCRIPCIÓN A RUNNER 360");
+    for (let week = 0; week < 8; week++) {
+      const today = new Date(Date.UTC(2026, 10, 2 + week * 7)).toISOString().slice(0, 10);
+      const m = campaignEmail({ kind: "invite", name: "Ana", today, siteUrl: "https://runner360.ar", unsubscribeUrl: "https://runner360.ar/correos/baja?t=x" });
+      expect(m.subject).toBe("SUSCRIPCIÓN A RUNNER 360");
+    }
   });
 });

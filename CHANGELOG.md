@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-11-20 — Precios en pesos y control de los correos
+
+- **Precios en pesos argentinos**: Premium mensual $ 25.000 por mes y Premium anual $ 250.000 (ahorro de $ 50.000 frente a 12 meses). Ya no se muestran dólares ni cotización: es el precio final que cobra Mercado Pago. Migración 20261120000100 (los precios anteriores quedan desactivados), aplicada en producción. El formulario de precios del panel propone pesos.
+- **Invitación semanal**: el asunto es siempre «SUSCRIPCIÓN A RUNNER 360».
+- **Administración → Notificaciones → Correos a usuarios**: muestra si los correos se están enviando y, si no, qué falta configurar; cuántos se mandaron de cada tipo y cuándo; cuántos tocan hoy, y un botón para mandarlos en el momento (sin duplicar: uno por persona, tipo y día).
+
 ## 2026-11-15 — Fuerza: «Día 1 de fuerza» y «Día 2 de fuerza»
 
 - Las sesiones de fuerza ya no se nombran por días de la semana («lunes y jueves»): en Fuerza de la semana, en cada día del plan, en Hoy, en la ficha del plan y en el PDF dicen «Día 1 de fuerza» o «Día 2 de fuerza» según el día que corresponde.

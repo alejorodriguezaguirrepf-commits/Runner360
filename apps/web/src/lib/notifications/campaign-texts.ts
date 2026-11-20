@@ -21,9 +21,12 @@ export function dueCampaign(c: { premium: boolean; last_invite: string | null; l
 
 type Variant = { subject: string; title: string; body: string[]; cta: string };
 
+/** Asunto de la invitación semanal a suscribirse (siempre el mismo). */
+export const INVITE_SUBJECT = "SUSCRIPCIÓN A RUNNER 360";
+
 const INVITES: Variant[] = [
   {
-    subject: "¿Arrancamos esta semana? 🏃",
+    subject: INVITE_SUBJECT,
     title: "Tu próximo objetivo está más cerca de lo que pensás",
     body: [
       "Cada kilómetro suma, y con un plan suma mucho más.",
@@ -33,7 +36,7 @@ const INVITES: Variant[] = [
     cta: "Quiero suscribirme",
   },
   {
-    subject: "Tu próxima carrera empieza hoy ✨",
+    subject: INVITE_SUBJECT,
     title: "Los 5K, los 10K o tu primera maratón: todo arranca con una decisión",
     body: [
       "No hace falta ser profesional para entrenar como uno: hace falta un buen plan y ganas (¡y eso ya lo tenés!).",
@@ -42,7 +45,7 @@ const INVITES: Variant[] = [
     cta: "Ver la suscripción",
   },
   {
-    subject: "Correr con un plan es otra cosa 💪",
+    subject: INVITE_SUBJECT,
     title: "Menos dudas, más kilómetros",
     body: [
       "Saber qué hacer cada día cambia todo: llegás con energía, progresás sin lesionarte y disfrutás cada salida.",
@@ -51,7 +54,7 @@ const INVITES: Variant[] = [
     cta: "Empezar mi plan",
   },
   {
-    subject: "Una semana más cerca de tu meta 🎯",
+    subject: INVITE_SUBJECT,
     title: "¿Y si esta semana es la semana?",
     body: [
       "Las mejores marcas no aparecen de casualidad: se construyen de a poco, con constancia y un plan pensado para vos.",
