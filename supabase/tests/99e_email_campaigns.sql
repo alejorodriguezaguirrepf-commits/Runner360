@@ -24,6 +24,7 @@ select pg_temp.check((select count(*) from public.email_preferences where user_i
 set role service_role;
 select pg_temp.check((select count(*) from public.email_campaign_candidates() where email like 'mail-%@test.local') = 2, 'destinatarios: solo correos confirmados');
 select pg_temp.check((select premium from public.email_campaign_candidates() where email = 'mail-uno@test.local') = false, 'sin suscripción');
+select pg_temp.check((select pay_token is not null and pay_token <> unsubscribe_token from public.email_campaign_candidates() where email = 'mail-uno@test.local'), 'código de pago propio, distinto del de baja');
 insert into public.email_sends (user_id, kind) values ('ae400000-0000-4000-8000-0000000000a4', 'invite');
 select pg_temp.check((select last_invite from public.email_campaign_candidates() where email = 'mail-uno@test.local') = current_date, 'último envío');
 select pg_temp.expect_error($$insert into public.email_sends (user_id, kind) values ('ae400000-0000-4000-8000-0000000000a4', 'invite')$$, 'uno por día y tipo');

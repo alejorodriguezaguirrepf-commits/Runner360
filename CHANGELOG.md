@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-11-23 — Pagar la suscripción desde el correo
+
+- La invitación semanal («SUSCRIPCIÓN A RUNNER 360») muestra primero los dos planes con su precio (mensual $ 25.000 y anual $ 250.000, con el ahorro) y un botón de pago para cada uno; después, el mensaje de siempre, y al final, en letra chica, «¿Preferís entrar a la app? Iniciá sesión».
+- Los botones llevan a una página que pasa sola a Mercado Pago, sin iniciar sesión: cada persona tiene un código de pago propio (distinto del de baja) que solo sirve para pagar su propia suscripción. Se aplican las mismas reglas de compra que en la app. Al volver de Mercado Pago, el pago se confirma en el momento.
+- Si no se pueden leer los precios, el correo sale como antes.
+- Migración 20261123000100 (código de pago por persona).
+
 ## 2026-11-20 — Precios en pesos y control de los correos
 
 - **Precios en pesos argentinos**: Premium mensual $ 25.000 por mes y Premium anual $ 250.000 (ahorro de $ 50.000 frente a 12 meses). Ya no se muestran dólares ni cotización: es el precio final que cobra Mercado Pago. Migración 20261120000100 (los precios anteriores quedan desactivados), aplicada en producción. El formulario de precios del panel propone pesos.

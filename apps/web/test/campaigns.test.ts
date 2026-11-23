@@ -146,3 +146,35 @@ describe("Invitación semanal a suscribirse", () => {
     }
   });
 });
+
+describe("Invitación con precios y pago desde el correo", () => {
+  const offer = {
+    monthly: { price: "$ 25.000", payUrl: "https://runner360.ar/pagar/tok?plan=mensual" },
+    yearly: { price: "$ 250.000", payUrl: "https://runner360.ar/pagar/tok?plan=anual", savings: "$ 50.000" },
+    loginUrl: "https://runner360.ar/ingresar",
+  };
+  const base = { kind: "invite" as const, name: "Ana", today: "2026-11-23", siteUrl: "https://runner360.ar", unsubscribeUrl: "https://runner360.ar/correos/baja?t=x" };
+  it("los precios y los botones de pago van primero; iniciar sesión, al final y en chico", () => {
+    const m = campaignEmail({ ...base, offer });
+    const html = m.html;
+    expect(m.subject).toBe("SUSCRIPCIÓN A RUNNER 360");
+    expect(html).toContain("$ 25.000");
+    expect(html).toContain("$ 250.000");
+    expect(html).toContain("Ahorrás $ 50.000");
+    expect(html).toContain('href="https://runner360.ar/pagar/tok?plan=mensual"');
+    expect(html).toContain('href="https://runner360.ar/pagar/tok?plan=anual"');
+    expect(html.indexOf("$ 25.000")).toBeLessThan(html.indexOf("Iniciá sesión"));
+    expect(html).toMatch(/font-size:12px[^>]*>¿Preferís entrar a la app\? <a href="https:\/\/runner360\.ar\/ingresar"/);
+    expect(html).not.toContain("Quiero suscribirme");
+    expect(m.text).toContain("Plan mensual: $ 25.000 por mes");
+    expect(m.text).toContain("Pagar: https://runner360.ar/pagar/tok?plan=anual");
+  });
+  it("sin precios (por si fallan), queda la invitación de siempre", () => {
+    const m = campaignEmail({ ...base, offer: null });
+    expect(m.html).not.toContain("/pagar/");
+    expect(m.html).toMatch(/href="https:\/\/runner360\.ar\/(suscripcion|planes)"/);
+  });
+  it("el aliento a suscriptos no lleva precios", () => {
+    expect(campaignEmail({ ...base, kind: "encourage", offer }).html).not.toContain("/pagar/");
+  });
+});

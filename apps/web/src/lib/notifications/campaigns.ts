@@ -3,11 +3,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicEnv, readEnv } from "@/lib/env";
 import { logError } from "@/lib/log";
 import { canonicalSiteUrl } from "@/lib/site-url";
-import { birthdayEmail, campaignEmail, dueCampaign, type CampaignKind } from "./campaign-texts";
+import { getPricedProducts } from "@/lib/data/pricing";
+import { birthdayEmail, campaignEmail, dueCampaign, type CampaignKind, type InviteOffer } from "./campaign-texts";
 import { isUserEmailConfigured, sendUserEmailBatch } from "./email";
 
 type BirthdayCandidate = { user_id: string; email: string; display_name: string | null; unsubscribe_token: string };
-type Candidate = { user_id: string; email: string; display_name: string | null; premium: boolean; last_invite: string | null; last_encourage: string | null; unsubscribe_token: string };
+type Candidate = { user_id: string; email: string; display_name: string | null; premium: boolean; last_invite: string | null; last_encourage: string | null; unsubscribe_token: string; pay_token: string | null };
 
 /** Tope diario de envíos (el plan gratis de Resend permite 100 por día). Se cambia con EMAIL_CAMPAIGN_DAILY_LIMIT. */
 function dailyLimit(): number {
@@ -18,7 +19,23 @@ function dailyLimit(): number {
 const site = () => canonicalSiteUrl({ configured: publicEnv.configuredSiteUrl, vercelProductionUrl: readEnv("VERCEL_PROJECT_PRODUCTION_URL") }) || "https://runner360.ar";
 
 type SendKind = CampaignKind | "birthday";
-type Outgoing = { c: { user_id: string; email: string; display_name: string | null; unsubscribe_token: string }; kind: SendKind };
+type Outgoing = { c: { user_id: string; email: string; display_name: string | null; unsubscribe_token: string; pay_token?: string | null }; kind: SendKind };
+
+/** Precios de la invitación (los mismos de la app) y armado de los links de pago de cada persona. */
+async function inviteOffer(admin: SupabaseClient, base: string): Promise<((payToken: string | null | undefined) => InviteOffer | null) | null> {
+  const products = await getPricedProducts(admin).catch(() => null);
+  const monthly = products?.find((p) => p.code === "premium_monthly" && p.priceLabel);
+  const yearly = products?.find((p) => p.code === "premium_yearly" && p.priceLabel);
+  if (!monthly?.priceLabel || !yearly?.priceLabel) return null;
+  return (payToken) =>
+    payToken
+      ? {
+          monthly: { price: monthly.priceLabel!, payUrl: `${base}/pagar/${payToken}?plan=mensual` },
+          yearly: { price: yearly.priceLabel!, payUrl: `${base}/pagar/${payToken}?plan=anual`, savings: yearly.savings?.label ?? null },
+          loginUrl: `${base}/ingresar`,
+        }
+      : null;
+}
 
 /**
  * Tarea diaria: felicitación a quienes cumplen años hoy, invitación semanal a quienes no tienen
@@ -45,6 +62,7 @@ export async function runEmailCampaigns(admin: SupabaseClient, today: string): P
   const batch = due.slice(0, dailyLimit());
   result.pending = due.length - batch.length;
   const base = site();
+  const offerFor = batch.some((x) => x.kind === "invite") ? await inviteOffer(admin, base) : null;
   // De a 50 por llamada a Resend.
   for (let i = 0; i < batch.length; i += 50) {
     const chunk = batch.slice(i, i + 50);
@@ -55,7 +73,7 @@ export async function runEmailCampaigns(admin: SupabaseClient, today: string): P
         const mail =
           kind === "birthday"
             ? birthdayEmail({ name: c.display_name, today, siteUrl: base, unsubscribeUrl })
-            : campaignEmail({ kind, name: c.display_name, today, siteUrl: base, unsubscribeUrl });
+            : campaignEmail({ kind, name: c.display_name, today, siteUrl: base, unsubscribeUrl, offer: kind === "invite" ? (offerFor?.(c.pay_token) ?? null) : null });
         return { to: c.email, oneClickUrl, ...mail };
       }),
     );

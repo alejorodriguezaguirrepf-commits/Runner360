@@ -119,10 +119,45 @@ const firstName = (name: string | null) => (name ?? "").trim().split(/\s+/)[0] ?
 
 type Rendered = { subject: string; text: string; html: string };
 
-/** Arma el correo (texto y HTML) con el estilo de RUNNER 360. */
-function render(input: { subject: string; hi: string; title: string; body: string[]; cta: string; link: string; footer: string; unsubscribeUrl: string }): Rendered {
-  const { hi, title, body, cta, link, footer, unsubscribeUrl } = input;
-  const text = [hi, "", title, "", ...body.flatMap((p) => [p, ""]), `${cta}: ${link}`, "", "—", footer, `Para dejar de recibir estos correos: ${unsubscribeUrl}`].join("\n");
+/**
+ * Precios y links de pago de la invitación (el link lleva directo a Mercado Pago, sin iniciar sesión).
+ * Precios como se muestran en la app ("$ 25.000"); `savings`: ahorro del anual ("$ 50.000").
+ */
+export type InviteOffer = {
+  monthly: { price: string; payUrl: string };
+  yearly: { price: string; payUrl: string; savings: string | null };
+  loginUrl: string;
+};
+
+/** Bloque principal de la invitación: los dos planes con su botón de pago. */
+function offerHtml(o: InviteOffer): string {
+  const card = (name: string, price: string, period: string, note: string, url: string, cta: string, primary: boolean) =>
+    `<td width="50%" valign="top" style="padding:6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:2px solid ${primary ? "#18a999" : "#e3e8ef"};border-radius:14px"><tr><td style="padding:18px 16px;text-align:center">
+<p style="margin:0;font-size:13px;font-weight:bold;letter-spacing:.5px;text-transform:uppercase;color:#5b6b80">${escape(name)}</p>
+<p style="margin:8px 0 2px;font-size:24px;font-weight:bold;color:#101c2c;white-space:nowrap">${escape(price)}</p>
+<p style="margin:0 0 6px;font-size:13px;color:#5b6b80">${escape(period)}</p>
+<p style="margin:0 0 14px;font-size:13px;line-height:1.4;color:#101c2c;min-height:36px">${escape(note)}</p>
+<a href="${escape(url)}" style="display:block;background:${primary ? "#18a999" : "#101c2c"};color:${primary ? "#101c2c" : "#ffffff"};text-decoration:none;font-weight:bold;padding:13px 10px;border-radius:12px;font-size:15px">${escape(cta)}</a>
+</td></tr></table></td>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:4px 0 22px"><tr>
+${card("Plan mensual", o.monthly.price, "por mes", "Débito automático. Cancelás cuando quieras.", o.monthly.payUrl, "Pagar el mensual", true)}
+${card("Plan anual", o.yearly.price, "por año, en un pago", o.yearly.savings ? `Ahorrás ${o.yearly.savings} frente a 12 meses.` : "Tu plan completo desde el primer día.", o.yearly.payUrl, "Pagar el anual", false)}
+</tr></table>`;
+}
+
+function offerText(o: InviteOffer): string[] {
+  return [
+    `Plan mensual: ${o.monthly.price} por mes (débito automático, cancelás cuando quieras). Pagar: ${o.monthly.payUrl}`,
+    `Plan anual: ${o.yearly.price} por año, en un pago${o.yearly.savings ? ` (ahorrás ${o.yearly.savings})` : ""}. Pagar: ${o.yearly.payUrl}`,
+    "",
+  ];
+}
+
+/** Arma el correo (texto y HTML) con el estilo de RUNNER 360. Con `offer`, los planes y el pago van primero. */
+function render(input: { subject: string; hi: string; title: string; body: string[]; cta: string; link: string; footer: string; unsubscribeUrl: string; offer?: InviteOffer }): Rendered {
+  const { hi, title, body, cta, link, footer, unsubscribeUrl, offer } = input;
+  const close = offer ? [`¿Preferís entrar a la app? Iniciá sesión: ${offer.loginUrl}`] : [`${cta}: ${link}`];
+  const text = [hi, "", title, "", ...(offer ? offerText(offer) : []), ...body.flatMap((p) => [p, ""]), ...close, "", "—", footer, `Para dejar de recibir estos correos: ${unsubscribeUrl}`].join("\n");
   const html = `<!doctype html><html lang="es-AR"><body style="margin:0;background:#f5f7fa;font-family:Arial,Helvetica,sans-serif;color:#101c2c">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f7fa;padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden">
@@ -130,8 +165,13 @@ function render(input: { subject: string; hi: string; title: string; body: strin
 <tr><td style="padding:28px">
 <p style="margin:0 0 8px;font-size:16px">${escape(hi)}</p>
 <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3">${escape(title)}</h1>
+${offer ? offerHtml(offer) : ""}
 ${body.map((p) => `<p style="margin:0 0 14px;font-size:16px;line-height:1.5">${escape(p)}</p>`).join("\n")}
-<p style="margin:24px 0 8px"><a href="${escape(link)}" style="display:inline-block;background:#18a999;color:#101c2c;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:12px;font-size:16px">${escape(cta)}</a></p>
+${
+  offer
+    ? `<p style="margin:20px 0 0;font-size:12px;line-height:1.5;color:#5b6b80">¿Preferís entrar a la app? <a href="${escape(offer.loginUrl)}" style="color:#0a7266">Iniciá sesión</a> y suscribite desde ahí.</p>`
+    : `<p style="margin:24px 0 8px"><a href="${escape(link)}" style="display:inline-block;background:#18a999;color:#101c2c;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:12px;font-size:16px">${escape(cta)}</a></p>`
+}
 </td></tr>
 <tr><td style="padding:16px 28px 24px;border-top:1px solid #e3e8ef;font-size:12px;color:#5b6b80;line-height:1.5">
 ${escape(footer)} <a href="${escape(unsubscribeUrl)}" style="color:#0a7266">Dejar de recibir estos correos</a>.<br>RUNNER 360 · runner360.ar
@@ -139,7 +179,7 @@ ${escape(footer)} <a href="${escape(unsubscribeUrl)}" style="color:#0a7266">Deja
   return { subject: input.subject, text, html };
 }
 
-export function campaignEmail(input: { kind: CampaignKind; name: string | null; today: string; siteUrl: string; unsubscribeUrl: string }): Rendered {
+export function campaignEmail(input: { kind: CampaignKind; name: string | null; today: string; siteUrl: string; unsubscribeUrl: string; offer?: InviteOffer | null }): Rendered {
   const i = variantIndex(input.kind, input.today);
   const v = (input.kind === "invite" ? INVITES : ENCOURAGES)[i]!;
   const hi = firstName(input.name) ? `¡Hola, ${firstName(input.name)}!` : "¡Hola!";
@@ -147,7 +187,8 @@ export function campaignEmail(input: { kind: CampaignKind; name: string | null; 
     input.kind === "invite"
       ? "Recibís este correo porque tenés una cuenta en RUNNER 360."
       : "Recibís este correo porque tenés una suscripción en RUNNER 360.";
-  return render({ ...v, hi, link: `${input.siteUrl}${CTA_PATH[input.kind][i]}`, footer, unsubscribeUrl: input.unsubscribeUrl });
+  const offer = input.kind === "invite" && input.offer ? input.offer : undefined;
+  return render({ ...v, hi, link: `${input.siteUrl}${CTA_PATH[input.kind][i]}`, footer, unsubscribeUrl: input.unsubscribeUrl, offer });
 }
 
 const BIRTHDAYS: Omit<Variant, "subject">[] = [
